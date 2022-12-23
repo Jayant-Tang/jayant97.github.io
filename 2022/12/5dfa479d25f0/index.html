@@ -1,0 +1,355 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>使用Ubuntu进行WiFi抓包 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 前言​	在之前的文章里，我介绍了如何在Windows中使用NPCAP把无线网卡变为monitor模式，并用Wireshark进行抓包。但是Windows下支持monitor的无线网卡实在是太少了，笔记本自带的PCIE无线网卡更是无法支持。	 ​	本文介绍如何在Linux系统下进行WiFi的抓包，并且在本地或者用另一台Windows电脑的Wireshark进行实时分析。 ​	本文使用的硬件环境">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Ubuntu进行WiFi抓包">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/5dfa479d25f0/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 前言​	在之前的文章里，我介绍了如何在Windows中使用NPCAP把无线网卡变为monitor模式，并用Wireshark进行抓包。但是Windows下支持monitor的无线网卡实在是太少了，笔记本自带的PCIE无线网卡更是无法支持。	 ​	本文介绍如何在Linux系统下进行WiFi的抓包，并且在本地或者用另一台Windows电脑的Wireshark进行实时分析。 ​	本文使用的硬件环境">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216162542858.png">
+<meta property="article:published_time" content="2022-12-16T08:12:28.000Z">
+<meta property="article:modified_time" content="2022-12-23T08:01:20.436Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Wireshark">
+<meta property="article:tag" content="WiFi">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216162542858.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2022/12/5dfa479d25f0/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '使用Ubuntu进行WiFi抓包',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-12-23 16:01:20'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216162542858.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/jayant97.github.io/">一苇万顷</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">使用Ubuntu进行WiFi抓包</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-12-16T08:12:28.000Z" title="发表于 2022-12-16 16:12:28">2022-12-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-12-23T08:01:20.436Z" title="更新于 2022-12-23 16:01:20">2022-12-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="使用Ubuntu进行WiFi抓包"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2022/12/5dfa479d25f0/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>​	在之前的文章里，我介绍了如何在Windows中使用NPCAP把无线网卡变为monitor模式，并用Wireshark进行抓包。但是Windows下支持monitor的无线网卡实在是太少了，笔记本自带的PCIE无线网卡更是无法支持。	</p>
+<p>​	本文介绍如何在Linux系统下进行WiFi的抓包，并且在本地或者用另一台Windows电脑的Wireshark进行实时分析。</p>
+<p>​	本文使用的硬件环境：</p>
+<ul>
+<li>Ubuntu笔记本电脑：<ul>
+<li>操作系统：Ubuntu 22.04</li>
+<li>WiFi网卡：Intel(R) Wi-Fi 6E AX211 160MHz （支持WiFi6E）</li>
+<li>有线网口（可选）：WiFi网卡变成monitor模式后，用有线网让Windows电脑远程连接到Ubuntu电脑</li>
+</ul>
+</li>
+<li>路由器：支持wifi6的路由器</li>
+<li>手机：支持wifi6的手机</li>
+<li>Windows笔记本电脑（可选）</li>
+</ul>
+<p>​	示意图如下，虚线内容是可选的：</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216162542858.png" alt="image-20221216162542858"></p>
+<blockquote>
+<p>在linux下查看自己的WiFi网卡是否支持抓包：</p>
+<p><strong>网卡驱动已经安装的情况</strong>：</p>
+<ol>
+<li><p>查看自己电脑上的所有网卡，并查看其驱动：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo lshw -C network                                                            </span><br><span class="line">   [sudo] password <span class="keyword">for</span> jayant:</span><br><span class="line">  *-network</span><br><span class="line">       description: Wireless interface</span><br><span class="line">       product: Alder Lake-P PCH CNVi WiFi</span><br><span class="line">       vendor: Intel Corporation</span><br><span class="line">      ...</span><br><span class="line">       logical name: wlp0s20f3mon</span><br><span class="line">      ...</span><br><span class="line">      ...</span><br><span class="line">       configuration: broadcast=<span class="built_in">yes</span> driver=iwlwifi driverversion=5.15.0-56-generic firmware=64.97bbee0a.0 so-a0-gf-a0-64.uc latency=0 <span class="built_in">link</span>=<span class="built_in">yes</span> multicast=<span class="built_in">yes</span> wireless=IEEE 802.11</span><br><span class="line">       resources: iomemory:600-5ff irq:16 memory:601d1cc000-601d1cffff</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>  可以看到 在configuration中，<code>driver=iwlwifi</code>，说明wifi网卡的驱动是<code>iwlwifi</code>。</p>
+<ol start="2">
+<li>在<a target="_blank" rel="noopener" href="https://wireless.wiki.kernel.org/en/users/drivers">Linux Wireless</a>网站中搜索这个驱动，可以看到这个驱动是支持monitor模式的，说明可以用来抓包：</li>
+</ol>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216232607399.png" alt="image-20221216232607399"></p>
+<p><strong>网卡驱动未安装的情况</strong></p>
+<ol>
+<li>如果<code>ifconfig</code>和<code>iwconfig</code>看不到无线网卡，则可能是没有驱动</li>
+<li>根据是USB网卡还是PCIE网卡，可以先执行<code>lsusb</code>和<code>lspci</code>来看一下是否能识别到硬件</li>
+<li>如果能识别到硬件，再去google上搜索此款网卡的驱动，并在<a target="_blank" rel="noopener" href="https://wireless.wiki.kernel.org/en/users/drivers">Linux Wireless</a>网站上搜索此驱动是否支持Monitor模式。</li>
+</ol>
+</blockquote>
+<h1 id="2-在Linux环境下进行抓包"><a href="#2-在Linux环境下进行抓包" class="headerlink" title="2. 在Linux环境下进行抓包"></a>2. 在Linux环境下进行抓包</h1><p>​	本节参考的文章：<a target="_blank" rel="noopener" href="https://www.aneasystone.com/archives/2016/08/wireless-analysis-one-monitoring.html">实战无线网络分析（篇一）无线监听 - aneasystone’s blog</a></p>
+<h2 id="2-1-安装工具"><a href="#2-1-安装工具" class="headerlink" title="2.1. 安装工具"></a>2.1. 安装工具</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo apt install -y wireshark net-tools wireless-tools aircrack-ng</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-2-无线网卡改为Monitor模式"><a href="#2-2-无线网卡改为Monitor模式" class="headerlink" title="2.2. 无线网卡改为Monitor模式"></a>2.2. 无线网卡改为Monitor模式</h2><blockquote>
+<p>注意，在Linux系统中，当一个无线网卡被改为Monitor模式后，就无法用来上网了。</p>
+</blockquote>
+<p>​	查看无线网卡名称：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ iwconfig</span><br><span class="line">lo        no wireless extensions.</span><br><span class="line"></span><br><span class="line">wlp0s20f3  IEEE 802.11  ESSID:off/any</span><br><span class="line">          Mode:Managed  Access Point: Not-Associated   Tx-Power=-2147483648 dBm</span><br><span class="line">          Retry short <span class="built_in">limit</span>:7   RTS thr:off   Fragment thr:off</span><br><span class="line">          Power Management:on</span><br><span class="line"></span><br><span class="line">enx000ec6259ae4  no wireless extensions.</span><br></pre></td></tr></table></figure>
+
+<p>​	可以看到网卡名称是<code>wlp0s20f3</code></p>
+<p>​	将网卡改为Monitor模式：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo airmon-ng start wlp0s20f3        </span><br><span class="line"></span><br><span class="line">PHY    Interface	Driver		Chipset</span><br><span class="line"></span><br><span class="line">phy0    wlp0s20f3	iwlwifi		Intel Corporation Alder Lake-P PCH CNVi WiFi (rev 01)</span><br><span class="line">        (mac80211 monitor mode vif enabled <span class="keyword">for</span> [phy0]wlp0s20f3 on [phy0]wlp0s20f3mon)</span><br><span class="line">        (mac80211 station mode vif disabled <span class="keyword">for</span> [phy0]wlp0s20f3)</span><br></pre></td></tr></table></figure>
+
+<p>​	这时使用<code>iwconfig</code>查看，会出现一个新的网卡，<strong>网卡名称也发生了改变</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">~$ iwconfig</span><br><span class="line">lo        no wireless extensions.</span><br><span class="line"></span><br><span class="line">enx000ec6259ae4  no wireless extensions.</span><br><span class="line"></span><br><span class="line">wlp0s20f3mon  IEEE 802.11  Mode:Monitor  Frequency:2.457 GHz  Tx-Power=-2147483648 dBm</span><br><span class="line">          Retry short <span class="built_in">limit</span>:7   RTS thr:off   Fragment thr:off</span><br></pre></td></tr></table></figure>
+
+<p>可以看到名称变为<code>wlp0s20f3mon</code>，并且Mode变为了Monitor</p>
+<blockquote>
+<p>注意：</p>
+<p>​	有些教程会让你使用<code>sudo airmon-ng check kill</code>来自动杀死一些会影响Monitor网卡的守护进程，这些进程可能会导致网卡的信道被切换，也可能把网卡切回Managed模式。</p>
+<p>​	但是这样直接杀死 Network Manager，会导致其他的网卡（比如有线网络）在拔掉后也无法自动连回。目前比较好的解决方法是：使用<code>nmtui</code>命令（NetworkManager的图形菜单），在Edit Connection中，把你要抓包的这张网卡记住的WiFi都改成“不自动连接”，这样你的网卡就不会被Network Manager改回Manged模式了。</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221223152925995.png" alt="image-20221223152925995"></p>
+</blockquote>
+<h2 id="2-3-在Linux中进行抓包"><a href="#2-3-在Linux中进行抓包" class="headerlink" title="2.3. 在Linux中进行抓包"></a>2.3. 在Linux中进行抓包</h2><p>首先，以root权限打开Wireshark</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo wireshark</span><br></pre></td></tr></table></figure>
+
+<p>然后，在”Capture –&gt; Options…”窗口中，可以看到<code>wlp0s20f3mon</code>网卡：</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216165935706.png" alt="image-20221216165935706"></p>
+<blockquote>
+<p>注意到Monitor Mode栏并不能打勾，但是没关系，网卡本身已经是Monitor模式了</p>
+</blockquote>
+<p>​	</p>
+<h2 id="2-4-设置要抓包的信道"><a href="#2-4-设置要抓包的信道" class="headerlink" title="2.4. 设置要抓包的信道"></a>2.4. 设置要抓包的信道</h2><p>​	本节参考：<a target="_blank" rel="noopener" href="https://netbeez.net/blog/linux-channel-hopping-wifi-packet-capturing/">Linux for Network Engineers: How to do channel hopping during WiFi packet capturing | NetBeez</a></p>
+<h3 id="2-4-1-信道与带宽介绍"><a href="#2-4-1-信道与带宽介绍" class="headerlink" title="2.4.1. 信道与带宽介绍"></a>2.4.1. 信道与带宽介绍</h3><p>​	在Monitor模式下，只能扫描<strong>固定的信道和带宽</strong>。为了能够找到自己想要抓的设备到底在哪个信道进行通信，需要先进行<strong>跳频Channel Hopping）</strong>。跳频时，不可避免的会扫不到一些包，但是等找到自己想要监听的信道之后，再切回固定信道的方式即可。</p>
+<blockquote>
+<p>什么是WiFi的信道和带宽？</p>
+<p>​	不同版本的WiFi协议，其无线电载波工作在不同的频率上，常见的如2.4 GHz和5 GHz。但这都不是指一个频率的值，而是指一个范围。因为固定频率的波是无法承载信息的，只有能切换频率的波才能承载信息。把这个频率范围分成很多份，就是<strong>信道</strong>，每个信道的频率宽度称为<strong>带宽</strong>。</p>
+<p>例如：2.4 GHz （802.11 b&#x2F;g&#x2F;n）频段分配，共有14个信道</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/langzh-880px-2.4_GHz_Wi-Fi_channels_(802.11b,g_WLAN).svg.png" alt="img"></p>
+<p>​	如果每个信道的带宽是22MHz，那么2.4G最多只能同时使用三个信道（1，6和11）。14信道是特殊的，大多数国家不允许使用。<br>​	如果信道带宽是20MHz，那么最多可以同时使用四个信道（1，5，9，13）.</p>
+<p>​	同理，5GHz频段，信道从5.000GHz（信道0）开始编码，每5MHz一个信道。但FCC开放的频率从5.150GHz开始，故实际使用的信道是从36开始的，频宽20MHz，可用信道每次+4，如36，40，44，48 … 64 。</p>
+<p>​	每个国家可用的信道，可参考：<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%97%A0%E7%BA%BF%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BF%A1%E9%81%93%E5%88%97%E8%A1%A8">无线局域网信道列表 - 维基百科，自由的百科全书 (wikipedia.org)</a></p>
+</blockquote>
+<p>​	</p>
+<p>​	查看自己无线网卡<strong>支持</strong>的信道：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以下命令将输出大量信息</span></span><br><span class="line">$ iw list</span><br><span class="line">Wiphy phy0</span><br><span class="line">        ... </span><br><span class="line">        Available Antennas: TX 0x3 RX 0x3   <span class="comment"># 天线数量</span></span><br><span class="line">        Configured Antennas: TX 0x3 RX 0x3</span><br><span class="line">        Supported interface modes:          <span class="comment"># 网卡支持的模式</span></span><br><span class="line">                 * IBSS</span><br><span class="line">                 * managed</span><br><span class="line">                 * AP</span><br><span class="line">                 * AP/VLAN</span><br><span class="line">                 * monitor   <span class="comment"># 支持 monitor</span></span><br><span class="line">                 * P2P-client</span><br><span class="line">                 * P2P-GO</span><br><span class="line">                 * P2P-device</span><br><span class="line">        Band 1:</span><br><span class="line">                ...</span><br><span class="line">                Frequencies: <span class="comment"># 2.4 GHz 信道，disabled为不可用</span></span><br><span class="line">                        * 2412 MHz [1] (22.0 dBm)</span><br><span class="line">                        * 2417 MHz [2] (22.0 dBm)</span><br><span class="line">                        * 2422 MHz [3] (22.0 dBm)</span><br><span class="line">                        * 2427 MHz [4] (22.0 dBm)</span><br><span class="line">                        * 2432 MHz [5] (22.0 dBm)</span><br><span class="line">                        * 2437 MHz [6] (22.0 dBm)</span><br><span class="line">                        * 2442 MHz [7] (22.0 dBm)</span><br><span class="line">                        * 2447 MHz [8] (22.0 dBm)</span><br><span class="line">                        * 2452 MHz [9] (22.0 dBm)</span><br><span class="line">                        * 2457 MHz [10] (22.0 dBm)</span><br><span class="line">                        * 2462 MHz [11] (22.0 dBm)</span><br><span class="line">                        * 2467 MHz [12] (22.0 dBm)</span><br><span class="line">                        * 2472 MHz [13] (22.0 dBm)</span><br><span class="line">                        * 2484 MHz [14] (disabled)</span><br><span class="line">        Band 2:</span><br><span class="line">               ...</span><br><span class="line">                Frequencies: <span class="comment"># 5 GHz 信道，disabled为不可用</span></span><br><span class="line">                        * 5180 MHz [36] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5200 MHz [40] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5220 MHz [44] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5240 MHz [48] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5260 MHz [52] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        * 5280 MHz [56] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        * 5300 MHz [60] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        * 5320 MHz [64] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        * 5340 MHz [68] (disabled)</span><br><span class="line">                        ...</span><br><span class="line">                        * 5480 MHz [96] (disabled)</span><br><span class="line">                        * 5500 MHz [100] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        ...</span><br><span class="line">                        * 5720 MHz [144] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        * 5745 MHz [149] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5765 MHz [153] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5785 MHz [157] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5805 MHz [161] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5825 MHz [165] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5845 MHz [169] (disabled)</span><br><span class="line">                        ...</span><br><span class="line">                        * 5905 MHz [181] (disabled)</span><br><span class="line">        Band 4:</span><br><span class="line">                ...</span><br><span class="line">                Frequencies:  <span class="comment"># 6 GHz 信道，中国不可用</span></span><br><span class="line">                        * 5955 MHz [1] (disabled)</span><br><span class="line">                        ...</span><br><span class="line">                        ...</span><br><span class="line">                        * 7115 MHz [233] (disabled)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>​	</p>
+<p>​	查看无线网卡<strong>当前</strong>的信道和带宽：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ iw wlp0s20f3mon info</span><br><span class="line">Interface wlp0s20f3mon</span><br><span class="line">        ifindex 4</span><br><span class="line">        wdev 0x3</span><br><span class="line">        addr 00:93:37:90:08:3a</span><br><span class="line">        <span class="built_in">type</span> monitor</span><br><span class="line">        wiphy 0</span><br><span class="line">        channel 10 (2457 MHz), width: 20 MHz (no HT), center1: 2457 MHz</span><br><span class="line">        txpower 0.00 dBm</span><br></pre></td></tr></table></figure>
+
+<p>​	可以看到，当前使用信道10，带宽20MHz，这与Wireshark中的信息是一致的，说明我们目前只能抓到信道10、带宽20MHz的包：</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221217162609725.png" alt="image-20221217162609725"></p>
+<h3 id="2-4-2-修改信道与带宽"><a href="#2-4-2-修改信道与带宽" class="headerlink" title="2.4.2.  修改信道与带宽"></a>2.4.2.  修改信道与带宽</h3><p>​	由于Wireshark不提供切换信道的功能。我们只能自己手动切换信道和带宽，举例：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo iw dev wlp0s20f3mon <span class="built_in">set</span> channel 149 80MHz</span><br><span class="line"><span class="comment"># 网卡名：wlp0s20f3mon</span></span><br><span class="line"><span class="comment"># 频道：149</span></span><br><span class="line"><span class="comment"># 带宽：可选的参数有</span></span><br><span class="line"><span class="comment">#     NOHT  : 不使用802.11n，基本很少用</span></span><br><span class="line"><span class="comment">#     HT20  : 802.11n/ac/ax 20MHz频宽</span></span><br><span class="line"><span class="comment">#     HT40+ : 802.11n/ac/ax 双20MHz，控制信道比扩展信道频率高</span></span><br><span class="line"><span class="comment">#     HT40- : 802.11n/ac/ax 双20MHz，控制信道比扩展信道频率低</span></span><br><span class="line"><span class="comment">#    5MHz  : 5MHz，基本很少用</span></span><br><span class="line"><span class="comment">#     10MHz : 10MHz，基本很少用</span></span><br><span class="line"><span class="comment">#    80MHz : 802.11ac/ax</span></span><br><span class="line"><span class="comment">#     160MHz: 802.11ac/ax</span></span><br></pre></td></tr></table></figure>
+
+<p>​	以上命令，是可以在抓包时<strong>实时</strong>执行的，无需重启Wireshark，可以看到信道立即发生了改变：</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221217163934869.png" alt="image-20221217163934869"></p>
+<h3 id="2-4-3-实时跳频"><a href="#2-4-3-实时跳频" class="headerlink" title="2.4.3. 实时跳频"></a>2.4.3. 实时跳频</h3><p>​	<strong>信道×带宽</strong>的排列组合选项太多，我们不知道哪些组合是合法的，以及自己的网卡是否支持这些组合。我们需要2个脚本，来自动帮我们完成一些工作：</p>
+<ul>
+<li>配置识别：自动识别出当前网卡哪些<strong>信道</strong>+<strong>带宽</strong>的排列组合是合法的，并记录下来</li>
+<li>自动跳频：在前一个脚本的范围内，无限循环跳频扫描</li>
+</ul>
+<p>第一个脚本，<strong>配置识别</strong>：</p>
+<p><code>test-channels.sh</code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># Make sure that the wifi adapter below is in Monitor mode.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Wi-Fi Adapter</span></span><br><span class="line">DEFAULT_INTERFACE=<span class="string">&quot;wlp0s20f3mon&quot;</span></span><br><span class="line"></span><br><span class="line">channels_24=<span class="string">&quot;1 2 3 4 5 6 7 8 9 10 11 12 13 14&quot;</span></span><br><span class="line">channels_50=<span class="string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 165&quot;</span></span><br><span class="line"></span><br><span class="line">widths=<span class="string">&quot;HT20 HT40+ HT40- 80MHz 160MHz&quot;</span></span><br><span class="line"></span><br><span class="line">result_2g4=<span class="string">&quot;&quot;</span></span><br><span class="line">result_5g=<span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">current_user=$(<span class="built_in">whoami</span>)</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$current_user</span>&quot;</span> != <span class="string">&quot;root&quot;</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;[Error] Please run this script with sudo!&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> width <span class="keyword">in</span> <span class="variable">$&#123;widths&#125;</span>;<span class="keyword">do</span></span><br><span class="line"></span><br><span class="line">    valid_channels=<span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> channel <span class="keyword">in</span> <span class="variable">$&#123;channels_24&#125;</span>; <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">if</span> iw dev <span class="variable">$&#123;DEFAULT_INTERFACE&#125;</span> <span class="built_in">set</span> channel <span class="string">&quot;<span class="variable">$&#123;channel&#125;</span>&quot;</span> <span class="string">&quot;<span class="variable">$&#123;width&#125;</span>&quot;</span>; <span class="keyword">then</span></span><br><span class="line">            <span class="keyword">if</span> iw <span class="variable">$&#123;DEFAULT_INTERFACE&#125;</span> info | grep <span class="string">&quot;channel <span class="variable">$&#123;channel&#125;</span>&quot;</span>; <span class="keyword">then</span></span><br><span class="line">                valid_channels=<span class="string">&quot;<span class="variable">$&#123;valid_channels&#125;</span>&quot;</span><span class="string">&quot;<span class="variable">$&#123;channel&#125;</span> &quot;</span></span><br><span class="line">            <span class="keyword">fi</span>    </span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">    result_2g4=<span class="string">&quot;<span class="variable">$&#123;result_2g4&#125;</span>&quot;</span><span class="string">&quot;Width:<span class="variable">$&#123;width&#125;</span>, Valid Channels:<span class="variable">$&#123;valid_channels&#125;</span>\n&quot;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> width <span class="keyword">in</span> <span class="variable">$&#123;widths&#125;</span>;<span class="keyword">do</span></span><br><span class="line"></span><br><span class="line">    valid_channels=<span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> channel <span class="keyword">in</span> <span class="variable">$&#123;channels_50&#125;</span>; <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">if</span> iw dev <span class="variable">$&#123;DEFAULT_INTERFACE&#125;</span> <span class="built_in">set</span> channel <span class="string">&quot;<span class="variable">$&#123;channel&#125;</span>&quot;</span> <span class="string">&quot;<span class="variable">$&#123;width&#125;</span>&quot;</span>; <span class="keyword">then</span></span><br><span class="line">            <span class="keyword">if</span> iw <span class="variable">$&#123;DEFAULT_INTERFACE&#125;</span> info | grep <span class="string">&quot;channel <span class="variable">$&#123;channel&#125;</span>&quot;</span>; <span class="keyword">then</span></span><br><span class="line">                valid_channels=<span class="string">&quot;<span class="variable">$&#123;valid_channels&#125;</span>&quot;</span><span class="string">&quot;<span class="variable">$&#123;channel&#125;</span> &quot;</span></span><br><span class="line">            <span class="keyword">fi</span>    </span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">    result_5g=<span class="string">&quot;<span class="variable">$&#123;result_5g&#125;</span>&quot;</span><span class="string">&quot;Width:<span class="variable">$&#123;width&#125;</span>, Valid Channels:<span class="variable">$&#123;valid_channels&#125;</span>\n&quot;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;  &quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;===================================================&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;2.4G:&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;result_2g4&#125;</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; &quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;5G:&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;result_5g&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>给这个脚本添加执行权限，修改脚本中的网卡名，并用sudo执行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">chmod</span> +x ./test-channels.sh</span><br><span class="line">$ sudo ./test-channels.sh</span><br><span class="line">...</span><br><span class="line">===================================================</span><br><span class="line">2.4G:</span><br><span class="line">Width:HT20, Valid Channels:1 2 3 4 5 6 7 8 9 10 11 12 13 </span><br><span class="line">Width:HT40+, Valid Channels:1 2 3 4 5 6 7 8 9 </span><br><span class="line">Width:HT40-, Valid Channels:5 6 7 8 9 10 11 12 13 </span><br><span class="line">Width:80MHz, Valid Channels:</span><br><span class="line">Width:160MHz, Valid Channels:</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line">5G:</span><br><span class="line">Width:HT20, Valid Channels:36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 165 </span><br><span class="line">Width:HT40+, Valid Channels:36 44 52 60 100 108 116 124 132 140 149 157 </span><br><span class="line">Width:HT40-, Valid Channels:40 48 56 64 104 112 120 128 136 144 153 161 </span><br><span class="line">Width:80MHz, Valid Channels:36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 </span><br><span class="line">Width:160MHz, Valid Channels:36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 </span><br></pre></td></tr></table></figure>
+
+<p>可以看出此脚本列举出了5G、2.4G频段下，各个带宽下支持的扫描信道。</p>
+<p>第二个脚本，<strong>自动跳频</strong>：</p>
+<p>自动跳频的脚本内记录了每种带宽下，网卡可以支持的信道。这些数据来源是前一个脚本的输出结果。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">DEFAULT_INTERFACE=<span class="string">&quot;wlp0s20f3mon&quot;</span></span><br><span class="line"></span><br><span class="line">channels_2G4_HT20=<span class="string">&quot;1 2 3 4 5 6 7 8 9 10 11 12 13&quot;</span></span><br><span class="line">channels_2G4_HT40p=<span class="string">&quot;1 2 3 4 5 6 7 8 9&quot;</span></span><br><span class="line">channels_2G4_HT40m=<span class="string">&quot;5 6 7 8 9 10 11 12 13&quot;</span></span><br><span class="line"></span><br><span class="line">channels_5G_HT20=<span class="string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 165&quot;</span></span><br><span class="line">channels_5G_HT40p=<span class="string">&quot;36 44 52 60 100 108 116 124 132 140 149 157&quot;</span></span><br><span class="line">channels_5G_HT40m=<span class="string">&quot;40 48 56 64 104 112 120 128 136 144 153 161&quot;</span></span><br><span class="line">channels_5G_80MHz=<span class="string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161&quot;</span></span><br><span class="line">channels_5G_160MHz=<span class="string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128&quot;</span></span><br><span class="line"></span><br><span class="line">current_user=$(<span class="built_in">whoami</span>)</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$current_user</span>&quot;</span> != <span class="string">&quot;root&quot;</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;[Error] Please run this script with sudo!&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ -n <span class="variable">$1</span> ] </span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="keyword">case</span> <span class="variable">$1</span> <span class="keyword">in</span></span><br><span class="line">    <span class="string">&quot;HT20&quot;</span>)</span><br><span class="line">        channels=<span class="string">&quot;<span class="variable">$channels_2G4_HT20</span>&quot;</span><span class="string">&quot; &quot;</span><span class="string">&quot;<span class="variable">$channels_5G_HT20</span>&quot;</span></span><br><span class="line">        ;;</span><br><span class="line">    <span class="string">&quot;HT40+&quot;</span>)</span><br><span class="line">        channels=<span class="string">&quot;<span class="variable">$channels_2G4_HT40p</span>&quot;</span><span class="string">&quot; &quot;</span><span class="string">&quot;<span class="variable">$channels_5G_HT40p</span>&quot;</span></span><br><span class="line">        ;;</span><br><span class="line">    <span class="string">&quot;HT40-&quot;</span>)</span><br><span class="line">        channels=<span class="string">&quot;<span class="variable">$channels_2G4_HT40m</span>&quot;</span><span class="string">&quot; &quot;</span><span class="string">&quot;<span class="variable">$channels_5G_HT40m</span>&quot;</span></span><br><span class="line">        ;;</span><br><span class="line">    <span class="string">&quot;80MHz&quot;</span>)</span><br><span class="line">        channels=<span class="string">&quot;<span class="variable">$channels_5G_80MHz</span>&quot;</span></span><br><span class="line">        ;;</span><br><span class="line">    <span class="string">&quot;160MHz&quot;</span>)</span><br><span class="line">        channels=<span class="string">&quot;<span class="variable">$channels_5G_160MHz</span>&quot;</span></span><br><span class="line">        ;;</span><br><span class="line">    *)</span><br><span class="line">        echp <span class="string">&quot;Invalid Bandwidth: <span class="variable">$1</span>&quot;</span></span><br><span class="line">        <span class="built_in">exit</span> 1</span><br><span class="line">        ;;</span><br><span class="line">    <span class="keyword">esac</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;no bandwidth set! i.e. &#x27;sudo channel-hopping.sh HT20&#x27;&quot;</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">width=<span class="variable">$&#123;1&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> channel <span class="keyword">in</span> <span class="variable">$&#123;channels&#125;</span>; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Setting channel <span class="variable">$&#123;channel&#125;</span>, <span class="variable">$&#123;width&#125;</span>&quot;</span></span><br><span class="line">    iw dev <span class="variable">$&#123;DEFAULT_INTERFACE&#125;</span> <span class="built_in">set</span> channel <span class="string">&quot;<span class="variable">$&#123;channel&#125;</span>&quot;</span> <span class="string">&quot;<span class="variable">$&#123;width&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">sleep</span> 0.5</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p>给这个脚本添加执行权限，修改脚本中的网卡名，并用sudo执行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">chmod</span> +x channel-hopping.sh</span><br><span class="line">$ sudo ./channel-hopping.sh HT20</span><br></pre></td></tr></table></figure>
+
+<p>执行脚本时，指定要使用的带宽，脚本将会每 0.5s 切换一次信道。</p>
+<h3 id="2-4-4-过滤器"><a href="#2-4-4-过滤器" class="headerlink" title="2.4.4. 过滤器"></a>2.4.4. 过滤器</h3><p>跳频时，可以设置过滤器来抓自己设备的包。</p>
+<p><strong>显示过滤器</strong>语法：</p>
+<p><strong>Source Address:</strong> &#96;&#96;wlan.sa&#x3D;&#x3D;XX:XX:XX:XX:XX:XX<code>**Destination Address:**</code>wlan.da&#x3D;&#x3D;XX:XX:XX:XX:XX:XX<code>**Receiver Address:** </code>wlan.ra&#x3D;&#x3D;XX:XX:XX:XX:XX:XX<code>**Transmitter Address:** </code>wlan.ta&#x3D;&#x3D;XX:XX:XX:XX:XX:XX&#96;</p>
+<p>例如，可以在手机上查看MAC地址，然后输入到wireshark中</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221223155547191.png" alt="image-20221223155547191"></p>
+<p>可以看到，成功抓到了手机的WiFi6包（802.11ax）</p>
+<h2 id="2-5-关闭monitor模式的方法"><a href="#2-5-关闭monitor模式的方法" class="headerlink" title="2.5. 关闭monitor模式的方法"></a>2.5. 关闭monitor模式的方法</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo airmon-ng stop wlp0s20f3mon</span><br></pre></td></tr></table></figure>
+
+<p>注意网卡名是变为monitor之后的网卡名。</p>
+<h1 id="3-在Windows上远程抓包"><a href="#3-在Windows上远程抓包" class="headerlink" title="3. 在Windows上远程抓包"></a>3. 在Windows上远程抓包</h1><h2 id="3-1-确保Ubuntu上安装了ssh服务"><a href="#3-1-确保Ubuntu上安装了ssh服务" class="headerlink" title="3.1. 确保Ubuntu上安装了ssh服务"></a>3.1. 确保Ubuntu上安装了ssh服务</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt install openssh-server</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-让用户执行sudo命令不用输入密码"><a href="#3-2-让用户执行sudo命令不用输入密码" class="headerlink" title="3.2. 让用户执行sudo命令不用输入密码"></a>3.2. 让用户执行sudo命令不用输入密码</h2><p>​	抓包需要root权限，并且我们用wireshark远程抓包的时候无法输入sudo密码。网上会有两种不太推荐的方法解决问题：</p>
+<ul>
+<li>直接打开root的ssh登陆权限，后续Windows电脑的Wireshark直接通过root登录</li>
+<li>让自己的用户执行sudo时不需要密码</li>
+</ul>
+<p>​	但是以上两种方法是很不安全的，下面介绍一种通过改sudo配置的方式，让你的linux用户只在执行一些指定的命令的时候不需要输入sudo密码，而其他时候还是要密码。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 用visudo编辑器，在/etc/sudoers.d/下创建个人的sudo配置</span></span><br><span class="line">sudo visudo </span><br></pre></td></tr></table></figure>
+
+<p>​	填入以下内容，然后保存：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">jayant ALL=(root)NOPASSWD:/usr/bin/tcpdump</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>释义：</p>
+<pre><code>- jayant：用户名或组名，如果是组名，前面加`%`
+- ALL：主机名，多服务器才有用，这里设置ALL即可
+- (root)：完整写法是(用户名:组名)，这里只写了用户名。这里指jayant可以作为root运行后面的指令。如果只有组名，写`(:组名)`
+- NOPASSWD:/usr/bin/tcpdump ：指定的命令，前面`NOPASSWD:`指不需要密码。这里需要填命令的绝对地址，如果你不知道绝对地址，可以输入`which tcpdump `查看。
+</code></pre>
+<p>其他说明：</p>
+<p>​	在 <code>/etc/sudoers</code>中，有<code>@include</code>语句包含了<code>/etc/sudoers.d/</code>下的所有文件（文件名不含<code>.</code>和<code>~</code>），所以我们不需要修改<code>/etc/sudoers</code>，而是在<code>/etc/sudoers.d/</code>目录中增加自己的配置文件；</p>
+<p>​	使用visudo文本编辑器进行编辑，可以在保存时自动提示是否有语法错误。	</p>
+</blockquote>
+<p>测试一下<code>sudo tcpdump</code>是不是已经不需要输入密码了。</p>
+<h2 id="3-3-按照第二节的做法，把网卡设为monitor模式"><a href="#3-3-按照第二节的做法，把网卡设为monitor模式" class="headerlink" title="3.3. 按照第二节的做法，把网卡设为monitor模式"></a>3.3. 按照第二节的做法，把网卡设为monitor模式</h2><p>​	请参考第2节的内容</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo airmon-ng check <span class="built_in">kill</span></span><br><span class="line">sudo airmon-ng start &lt;网卡名&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-4-在Windows上安装sshdump"><a href="#3-4-在Windows上安装sshdump" class="headerlink" title="3.4. 在Windows上安装sshdump"></a>3.4. 在Windows上安装sshdump</h2><p>​	安装Wireshark时勾选即可</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194013150.png" alt="image-20221216194013150"></p>
+<h2 id="3-5-在Windows上设置Wireshark"><a href="#3-5-在Windows上设置Wireshark" class="headerlink" title="3.5. 在Windows上设置Wireshark"></a>3.5. 在Windows上设置Wireshark</h2><img src="/jayant97.github.io/imgs/使用Ubuntu进行WiFi6抓包.assets/image-20221216194117135.png" alt="image-20221216194117135" style="zoom: 50%;" />
+
+<p>设置远程主机地址和ssh端口：</p>
+<img src="/jayant97.github.io/imgs/使用Ubuntu进行WiFi6抓包.assets/image-20221216194137684.png" alt="image-20221216194137684" style="zoom: 50%;" />
+
+<p>我这里使用密钥登录，也可以使用密码：</p>
+<img src="/jayant97.github.io/imgs/使用Ubuntu进行WiFi6抓包.assets/image-20221216194206105.png" alt="image-20221216194206105" style="zoom:50%;" />
+
+<p>设置网卡名：</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194235505.png" alt="image-20221216194235505"></p>
+<h2 id="3-6-开始抓包"><a href="#3-6-开始抓包" class="headerlink" title="3.6. 开始抓包"></a>3.6. 开始抓包</h2><p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194816124.png" alt="image-20221216194816124"></p>
+<p>​	</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/5dfa479d25f0/">https://jayant-tang.github.io/jayant97.github.io/2022/12/5dfa479d25f0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Linux/">Linux</a><a class="post-meta__tags" href="/jayant97.github.io/tags/Wireshark/">Wireshark</a><a class="post-meta__tags" href="/jayant97.github.io/tags/WiFi/">WiFi</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216162542858.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/jayant97.github.io/2022/12/f9e1871a88ea/"><img class="prev-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">WiFi抓包的过滤器设置</div></div></a></div><div class="next-post pull-right"><a href="/jayant97.github.io/2022/12/66c35f484401/"><img class="next-cover" src="/jayant97.github.io/imgs/Npcap.png" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">在Windows上使用Wireshark和Npcap进行WiFi嗅探</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2022/12/66c35f484401/" title="在Windows上使用Wireshark和Npcap进行WiFi嗅探"><img class="cover" src="/jayant97.github.io/imgs/Npcap.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-14</div><div class="title">在Windows上使用Wireshark和Npcap进行WiFi嗅探</div></div></a></div><div><a href="/jayant97.github.io/2022/12/693c6a957393/" title="最简洁清爽的ssh使用方案"><img class="cover" src="/jayant97.github.io/imgs/openssh.gif" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-14</div><div class="title">最简洁清爽的ssh使用方案</div></div></a></div><div><a href="/jayant97.github.io/2022/12/dad29a5a49fd/" title="利用Wireshark和tcpdump对整个局域网进行实时抓包"><img class="cover" src="/jayant97.github.io/imgs/%E5%88%A9%E7%94%A8Wireshark%E5%92%8Ctcpdump%E5%AF%B9%E6%95%B4%E4%B8%AA%E5%B1%80%E5%9F%9F%E7%BD%91%E8%BF%9B%E8%A1%8C%E5%AE%9E%E6%97%B6%E6%8A%93%E5%8C%85.assets/image-20221214212711479.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-14</div><div class="title">利用Wireshark和tcpdump对整个局域网进行实时抓包</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%89%8D%E8%A8%80"><span class="toc-text">1. 前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%9C%A8Linux%E7%8E%AF%E5%A2%83%E4%B8%8B%E8%BF%9B%E8%A1%8C%E6%8A%93%E5%8C%85"><span class="toc-text">2. 在Linux环境下进行抓包</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E5%AE%89%E8%A3%85%E5%B7%A5%E5%85%B7"><span class="toc-text">2.1. 安装工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E6%97%A0%E7%BA%BF%E7%BD%91%E5%8D%A1%E6%94%B9%E4%B8%BAMonitor%E6%A8%A1%E5%BC%8F"><span class="toc-text">2.2. 无线网卡改为Monitor模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E5%9C%A8Linux%E4%B8%AD%E8%BF%9B%E8%A1%8C%E6%8A%93%E5%8C%85"><span class="toc-text">2.3. 在Linux中进行抓包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-%E8%AE%BE%E7%BD%AE%E8%A6%81%E6%8A%93%E5%8C%85%E7%9A%84%E4%BF%A1%E9%81%93"><span class="toc-text">2.4. 设置要抓包的信道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-1-%E4%BF%A1%E9%81%93%E4%B8%8E%E5%B8%A6%E5%AE%BD%E4%BB%8B%E7%BB%8D"><span class="toc-text">2.4.1. 信道与带宽介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-2-%E4%BF%AE%E6%94%B9%E4%BF%A1%E9%81%93%E4%B8%8E%E5%B8%A6%E5%AE%BD"><span class="toc-text">2.4.2.  修改信道与带宽</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-3-%E5%AE%9E%E6%97%B6%E8%B7%B3%E9%A2%91"><span class="toc-text">2.4.3. 实时跳频</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-4-%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-text">2.4.4. 过滤器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-%E5%85%B3%E9%97%ADmonitor%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-text">2.5. 关闭monitor模式的方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%9C%A8Windows%E4%B8%8A%E8%BF%9C%E7%A8%8B%E6%8A%93%E5%8C%85"><span class="toc-text">3. 在Windows上远程抓包</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E7%A1%AE%E4%BF%9DUbuntu%E4%B8%8A%E5%AE%89%E8%A3%85%E4%BA%86ssh%E6%9C%8D%E5%8A%A1"><span class="toc-text">3.1. 确保Ubuntu上安装了ssh服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E8%AE%A9%E7%94%A8%E6%88%B7%E6%89%A7%E8%A1%8Csudo%E5%91%BD%E4%BB%A4%E4%B8%8D%E7%94%A8%E8%BE%93%E5%85%A5%E5%AF%86%E7%A0%81"><span class="toc-text">3.2. 让用户执行sudo命令不用输入密码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E6%8C%89%E7%85%A7%E7%AC%AC%E4%BA%8C%E8%8A%82%E7%9A%84%E5%81%9A%E6%B3%95%EF%BC%8C%E6%8A%8A%E7%BD%91%E5%8D%A1%E8%AE%BE%E4%B8%BAmonitor%E6%A8%A1%E5%BC%8F"><span class="toc-text">3.3. 按照第二节的做法，把网卡设为monitor模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E5%9C%A8Windows%E4%B8%8A%E5%AE%89%E8%A3%85sshdump"><span class="toc-text">3.4. 在Windows上安装sshdump</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-%E5%9C%A8Windows%E4%B8%8A%E8%AE%BE%E7%BD%AEWireshark"><span class="toc-text">3.5. 在Windows上设置Wireshark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6-%E5%BC%80%E5%A7%8B%E6%8A%93%E5%8C%85"><span class="toc-text">3.6. 开始抓包</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216162542858.png')"><div id="footer-wrap"><div class="copyright">&copy;2022 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/jayant97.github.io/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'c91ce0493b5c3e886110',
+      clientSecret: '7599decf69128ba1a83c1f3ef0923395a9bd8a60',
+      repo: 'jayant97.github.io',
+      owner: 'Jayant-Tang',
+      admin: ['Jayant-Tang'],
+      id: '901e1d1f83fbe8cb5d5b2fb756bc4654',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
