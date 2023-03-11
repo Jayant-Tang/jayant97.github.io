@@ -1,19 +1,19 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>nRF9160与nRF Cloud应用示例 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 产品简介1.1. nRF Cloud  ​	nRF Cloud是Nordic Semiconducotr公司为Nordic无线产品专门优化的物联网云平台，它可以为任何使用Nordic芯片的客户的原型产品、商业产品提供便捷的云连接、云服务。 ​	nRF Cloud提供设备注册（Cloud Provisioning）、OTA升级、数据存储、位置定位等服务。所有这些功能都可通过Web界面进行管理。">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>nRF9160与nRF Cloud应用示例 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 产品简介1.1. nRF Cloud  ​	nRF Cloud是Nordic Semiconducotr公司在AWS上搭建的IoT平台，提供设备注册（Cloud Provisioning）、OTA升级、数据存储、位置服务等业务，所有这些功能都可通过Web界面进行管理。此外还有账号权限控制功能，客户可以为不同的团队配置不同级别的账户管理权限。本文会介绍上述功能的具体使用方法。  ​	除了设备注">
 <meta property="og:type" content="article">
 <meta property="og:title" content="nRF9160与nRF Cloud应用示例">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/175d0fa05ecc/index.html">
 <meta property="og:site_name" content="一苇万顷">
-<meta property="og:description" content="1. 产品简介1.1. nRF Cloud  ​	nRF Cloud是Nordic Semiconducotr公司为Nordic无线产品专门优化的物联网云平台，它可以为任何使用Nordic芯片的客户的原型产品、商业产品提供便捷的云连接、云服务。 ​	nRF Cloud提供设备注册（Cloud Provisioning）、OTA升级、数据存储、位置定位等服务。所有这些功能都可通过Web界面进行管理。">
+<meta property="og:description" content="1. 产品简介1.1. nRF Cloud  ​	nRF Cloud是Nordic Semiconducotr公司在AWS上搭建的IoT平台，提供设备注册（Cloud Provisioning）、OTA升级、数据存储、位置服务等业务，所有这些功能都可通过Web界面进行管理。此外还有账号权限控制功能，客户可以为不同的团队配置不同级别的账户管理权限。本文会介绍上述功能的具体使用方法。  ​	除了设备注">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/nordic/nrf-cloud.png">
 <meta property="article:published_time" content="2022-11-30T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-12-23T10:51:37.104Z">
+<meta property="article:modified_time" content="2023-03-11T06:05:25.454Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="nRF91">
 <meta property="article:tag" content="nRF_Cloud">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/nordic/nrf-cloud.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2022/12/175d0fa05ecc/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/nordic/nrf-cloud.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2022/12/175d0fa05ecc/"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
   root: '/jayant97.github.io/',
   algolia: undefined,
   localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
@@ -55,7 +55,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2022-12-23 18:51:37'
+  postUpdate: '2023-03-11 14:05:25'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -144,105 +144,140 @@
       }
     }
     detectApple()
-    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/jayant97.github.io/imgs/nordic/nrf-cloud.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/jayant97.github.io/">一苇万顷</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">nRF9160与nRF Cloud应用示例</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-30T16:00:00.000Z" title="发表于 2022-12-01 00:00:00">2022-12-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-12-23T10:51:37.104Z" title="更新于 2022-12-23 18:51:37">2022-12-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/">Nordic</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="nRF9160与nRF Cloud应用示例"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2022/12/175d0fa05ecc/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="1-产品简介"><a href="#1-产品简介" class="headerlink" title="1. 产品简介"></a>1. 产品简介</h1><h2 id="1-1-nRF-Cloud"><a href="#1-1-nRF-Cloud" class="headerlink" title="1.1. nRF Cloud"></a>1.1. nRF Cloud</h2><img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221204174543482.png" alt="image-20221204174543482" style="zoom:50%;" />
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">15</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/jayant97.github.io/imgs/nordic/nrf-cloud.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/jayant97.github.io/">一苇万顷</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">nRF9160与nRF Cloud应用示例</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-30T16:00:00.000Z" title="发表于 2022-12-01 00:00:00">2022-12-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-03-11T06:05:25.454Z" title="更新于 2023-03-11 14:05:25">2023-03-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/">Nordic</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="nRF9160与nRF Cloud应用示例"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2022/12/175d0fa05ecc/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="1-产品简介"><a href="#1-产品简介" class="headerlink" title="1. 产品简介"></a>1. 产品简介</h1><h2 id="1-1-nRF-Cloud"><a href="#1-1-nRF-Cloud" class="headerlink" title="1.1. nRF Cloud"></a>1.1. nRF Cloud</h2><img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221204174543482.png" alt="image-20221204174543482" style="zoom: 67%;">
 
-<p>​	nRF Cloud是Nordic Semiconducotr公司为Nordic无线产品专门优化的物联网云平台，它可以为任何使用Nordic芯片的客户的原型产品、商业产品提供便捷的云连接、云服务。</p>
-<p>​	nRF Cloud提供<strong>设备注册（Cloud Provisioning）</strong>、<strong>OTA升级</strong>、<strong>数据存储</strong>、<strong>位置定位</strong>等服务。所有这些功能都可通过Web界面进行管理。客户可以为不同的团队配置不同级别的管理权限。</p>
-<p>​	nRF Cloud目前有Devloper，Pro和Enterprise三种收费计划。其中开发者计划（Developer plan）是<strong>完全免费</strong>的，只要你有Nordic的开发板就可以最快最方便的方式接入并测试例程。</p>
-<p>设备通过nRF Cloud APIs与nRF Cloud进行连接，如下图：</p>
+<p>​	nRF Cloud是Nordic Semiconducotr公司在AWS上搭建的IoT平台，提供<strong>设备注册（Cloud Provisioning）</strong>、<strong>OTA升级</strong>、<strong>数据存储</strong>、<strong>位置服务</strong>等业务，所有这些功能都可通过Web界面进行管理。此外还有账号权限控制功能，客户可以为不同的团队配置不同级别的账户管理权限。本文会介绍上述功能的具体使用方法。</p>
+<blockquote>
+<p>​	除了设备注册、OTA、消息存储等物联网云平台常见的功能外，nRF Cloud的重要卖点是位置服务（Location Service）：</p>
+<ul>
+<li>AGPS&#x2F;PGPS：设备根据附近的基站信息，从Location Service获取当前地区GPS卫星的信息，从而缩小搜星范围，把搜星的几十秒缩短到几秒，极大的节省功耗</li>
+<li>基站定位：根据上传附近的基站id，从云端获取获取当前定位，支持单基站和多基定位</li>
+<li>WiFi定位：根据附近的WiFi SSID获取定位</li>
+</ul>
+</blockquote>
+<p>​	nRF Cloud为Nordic nRF91系列产品提供了方便快速的上云方式，通过NCS的例程可以很方便的连入nRF Cloud。<strong>当然，非Nordic产品也是可以注册到nRF Cloud的，本文最后就会介绍如何使用随机生成的UUID来注册到nRF Cloud。</strong></p>
+<p>​	nRF Cloud目前有Devloper，Pro和Enterprise三种收费计划。其中开发者计划（Developer plan）是<strong>完全免费</strong>的，你可以不用任何开发板，只使用PC就能连上云端进行测试。并且开发者计划每月有500条免费的Location Service。</p>
+<p>​	设备通过nRF Cloud APIs与nRF Cloud进行连接，如下图：</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221125164136165.png" alt="image-20221125164136165"></p>
 <p>​	设备可以直接通过MQTT API或REST API接入到云。nRF Cloud也通过REST API为客户提供了<strong>云-云对接</strong>的接口。</p>
+<p>​	nRF Cloud的MQTT连接使用X.509证书进行认证和加密。<strong>此证书不必是CA收费签发的证书，可以使用自签证书</strong>。Nordic提供了一套方便的脚本（TypeScript和Python可选）来进行证书的生成、签发、烧录。本文后续会介绍具体步骤。</p>
+<p>​	要想调用nRF Cloud的REST API，对用户来说，使用常见的API Key进行认证；对IoT设备来说，需要使用JWT进行认证。JWT需要使用前述的X.509证书进行生成，本文后续会介绍IoT设备以及PC端测试JWT生成的方法。</p>
+<blockquote>
+<p>REST API 是通过HTTP请求来调用的</p>
+</blockquote>
 <p>​	更多有关nRF Cloud的信息，可以参考：</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/">nRF Cloud | nRF Cloud Docs</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nrfcloud.com/">nRF Cloud | nRF Cloud Docs</a></li>
 </ul>
-<h2 id="1-2-nRF9160-SiP"><a href="#1-2-nRF9160-SiP" class="headerlink" title="1.2. nRF9160 SiP"></a>1.2. nRF9160 SiP</h2><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/nRF9160-SiP-rev2-1016-front-and-back.webp" alt="application" style="zoom: 50%;" />
+<h2 id="1-2-nRF9160-SiP"><a href="#1-2-nRF9160-SiP" class="headerlink" title="1.2. nRF9160 SiP"></a>1.2. nRF9160 SiP</h2><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/nRF9160-SiP-rev2-1016-front-and-back.webp" alt="application" style="zoom: 50%;">
 
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221122134533863.png" alt="image-20221122134533863" style="zoom: 33%;" />
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221122134533863.png" alt="image-20221122134533863" style="zoom: 33%;">
 
 <p>​	nRF9160是一款高集成度的低功耗SiP（System-in-Package），具有完整的LTE-M&#x2F;NB-IoT Modem、射频前端、电源管理系统，还具有一颗Cortex-M33应用处理器，便于开发自定义应用。nRF9160是目前市面上<strong>最紧凑、最完整、功耗最低</strong>的蜂窝物联网解决方案。</p>
-<p>​	nRF9160内置的Modem在全球范围内同时支持<strong>LTE-M</strong>和<strong>NB-IoT</strong>，并且在IPv4&#x2F;IPv6下均支持<strong>eDRX和PSM省电模式</strong>，支持到传输安全层（TCP&#x2F;TLS）。支持GNSS（含美国GPS和日本QZSS）。Modem固件可以通过加密OTA进行升级。</p>
-<p>​	Cortex-M33应用处理器具有独享的1 MB Flash，256 KB SRAM和多种外设接口，便于在单颗设备中实现高级应用。</p>
-<p>​	也可以把nRF9160当作外挂模组，让外部MCU通过AT指令进行操作，拓展连网能力。在 <a target="_blank" rel="noopener" href="https://infocenter.nordicsemi.com/topic/ref_at_commands/REF/at_commands/intro.html">Nordic Info Center</a>可以查看AT指令手册，并可以在右上角下载PDF。</p>
+<p>​	nRF9160内置的调制解调器（Modem）在全球范围内同时支持<strong>LTE-M</strong>和<strong>NB-IoT</strong>，并且支持<strong>eDRX和PSM省电模式</strong>，支持传输层安全（TCP&#x2F;TLS），支持GPS。</p>
+<p>​	Modem固件由Nordic以二进制形式提供，Modem固件可以通过OTA进行升级。</p>
+<blockquote>
+<p>中国大陆地区目前只有NB-IoT覆盖，无LTE-M。</p>
+</blockquote>
+<p>​	Cortex-M33应用处理器具有独享的1 MB Flash，256 KB SRAM和多种外设接口，可以让用户自行开发高效率的应用。</p>
+<p>​	除了直接在9160上开发以外，也可以把nRF9160当作外挂模组，让外部MCU通过AT指令进行操作，拓展连网能力。在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://infocenter.nordicsemi.com/topic/ref_at_commands/REF/at_commands/intro.html">Nordic Info Center</a>可以查看并下载AT指令手册。</p>
+<p>​	在把9160当作外挂模组时，除了3GPP标准AT指令（以<code>AT+</code>开头），以及Nordic自定义的Modem相关指令（以<code>AT%</code>开头）以外。还可以在前述Cortex-M33应用核中烧录<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/applications/serial_lte_modem/README.html">SLM（Serial LTE modem）</a>例程，这样就可以扩展出大量实用指令（以<code>AT#</code>开头），可以实现Socket、TCP&#x2F;UDP、MQTT、FOTA、DFU、FTP、GNSS、GPIO等实用功能，使得9160作为外挂模组时也能充分发挥其片上资源的作用。</p>
 <p>​	在安全方面：Arm TrustZone技术可为固件和外设提供安全隔离和保护。使应用可实现Secure Boot、受信任固件升级、受信任的Root等安全需求，且不影响性能。Arm CryptoCell通过加密和安全资源来保护物联网应用程序免受各种攻击威胁。</p>
-<p>​	nRF9160支持SIM和eSIM。</p>
+<p>​	nRF9160支持SIM和eSIM。今后随着与虚拟运营商的合作，还将在海内外支持SoftSIM。</p>
+<blockquote>
+<p>SoftSIM无需卡或芯片，SIM的信息直接烧录在9160内部。</p>
+</blockquote>
+<p>​	nRF91的功耗极低，在PSM休眠时可以做到2.7uA的电流。	</p>
 <p>​	更多信息，可参考：</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://www.nordicsemi.com/-/media/Software-and-other-downloads/Product-Briefs/Translated-versions/04_nRF9160-SiP-1.4_SC.pdf?la=en&hash=A1F478B9D8593C70FA143C1CA09C2759C8ED51B6">nRF9160中文brief - Nordic Semiconductor - nordicsemi.com</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.nordicsemi.com/Products/nRF9160">nRF9160 - Nordic Semiconductor - nordicsemi.com</a></li>
-<li><a target="_blank" rel="noopener" href="https://infocenter.nordicsemi.com/pdf/nRF9160_PS_v2.1.pdf">nRF9160 Product Specifications v2.1.pdf</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.nordicsemi.com/Products/Low-power-cellular-IoT/nRF9160-Certifications">nRF9160 全球认证信息 - nordicsemi.com</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/-/media/Software-and-other-downloads/Product-Briefs/Translated-versions/04_nRF9160-SiP-1.4_SC.pdf?la=en&hash=A1F478B9D8593C70FA143C1CA09C2759C8ED51B6">nRF9160中文brief - Nordic Semiconductor - nordicsemi.com</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/nRF9160">nRF9160 - Nordic Semiconductor - nordicsemi.com</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://infocenter.nordicsemi.com/pdf/nRF9160_PS_v2.1.pdf">nRF9160 Product Specifications v2.1.pdf</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Low-power-cellular-IoT/nRF9160-Certifications">nRF9160 全球认证信息 - nordicsemi.com</a></li>
 </ul>
-<h2 id="1-3-nRF9160-DK"><a href="#1-3-nRF9160-DK" class="headerlink" title="1.3. nRF9160 DK"></a>1.3. nRF9160 DK</h2><p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/nRF9160-DK.webp" alt="nRF9160 DK promo"></p>
+<h2 id="1-3-nRF9160-DK-和-PPK-II"><a href="#1-3-nRF9160-DK-和-PPK-II" class="headerlink" title="1.3. nRF9160 DK 和 PPK II"></a>1.3. nRF9160 DK 和 PPK II</h2><p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/nRF9160-DK.webp" alt="nRF9160 DK promo"></p>
 <p>​	nRF9160 DK是一款优秀设计的预认证开发套件，带有一颗nRF9160 SiP和一颗nRF52840低功耗蓝牙MCU（用于开发BLE网关产品）。</p>
 <p>​	板载一个支持多个频段的LTE-M和NB-IoT天线、一个GPS贴片天线和一个2.4G陶瓷天线（用于BLE）。其中LTE和2.4G天线接口提供SWF射频连接端子，便于测量RF信号。所有三款连接器均允许使用外部天线。</p>
 <p>​	开发板引出了所有GPIO和接口，兼容Arduino Uno Rev3。提供可编程LED(4)、按钮(2)、开关(2)。开发板还具有nano SIM卡插槽（J5）和eSIM贴片焊盘（U20）或eSIM直插接口（P28）。</p>
 <p>板载正版Jlink OB，除可下载、调试板载的nRF9160外，也可对外调试其他产品。</p>
-<p>更多信息，可参考：</p>
+<blockquote>
+<p>关于nRF 9160DK的更多信息，可参考：</p>
 <ul>
-<li><p><a target="_blank" rel="noopener" href="https://www.nordicsemi.com/Products/Development-hardware/nRF9160-DK?lang=zh-CN#infotabs">nRF9160 DK - nordicsemi.com</a></p>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-hardware/nRF9160-DK?lang=zh-CN#infotabs">nRF9160 DK - nordicsemi.com</a></p>
 </li>
-<li><p><a target="_blank" rel="noopener" href="https://infocenter.nordicsemi.com/pdf/nRF9160_DK_HW_User_Guide_v1.1.0.pdf">nRF9160 DK HW User Guide v1.1.0.pdf</a></p>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://infocenter.nordicsemi.com/pdf/nRF9160_DK_HW_User_Guide_v1.1.0.pdf">nRF9160 DK HW User Guide v1.1.0.pdf</a></p>
 </li>
 </ul>
-<h2 id="1-4-nRF-Connect-SDK"><a href="#1-4-nRF-Connect-SDK" class="headerlink" title="1.4. nRF Connect SDK"></a>1.4. nRF Connect SDK</h2><p>​	nRF Connect SDK，简称NCS，是Nordic最新的SDK平台，该平台将支持Nordic所有产品线，包括低功耗蓝牙，蜂窝网，WiFi，GPS，2.4G，蓝牙Mesh，Zigbee，Thread，Matter, Homekit, FindMy等。</p>
-<p>​	NCS内嵌Zephyr RTOS，并沿用了Zephyr project的编译系统。利用Device Tree和Kconfig进行项目的硬件、软件配置。使用CMake和大量Python脚本辅助生成一些头文件、代码和Hex。一旦上手，开发调试起来非常方便，并且是跨平台的（Windows&#x2F;Linux&#x2F;OSX）。</p>
+</blockquote>
+<p>​	Nordic所有的开发板都预留了SoC&#x2F;SiP电流测量的接口。9160DK还预留了SIM卡电流测量的接口。电流的测量可以使用PPK II。下图展示了9160 PSM休眠时的电流（灰色窗口内平均电流为2.8uA）：</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20230311124553236.png" alt="image-20230311124553236"></p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/PPK2_SideView_Transparent.webp" alt="Online Power Profiler"></p>
+<p>​	Power Profile Kit II (PPK II) 是一个方便的功耗测量工具，具有<strong>电流表</strong>和**电源(0.8V ~ 5V)**两种模式，且两种模式都可测量电流，范围从低于1uA到1A。PPK II本身通过USB供电（5V 500mA），如果在电源模式需要输出1A，需要插两个USB。</p>
+<p>​	PPK II还自带8通道逻辑分析仪，便于分析各个阶段的功耗。下图底部为逻辑分析仪通道3的输出，它连接到9160的一个GPIO，用于测量9160连接MQTT服务器进行证书交换的耗时和功耗。</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20230311123832875.png" alt="image-20230311123832875"></p>
+<blockquote>
+<p>更多有关PPK II的信息，可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-hardware/Power-Profiler-Kit-2">Power Profiler Kit II - nordicsemi.com</a></p>
+</blockquote>
+<h2 id="1-4-nRF-Connect-SDK"><a href="#1-4-nRF-Connect-SDK" class="headerlink" title="1.4. nRF Connect SDK"></a>1.4. nRF Connect SDK</h2><p>​	nRF Connect SDK，简称NCS，是Nordic最新的SDK平台，该平台支持Nordic所有产品线，包括低功耗蓝牙，蜂窝网，WiFi，GPS，2.4G，蓝牙Mesh，Zigbee，Thread，Matter, Homekit, FindMy等。</p>
+<p>​	Nordic所有的新产品都将在NCS上进行开发。</p>
+<p>​	NCS内嵌Zephyr RTOS，并沿用了Zephyr project的编译系统、库和驱动。利用Device Tree和Kconfig进行项目的硬件、软件配置，自动载入驱动程序，自动初始化硬件。使用CMake和Python脚本辅助生成一些头文件、代码和Hex。一旦上手，开发调试起来非常方便。此外，NCS是跨平台的（Windows&#x2F;Linux&#x2F;OSX），支持命令行编译，可以在服务器上实现CI&#x2F;CD。</p>
+<p>​	NCS提供VS Code插件，实现强大的项目管理、项目构建、调试等功能（支持条件断点、查看寄存器和</p>
+<p>线程堆栈）。</p>
 <p>​	NCS在Github上托管，包含多个仓库。其主仓库（Manifest）是nrf（含Nordic产品驱动与各类无线协议栈等），此外还有Zephyr、MCUBoot、mbedtls、nrfxlib等其他仓库。</p>
 <p>​	更多信息可参考：</p>
 <ul>
-<li><p><a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/introduction.html">About the nRF Connect SDK — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a></p>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/introduction.html">About the nRF Connect SDK — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a></p>
 </li>
-<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/iini/p/14174427.html">开发你的第一个nRF Connect SDK(NCS)&#x2F;Zephyr应用程序 - iini - 博客园 (cnblogs.com)</a></p>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/iini/p/14174427.html">开发你的第一个nRF Connect SDK(NCS)&#x2F;Zephyr应用程序 - iini - 博客园 (cnblogs.com)</a></p>
 </li>
 </ul>
-<h1 id="2-示例-使用nRF9160-DK连接到nRF-Cloud"><a href="#2-示例-使用nRF9160-DK连接到nRF-Cloud" class="headerlink" title="2. 示例: 使用nRF9160-DK连接到nRF Cloud"></a>2. 示例: 使用nRF9160-DK连接到nRF Cloud</h1><p>​	本节将会在nRF9160-DK开发板上，烧录<code>nrf/applications/asset_tracker_v2</code>例程。根据国内的网络进行配置，然后把板子连接到nRF Cloud上。</p>
-<p>​	本节只讲如何把例程跑通，关于例程内容的讲解，在下一节。</p>
+<h1 id="2-入门-使用nRF9160-DK连接到nRF-Cloud"><a href="#2-入门-使用nRF9160-DK连接到nRF-Cloud" class="headerlink" title="2. 入门: 使用nRF9160-DK连接到nRF Cloud"></a>2. 入门: 使用nRF9160-DK连接到nRF Cloud</h1><p>​	本节将会在nRF9160-DK开发板上，烧录<code>nrf/applications/asset_tracker_v2</code>例程。根据国内的网络进行配置，然后把板子连接到nRF Cloud上。</p>
 <h2 id="2-1-前期准备"><a href="#2-1-前期准备" class="headerlink" title="2.1. 前期准备"></a>2.1. 前期准备</h2><h3 id="硬件准备"><a href="#硬件准备" class="headerlink" title="硬件准备"></a>硬件准备</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.nordicsemi.com/Products/Development-hardware/nRF9160-DK?lang=zh-CN">nRF9160 DK开发板（本示例使用的版本：v1.1.0）</a>：其中nRF9160 SiP<strong>不能</strong>是Revision 1版本，必须是Revision 2或更高版本。<br>（查看SiP封装上的文字，有<strong>B0</strong>则为Rev1版本，有<strong>B1</strong>则为Rev2版本。可参考：<a target="_blank" rel="noopener" href="https://infocenter.nordicsemi.com/index.jsp?topic=/comp_matrix_nrf9160/COMP/nrf9160/nrf9160_ic_revision_overview.html">nRF9160 IC Revision Overview</a>）</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-hardware/nRF9160-DK?lang=zh-CN">nRF9160 DK开发板（本示例使用的版本：v1.1.0）</a>：其中nRF9160 SiP<strong>不能</strong>是Revision 1版本，必须是Revision 2或更高版本。<br>（查看SiP封装上的文字，有<strong>B0</strong>则为Rev1版本，有<strong>B1</strong>则为Rev2版本。可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://infocenter.nordicsemi.com/index.jsp?topic=/comp_matrix_nrf9160/COMP/nrf9160/nrf9160_ic_revision_overview.html">nRF9160 IC Revision Overview</a>）</li>
 </ul>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221124110534824.png" alt="image-20221124110534824" style="zoom:25%;" />
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221124110534824.png" alt="image-20221124110534824" style="zoom:25%;">
 
 <ul>
 <li><p>micro USB线缆一根</p>
 </li>
-<li><p>中国移动NB卡(物联网卡)<br>  <img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221122191558453.png" alt="image-20221122191558453"></p>
+<li><p>中国移动NB-IoT卡(物联网卡)<br>  <img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221122191558453.png" alt="image-20221122191558453"></p>
 <ul>
 <li>将电源开关拨到on，并确保调试开关处于”nRF91”挡位</li>
 <li>插好nano SIM卡，并通过microUSB线连接到电脑</li>
 </ul>
 <blockquote>
-<p>注：DK附赠的iBASIS SIM卡为国外运营商产品，国内无法使用。需要另外购买移动NB-IoT物联网卡。</p>
+<p>注：DK包装盒内附赠的iBASIS SIM卡为国外运营商产品，国内无法使用。需要另外购买移动NB-IoT物联网卡。</p>
 </blockquote>
 </li>
 </ul>
 <h3 id="非硬件准备"><a href="#非硬件准备" class="headerlink" title="非硬件准备"></a>非硬件准备</h3><ul>
-<li>一台Windows10或以上版本操作系统的电脑，并<a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/779143a4bec8/"><strong>正确安装了NCS开发环境</strong></a></li>
-<li>注册一个 <a target="_blank" rel="noopener" href="https://nrfcloud.com/#/">nRF Cloud账号</a></li>
+<li>一台Windows10或以上版本操作系统的电脑，并<a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/779143a4bec8/"><strong>正确安装了NCS开发环境</strong></a>。本次示例使用的NCS版本是v2.2.0。</li>
+<li>免费注册一个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://nrfcloud.com/#/">nRF Cloud</a> 账号</li>
 </ul>
-<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221205005305505.png" alt="image-20221205005305505" style="zoom:50%;" />
+<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221205005305505.png" alt="image-20221205005305505" style="zoom:50%;">
 
 <ul>
-<li>已经知道如何打开NCS中的例程，并且知道如何编译、烧写。</li>
+<li>知道如何打开NCS中的例程，并且知道如何编译、烧写。</li>
 </ul>
 <h2 id="2-2-烧录Modem固件"><a href="#2-2-烧录Modem固件" class="headerlink" title="2.2. 烧录Modem固件"></a>2.2. 烧录Modem固件</h2><p>​	nRF9160的Modem具有独立的固件，这部分固件是Nordic以zip包的形式提供的。</p>
 <ol>
-<li>在官网<a target="_blank" rel="noopener" href="https://www.nordicsemi.com/Products/Development-hardware/nRF9160-DK/Download#infotabs">nRF9160 DK - Downloads - nordicsemi.com</a>界面，选中最新的Modem固件版本并下载（必须大于1.3.0）。</li>
+<li>在官网<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-hardware/nRF9160-DK/Download#infotabs">nRF9160 DK - Downloads - nordicsemi.com</a>界面，选中最新的Modem固件版本并下载（必须大于1.3.0）。</li>
 </ol>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123143324324.png" alt="image-20221123143324324" style="zoom:50%;" />
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123143324324.png" alt="image-20221123143324324" style="zoom:50%;">
 
 
 
 <ol start="2">
 <li>打开nRF Connect桌面版，找到Programmer工具并打开</li>
 </ol>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123143424410.png" alt="image-20221123143424410" style="zoom: 67%;" />
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123143424410.png" alt="image-20221123143424410" style="zoom: 67%;">
 
 
 
 <ol start="3">
 <li>先选择板卡，然后选择固件文件（.zip），最后烧录</li>
 </ol>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123143649354.png" alt="image-20221123143649354" style="zoom:50%;" />
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123143649354.png" alt="image-20221123143649354" style="zoom:50%;">
 
 
 
@@ -264,7 +299,7 @@
 <li>选取作为模板的sample例程（NCS中的例程）</li>
 <li>本项目的名称</li>
 </ul>
-<p>​	关于asset_tracker_v2例程的更多信息，可以参考官方的例程说明：<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/README.html">nRF9160: Asset Tracker v2 — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a></p>
+<p>​	关于asset_tracker_v2例程的更多信息，可以参考官方的例程说明：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/README.html">nRF9160: Asset Tracker v2 — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a></p>
 <blockquote>
 <p>建议把为这个新创建的初始化为git仓库，便于你记录自己修改了什么。</p>
 <p>记得添加<code>.gitignore</code>文件，并且忽略你的<code>build/</code>文件夹</p>
@@ -275,7 +310,7 @@
 <ol>
 <li>与运营商有关的修改</li>
 </ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 由于使用移动的NB物联网卡，协议关闭LET-M，使用NB-IoT</span></span><br><span class="line">CONFIG_LTE_NETWORK_MODE_LTE_M_GPS=n  <span class="comment"># 由y改为n</span></span><br><span class="line">CONFIG_LTE_NETWORK_MODE_NBIOT_GPS=y  <span class="comment"># 新增</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># NB-IoT对ePCO支持的不好，故使用传统的PCO</span></span><br><span class="line">CONFIG_PDN=y                         <span class="comment"># 新增</span></span><br><span class="line">CONFIG_PDN_LEGACY_PCO=y              <span class="comment"># 新增</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 由于使用移动的NB物联网卡，故需要关闭LET-M，使用NB-IoT</span></span><br><span class="line">CONFIG_LTE_NETWORK_MODE_LTE_M_GPS=n  <span class="comment"># 由y改为n</span></span><br><span class="line">CONFIG_LTE_NETWORK_MODE_NBIOT_GPS=y  <span class="comment"># 新增</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># NB-IoT对ePCO支持的不好，故使用传统的PCO</span></span><br><span class="line">CONFIG_PDN=y                         <span class="comment"># 新增</span></span><br><span class="line">CONFIG_PDN_LEGACY_PCO=y              <span class="comment"># 新增</span></span><br></pre></td></tr></table></figure>
 
 <ol start="2">
 <li>与nRF Cloud连接、注册有关的修改（后面小节会详细说明）</li>
@@ -286,7 +321,7 @@
 
 <blockquote>
 <p>【备注】<code>prj.conf</code>文件的作用：</p>
-<p>在Zephyer编译系统中，Kconfig管理编译选项、各类功能选项的开关，而devicetree用来管理硬件。编译时，通过CMake和ninja会调用一系列python辅助脚本，把Kconfig和device tree变成c代码和头文件。然后进行编译。更多资料，可参考：<a target="_blank" rel="noopener" href="https://docs.zephyrproject.org/latest/build/index.html#build-and-configuration-systems">Build and Configuration Systems — Zephyr Project Documentation</a></p>
+<p>在Zephyer编译系统中，Kconfig管理编译选项、各类功能选项的开关，而devicetree用来管理硬件。编译时，通过CMake和ninja会调用一系列python辅助脚本，把Kconfig和device tree变成c代码和头文件。然后进行编译。更多资料，可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/index.html#build-and-configuration-systems">Build and Configuration Systems — Zephyr Project Documentation</a></p>
 <p>开发时，只需关注Kconfig与device tree如何修改即可。Kconfig中的选项非常多，大多数情况下保持默认即可。Kconfig的默认配置保存在NCS中。</p>
 <p><code>prj.conf</code>的作用，就是为这个工程单独修改部分Kconfig配置。编译时，构建系统会优先使用prj.conf里的配置来覆盖默认的Kconfig配置。这样每个工程都可以单独配置，不会影响到NCS中的默认配置。</p>
 <p><code>prj.conf</code>中的选项都必须是Kconfig中可以找到的。</p>
@@ -296,10 +331,10 @@
 <h3 id="2-3-4-编译"><a href="#2-3-4-编译" class="headerlink" title="2.3.4. 编译"></a>2.3.4. 编译</h3><p>使用nRF Connect插件中的Action菜单中的build即可编译</p>
 <p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221205010029256.png" alt="image-20221205010029256"></p>
 <p>编译成功的结果：</p>
-<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221205010439970.png" alt="image-20221205010439970" style="zoom: 50%;" />
+<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221205010439970.png" alt="image-20221205010439970" style="zoom: 50%;">
 
 <h3 id="2-3-5-烧录"><a href="#2-3-5-烧录" class="headerlink" title="2.3.5. 烧录"></a>2.3.5. 烧录</h3><p>​	先把官方的开发板通过USB连接到电脑上，识别到Jlink之后，可以通过ACTIONS栏中的<code>Flash</code>按钮触发烧录动作：</p>
-<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221123160139273-1670173336700-36.png" alt="image-20221123160139273" style="zoom: 80%;" />
+<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221123160139273-1670173336700-36.png" alt="image-20221123160139273" style="zoom: 80%;">
 
 <p>​	也可以通过命令行的形式进行烧录:</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ west flash</span><br></pre></td></tr></table></figure>
@@ -317,7 +352,7 @@
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ west flash --force --erase</span><br></pre></td></tr></table></figure>
 </blockquote>
 <h2 id="2-4-联网测试"><a href="#2-4-联网测试" class="headerlink" title="2.4. 联网测试"></a>2.4. 联网测试</h2><p>​	在nRF Connect桌面版中，打开LTE Link Monitor工具。</p>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123163321689.png" alt="image-20221123163321689" style="zoom:67%;" />
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123163321689.png" alt="image-20221123163321689" style="zoom:67%;">
 
 
 
@@ -325,11 +360,11 @@
 <p>需要依次尝试，点击“AT”按钮就会从串口发送一行“AT”命令，如果有回复OK，说明这个串口就是AT指令的串口。</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123173504262.png" alt="image-20221123173504262"></p>
 <blockquote>
-<p>在 <a target="_blank" rel="noopener" href="https://infocenter.nordicsemi.com/topic/ref_at_commands/REF/at_commands/intro.html">Nordic Info Center</a>可以查看AT指令手册，并可以在右上角下载PDF。</p>
+<p>在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://infocenter.nordicsemi.com/topic/ref_at_commands/REF/at_commands/intro.html">Nordic Info Center</a>可以查看AT指令手册，并可以在右上角下载PDF。</p>
 </blockquote>
 <p>​	左侧的面板显示了联网状态、IP地址、信号强度等信息：</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123173600818.png" alt="image-20221123173600818"></p>
-<p>​	注意，”<strong>Automatic Request</strong>“需要勾选上。勾选以后，在切换串口、点击“AT+CFUN?”指令时，才会自动发送相关AT指令，查询网络状态信息，面板上的信息才会更新。否则面板可能不更新。</p>
+<p>​	注意，”<strong>Automatic Request</strong>“需要勾选上。勾选以后，在切换串口或者点击“AT+CFUN?”指令时，此软件会自动发送相关AT指令，查询网络状态信息，面板上的信息才会更新。否则面板可能不更新。</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123173636098.png" alt="image-20221123173636098"></p>
 <p>​	即是说，以下状态灯应当全绿，则说明联网成功。但若不是全绿，也不一定是联网失败，可能只是信息没有刷新，参照上一条勾选“<strong>自动请求</strong>”，然后点击“AT+CFUN?”指令再次查询即可。</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123173817830.png" alt="image-20221123173817830"></p>
@@ -353,7 +388,7 @@
 </ol>
 <blockquote>
 <p>什么是非对称加密和CA证书？</p>
-<p>CA证书具有证书文件（内含公钥）和私钥文件两个部分，公钥和私钥是用来做非对称加密的。公钥加密的数据，只能用私钥解密；用私钥加密的数据，只能用公钥解密。</p>
+<p>​	CA证书具有证书文件（内含公钥）和私钥文件两个部分，公钥和私钥是用来做非对称加密的。公钥加密的数据，只能用私钥解密；用私钥加密的数据，只能用公钥解密。</p>
 <p>私钥是自己持有的，而公钥公开给所有想与自己通信的对象。</p>
 <p>假设A要给B发送一段消息M：</p>
 <ol>
@@ -361,31 +396,38 @@
 <li>B收到消息后，先用公钥解密C得到M’，再对比M’的数据摘要和D是否一致，若一致，则说明数据确实是<strong>公钥的所有者</strong>发出的。于是确信M’就是要接收的消息M。</li>
 </ol>
 <p>但B可能拿到假的公钥，黑客发出假的公钥，就可以冒充A给B发消息。为了避免这种情况发生，公钥需要被<strong>认证</strong>，这就是CA证书。</p>
-<p>一个CA证书文件<code>ca1</code>包含公钥P、签名S、所有者信息（国家、城市、单位名称、邮箱等）。<code>ca1</code>的签名S，是用另一个证书<code>ca2</code>的私钥，对<code>ca1</code>的公钥P进行加密得到的。</p>
+<p>​	一个CA证书文件<code>ca1</code>包含公钥P、签名S、所有者信息（国家、城市、单位名称、邮箱等）。<code>ca1</code>的签名S，是用另一个证书<code>ca2</code>的私钥，对<code>ca1</code>的公钥P进行加密得到的。</p>
 <p>所以利用公开的<code>ca2</code>的公钥对S进行解密，如果和P一致，则说明<code>ca1</code>是合法的。<code>ca1</code>的合法性由<code>ca2</code>证明。</p>
-<p>一个CA证书的安全性由另一个CA证书来证明，这样层层递归下去，形成证书链。而最初的CA证书就是<strong>根证书</strong>。具有颁发<strong>根证书</strong>的资质的机关就是CA（Certificate Authority），也叫“证书授权中心”。CA具有根证书，然后给他信任的其他公司颁发CA证书，这些颁发的CA证书里的签名S就是用根证书的私钥加密的。</p>
+<p>​	一个CA证书的安全性由另一个CA证书来证明，这样层层递归下去，形成证书链。而最初的CA证书就是<strong>根证书</strong>。具有颁发<strong>根证书</strong>的资质的机关就是CA（Certificate Authority），也叫“证书授权中心”。CA具有根证书，然后给他信任的其他公司颁发CA证书，这些颁发的CA证书里的签名S就是用根证书的私钥加密的。</p>
 </blockquote>
-<p>​	目前nRF Cloud有两种注册方式，一种是通过JITP的方式（Just-in-Time Provisioning）,另一种是<a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/Devices/Associations/Provisioning/#preconnect-provisioning">预连接（preconnect provisioning）</a>。</p>
-<h3 id="JITP方式注册"><a href="#JITP方式注册" class="headerlink" title="JITP方式注册"></a>JITP方式注册</h3><p>​	JITP（Just-in-Time Provisioning）的方式利用开发板背面贴纸上的IMEI和PIN码，在云端控制台<strong>手动</strong>生成一个CA证书，然后下载到电脑，并通过LTE Link Monitor 工具生成<strong>设备证书</strong>，并把设备证书的私钥安装到9160中。这样设备就可以直接连接到云端并注册。这种方式便于快速开发、验证，但不适合量产，本文不详细介绍。若有兴趣可参考：<a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/Devices/Associations/Provisioning/#just-in-time-provisioning">Updating The nRF Cloud Certificate</a></p>
-<h3 id="预连接方式注册"><a href="#预连接方式注册" class="headerlink" title="预连接方式注册"></a>预连接方式注册</h3><p>​	<a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/Devices/Associations/Provisioning/#preconnect-provisioning">预连接（preconnect provisioning）</a>，是利用nRF Cloud提供的云端REST接口（接口文档见<a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#tag/IP-Devices/operation/ProvisionDevices">Provision Devices</a>），进行批量的设备注册。具体步骤为：</p>
+<p>​	目前nRF Cloud有两种注册方式，一种是通过JITP的方式（Just-in-Time Provisioning）,另一种是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nrfcloud.com/Devices/Associations/Provisioning/#preconnect-provisioning">预连接（preconnect provisioning）</a>。</p>
+<h3 id="JITP方式注册"><a href="#JITP方式注册" class="headerlink" title="JITP方式注册"></a>JITP方式注册</h3><p>​	JITP（Just-in-Time Provisioning）的方式利用开发板背面贴纸上的IMEI和PIN码，在云端控制台<strong>手动</strong>生成一个CA证书，然后下载到电脑，并通过LTE Link Monitor 工具生成<strong>设备证书</strong>，并把设备证书的私钥安装到9160中。这样设备就可以直接连接到云端并注册。这种方式便于快速开发、验证，但不适合量产，本文不详细介绍。图文步骤可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/ug_nrf9160_gs.html#connecting-to-nrf-cloud">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/ug_nrf9160_gs.html#connecting-to-nrf-cloud</a></p>
+<p>JITP的文档说明为：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nrfcloud.com/Devices/Associations/Provisioning/#just-in-time-provisioning">Updating The nRF Cloud Certificate</a></p>
+<h3 id="预连接方式注册"><a href="#预连接方式注册" class="headerlink" title="预连接方式注册"></a>预连接方式注册</h3><p>​	<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nrfcloud.com/Devices/Associations/Provisioning/#preconnect-provisioning">预连接（preconnect provisioning）</a>，是利用nRF Cloud提供的云端REST接口（接口文档见<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#tag/IP-Devices/operation/ProvisionDevices">Provision Devices</a>），进行批量的设备注册。具体步骤为：</p>
 <ol>
-<li>首先需要一个CA证书（不一定要CA正规机构颁发，可以自己生成）；</li>
-<li>电脑连接到nRF9160 AT串口，为设备分配UUID，并通过<strong>CA证书</strong>和<strong>UUID</strong>为每一个设备生成<strong>设备证书</strong>。通过串口安装这些证书，同时把这一批设备的UUID、公钥等信息记录到CSV表格中。</li>
-<li>通过nRF Cloud的云端REST接口，把这一批设备一次性注册到云端，上传公钥。</li>
+<li>首先电脑上需要一个CA证书（不一定要CA正规机构颁发，可以自己生成）；</li>
+<li>电脑连接到nRF9160 AT串口，通过nRF Cloud Utils脚本（TypeScript 或 python），执行以下步骤：<ul>
+<li>通过串口AT命令，让设备生成UUID，并通过PC上的<strong>自签CA证书</strong>和<strong>UUID</strong>为每一个设备生成X.509<strong>设备证书</strong>和<strong>私钥</strong>。由于X.509私钥是直接在9160内生成的，PC上看不到，从而确保了安全性。</li>
+<li>通过串口烧写AWS根证书到9160 Modem中，这样可以确保nRF9160连接nRF Cloud时可以对服务器进行验证（nRF Cloud 运行在AWS上）。</li>
+<li>把该设备的UUID、X.509证书等信息记录到一个CSV表格文件中。</li>
+</ul>
+</li>
+<li>步骤2可重复最多1000次，信息存入同一个CSV表格。</li>
+<li>通过nRF Cloud的云端REST接口，把CSV表格上传，把这一批设备一次性注册到云端。</li>
 </ol>
-<p>​	<strong>nRF Cloud提供了一套工具来帮助你快速完成上述三项工作，可以用TypeScript脚本或Python脚本</strong>，这套工具在github上，地址为： <a target="_blank" rel="noopener" href="https://github.com/nRFCloud/utils/blob/master/python/modem-firmware-1.3+/README.md#create-device-credentials">utils&#x2F;README.md at master · nRFCloud&#x2F;utils (github.com)</a>。</p>
+<p>​	<strong>nRF Cloud提供了一套工具来帮助你快速完成上述三项工作，可以用TypeScript脚本或Python脚本</strong>，这套工具在github上，地址为： <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nRFCloud/utils/blob/master/python/modem-firmware-1.3+/README.md#create-device-credentials">utils&#x2F;README.md at master · nRFCloud&#x2F;utils (github.com)</a>。</p>
 <p>​	下面通过Python脚本进行示例：</p>
 <h3 id="（1）前期准备"><a href="#（1）前期准备" class="headerlink" title="（1）前期准备"></a>（1）前期准备</h3><ul>
-<li><p>确保9160SiP 为Revision 2或更高版本（查看SiP封装上的文字，有<strong>B0</strong>则为Rev1版本，有<strong>B1</strong>则为Rev2版本。可参考：<a target="_blank" rel="noopener" href="https://infocenter.nordicsemi.com/index.jsp?topic=/comp_matrix_nrf9160/COMP/nrf9160/nrf9160_ic_revision_overview.html">nRF9160 IC Revision Overview</a>）</p>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221124110504562.png" alt="image-20221124110504562" style="zoom: 25%;" />
+<li><p>确保9160SiP 为Revision 2或更高版本（查看SiP封装上的文字，有<strong>B0</strong>则为Rev1版本，有<strong>B1</strong>则为Rev2版本。可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://infocenter.nordicsemi.com/index.jsp?topic=/comp_matrix_nrf9160/COMP/nrf9160/nrf9160_ic_revision_overview.html">nRF9160 IC Revision Overview</a>）</p>
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221124110504562.png" alt="image-20221124110504562" style="zoom: 25%;">
 </li>
 <li><p>确保已经按照[2.2](#2.2. 烧录Modem固件)的步骤，烧录了1.3.0或更高版本的Modem固件（这些版本才支持新的安全AT指令，如<code>KEYGEN</code>）</p>
 </li>
 <li><p>确保你已经按照[2.3](#2.3. 配置、编译并烧录Application固件)的步骤，修改了Application固件的配置参数，启用了JWT和UUID；</p>
 </li>
-<li><p>已经按照[2.4](#2.4. 联网测试)的步骤，验证了设备已经成功联网；</p>
+<li><p>已经按照[2.4](#2.4. 联网测试)的步骤，验证了设备可以成功联网；</p>
 </li>
-<li><p>已经 <a target="_blank" rel="noopener" href="https://nrfcloud.com/#/">注册了nRF Cloud账号，并登录</a>。</p>
+<li><p>已经 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://nrfcloud.com/#/">注册了nRF Cloud账号，并登录</a>。</p>
 </li>
 </ul>
 <h3 id="（2）获取最新的nRF-Cloud-Utils工具，并安装好依赖"><a href="#（2）获取最新的nRF-Cloud-Utils工具，并安装好依赖" class="headerlink" title="（2）获取最新的nRF Cloud Utils工具，并安装好依赖"></a>（2）获取最新的nRF Cloud Utils工具，并安装好依赖</h3><p>​	在一个无中文、无空格、无特殊字符的路径下，从github拷贝仓库：</p>
@@ -413,13 +455,13 @@
 </ul>
 </blockquote>
 <p>​	生成后，可以看到自己指定的目录下已经有了三个证书文件：</p>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123223024181.png" alt="image-20221123223024181" style="zoom: 67%;" />
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123223024181.png" alt="image-20221123223024181" style="zoom: 67%;">
 
 <p>​	其中，ca是证书，prv是私钥，pub是公钥。</p>
 <blockquote>
-<p>本例程中，CA证书是我们自己签发的根证书，能让设备和云端的通信被加密即可。这个CA证书本身并不是CA机构签发的正规证书。</p>
-<p>若想查看CA证书的信息，可以随便找一个<a target="_blank" rel="noopener" href="https://myssl.com/cert_decode.html">在线CA查看器</a>，把xxx_ca.pem拖进去就可以看到信息了：</p>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123224514523.png" alt="image-20221123224514523" style="zoom: 33%;" />
+<p>​	CA证书是我们自己签发的根证书，能让设备和云端的通信被加密即可。这个CA证书本身并不是CA机构签发的正规证书。</p>
+<p>​	若想查看CA证书的信息，可以随便找一个<a target="_blank" rel="external nofollow noopener noreferrer" href="https://myssl.com/cert_decode.html">在线CA查看器</a>，把xxx_ca.pem拖进去就可以看到信息了：</p>
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123224514523.png" alt="image-20221123224514523" style="zoom:80%;">
 </blockquote>
 <h3 id="（4）签发并安装设备证书"><a href="#（4）签发并安装设备证书" class="headerlink" title="（4）签发并安装设备证书"></a>（4）签发并安装设备证书</h3><p>​	需要使用<code>utils/python/modem-firmware-1.3+/</code>目录下的<code>device_credentials_installer.py</code>脚本。</p>
 <p>如果想查看最新的脚本使用方式：</p>
@@ -429,16 +471,15 @@
 
 <p>​	此脚本的功能：</p>
 <ol>
-<li>这个脚本会调用同一目录下的<code>create_device_credentials.py</code>，给每个设备单独生成设备证书；</li>
-<li>通过电脑串口，给你的设备发送AT指令，生成一个UUID；</li>
-<li>通过电脑串口，给你的设备发送AT指令，把<strong>设备证书</strong>及其<strong>私钥</strong>安装到你的设备中；</li>
-<li>记录这个设备的信息，把UUID等信息存储到2个csv表格文件中。</li>
-<li>量产时，这个脚本可以重复执行。只需要在每次串口上换一个设备时，就执行一次这个脚本。这个设备就会被安装证书，并且设备的信息会记录到2个表格文件中。<strong>最多允许存1000台设备的信息。</strong></li>
+<li>通过电脑串口，给你的设备发送AT指令，生成一个UUID</li>
+<li>这个脚本会调用同一目录下的<code>create_device_credentials.py</code>，让每个设备单独生成X509设备证书和私钥；</li>
+<li>通过电脑串口，读取到UUID和X.509证书，并保存csv表格文件中</li>
+<li>量产时，这个脚本可以重复执行。只需要在每次串口上换一个设备时，就执行一次这个脚本。这个设备就会生成X.509证书，并且设备的信息会记录到2个表格文件中。<strong>最多允许存1000台设备的信息。</strong></li>
 <li>后续可以把这两个表格文件和证书上传到云端，便于批量注册设备。</li>
 </ol>
 <p>​	在执行这个脚本之前，确保第（2）步中的CA证书都生成好了。</p>
-<p>脚本使用示例如下（windows环境），你需要根据实际情况改变命令的参数配置。</p>
-<p>注意，示例执行脚本时，并未指定串口。因为脚本在windows下会自动检测哪个串口是AT指令串口。注意不要开着LTE Link Monitor等工具占用着串口导致安装失败。如果在linux下操作，请增加<code>--port /dev/ttyS??</code>来指定串口，详情可参考 <a target="_blank" rel="noopener" href="https://github.com/nRFCloud/utils/blob/master/python/modem-firmware-1.3+/README.md#device-credentials-installer">Device Credentials Installer</a>。</p>
+<p>​	脚本使用示例如下（windows环境），你需要根据实际情况改变命令的参数配置。</p>
+<p>​	注意，示例执行脚本时，并未指定串口。因为脚本在windows下会自动检测哪个串口是AT指令串口。注意不要开着LTE Link Monitor等工具占用着串口导致安装失败。如果在linux下操作，请增加<code>--port /dev/ttyS??</code>来指定串口，详情可参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nRFCloud/utils/blob/master/python/modem-firmware-1.3+/README.md#device-credentials-installer">Device Credentials Installer</a>。</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ python device_credentials_installer.py -d -t <span class="string">&quot;jayant-DK&quot;</span> --ca ./my_ca/Jayant-0x12de89cb5ee9589433c9ba08e74bc0eebdfe9ab4_ca.pem --ca_key ./my_ca/Jayant-0x12de89cb5ee9589433c9ba08e74bc0eebdfe9ab4_prv.pem -a --devinfo_append --csv ./jayant_provision.csv --devinfo ./jayant_devinfo.csv --term CRLF</span><br></pre></td></tr></table></figure>
 
 <blockquote>
@@ -459,10 +500,10 @@
 </blockquote>
 <p>​	我只有一块开发板，所以只执行一次。</p>
 <h3 id="（5）把设备信息批量注册到云端"><a href="#（5）把设备信息批量注册到云端" class="headerlink" title="（5）把设备信息批量注册到云端"></a>（5）把设备信息批量注册到云端</h3><p>​	批量的在nRFCloud上进行设备注册（Cloud Provisioning）。</p>
-<p>​	首先，在<a target="_blank" rel="noopener" href="https://nrfcloud.com/#/">nRF Cloud Portal</a> 登录你的nRF Cloud账号（前面应该已经注册好了）。然后获取nRF Cloud REST API key。</p>
+<p>​	首先，在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://nrfcloud.com/#/">nRF Cloud Portal</a> 登录你的nRF Cloud账号（前面应该已经注册好了）。然后获取nRF Cloud REST API key。</p>
 <p>​	在右上角点击进入个人账户页面，然后在下面可以看到API key，复制出来即可。</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221123234437620.png" alt="image-20221123234437620"></p>
-<p>​	接下来继续执行python脚本，进行云端注册：</p>
+<p>​	接下来继续执行python脚本，进行云端注册（这个脚本底层就是调用了REST API进行注册）：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ python ./nrf_cloud_provision.py --apikey 3c967ecbd9fxxxxxxxxxxxxxxxxa73cf37049983 --chk --csv ./jayant_provision.csv --devinfo jayant_devinfo.csv --set_mfwv --name_imei --name_pref <span class="string">&quot;my_dk_&quot;</span> --res prov.log</span><br></pre></td></tr></table></figure>
 
 <blockquote>
@@ -471,7 +512,7 @@
 <li><code>--apikey</code>：刚刚复制的API key</li>
 <li><code>--chk</code>：<strong>单个设备的注册才使用</strong>，注册前先检查设备是否存在</li>
 <li><code>--csv</code> ：上一步生成的，存储着<strong>设备注册信息</strong>的csv表格文件，最多允许1000条数据</li>
-<li>&#96;–devinfo ：上一步生成的，存储着<strong>设备信息</strong>的csv表格文件，最多允许1000条数据</li>
+<li><code>--devinfo</code> ：上一步生成的，存储着<strong>设备信息</strong>的csv表格文件，最多允许1000条数据</li>
 <li><code>--set_mfwv</code>：把<code>--devinfo</code>中记录的Modem固件版本存储到云端</li>
 <li><code>--name_imei</code>：把<code>--devinfo</code>中记录的IMEI（芯片ID）作为friendly name</li>
 <li><code>--name_pref</code>：给friendly name添加一个前缀字符串</li>
@@ -489,7 +530,7 @@
 <p>​	点进设备的详情页面，已经可以看到大量的信息（部分资源在墙外，加载不出属于正常现象，需要代理上网）：</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221124000623033.png" alt="image-20221124000623033"></p>
 <p>​	可以通过terminal窗口，发送json消息，与设备进行交互。也可以进行OTA升级。</p>
-<p>​	在本例程中，板子上的LED指示灯也可以展示状态：详见<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/ui_module.html#led-indication">Led indication</a>。这里只列出DK板的行为。</p>
+<p>​	在本例程中，板子上的LED指示灯也可以展示状态：详见<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/ui_module.html#led-indication">Led indication</a>。这里只列出DK板的行为。</p>
 <table>
 <thead>
 <tr>
@@ -539,7 +580,7 @@
 </tr>
 </tbody></table>
 <h3 id="（7）从云端删除设备"><a href="#（7）从云端删除设备" class="headerlink" title="（7）从云端删除设备"></a>（7）从云端删除设备</h3><p>​	如果你想从云端删除设备，可以直接在网页端操作，从右上角齿轮除点击删除即可。也可以用云对云的REST API进行删除，后续章节讲解。</p>
-<h1 id="3-Asset-Tracker-v2-例程分析"><a href="#3-Asset-Tracker-v2-例程分析" class="headerlink" title="3. Asset Tracker v2 例程分析"></a>3. Asset Tracker v2 例程分析</h1><p>​	例程的官方说明：<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/asset_tracker_v2_description.html">Application description — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a></p>
+<h1 id="3-Asset-Tracker-v2-例程分析"><a href="#3-Asset-Tracker-v2-例程分析" class="headerlink" title="3. Asset Tracker v2 例程分析"></a>3. Asset Tracker v2 例程分析</h1><p>​	例程的官方说明：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/asset_tracker_v2_description.html">Application description — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a></p>
 <h2 id="3-1-本例程设计原则"><a href="#3-1-本例程设计原则" class="headerlink" title="3.1. 本例程设计原则"></a>3.1. 本例程设计原则</h2><ul>
 <li>超低功耗</li>
 <li>离线优先：本例程假设大多数情况下是离线的，连接是不可靠的。因此会有数据重发的机制。</li>
@@ -673,14 +714,14 @@
 <li>设备发送更新数据到云端时</li>
 <li>启动后，从flash中另外加载</li>
 </ul>
-<h3 id="工作流程图"><a href="#工作流程图" class="headerlink" title="工作流程图"></a>工作流程图</h3><img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221206195856563.png" alt="image-20221206195856563" style="zoom: 67%;" />
+<h3 id="工作流程图"><a href="#工作流程图" class="headerlink" title="工作流程图"></a>工作流程图</h3><img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221206195856563.png" alt="image-20221206195856563" style="zoom: 67%;">
 
 <center>
  主动模式流程图
 </center>
 
 <p>​	在<strong>主动模式</strong>下，只要超时，例程就会采样新数据，并发送到云端。</p>
-<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221206200043536.png" alt="image-20221206200043536" style="zoom:80%;" />
+<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221206200043536.png" alt="image-20221206200043536" style="zoom:80%;">
 
 <center>
     被动模式流程图
@@ -693,19 +734,95 @@
 <li>检测到运动，并且Resolution定时器超时，默认120s</li>
 <li>未检测到运动，并且 timeout定时器超时，默认3600s</li>
 </ul>
-<h3 id="用户接口"><a href="#用户接口" class="headerlink" title="用户接口"></a>用户接口</h3><p>​	例程提供了一些UI来方便观察系统的状态。例如按键和灯。按键和灯的功能说明见：<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/ui_module.html">User Interface module — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a>。</p>
+<h3 id="用户接口"><a href="#用户接口" class="headerlink" title="用户接口"></a>用户接口</h3><table>
+<thead>
+<tr>
+<th>按钮</th>
+<th>Thingy:91 评估板</th>
+<th>nRF9160 DK 开发板</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>给云端发送数据</td>
+<td>给云端发送数据</td>
+</tr>
+<tr>
+<td>2</td>
+<td>-</td>
+<td>给云端发送数据；<br>由于nRF9160 DK没有加速度计，故使用此按钮模拟加速度计有运动的情况</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>工作状态</th>
+<th>Thngy:91 LED</th>
+<th>nRF9160 DK LED</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>搜索LTE网络</td>
+<td>黄色闪烁</td>
+<td>LED1 闪烁</td>
+</tr>
+<tr>
+<td>GNSS定位中</td>
+<td>紫色闪烁</td>
+<td>LED2 闪烁</td>
+</tr>
+<tr>
+<td>Cloud association</td>
+<td>白色双闪</td>
+<td>LED3 双闪</td>
+</tr>
+<tr>
+<td>MQTT连接中</td>
+<td>绿灯三闪</td>
+<td>LED3 三闪</td>
+</tr>
+<tr>
+<td>Publish Data</td>
+<td>绿灯闪烁</td>
+<td>LED3 闪烁</td>
+</tr>
+<tr>
+<td>Active Mode</td>
+<td>浅蓝色闪烁</td>
+<td>LED4 闪烁</td>
+</tr>
+<tr>
+<td>Passive Mode</td>
+<td>深蓝色闪烁</td>
+<td>LED3和LED4闪烁</td>
+</tr>
+<tr>
+<td>故障</td>
+<td>红色常亮</td>
+<td>4个灯闪烁</td>
+</tr>
+<tr>
+<td>FOTA升级</td>
+<td>橙色快闪</td>
+<td>LED1 LED2 闪烁</td>
+</tr>
+<tr>
+<td>升级完成</td>
+<td>橙色常亮</td>
+<td>LED1 LED2 常亮</td>
+</tr>
+</tbody></table>
 <h3 id="A-GPS与P-GPS"><a href="#A-GPS与P-GPS" class="headerlink" title="A-GPS与P-GPS"></a>A-GPS与P-GPS</h3><blockquote>
 <p>GNSS简介：</p>
 <ul>
 <li>GNSS：全球卫星导航系统，通过多颗同步卫星对地球进行广播。地面上的设备只要接收到三个卫星的信号，根据<strong>预先获得的卫星轨道数据</strong>和<strong>接收到广播的时间差</strong>就可以计算出在地球上的定位。</li>
-<li>GPS：美国的GNSS，每12.5分钟广播一次。</li>
+<li>GPS：美国GNSS，每12.5分钟广播一次。</li>
 <li>A-GPS：辅助GPS，适合室外。设备不用等GPS广播，先从附近蜂窝基站获得大概定位。然后从云服务器的AGPS服务下载这个区域的GPS信息。于是可以缩短设备的GNSS模块首次捕获的时间（2~3分钟缩短到几秒）。</li>
 <li>P-GPS：预测GPS。设备可以下载长达2周的预测卫星星历数据，使设备能够准确的知道卫星的轨道位置，而无需每2小时连接到网络。并且还能随时间变化权衡精度的下降。P-GPS也能缩短设备定位所需的时间。</li>
 </ul>
 </blockquote>
-<p>​	NCS提供nRFCloud <a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/libraries/networking/nrf_cloud_agps.html#lib-nrf-cloud-agps">A-GPS库</a>和<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/libraries/networking/nrf_cloud_pgps.html#lib-nrf-cloud-pgps">P-GPS库</a>，让设备能从云端获取这些数据。不论云端是 <a target="_blank" rel="noopener" href="https://aws.amazon.com/iot-core/">AWS IoT Core</a>, <a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/azure/iot-hub/">Azure IoT Hub</a>,还是 <a target="_blank" rel="noopener" href="https://omaspecworks.org/what-is-oma-specworks/iot/lightweight-m2m-lwm2m/">LwM2M</a>。这些数据由<a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/LocationServices/LocationServicesOverview/">nRF Cloud 位置服务</a>提供。</p>
-<p>​	上述云端与nRF Cloud通信的接口是REST API，将在本文的最后一节讲解。</p>
-<p>​	如果例程是直接连nRF Cloud的，就不需要转发了。</p>
+<p>​	NCS提供nRFCloud <a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/libraries/networking/nrf_cloud_agps.html#lib-nrf-cloud-agps">A-GPS库</a>和<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/libraries/networking/nrf_cloud_pgps.html#lib-nrf-cloud-pgps">P-GPS库</a>，让设备能直接从nRF Cloud云端获取这些数据。</p>
+<p>​	如果云端是其他云，如 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://aws.amazon.com/iot-core/">AWS IoT Core</a>, <a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.microsoft.com/en-us/azure/iot-hub/">Azure IoT Hub</a>等。则Location Library也支持从外部输入这些数据（在定位需要用到AGPS&#x2F;PGPS时，产生一个回调事件，应用层把自己从其他云获取到的AGPS、PGPS数据传入Location Library即可）。</p>
 <h2 id="3-3-例程的工程结构"><a href="#3-3-例程的工程结构" class="headerlink" title="3.3. 例程的工程结构"></a>3.3. 例程的工程结构</h2><p>​	Zephyer开发最大的特点是<strong>模块化</strong>。在我的另一篇文章<a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/2a39e705bff0/">《理解Zephyr项目的配置与构建系统》</a>中，我介绍了Zephyr和Nordic提供的库都可以看成是一个模块，每个模块有自己的Kconfig配置。</p>
 <p>​	如果你自己写一个项目，可以把几个<code>.c</code>源文件和<code>.h</code>头文件丢进<code>CMakeList.txt</code>就行，这样比较简单直接。但如果你想开发好几个独立的复杂模块，并让他们搭配起来工作，就一定要学一下Asset Tracker v2这个例程的写法。</p>
 <p>​	首先看项目根目录下的<code>Kconfig</code>的包含关系：</p>
@@ -713,7 +830,7 @@
 
 <p>​	可以看到，除了Zephyr操作系统内核外，还包含了src目录下许多的模组，这些模组<strong>不是官方库</strong>。而是Nordic官方为这个例程开发的应用模组。你也可以照葫芦画瓢开发自己的应用模组。</p>
 <p>​	直接用图形化界面查看，就可以看到Kconfig中的选项了：</p>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129154636314.png" alt="image-20221129154636314" style="zoom: 67%;" />
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129154636314.png" alt="image-20221129154636314" style="zoom: 67%;">
 
 <blockquote>
 <p>​	分模块开发，除了更加简洁直观、解耦以外，还有一个巨大的好处，那就是每个模组的Log可以在Kconfig中单独开关。这个例程的项目实在是太复杂了，如果所有模组的log都打开，不论是串口还是RTT都是打不下的。</p>
@@ -727,7 +844,7 @@
 <p>​	以上两种方式，常常发生在我们使用官方库的过程中。我们直接调用官方库中的函数（同步调用），或者把回调函数注册进官方库中（异步调用）。</p>
 <h3 id="Application-Event-Manager"><a href="#Application-Event-Manager" class="headerlink" title="Application Event Manager"></a>Application Event Manager</h3><p>​	对于我们自己开发的application模组，如果互相之间通信还要调用对方的函数，还要做线程间通信，还要做互斥锁、信号量，那就失去模块化的意义了。</p>
 <p>​	Nordic提供了一个叫做Application Event Manager的库，Nordic许多产品级的复杂例程都用到了它。它提供了一个不同模组之间的通信机制：</p>
-<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221205013810750.png" alt="image-20221205013810750" style="zoom: 67%;" />
+<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221205013810750.png" alt="image-20221205013810750" style="zoom: 67%;">
 
 <p>​	每个模组只负责与自己有关的应用和驱动。每个模组可以发布（SUBMIT）事件，也可以订阅（SUBSCRIB）其他模组的事件。想让其他模组做什么事的时候，发布一个事件就好。而只要订阅了其他模组的事件，那么就可以从Application Event Manager中收到这些事件，之后，只要编写好处理这些事件的回调函数即可。</p>
 <p>​	所有的事件都是从Applicarion Event Manager来的，回调函数是注册给Applicarion Event Manager的，不是注册给其他模组。此外，每个模组只需一个回调函数就可以处理所有其他模组来的时间，不用定义一堆事件入口。</p>
@@ -745,7 +862,7 @@
 <blockquote>
 <p>​		对于带线程的模组：<br>​	把Event变成Message，并放入消息队列的工作，都是每个模组自己维护的。Application Event Manager只是提供一个事件回调的接口，各个模组自己通过事件回调函数，把事件放入消息队列。</p>
 </blockquote>
-<h3 id="动态内存"><a href="#动态内存" class="headerlink" title="动态内存"></a>动态内存</h3><p>​	模组大多使用静态分配的内存。但是本例程会有一些内容使用动态内存，依赖的是 <a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/zephyr/kernel/memory_management/heap.html#heap-v2">Zephyr的堆内存池</a>。以下内容是使用了动态内存的：</p>
+<h3 id="动态内存"><a href="#动态内存" class="headerlink" title="动态内存"></a>动态内存</h3><p>​	模组大多使用静态分配的内存。但是本例程会有一些内容使用动态内存，依赖的是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/zephyr/kernel/memory_management/heap.html#heap-v2">Zephyr的堆内存池</a>。以下内容是使用了动态内存的：</p>
 <ul>
 <li>模组之间传输的Event</li>
 <li>即将被发送到云端的数据</li>
@@ -757,228 +874,58 @@
 <h2 id="3-5-例程模组介绍"><a href="#3-5-例程模组介绍" class="headerlink" title="3.5. 例程模组介绍"></a>3.5. 例程模组介绍</h2><p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221206203138376.png" alt="image-20221206203138376"></p>
 <p>​	如上图，例程中共实现了9个模组。蓝色的是自带线程的，而橙色的是不带线程的。</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/app_module.html#asset-tracker-v2-app-module">Application module</a>：控制何时采集数据、采集什么数据，并且控制整个例程的其他行为</li>
-<li><a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/data_module.html#asset-tracker-v2-data-module">Data module</a>：根据App模块的设定搜集其他模块的数据，存入环形缓冲。并决定何时发送到云端。</li>
-<li><a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/cloud_module.html#asset-tracker-v2-cloud-module">Cloud module</a>：负责与云端的连接与数据交互</li>
-<li><a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/sensor_module.html#asset-tracker-v2-sensor-module">Sensor module</a>：与 <a href="thingy:91productpage">Thingy:91</a>开发板上的传感器交互并获得数据</li>
-<li><a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/gnss_module.html#asset-tracker-v2-gnss-module">GNSS module</a>：控制nRF9160的GNSS功能</li>
-<li><a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/ui_module.html#asset-tracker-v2-ui-module">User Interface module</a>：利用按键和灯提供简易的用户交互接口</li>
-<li><a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/util_module.html#asset-tracker-v2-util-module">Utility module</a>：提供对例程进行管理和监控的工具</li>
-<li><a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/debug_module.html#asset-tracker-v2-debug-module">Debug module</a>：此模组订阅了所有事件，方便调试，也支持nCS中的Memfault模组。</li>
-<li><a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/modem_module.html#asset-tracker-v2-modem-module">Modem module</a>：控制LTE连接</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/app_module.html#asset-tracker-v2-app-module">Application module</a>：控制何时采集数据、采集什么数据，并且控制整个例程的其他行为</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/data_module.html#asset-tracker-v2-data-module">Data module</a>：根据App模块的设定搜集其他模块的数据，存入环形缓冲。并决定何时发送到云端。</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/cloud_module.html#asset-tracker-v2-cloud-module">Cloud module</a>：负责与云端的连接与数据交互</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/sensor_module.html#asset-tracker-v2-sensor-module">Sensor module</a>：与 <a href="thingy:91productpage" rel="external nofollow noopener noreferrer" target="_blank">Thingy:91</a>开发板上的传感器交互并获得数据</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/gnss_module.html#asset-tracker-v2-gnss-module">GNSS module</a>：控制nRF9160的GNSS功能</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/ui_module.html#asset-tracker-v2-ui-module">User Interface module</a>：利用按键和灯提供简易的用户交互接口</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/util_module.html#asset-tracker-v2-util-module">Utility module</a>：提供对例程进行管理和监控的工具</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/debug_module.html#asset-tracker-v2-debug-module">Debug module</a>：此模组订阅了所有事件，方便调试，也支持nCS中的Memfault模组。</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/modem_module.html#asset-tracker-v2-modem-module">Modem module</a>：控制LTE连接</li>
 </ul>
 <blockquote>
 <p>要使用debug模组，需要include <code>../overlay-debug.conf</code></p>
 </blockquote>
-<h2 id="3-6-例程代码分析"><a href="#3-6-例程代码分析" class="headerlink" title="3.6. 例程代码分析"></a>3.6. 例程代码分析</h2><p>​	本小节从一个初学者的角度去查代码，讲解如何分析代码、以及如何查找资料。</p>
-<h3 id="3-6-1-main-c文件分析"><a href="#3-6-1-main-c文件分析" class="headerlink" title="3.6.1. main.c文件分析"></a>3.6.1. main.c文件分析</h3><p>​	我们进入到<code>src/main.c</code>中的<code>main()</code>函数，可以看到，这里首先是判断是否启用了<code>lwm2m</code>库：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (!IS_ENABLED(CONFIG_LWM2M_CARRIER)) &#123;</span><br><span class="line">        handle_nrf_modem_lib_init_ret();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>​	在[nRF Connect SDK](<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/index.html">Welcome to the nRF Connect SDK! — nRF Connect SDK 2.1.2 documentation</a>)官方文档中有丰富的资料，所有不懂的东西都可以在里面搜索，我们搜索<code>lwm2m</code>：</p>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129132733110.png" alt="image-20221129132733110" style="zoom: 50%;" />
-
-
-
-<p>​	点进第一个搜索结果：</p>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129132903784.png" alt="image-20221129132903784" style="zoom: 50%;" />
-
-<p>​	根据这个页面的内容我们可以知道，Nordic提供一个叫做Cloud wrapper API的东西，它把各种IoT云的客户端库接口都给封装起来，只暴露出发送、连接、断开之类的常用功能，把每个云端特定的接口给隐藏了。</p>
-<p>​	那么Cloud wrapper API都封装了哪些云端提供的库呢？往下面翻可以看到，有亚马逊AWS IoT、微软Azure IoT Hub、nRF Cloud以及LwM2M。看到这里我们就知道LwM2M应该是某种云的客户端库。再往下就是介绍技术细节了。如果要详细了解LwM2M，就可以去其它搜索引擎继续搜索了。</p>
-<p>​	由于我们使用的是nRF Cloud，因此本文不再探究LwM2M的内容。</p>
-<blockquote>
-<p>注意：</p>
-<p>我们查资料时一定要注意资料的适用范围：</p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129160526320.png" alt="image-20221129160526320"></p>
-<p>从这个资料的路径可以看出，Cloud wrapper API只是Nordic为了 Asset Tracker v2这个项目开发的一个API，是项目内部的一个实现，并非是NCS中通用的库。</p>
-</blockquote>
-<p>​	接着往下看可以看到，调用了一个App Event Manager的初始化函数。并且注释告诉我们这个App Event Manager必须初始化成功，否则就无法实现功能，需要重启。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (app_event_manager_init()) &#123;</span><br><span class="line">        <span class="comment">/* Without the Application Event Manager, the application will not work</span></span><br><span class="line"><span class="comment">         * as intended. A reboot is required in an attempt to recover.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        LOG_ERR(<span class="string">&quot;Application Event Manager could not be initialized, rebooting...&quot;</span>);</span><br><span class="line">        k_sleep(K_SECONDS(<span class="number">5</span>));</span><br><span class="line">        sys_reboot(SYS_REBOOT_COLD);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        module_set_state(MODULE_STATE_READY);</span><br><span class="line">        SEND_EVENT(app, APP_EVT_START);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>​	我们假装自己不知道App Event Manager是什么。我们可以右键跳转到对应的代码：</p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129134046131.png" alt="image-20221129134046131"></p>
-<p>​	在VS Code上方文件地址栏，就可以知道Application Event Manager是Nordic提供的<code>nrf</code>仓库下的一个subsystem。</p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129134230597.png" alt="image-20221129134230597"></p>
-<p>​	既然Application Event Manager是一个模组，那么当然在Kconfig中也是可以搜到它的配置的。</p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129134432904.png" alt="image-20221129134432904"></p>
-<p>​	由此我们可以体会到<code>Zephyr</code>这个配置系统的方便之处：只要是官方提供的模组，不论是nrf、zephyr还是第三方的模组，只要用Kconfig包含这个模组，就可以在本项目的Kconfig菜单中轻松的进行配置。</p>
-<p>​	当然，在NCS官方文档中进行搜索也是可以的，这里给出链接<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/libraries/others/app_event_manager.html#application-event-manager">Application Event Manager — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a></p>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129134707130.png" alt="image-20221129134707130" style="zoom:67%;" />
-
-
-
-<p>​	接下来，获取当前线程（main函数）的线程id，然后启动本模组：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">self.thread_id = k_current_get();</span><br><span class="line"></span><br><span class="line">err = module_start(&amp;self);</span><br><span class="line"><span class="keyword">if</span> (err) &#123;</span><br><span class="line">    LOG_ERR(<span class="string">&quot;Failed starting module, error: %d&quot;</span>, err);</span><br><span class="line">    SEND_ERROR(app, APP_EVT_ERROR, err);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>​	这里，我们不知道<code>self</code>是什么意思，就查看前面的变量定义：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* 消息结构体定义（联合体）：</span></span><br><span class="line"><span class="comment"> * 来自其他模块的事件（Event），会被Application Event Manager包装成</span></span><br><span class="line"><span class="comment"> * 消息（Message）。然后放入消息队列，供主程序app处理。</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 这里可以看到消息的来源就有各种模组，包括云、Ui、sensor等</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">app_msg_data</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">cloud_module_event</span> <span class="title">cloud</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">ui_module_event</span> <span class="title">ui</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">sensor_module_event</span> <span class="title">sensor</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">data_module_event</span> <span class="title">data</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">util_module_event</span> <span class="title">util</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">modem_module_event</span> <span class="title">modem</span>;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">app_module_event</span> <span class="title">app</span>;</span></span><br><span class="line">    &#125; module;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 消息队列的定义，这种用宏进行定义的方法是Zephyr提供的</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">K_MSGQ_DEFINE(msgq_app, <span class="keyword">sizeof</span>(<span class="keyword">struct</span> app_msg_data), APP_QUEUE_ENTRY_COUNT,</span><br><span class="line">          APP_QUEUE_BYTE_ALIGNMENT);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * 用于保存app模组信息的数据结构。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">module_data</span> <span class="title">self</span> =</span> &#123;</span><br><span class="line">    .name = <span class="string">&quot;app&quot;</span>,</span><br><span class="line">    .msg_q = &amp;msgq_app,</span><br><span class="line">    .supports_shutdown = <span class="literal">true</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>​	我们就可以知道，这个项目把application（main）也当成是一个模组，和其他官方提供模组的地位是等价的。模组之间通过消息队列进行通信。</p>
-<p>​	接下来就可以看到，由于前面app模组获取的线程id正是main函数的id，所以app模组直接就在main函数中用while(1)循环来处理其他模组的消息了。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="comment">// 从队列中取出消息	</span></span><br><span class="line">    module_get_next_msg(&amp;self, &amp;msg);</span><br><span class="line">        </span><br><span class="line">    <span class="comment">// 主状态机</span></span><br><span class="line">    <span class="keyword">switch</span> (state) &#123;</span><br><span class="line">        <span class="keyword">case</span> STATE_INIT:</span><br><span class="line">            on_state_init(&amp;msg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">case</span> STATE_RUNNING:</span><br><span class="line">            <span class="keyword">switch</span> (sub_state) &#123;</span><br><span class="line">                <span class="keyword">case</span> SUB_STATE_ACTIVE_MODE:</span><br><span class="line">                    on_sub_state_active(&amp;msg);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> SUB_STATE_PASSIVE_MODE:</span><br><span class="line">                    on_sub_state_passive(&amp;msg);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">default</span>:</span><br><span class="line">                    LOG_WRN(<span class="string">&quot;Unknown application sub state&quot;</span>);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            on_state_running(&amp;msg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> STATE_SHUTDOWN:</span><br><span class="line">            <span class="comment">/* The shutdown state has no transition. */</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            LOG_WRN(<span class="string">&quot;Unknown application state&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    on_all_events(&amp;msg); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>​	接下来，看到在<code>main</code>文件末尾的定义：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 这里MODULE的值是main</span></span><br><span class="line">APP_EVENT_LISTENER(MODULE, app_event_handler);</span><br><span class="line">APP_EVENT_SUBSCRIBE_EARLY(MODULE, cloud_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE(MODULE, app_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE(MODULE, data_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE(MODULE, util_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE_FINAL(MODULE, ui_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE_FINAL(MODULE, sensor_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE_FINAL(MODULE, modem_module_event);</span><br></pre></td></tr></table></figure>
-
-<p>​	根据前面的学习方法（搜索代码、文档），可以知道这些宏就是Application Event Manager库提供的，可以参考其文档。这些宏的大概作用就是：给一个名为“MODULE”的模组（实际宏定义是main），定义了一个事件接收器，然后订阅了剩下那些模组的事件消息。</p>
-<blockquote>
-<p>Zephyr中有大量的在文件末尾通过宏定义进行配置的方法，它们往往都是描述一些<strong>运行时</strong>的配置。例如，把一个函数当作一个线程进行注册，或者把一个函数当成是初始化函数在开机初始化阶段运行。</p>
-<p>例如<code>src/modules/ui_module.c</code>的最后一行：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">SYS_INIT(setup, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);</span><br></pre></td></tr></table></figure>
-
-<p>就是让系统在初始化阶段自动调用<code>setup()</code>这个函数，不需要我们在main的开头显式地调用这个函数。假设我们有非常多模组，这样做就可以简化<code>main()</code>函数的代码，便于模块化的开发。</p>
-<p>初始化等级是<code>APPLICATION</code>，这说明这个函数要在Zephyr操作系统的Kernel初始化完毕之后才运行。</p>
-<p><code>CONFIG_APPLICATION_INIT_PRIORITY</code>是·<code>autoconf.h</code>中的，我们知道可以在Kconfig中配置它。在Kconfig菜单中搜索可以知道，这个配置是Zephyr Kernel的一个配置，是所有application级别的init函数的优先级。</p>
-</blockquote>
-<h3 id="3-6-2-云端连接相关模组的代码分析"><a href="#3-6-2-云端连接相关模组的代码分析" class="headerlink" title="3.6.2. 云端连接相关模组的代码分析"></a>3.6.2. 云端连接相关模组的代码分析</h3><p>​	在<code>src/modules/cloud_module.c</code>中，文件的最下方，可以看到：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">K_THREAD_DEFINE(cloud_module_thread, CONFIG_CLOUD_THREAD_STACK_SIZE,</span><br><span class="line">        module_thread_fn, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>,</span><br><span class="line">        K_LOWEST_APPLICATION_THREAD_PRIO, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里MODULE宏的值是cloud_module</span></span><br><span class="line">APP_EVENT_LISTENER(MODULE, app_event_handler);</span><br><span class="line">APP_EVENT_SUBSCRIBE(MODULE, data_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE(MODULE, app_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE(MODULE, modem_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE_FIRST(MODULE, cloud_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE(MODULE, gnss_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE(MODULE, debug_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE_EARLY(MODULE, util_module_event);</span><br></pre></td></tr></table></figure>
-
-<p>​	和<code>main.c</code>一样，这里也使用Application Event Manager库的功能，创建了一个event lisener，并且订阅了其他模组的消息。</p>
-<p>​	并且这里定义了一个线程，<code>cloud_module_thread</code>，线程的函数是<code>module_thread_fn()</code>。</p>
-<p>线程函数内部也是一个状态机：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">module_thread_fn</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        module_get_next_msg(&amp;self, &amp;msg);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">switch</span> (state) &#123;</span><br><span class="line">        <span class="keyword">case</span> STATE_LTE_INIT:</span><br><span class="line">            on_state_init(&amp;msg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> STATE_LTE_CONNECTED:</span><br><span class="line">            ...</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> STATE_LTE_DISCONNECTED:</span><br><span class="line">            on_state_lte_disconnected(&amp;msg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> STATE_SHUTDOWN:</span><br><span class="line">            <span class="comment">/* The shutdown state has no transition. */</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            LOG_ERR(<span class="string">&quot;Unknown Cloud module state.&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​	经过代码的分析可知，状态开始时从<code>STATE_LTE_INIT</code>进入到<code>STATE_LTE_DISCONNECTED</code>。在断开状态下，如果收到<code>MODEM_EVT_LTE_CONNECTED</code>的消息，就会把状态变为<code>CONNECTED</code>。</p>
-<p>​	通过定义的跳转和搜索，可以知道<code>MODEM_EVT_LTE_CONNECTED</code>这条消息是从<code>src/modules/modem_module.c</code>中的模组发出的。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// src/modules/modem_module.c 的末尾定义，也是定义了一个线程和1个lisener.</span></span><br><span class="line">K_THREAD_DEFINE(modem_module_thread, CONFIG_MODEM_THREAD_STACK_SIZE,</span><br><span class="line">        module_thread_fn, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>,</span><br><span class="line">        K_LOWEST_APPLICATION_THREAD_PRIO, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">APP_EVENT_LISTENER(MODULE, app_event_handler);</span><br><span class="line">APP_EVENT_SUBSCRIBE_EARLY(MODULE, modem_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE(MODULE, app_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE(MODULE, cloud_module_event);</span><br><span class="line">APP_EVENT_SUBSCRIBE_FINAL(MODULE, util_module_event);</span><br></pre></td></tr></table></figure>
-
-
-
-<p>​	层层搜索下去，可知<code>MODEM_EVT_LTE_CONNECTED</code>是PDN模组的消息，只要PDN模组收到了<code>PDN_EVENT_ACTIVATED</code>事件，就说明9160已经联网。PDN模组相关的文档，可参考：<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/libraries/modem/pdn.html#pdn">PDN — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a></p>
-<p>​	我们再回到<code>src/modules/cloud_module.c</code>中，进入线程的主状态机，可以看到在LTE已连接的状态下，还有两个子状态<code>SUB_STATE_CLOUD_CONNECTED</code>和<code>SUB_STATE_CLOUD_DISCONNECTED</code>。</p>
-<p>​	为了了解设备是如何从<strong>未连接到云</strong>变成<strong>已连接到云</strong>的，我们进入未连接状态的回调函数。可以看到，它调用了一个连接到云的函数：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">connect_cloud()；</span><br></pre></td></tr></table></figure>
-
-<p>​	并且，在LTE未连接状态下的回调函数中，第一次成功连网时，也会调用此函数去连云。说明这正是我们要找的连接云的函数:</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">connect_cloud</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    ...</span><br><span class="line">        </span><br><span class="line">    err = cloud_wrap_connect();</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;cloud_connect failed, error: %d&quot;</span>, err);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">    ...</span><br><span class="line">        </span><br><span class="line">    <span class="comment">/* Start timer to check connection status after backoff */</span></span><br><span class="line">    k_work_reschedule(&amp;connect_check_work, K_SECONDS(backoff_sec));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>​	其中的<code>cloud_wrap_connect()</code>正是前面搜索过的Cloud Wrapper API。</p>
-<p>​	此函数在<code>src/cloud/cloud_wrapper.h</code>中声明，但是在以下多个文件中都被定义：</p>
-<ul>
-<li>亚马逊 AWS：<code>src/cloud/aws_iot_integration.c</code></li>
-<li>微软 Azure：<code>src/cloud/azure_iot_hub_integration.c</code></li>
-<li>Nordic nRF Cloud：<code>src/cloud/nrf_cloud_integration.c</code></li>
-<li>LwM2M：<code>lwm2m_integration.c</code></li>
-</ul>
-<p>​	由于在<code>prj.conf</code>中，对Kconfig进行了覆盖：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Default cloud transport service</span></span><br><span class="line">CONFIG_NRF_CLOUD_MQTT=y</span><br></pre></td></tr></table></figure>
-
-<p>​	默认选择了nRF Cloud的客户端库。</p>
-<p>​	而在<code>src/cloud/cloud_codec/Kconfig</code>中，有如下描述：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">choice</span><br><span class="line">    prompt &quot;Application cloud codec backend&quot;</span><br><span class="line">    default CLOUD_CODEC_NRF_CLOUD if NRF_CLOUD_MQTT</span><br><span class="line">    default CLOUD_CODEC_AWS_IOT if AWS_IOT</span><br><span class="line">    default CLOUD_CODEC_AZURE_IOT_HUB if AZURE_IOT_HUB</span><br><span class="line">    default CLOUD_CODEC_LWM2M if LWM2M_INTEGRATION</span><br></pre></td></tr></table></figure>
-
-<p>​	即，只要<code>NRF_CLOUD_MQTT</code>被配置为<code>y</code>，就会自动选择<code>CLOUD_CODEC_NRF_CLOUD</code>作为云端。</p>
-<p>​	我们从Kconfig的图形界面中也可以确认这点，打开Kconfig图形配置页面。在<code>Asset Tracker V2 -&gt; Application cloud codec -&gt; Application cloud codc backend</code>选项，可以看到默认选择了<code>nRF Cloud</code>作为我们的云端：</p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129155334071.png" alt="image-20221129155334071"></p>
-<p>​	而在<code>src\cloud\cloud_codec\CMakeLists.txt</code>中，有如下描述:</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">target_sources_ifdef(CONFIG_CLOUD_CODEC_AWS_IOT app</span><br><span class="line">                     PRIVATE <span class="variable">$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;</span>/aws_iot/aws_iot_codec.c)</span><br><span class="line"></span><br><span class="line">target_sources_ifdef(CONFIG_CLOUD_CODEC_AZURE_IOT_HUB app</span><br><span class="line">                     PRIVATE <span class="variable">$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;</span>/azure_iot_hub/azure_iot_hub_codec.c)</span><br><span class="line"></span><br><span class="line">target_sources_ifdef(CONFIG_CLOUD_CODEC_NRF_CLOUD app</span><br><span class="line">                     PRIVATE <span class="variable">$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;</span>/nrf_cloud/nrf_cloud_codec.c)</span><br><span class="line"></span><br><span class="line">target_sources_ifdef(CONFIG_CLOUD_CODEC_LWM2M app</span><br><span class="line">                     PRIVATE <span class="variable">$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;</span>/lwm2m/lwm2m_codec.c)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>​	可以看出，由于我们只定义了<code>CLOUD_CODEC_NRF_CLOUD</code>，CMake在编译时就只会包含<code>nrf_cloud_codec.c</code>中的函数。也就是wrapper的具体实现，最终只会使用连接到nRF Cloud的函数。</p>
-<p>​	回到这个函数，在<code>src/cloud/nrf_cloud_integration.c</code>中，<code>cloud_wrap_connect()</code>调用了真正的连接函数，<code>nrf_cloud_connect()</code>。这是NCS库中的，nRF Cloud提供的客户端库提供的函数。关于这个库的介绍，可以参考：<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/libraries/networking/nrf_cloud.html#nrf-cloud">nRF Cloud — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a>。</p>
-<p>所有连接、与云端通信的内容都是通过这个库完成的，所有资料都可以在上面链接里找到。而这个库是经过wrapper封装的，app代码实际调用的是wrapper。</p>
-<h3 id="3-6-3-数据传输相关代码"><a href="#3-6-3-数据传输相关代码" class="headerlink" title="3.6.3. 数据传输相关代码"></a>3.6.3. 数据传输相关代码</h3><p>​	以Data模组为例，根据<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/doc/data_module.html">Asset Tracker v2官方说明</a>，本例程中的Data模组的作用是从其他模组中搜集数据，并上报给云端。而与云端交互的工作是Cloud模组实现的。</p>
-<p>​	先看Data模组，在<code>src/modules/data_module.c</code>的末尾，可以看到线程的定义。进入到线程函数<code>module_thread_fn()</code>中，也是有一个状态机：</p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129171438897.png" alt="image-20221129171438897"></p>
-<p>​	在已连接到云的状态下（<code>STATE_CLOUD_CONNECTED</code>），查看对应的状态处理函数。当收到<code>DATA_EVT_DATA_READY</code>消息时，就会准备向云端发送数据：</p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129171800871.png" alt="image-20221129171800871"></p>
-<p>​	我们分析这个<code>data_encode()</code>函数</p>
-<ul>
-<li>先使用<code>cloud_codec_encode_batch_data(...)</code>对所有数据进行json编码。由于不同的云端Json格式肯定不一样，所以这个函数也是Cloud API Wrapper提供的。</li>
-<li><code>data_send(DATA_EVT_DATA_SEND_BATCH, &amp;codec)</code>发送这个json。<strong>但这并不是发送到云端</strong>，而是通过Application Event Manager发送到消息池中，事件类型是<code>DATA_EVT_DATA_SEND_BATCH</code>。</li>
-</ul>
-<p>​	接下来，通过VS Code左侧搜索<code>DATA_EVT_DATA_SEND_BATCH</code>，看这个消息被哪里接收了。可以知道此消息已经传输到Cloud模组，打开<code>src/modules/cloud_module.c</code>：</p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129172213052.png" alt="image-20221129172213052"></p>
-<p>​	这里并没有直接发送到云端，而是调用了一个QoS（Quality of Service）库的函数。我们继续去NCS官方文档搜索<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/libraries/others/qos.html#quality-of-service">Quality of Service</a>。</p>
-<p>根据文档内容，我们知道，NCS的QoS只提供两种服务质量：</p>
-<ul>
-<li><code>ACK_DISABLED</code>：只管发送，不管云端是否已收到</li>
-<li><code>ACK_REQUIRED</code>：需要确保云端收到并回复，若超时未回复，需要重发。</li>
-</ul>
-<blockquote>
-<p>还有一种服务质量是，需要确保对方收到，且仅收到一次。但嵌入式设备往往不能提供这样的QoS，而是要算力更强的云端去做消息去重。</p>
-</blockquote>
-<p>文档中的序列图给出了很详细的示例：</p>
-<img src="/jayant97.github.io/imgs/使用nRF9160-DK连接nRF-Cloud示例.assets/image-20221205014940647.png" alt="image-20221205014940647" style="zoom: 33%;" />
-
-<ol>
-<li>当发送一个数据包需要ACK时，Application调用QoS库的<code>qos_add_message()</code>，将消息记录在一个列表中。</li>
-<li>然后QoS库把一个回调函数放入kernel提供的工作队列（<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/zephyr/kernel/services/threads/workqueue.html#c.k_work_reschedule">Workqueue</a>）中，并且设定为一个延时的工作。</li>
-<li>接下来，QoS库通知给Application，消息已经记录好了，可以发送了。</li>
-<li>Application接收到QoS库的消息<code>QOS_EVT_MESSAGE_NEW</code>，真正的发送数据。</li>
-<li>根据数据的接收方是否按时回复ACK，有两种不同的行为：<ul>
-<li>若接收方按时回复，则 Application 需要调用<code>qos_message_remove</code>函数，从列表中移除这个消息。然后从工作队列中取消之前注册的函数。</li>
-<li>若接收方超时未回复，则工作队列中的回调函数被调用，QoS库发送消息<code>QOS_EVT_MESSAGE_EXPIRED</code>。Application收到此消息后，执行一次重发。</li>
-</ul>
-</li>
-</ol>
-<p>​	有了上面关于QoS的知识，我们就知道，只有收到QoS库的<code>QOS_EVT_MESSAGE_NEW</code>消息时，Application才会真正的把数据发送到云端：</p>
-<p>​	在<code>src/moudles/cloud_module.c</code>中，有一个<code>qos_event_handler()</code>函数：</p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221130113448664.png" alt="image-20221130113448664"></p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221130113827493.png" alt="image-20221130113827493"></p>
-<p>​	在初始化时，这个<code>qos_event_handler()</code>函数被注册到QoS库中，让Cloud模组能够处理来自QoS的消息。</p>
-<blockquote>
-<p>注意，QoS库与Cloud模组之间消息的传递，并不是通过Application Event Manager来进行的。而是通过回调函数的方式来进行的。</p>
-</blockquote>
-<p>​	这里又出现一个新的事件，<code>CLOUD_EVT_DATA_SEND_OQS</code>。搜索这个事件，可以发现这个事件是cloud模组接收的。在状态机中，<code>on_sub_state_cloud_connected()</code>和<code>on_sub_state_cloud_disconnected()</code>这两个函数中都有调用：</p>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221130114341395.png" alt="image-20221130114341395"></p>
-<p>​	在这里，可以看到最初的Batch数据最终是通过Cloud Wrapper API的<code>cloud_wrapper_batch_send()</code>发送到云端。</p>
-<h3 id="3-6-4-例程代码总结"><a href="#3-6-4-例程代码总结" class="headerlink" title="3.6.4. 例程代码总结"></a>3.6.4. 例程代码总结</h3><ul>
-<li><p>Zephyer风格的代码就是把一切都写成模组，每个模组可以有自己的线程、初始化代码。自己编写的模组之间通过Application Event Manager提供的消息机制进行通信。</p>
-</li>
-<li><p>设备和云端的连接是通过Cloud Wrapper API进行的，由于<code>prj.conf</code>中配置了<code>CONFIG_NRF_CLOUD_MQTT=y</code>，所以Kconfig就选择nRF Cloud Library作为客户端。CMake系统也只编译了与nRF Cloud有关的代码，并把其作为wrapper的内容。</p>
-</li>
-</ul>
-<p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221130120212409.png" alt="image-20221130120212409"></p>
-<ul>
-<li><p>设备到云端的数据发送，经历了QoS库的处理，然后通过内部各种事件消息的传输，最终通过Cloud Wrapper API发送到云端。上图仅展示数据是如何发送出去的，未展示QoS超时校验的部分。</p>
-</li>
-<li><p>要了解更多关于此项目的实现内容，可以参考例程的官方说明，非常详细：<a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/README.html">nRF9160: Asset Tracker v2 — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a></p>
-</li>
-</ul>
-<div style=”page-break-after: always;”></div>
+<h2 id="3-6-例程代码分析"><a href="#3-6-例程代码分析" class="headerlink" title="3.6. 例程代码分析"></a>3.6. 例程代码分析</h2><p>​	今后会编写其他文章详解此例程的代码。	</p>
+<p>​	要了解更多关于此项目的实现内容，可以参考例程的官方说明，非常详细：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/applications/asset_tracker_v2/README.html">nRF9160: Asset Tracker v2 — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a></p>
+<div style="”page-break-after:" always;”></div>
 
 <h1 id="4-nRF-Cloud-API介绍"><a href="#4-nRF-Cloud-API介绍" class="headerlink" title="4. nRF Cloud API介绍"></a>4. nRF Cloud API介绍</h1><p>nRF Cloud 提供 REST 和 MQTT 两种API。</p>
 <ul>
 <li>REST API 用于<strong>用户到云</strong>、<strong>第三方云到云</strong>的连接；其中少部分API也可被设备调用。</li>
 <li>MQTT API用于<strong>设备和云</strong>的连接</li>
 </ul>
-<h2 id="4-1-REST-API"><a href="#4-1-REST-API" class="headerlink" title="4.1. REST API"></a>4.1. REST API</h2><p>nRF Cloud REST API文档，参考：<a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1">nRF Cloud REST API Documentation</a></p>
-<h3 id="REST-API-认证方式"><a href="#REST-API-认证方式" class="headerlink" title="REST API 认证方式"></a>REST API 认证方式</h3><p>​	在使用REST API时，用户、设备、nRF Cloud、第三方云端之间的通信都是需要认证的。在通讯的消息中需要一个key，来证明消息发出源是可信的。不同类型的对象之间访问，使用不同类型的key：</p>
+<h2 id="4-1-REST-API"><a href="#4-1-REST-API" class="headerlink" title="4.1. REST API"></a>4.1. REST API</h2><p>nRF Cloud REST API文档，参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1">nRF Cloud REST API Documentation</a></p>
+<h3 id="REST-API-认证方式"><a href="#REST-API-认证方式" class="headerlink" title="REST API 认证方式"></a>REST API 认证方式</h3><p>​	在使用REST API时，不管是用户、设备还是第三方云，在调用API时都需要携带一个Token，来证明消息发出源是可信的。不同的API需要使用不同类型的Token。在API文档中会明确说明此API需要哪种方式认证，例如：</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20230311133314758.png" alt="image-20230311133314758"></p>
+<blockquote>
 <ul>
-<li><p><strong>用户到设备</strong> 或者<strong>用户到云</strong>的认证：这种访问方式需要<strong>API key</strong>来认证，通常是用来做设备注册、获取设备数据、查看用户账户或使用信息的。在<a href="#%EF%BC%885%EF%BC%89%E6%8A%8A%E8%AE%BE%E5%A4%87%E4%BF%A1%E6%81%AF%E6%89%B9%E9%87%8F%E6%B3%A8%E5%86%8C%E5%88%B0%E4%BA%91%E7%AB%AF">2.5-(5)</a>小节中已经介绍如何从网页端获取这个Key；</p>
-</li>
-<li><p><strong>设备到云</strong>（D2C）的认证：使用<a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/APIs/REST/RESTIntro/#authentication">JSON Web Token</a> (<strong>JWT</strong>)，确保安全性。</p>
-</li>
-<li><p><strong>云到云</strong>（C2C）的认证：也使用<strong>JWT</strong>进行认证。用来做像是通过代理服务器进行位置服务的集成的功能。云到云的API调用需要购买专业版（Pro）或者企业版（Enterprise）服务。</p>
-</li>
+<li><strong>Simple Token</strong>：也就是<strong>API KEY</strong>，在2.5小节中已经见过。它的地位与用户的云账号密码是一样的，不能泄露。通常是用来调用一些与<strong>用户</strong>账户、配置、用户业务有关的API，例如列举设备、注册设备、批量拉取Message等</li>
+<li><strong>JSON Web Token（JWT）</strong>：JWT内包含了设备信息（如UUID）和时间戳等。<strong>设备</strong>可以用自己的X.509私钥生成一个JWT。在调用API时，云端会检查这个JWT是否合法（由于设备已经注册到云端，云端保存了此设备的X.509证书，因此云端可以验证JWT是否合法），如果合法，则允许API的调用。</li>
+<li><strong>Service Evaluation Token</strong>：nRF Cloud提供的服务都是需要JWT认证的，而JWT想要认证成功就必须要注册一个设备到云端。如果一个客户只是单纯想快速评估一下服务的效果，不想搞注册设备、生成JWT那一套麻烦事，那么可以申请服务评估令牌（Service Evaluation Token），使用此Token的效果和JWT相同，可在没有注册设备的情况下直接调用相关API。Servic Evaluation Token本身也是通过REST API获取的，使用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1#tag/Account/operation/GenerateServiceEvaluationToken">GenerateServiceEvaluationToken</a>和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1#tag/Account/operation/GetServiceEvaluationToken">GetServiceEvaluationToken</a>两个API即可。要注意这个Token只有30天的试用期限，若想要延长，需要联系Nordic销售。</li>
 </ul>
+</blockquote>
 <h3 id="REST-API-调用示例"><a href="#REST-API-调用示例" class="headerlink" title="REST API 调用示例"></a>REST API 调用示例</h3><p>​	本小节将使用电脑模拟一台<strong>设备</strong>，通过REST接口注册设备，并使用JWT的认证方式，调用一个REST API。</p>
-<p>整个过程将会调用三个REST API：</p>
+<p>整个过程分为三个步骤：</p>
 <ul>
 <li>设备注册（Provision）</li>
 <li>检查设备注册的结果</li>
-<li>获取定位信息</li>
+<li>获取AGPS数据</li>
 </ul>
-<p>官方文档可参考：<a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/Devices/Security/JWT/">JWT authentication on nRF Cloud | nRF Cloud Docs</a>。</p>
+<p>官方文档可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nrfcloud.com/Devices/Security/JWT/">JWT authentication on nRF Cloud | nRF Cloud Docs</a>。</p>
 <blockquote>
 <p>​	整个注册过程和[2.5小节](#2.5. 将设备注册到nRF Cloud云端 (Cloud Provisioning))的流程是一模一样的。但是本小节中展示的注册过程没有使用python脚本，而是使用最基本的HTTP请求来展示REST API调用的过程。</p>
 </blockquote>
-<p>​	在<strong>开始之前</strong>，找一个<a target="_blank" rel="noopener" href="https://www.uuidgenerator.net/">在线UUID生成器</a>，生成一个UUID。本例生成的是：<code>64520de4-e0a0-45cf-bf56-1f43f80a4f37</code>，这个UUID就代表一台设备。</p>
+<p>​	在<strong>开始之前</strong>，找一个<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.uuidgenerator.net/">在线UUID生成器</a>，生成一个UUID。本例生成的是：<code>64520de4-e0a0-45cf-bf56-1f43f80a4f37</code>，这个UUID就代表一台设备。</p>
 <p>​	对于实际的产品，UUID可以是任何字符串。但是Nordic推荐使用9160出厂自带的UUID，你可以在前面加上一些前缀。</p>
 <blockquote>
 <p>nRF Cloud 全球所有的客户的所有设备，都通过UUID来进行区分。所以防止UUID重复是非常必要的。</p>
 </blockquote>
 <p><strong>（1）生成CA证书和设备证书</strong></p>
-<p>​	在 <a href="#%EF%BC%883%EF%BC%89%E7%94%9F%E6%88%90%E4%BD%A0%E7%9A%84%E8%87%AA%E7%AD%BECA%E8%AF%81%E4%B9%A6">2.5-(3)</a> 小节中，我们已经通过 Nordic 提供的 python 脚本生成了一套 CA证书文件和私钥。这套utils工具中也包含一套TypeScript脚本，和pythone脚本的功能是一样的。你也可以两种都不使用，而只使用OpenSSL进行生成，可参考<a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/Devices/Security/JWT/">JWT authentication on nRF Cloud | nRF Cloud Docs</a>。</p>
+<p>​	在 <a href="#%EF%BC%883%EF%BC%89%E7%94%9F%E6%88%90%E4%BD%A0%E7%9A%84%E8%87%AA%E7%AD%BECA%E8%AF%81%E4%B9%A6">2.5-(3)</a> 小节中，我们已经通过 Nordic 提供的 python 脚本生成了一套 CA证书文件和私钥。这套utils工具中也包含一套TypeScript脚本，和pythone脚本的功能是一样的。你也可以两种都不使用，而只使用OpenSSL进行生成，可参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nrfcloud.com/Devices/Security/JWT/">JWT authentication on nRF Cloud | nRF Cloud Docs</a>。</p>
 <p>​	后面在<a href="#%EF%BC%884%EF%BC%89%E7%AD%BE%E5%8F%91%E5%B9%B6%E5%AE%89%E8%A3%85%E8%AE%BE%E5%A4%87%E8%AF%81%E4%B9%A6">2.5-(4)</a>中，我们通过这个<strong>CA证书</strong>给nRF9160签发了<strong>设备证书</strong>，给设备安装了设备独立的私钥。</p>
-<p>​	现在我们要用电脑模拟一台设备，就需要通过刚刚生成的UUID和<strong>CA证书</strong>，来生成一个<strong>新的设备证书</strong>。</p>
+<p>​	现在，我们要用电脑模拟一台设备，所以，就需要通过刚刚生成的UUID和<strong>CA证书</strong>，来生成一个<strong>新的设备证书</strong>。</p>
 <p>​	进入 [2.5-(2)](#（2）获取最新的nRF Cloud Utils工具，并安装好依赖) 中安装utils的文件夹：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在终端中进入utils文件夹后，再进行后续操作</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入python工具文件夹</span></span><br><span class="line">$ <span class="built_in">cd</span> python/modem-firmware-1.3+/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成设备证书</span></span><br><span class="line">$ python create_device_credentials.py \</span><br><span class="line">-ca ./my_ca/Jayant-0x12de89cb5ee9589433c9ba08e74bc0eebdfe9ab4_ca.pem \</span><br><span class="line">-ca_key ./my_ca/Jayant-0x12de89cb5ee9589433c9ba08e74bc0eebdfe9ab4_prv.pem \</span><br><span class="line">-c CN \</span><br><span class="line">-l Shanghai \</span><br><span class="line">-o <span class="string">&quot;Nordic Semiconductor K.K.&quot;</span> \</span><br><span class="line">-ou <span class="string">&quot;Sales&quot;</span> \</span><br><span class="line">-cn 64520de4-e0a0-45cf-bf56-1f43f80a4f37 \</span><br><span class="line">-e jayant.tang@nordicsemi.no \</span><br><span class="line">-dv 2000 \</span><br><span class="line">-p ./dev_credentials \</span><br><span class="line">-f <span class="string">&quot;Jayant-Device-&quot;</span></span><br></pre></td></tr></table></figure>
 
@@ -1000,9 +947,9 @@
 </ul>
 </blockquote>
 <p><strong>（2）生成设备注册信息表格</strong></p>
-<p>​	本小节参考 <a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#tag/IP-Devices/operation/ProvisionDevices">REST 设备注册API （ProvisionDevices）</a>。</p>
+<p>​	本小节参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#tag/IP-Devices/operation/ProvisionDevices">REST 设备注册API （ProvisionDevices）</a>。</p>
 <p>​	打开Excel，创建一个新的空表格，并另存为csv格式。</p>
-<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221124150045752.png" alt="image-20221124150045752" style="zoom: 80%;" />
+<img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221124150045752.png" alt="image-20221124150045752" style="zoom: 80%;">
 
 <p>​	在表格中从左往右填入以下内容：</p>
 <ul>
@@ -1024,10 +971,11 @@
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">64520de4-e0a0-45cf-bf56-1f43f80a4f37,fake-device,jayant-DK,APP|MODEM,&quot;-----BEGIN CERTIFICATE-----</span><br><span class="line">MIICPTCCAeICFHx8JF+NRorZfBQF0sr+jzKSmg9gMAoGCCqGSM49BAMCMIGSMQsw</span><br><span class="line">CQYDVQQGEwJDTjERMA8GA1UEBwwIU2hhbmdoYWkxIjAgBgNVBAoMGU5vcmRpYyBT</span><br><span class="line">ZW1pY29uZHVjdG9yIEsuSy4xDjAMBgNVBAsMBVNhbGVzMRIwEAYDVQQDDAlub3Jk</span><br><span class="line">aWMuY24xKDAmBgkqhkiG9w0BCQEWGWpheWFudC50YW5nQG5vcmRpY3NlbWkubm8w</span><br><span class="line">HhcNMjIxMTI0MDY1MjEwWhcNMjgwNTE2MDY1MjEwWjCBrTELMAkGA1UEBhMCQ04x</span><br><span class="line">ETAPBgNVBAcMCFNoYW5naGFpMSIwIAYDVQQKDBlOb3JkaWMgU2VtaWNvbmR1Y3Rv</span><br><span class="line">ciBLLksuMQ4wDAYDVQQLDAVTYWxlczEtMCsGA1UEAwwkNjQ1MjBkZTQtZTBhMC00</span><br><span class="line">NWNmLWJmNTYtMWY0M2Y4MGE0ZjM3MSgwJgYJKoZIhvcNAQkBFhlqYXlhbnQudGFu</span><br><span class="line">Z0Bub3JkaWNzZW1pLm5vMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE6OIeO6C0</span><br><span class="line">/kJzfaWUHt/Xg4J6bdAphzmX5sCLGV+oEeSi1sUQKpBLugda2OwG9FxOCikg8ih7</span><br><span class="line">CvMm7C98+fr+nTAKBggqhkjOPQQDAgNJADBGAiEAuCdq6D1K329hwU9e+4S5//2b</span><br><span class="line">upwtaqT+j6Mckpmj6XUCIQCaAqjWRMXMiOd/pXRkcf7SjKyZifBnxoepRqbNyKUG</span><br><span class="line">OA==</span><br><span class="line">-----END CERTIFICATE-----</span><br><span class="line">&quot;</span><br></pre></td></tr></table></figure>
 
 <blockquote>
-<p>注意，逗号用于区分每一列，回车用于区分每一行，双引号中的内容为字符串（引号中的回车不算作换行）。</p>
+<p>​	注意，这个表格是作为REST API的参数传入的，而云端会通过正则表达式来检查内容是否合法，有时多一个少一个回车、空格都不行，正则表达式可参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1#tag/IP-Devices/operation/ProvisionDevices">ProvisionDevices</a>的API说明：</p>
+<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20230311135339410.png" alt="image-20230311135339410"></p>
 </blockquote>
 <p><strong>（3）利用REST接口注册设备</strong></p>
-<p>​	使用<a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#tag/IP-Devices/operation/ProvisionDevices">ProvisionDevices</a>接口。这属于<strong>用户到云</strong>的接口调用，需要使用<strong>API key</strong>。</p>
+<p>​	使用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#tag/IP-Devices/operation/ProvisionDevices">ProvisionDevices</a>接口。这属于<strong>用户到云</strong>的接口调用，需要使用<strong>API key</strong>。</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 向nRF Cloud发送请求，注册设备。</span></span><br><span class="line">$  curl --request POST --url https://api.nrfcloud.com/v1/devices \</span><br><span class="line">--header <span class="string">&#x27;Authorization: Bearer 3c967ecbd9f3cxxxxxxxxxxfa73cf37049983&#x27;</span> \</span><br><span class="line">--header <span class="string">&#x27;content-type: text/csv&#x27;</span> \</span><br><span class="line">--data-binary @./fake-device.csv</span><br></pre></td></tr></table></figure>
 
 <blockquote>
@@ -1040,7 +988,7 @@
 <p>​	云端返回结果：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;&quot;bulkOpsRequestId&quot;:&quot;01GK0NECJPXVNDNKVA4XE98HDE&quot;&#125;</span><br></pre></td></tr></table></figure>
 
-<p>​	假如这是一次真实的批量注册，这个bulkOpsRequestId需要记录下来，用于调用<a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#operation/FetchBulkOpsRequest">FetchBulkOpsRequest</a> API。这个API的作用是用来检查自己批量注册的进度。但是本次是一次模拟，只注册了一个设备，所以不用关心。</p>
+<p>​	假如这是一次真实的批量注册，这个bulkOpsRequestId需要记录下来，用于调用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#operation/FetchBulkOpsRequest">FetchBulkOpsRequest</a> API。这个API的作用是用来检查自己批量注册的进度。但是本次是一次模拟，只注册了一个设备，所以很快就能注册完成。</p>
 <blockquote>
 <p>FetchBulkOpsRequest使用方法：</p>
 <p>url的最后是上面获取的bulkOpsRequestId</p>
@@ -1049,21 +997,21 @@
 <p>返回结果：</p>
 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;bulkOpsRequestId&quot;</span><span class="punctuation">:</span><span class="string">&quot;01GK0NECJPXVNDNKVA4XE98HDE&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;status&quot;</span><span class="punctuation">:</span><span class="string">&quot;SUCCEEDED&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;endpoint&quot;</span><span class="punctuation">:</span><span class="string">&quot;PROVISION_DEVICES&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;requestedAt&quot;</span><span class="punctuation">:</span><span class="string">&quot;2022-11-29T03:03:48.054Z&quot;</span><span class="punctuation">,</span>   <span class="comment">// 这个时间应该是GMT+1的时间</span></span><br><span class="line">    <span class="attr">&quot;completedAt&quot;</span><span class="punctuation">:</span><span class="string">&quot;2022-11-29T03:03:51.365Z&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;uploadedDataUrl&quot;</span><span class="punctuation">:</span><span class="string">&quot;https://bulk-ops-requests.nrfcloud.com/a9d25242-adad-479e-b526-xxxxxxxxxxxx/provision_devices/01GK0NECJPXVNDNKVA4XE98HDE.csv&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 </blockquote>
-<p>​	利用<a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#tag/All-Devices/operation/FetchDevice">FetchDevice</a>接口来获取新注册的这个设备的信息，其中<code>&#123;device-id&#125;</code>要换成UUID：</p>
+<p>​	利用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#tag/All-Devices/operation/FetchDevice">FetchDevice</a>接口来获取新注册的这个设备的信息，其中<code>&#123;device-id&#125;</code>要换成UUID：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ curl --request GET \</span><br><span class="line">--url https://api.nrfcloud.com/v1/devices/&#123;device-id&#125; \</span><br><span class="line">--header <span class="string">&#x27;Authorization: Bearer 3c967ecbxxxxxxxxxxxxe81cfa73cf37049983&#x27;</span></span><br></pre></td></tr></table></figure>
 
 <p>​	返回结果：</p>
 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span><span class="string">&quot;64520de4-e0a0-45cf-bf56-1f43f80a4f37&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;tags&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line">        <span class="string">&quot;jayant-DK&quot;</span></span><br><span class="line">    <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;tenantId&quot;</span><span class="punctuation">:</span><span class="string">&quot;a9d25242-adad-479e-b526-xxxxxxxxxxx&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;$meta&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;createdAt&quot;</span><span class="punctuation">:</span><span class="string">&quot;2022-11-29T03:03:53.127Z&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;64520de4-e0a0-45cf-bf56-1f43f80a4f37&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;Generic&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;subType&quot;</span><span class="punctuation">:</span><span class="string">&quot;fake-device&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;firmware&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;supports&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line">            <span class="string">&quot;APP&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="string">&quot;MODEM&quot;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;state&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;desired&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;nrfcloud_mqtt_topic_prefix&quot;</span><span class="punctuation">:</span><span class="string">&quot;prod/a9d25242-adad-479e-b526-777082c5b7c5/&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;pairing&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;state&quot;</span><span class="punctuation">:</span><span class="string">&quot;paired&quot;</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;topics&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                    <span class="attr">&quot;d2c&quot;</span><span class="punctuation">:</span><span class="string">&quot;prod/a9d25242-adad-479e-b526-777082c5b7c5/m/d/64520de4-e0a0-45cf-bf56-1f43f80a4f37/d2c&quot;</span><span class="punctuation">,</span></span><br><span class="line">                    <span class="attr">&quot;c2d&quot;</span><span class="punctuation">:</span><span class="string">&quot;prod/a9d25242-adad-479e-b526-777082c5b7c5/m/d/64520de4-e0a0-45cf-bf56-1f43f80a4f37/+/r&quot;</span></span><br><span class="line">                <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span><span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;metadata&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;desired&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;nrfcloud_mqtt_topic_prefix&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                    <span class="attr">&quot;timestamp&quot;</span><span class="punctuation">:</span><span class="number">1669691031</span></span><br><span class="line">                <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;pairing&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                    <span class="attr">&quot;state&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                        <span class="attr">&quot;timestamp&quot;</span><span class="punctuation">:</span><span class="number">1669691031</span></span><br><span class="line">                    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">                    <span class="attr">&quot;topics&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                        <span class="attr">&quot;d2c&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                            <span class="attr">&quot;timestamp&quot;</span><span class="punctuation">:</span><span class="number">1669691031</span></span><br><span class="line">                        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">                        <span class="attr">&quot;c2d&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                            <span class="attr">&quot;timestamp&quot;</span><span class="punctuation">:</span><span class="number">1669691031</span></span><br><span class="line">                        <span class="punctuation">&#125;</span></span><br><span class="line">                    <span class="punctuation">&#125;</span></span><br><span class="line">                <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
 <p>​	可以看到里面包含设备的信息，除了之前自己在CSV表格中填写的信息外，还包括MQTT的topic、时间戳等信息。</p>
-<p>​	设备注册成功后，在网页端也已经可以看到这个虚拟的设备：</p>
+<p>​	设备注册成功后，在网页端也已经可以看到这个模拟的设备：</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221124154802151.png" alt="image-20221124154802151"></p>
 <p><strong>（4）生成JWT</strong></p>
 <p><strong>设备到云</strong>（D2C）的API调用需要JWT认证，我们先生成一个JWT：</p>
-<p>打开<a target="_blank" rel="noopener" href="https://jwt.io/"> jwt.io</a>，上方选择ES256签名算法，然后PAYLOAD中填入：</p>
+<p>打开<a target="_blank" rel="external nofollow noopener noreferrer" href="https://jwt.io/"> jwt.io</a>，上方选择ES256签名算法，然后PAYLOAD中填入：</p>
 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;sub&quot;</span><span class="punctuation">:</span> <span class="string">&quot;你的UUID&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
-<p>下方公钥、私钥区域粘贴上一小节中生成的设备证书的公钥（pub.pem）和私钥（\prv.pem）的内容。</p>
+<p>下方公钥、私钥区域粘贴上一小节中生成的设备证书的公钥（_pub.pem）和私钥（_prv.pem）的内容。</p>
 <p>（注意，不是CA证书，而是设备证书）</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129114051110.png" alt="image-20221129114051110"></p>
 <p>左下角显示”Signature Verified”，则说明公钥与私钥是成对的。可以把左侧编码好的JWT复制出来，这就是设备与云端通信所需要的 Token：</p>
@@ -1072,7 +1020,7 @@
 
 
 <p><strong>（5）测试一个设备API接口</strong></p>
-<p>​	我们利用<a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#operation/GetAssistanceData">GetAssistanceData</a>来测试接口，在官方API文档页面，我们可以看到：</p>
+<p>​	我们利用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#operation/GetAssistanceData">GetAssistanceData</a>来测试接口，在官方API文档页面，我们可以看到：</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221130102929376.png" alt="image-20221130102929376"></p>
 <ul>
 <li>展示了URL、参数</li>
@@ -1088,30 +1036,33 @@
 <p>​	也可以用Postman软件进行测试，结果是一样的，返回206，说明数据请求成功：</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221129114544096.png" alt="image-20221129114544096"></p>
 <p><strong>（6）总结：</strong></p>
-<p>​	本小节展示了<a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#tag/IP-Devices/operation/ProvisionDevices">ProvisionDevices</a>，<a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#operation/FetchBulkOpsRequest">FetchBulkOpsRequest</a>，<a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#tag/All-Devices/operation/FetchDevice">FetchDevice</a>，<a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#operation/GetAssistanceData">GetAssistanceData</a>这5个REST接口的调用。大多数接口都是云到云的，需要用户的APP key来进行认证。最后一个接口展示了设备到云的REST接口调用，需要使用JWT来进行认证。</p>
-<h2 id="4-2-MQTT-API"><a href="#4-2-MQTT-API" class="headerlink" title="4.2. MQTT API"></a>4.2. MQTT API</h2><p>​	nRF Cloud是部署在亚马逊AWS上的，并且使用<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/iot/latest/developerguide/iot-gs.html">AWS IoT Core</a>的MQTT broker。</p>
+<p>​	本小节展示了<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#tag/IP-Devices/operation/ProvisionDevices">ProvisionDevices</a>，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#operation/FetchBulkOpsRequest">FetchBulkOpsRequest</a>，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#tag/All-Devices/operation/FetchDevice">FetchDevice</a>，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#operation/GetAssistanceData">GetAssistanceData</a>这5个REST接口的调用。大多数接口都是云到云的，需要用户的APP key来进行认证。最后一个接口展示了设备到云的REST接口调用，需要使用JWT来进行认证。</p>
+<h2 id="4-2-MQTT-API"><a href="#4-2-MQTT-API" class="headerlink" title="4.2. MQTT API"></a>4.2. MQTT API</h2><p>​	nRF Cloud是部署在亚马逊AWS上的，并且使用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.aws.amazon.com/iot/latest/developerguide/iot-gs.html">AWS IoT Core</a>的MQTT broker。</p>
 <p>MQTT API的通信，只要订阅topic即可。这里需要有2个topic，<code>d2c</code>和<code>c2d</code>。</p>
 <ul>
 <li><code>d2c</code>：设备发布，云端订阅</li>
 <li><code>c2d</code>：云端发布，设备订阅</li>
 </ul>
 <p>​	只要每个设备能获得这两个topic，就能与云端进行通信。这个topic可以通过REST API获得，下一小节会介绍。但是实际开发应用的时候，并不需要关心，因为nRF Cloud Library已经帮我们封装好了，我们只需调用<code>connect()</code>，<code>send()</code>之类的就好了。</p>
-<h3 id="MQTT-topic前缀的获取"><a href="#MQTT-topic前缀的获取" class="headerlink" title="MQTT topic前缀的获取"></a>MQTT topic前缀的获取</h3><p>​	用户可以通过REST API获取topic前缀，接口是 <a target="_blank" rel="noopener" href="https://api.nrfcloud.com/v1/#operation/FetchAccountInfo">FetchAccountInfo</a>。需要使用用户的API Key进行认证。接口会返回很多数据，其中就包含：</p>
+<h3 id="MQTT-topic前缀的获取"><a href="#MQTT-topic前缀的获取" class="headerlink" title="MQTT topic前缀的获取"></a>MQTT topic前缀的获取</h3><p>​	用户可以通过REST API获取topic前缀，接口是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://api.nrfcloud.com/v1/#operation/FetchAccountInfo">FetchAccountInfo</a>。需要使用用户的API Key进行认证。接口会返回很多数据，其中就包含：</p>
 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;mqttEndpoint&quot;</span><span class="punctuation">:</span> <span class="string">&quot;mqtt.nrfcloud.com&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;mqttTopicPrefix&quot;</span><span class="punctuation">:</span> <span class="string">&quot;prod/a5592ec1-18ae-4d9d-bc44-xxxxxxxxx/&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
 <p>​	不用REST API，也可以在网页端获取。点击右上角下拉菜单-Teams：</p>
 <p><img src="/jayant97.github.io/./imgs/%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5nRF-Cloud%E7%A4%BA%E4%BE%8B.assets/image-20221130132356346.png" alt="image-20221130132356346"></p>
 <p>​	可以看到Team的信息，其中就有team id。<code>mqttTopicPrefix</code>就是<code>prod/&lt;team_id&gt;</code>。</p>
-<h3 id="云端的认证"><a href="#云端的认证" class="headerlink" title="云端的认证"></a>云端的认证</h3><p>​	所有到AWS IoT MQTT broker的连接都必须使用在8883端口上进行的Mutual TLS。所有用MQTT的设备都必须有一个<a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/Devices/Security/Security/#authentication">X.509 device certificate</a>，并且已经<strong>注册到云端（Provisioned）</strong>。这正是我们在[3.5](#3.5. 将设备注册到nRF Cloud云端 (Cloud Provisioning))和[6.1](#REST API 调用示例 )中已经介绍过的部分。</p>
-<h3 id="Topic"><a href="#Topic" class="headerlink" title="Topic"></a>Topic</h3><p>​	nRF Cloud部署在AWS上，除了<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/iot/latest/developerguide/reserved-topics.html">AWS保留的topic</a>外，还有一些是nRF Cloud自定义的。官方文档请参考：</p>
-<p><a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/APIs/MQTT/Topics/">nRF Cloud MQTT topics | nRF Cloud Docs</a></p>
-<h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>​	有关nRF Cloud Library底层的细节，官方文档为 <a target="_blank" rel="noopener" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/libraries/networking/nrf_cloud.html">nRF Cloud — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a>。</p>
+<h3 id="云端的认证"><a href="#云端的认证" class="headerlink" title="云端的认证"></a>云端的认证</h3><p>​	所有到AWS IoT MQTT broker的连接都必须使用在8883端口上进行的Mutual TLS。所有用MQTT的设备都必须有一个<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nrfcloud.com/Devices/Security/Security/#authentication">X.509 device certificate</a>，并且已经<strong>注册到云端（Provisioned）</strong>。这正是我们在[3.5](#3.5. 将设备注册到nRF Cloud云端 (Cloud Provisioning))和[6.1](#REST API 调用示例 )中已经介绍过的部分。</p>
+<h3 id="Topic"><a href="#Topic" class="headerlink" title="Topic"></a>Topic</h3><p>​	nRF Cloud部署在AWS上，除了<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.aws.amazon.com/iot/latest/developerguide/reserved-topics.html">AWS保留的topic</a>外，还有一些是nRF Cloud自定义的。官方文档请参考：</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nrfcloud.com/APIs/MQTT/Topics/">nRF Cloud MQTT topics | nRF Cloud Docs</a></p>
+<h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>​	有关nRF Cloud Library底层的细节，官方文档为 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/nrf/libraries/networking/nrf_cloud.html">nRF Cloud — nRF Connect SDK 2.1.2 documentation (nordicsemi.com)</a>。</p>
 <p>​	在[3.5.3](#3.5.3. 数据传输相关代码)中，我们知道9160是通过Cloud Wrapper API包装了nRF Cloud Library相关的接口进行的。其中发送到云端就是<code>cloud_wrap_batch_send()</code>：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">cloud_wrap_batch_send</span><span class="params">(<span class="type">char</span> *buf, <span class="type">size_t</span> len, <span class="type">bool</span> ack, <span class="type">uint32_t</span> id)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">nrf_cloud_tx_data</span> <span class="title">msg</span> =</span> &#123;</span><br><span class="line">        .data.ptr = buf,</span><br><span class="line">        .data.len = len,</span><br><span class="line">        .id = id,</span><br><span class="line">        .qos = ack ? MQTT_QOS_1_AT_LEAST_ONCE : MQTT_QOS_0_AT_MOST_ONCE,</span><br><span class="line">        .topic_type = NRF_CLOUD_TOPIC_BULK,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    err = nrf_cloud_send(&amp;msg);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;nrf_cloud_send, error: %d&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>​	这里面，准备好要发送的数据<code>msg</code>即可，数据类型是<code>nrf_cloud_tx_data_msg</code>。Topic是<code>NRF_CLOUD_TOPIC_BULK</code>。</p>
-<p>​	这恰好就是<a target="_blank" rel="noopener" href="https://docs.nrfcloud.com/APIs/MQTT/Topics/#message-topics">官方MQTT API手册</a>中的topic，作用是发送一组bulk数据。只要仿照wrapper中的格式，就可以写出自己的发送函数。</p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/175d0fa05ecc/">https://jayant-tang.github.io/jayant97.github.io/2022/12/175d0fa05ecc/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/nRF91/">nRF91</a><a class="post-meta__tags" href="/jayant97.github.io/tags/nRF-Cloud/">nRF_Cloud</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/nordic/nrf-cloud.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/jayant97.github.io/2022/12/b42baba50896/"><img class="prev-cover" src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203224217145.png" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">搭建自己的静态博客并自动部署</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2022/12/779143a4bec8/" title="安装nRF-Connect-SDK"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-connect.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">安装nRF-Connect-SDK</div></div></a></div><div><a href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">理解Zephyr项目的配置与构建系统</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%BA%A7%E5%93%81%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 产品简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-nRF-Cloud"><span class="toc-text">1.1. nRF Cloud</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-nRF9160-SiP"><span class="toc-text">1.2. nRF9160 SiP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-nRF9160-DK"><span class="toc-text">1.3. nRF9160 DK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-nRF-Connect-SDK"><span class="toc-text">1.4. nRF Connect SDK</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E7%A4%BA%E4%BE%8B-%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5%E5%88%B0nRF-Cloud"><span class="toc-text">2. 示例: 使用nRF9160-DK连接到nRF Cloud</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87"><span class="toc-text">2.1. 前期准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A1%AC%E4%BB%B6%E5%87%86%E5%A4%87"><span class="toc-text">硬件准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%9E%E7%A1%AC%E4%BB%B6%E5%87%86%E5%A4%87"><span class="toc-text">非硬件准备</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E7%83%A7%E5%BD%95Modem%E5%9B%BA%E4%BB%B6"><span class="toc-text">2.2. 烧录Modem固件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E9%85%8D%E7%BD%AE%E3%80%81%E7%BC%96%E8%AF%91%E5%B9%B6%E7%83%A7%E5%BD%95Application%E5%9B%BA%E4%BB%B6"><span class="toc-text">2.3. 配置、编译并烧录Application固件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-1-%E4%BB%A5asset-tracker-v2%E4%B8%BA%E6%A8%A1%E6%9D%BF%EF%BC%8C%E5%88%9B%E5%BB%BA%E6%96%B0%E5%B7%A5%E7%A8%8B"><span class="toc-text">2.3.1. 以asset_tracker_v2为模板，创建新工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-2-%E4%B8%BA%E6%96%B0%E5%B7%A5%E7%A8%8B%E5%88%9B%E5%BB%BAbuild%E9%85%8D%E7%BD%AE"><span class="toc-text">2.3.2. 为新工程创建build配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-3-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE"><span class="toc-text">2.3.3. 修改配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-4-%E7%BC%96%E8%AF%91"><span class="toc-text">2.3.4. 编译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-5-%E7%83%A7%E5%BD%95"><span class="toc-text">2.3.5. 烧录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-%E8%81%94%E7%BD%91%E6%B5%8B%E8%AF%95"><span class="toc-text">2.4. 联网测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-%E5%B0%86%E8%AE%BE%E5%A4%87%E6%B3%A8%E5%86%8C%E5%88%B0nRF-Cloud%E4%BA%91%E7%AB%AF"><span class="toc-text">2.5. 将设备注册到nRF Cloud云端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#JITP%E6%96%B9%E5%BC%8F%E6%B3%A8%E5%86%8C"><span class="toc-text">JITP方式注册</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%84%E8%BF%9E%E6%8E%A5%E6%96%B9%E5%BC%8F%E6%B3%A8%E5%86%8C"><span class="toc-text">预连接方式注册</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87"><span class="toc-text">（1）前期准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E8%8E%B7%E5%8F%96%E6%9C%80%E6%96%B0%E7%9A%84nRF-Cloud-Utils%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%B9%B6%E5%AE%89%E8%A3%85%E5%A5%BD%E4%BE%9D%E8%B5%96"><span class="toc-text">（2）获取最新的nRF Cloud Utils工具，并安装好依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E7%94%9F%E6%88%90%E4%BD%A0%E7%9A%84%E8%87%AA%E7%AD%BECA%E8%AF%81%E4%B9%A6"><span class="toc-text">（3）生成你的自签CA证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%884%EF%BC%89%E7%AD%BE%E5%8F%91%E5%B9%B6%E5%AE%89%E8%A3%85%E8%AE%BE%E5%A4%87%E8%AF%81%E4%B9%A6"><span class="toc-text">（4）签发并安装设备证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%885%EF%BC%89%E6%8A%8A%E8%AE%BE%E5%A4%87%E4%BF%A1%E6%81%AF%E6%89%B9%E9%87%8F%E6%B3%A8%E5%86%8C%E5%88%B0%E4%BA%91%E7%AB%AF"><span class="toc-text">（5）把设备信息批量注册到云端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%886%EF%BC%89%E5%9C%A8%E4%BA%91%E7%AB%AF%E6%9F%A5%E7%9C%8B%E5%88%9A%E5%88%9A%E6%B3%A8%E5%86%8C%E7%9A%84%E8%AE%BE%E5%A4%87"><span class="toc-text">（6）在云端查看刚刚注册的设备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%887%EF%BC%89%E4%BB%8E%E4%BA%91%E7%AB%AF%E5%88%A0%E9%99%A4%E8%AE%BE%E5%A4%87"><span class="toc-text">（7）从云端删除设备</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Asset-Tracker-v2-%E4%BE%8B%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-text">3. Asset Tracker v2 例程分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E6%9C%AC%E4%BE%8B%E7%A8%8B%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99"><span class="toc-text">3.1. 本例程设计原则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E4%BE%8B%E7%A8%8B%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-text">3.2. 例程实现的功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%90%9C%E9%9B%86"><span class="toc-text">数据搜集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E6%97%B6%E9%85%8D%E7%BD%AE"><span class="toc-text">实时配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="toc-text">工作流程图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E6%8E%A5%E5%8F%A3"><span class="toc-text">用户接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-GPS%E4%B8%8EP-GPS"><span class="toc-text">A-GPS与P-GPS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E4%BE%8B%E7%A8%8B%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84"><span class="toc-text">3.3. 例程的工程结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E6%A8%A1%E7%BB%84%E9%97%B4%E7%9A%84%E9%85%8D%E5%90%88%E6%96%B9%E5%BC%8F"><span class="toc-text">3.4. 模组间的配合方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-text">程序的调用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Application-Event-Manager"><span class="toc-text">Application Event Manager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E7%BB%84%E7%9A%84%E7%BA%BF%E7%A8%8B"><span class="toc-text">模组的线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98"><span class="toc-text">动态内存</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-%E4%BE%8B%E7%A8%8B%E6%A8%A1%E7%BB%84%E4%BB%8B%E7%BB%8D"><span class="toc-text">3.5. 例程模组介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6-%E4%BE%8B%E7%A8%8B%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">3.6. 例程代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-1-main-c%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90"><span class="toc-text">3.6.1. main.c文件分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-2-%E4%BA%91%E7%AB%AF%E8%BF%9E%E6%8E%A5%E7%9B%B8%E5%85%B3%E6%A8%A1%E7%BB%84%E7%9A%84%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">3.6.2. 云端连接相关模组的代码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-3-%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81"><span class="toc-text">3.6.3. 数据传输相关代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-4-%E4%BE%8B%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%80%BB%E7%BB%93"><span class="toc-text">3.6.4. 例程代码总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-nRF-Cloud-API%E4%BB%8B%E7%BB%8D"><span class="toc-text">4. nRF Cloud API介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-REST-API"><span class="toc-text">4.1. REST API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#REST-API-%E8%AE%A4%E8%AF%81%E6%96%B9%E5%BC%8F"><span class="toc-text">REST API 认证方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#REST-API-%E8%B0%83%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="toc-text">REST API 调用示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-MQTT-API"><span class="toc-text">4.2. MQTT API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MQTT-topic%E5%89%8D%E7%BC%80%E7%9A%84%E8%8E%B7%E5%8F%96"><span class="toc-text">MQTT topic前缀的获取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%91%E7%AB%AF%E7%9A%84%E8%AE%A4%E8%AF%81"><span class="toc-text">云端的认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Topic"><span class="toc-text">Topic</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">代码分析</span></a></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/jayant97.github.io/imgs/nordic/nrf-cloud.png')"><div id="footer-wrap"><div class="copyright">&copy;2022 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/jayant97.github.io/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+<p>​	这恰好就是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nrfcloud.com/APIs/MQTT/Topics/#message-topics">官方MQTT API手册</a>中的topic，作用是发送一组bulk数据。只要仿照wrapper中的格式，就可以写出自己的发送函数。</p>
+<h1 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h1><p>​	nRF Cloud是一个物联网云，提供最基本的设备管理和OTA等功能。此外还提供收费的Location Service，含AGPS、PGPS、基站定位、WiFi定位等功能。不局限于Nordic产品，任何产品都可以连。</p>
+<p>​	nRF9160具有LTE-M和NB-IoT联网能力，支持GPS。支持eDRX和PSM低功耗，休眠时功耗低至2.7uA。除了本身的Cortex M33应用核可开放开发以外，还可作为外挂通讯模组进行开发。SLM扩展的AT指令也支持多种功能。</p>
+<p>​	</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/175d0fa05ecc/">https://jayant-tang.github.io/jayant97.github.io/2022/12/175d0fa05ecc/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/nRF91/">nRF91</a><a class="post-meta__tags" href="/jayant97.github.io/tags/nRF-Cloud/">nRF_Cloud</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/nordic/nrf-cloud.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/jayant97.github.io/2022/12/b42baba50896/"><img class="prev-cover" src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203224217145.png" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">搭建自己的静态博客并自动部署</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2022/12/779143a4bec8/" title="安装nRF-Connect-SDK"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-connect.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">安装nRF-Connect-SDK</div></div></a></div><div><a href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">理解Zephyr项目的配置与构建系统</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%BA%A7%E5%93%81%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 产品简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-nRF-Cloud"><span class="toc-text">1.1. nRF Cloud</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-nRF9160-SiP"><span class="toc-text">1.2. nRF9160 SiP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-nRF9160-DK-%E5%92%8C-PPK-II"><span class="toc-text">1.3. nRF9160 DK 和 PPK II</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-nRF-Connect-SDK"><span class="toc-text">1.4. nRF Connect SDK</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%85%A5%E9%97%A8-%E4%BD%BF%E7%94%A8nRF9160-DK%E8%BF%9E%E6%8E%A5%E5%88%B0nRF-Cloud"><span class="toc-text">2. 入门: 使用nRF9160-DK连接到nRF Cloud</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87"><span class="toc-text">2.1. 前期准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A1%AC%E4%BB%B6%E5%87%86%E5%A4%87"><span class="toc-text">硬件准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%9E%E7%A1%AC%E4%BB%B6%E5%87%86%E5%A4%87"><span class="toc-text">非硬件准备</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E7%83%A7%E5%BD%95Modem%E5%9B%BA%E4%BB%B6"><span class="toc-text">2.2. 烧录Modem固件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E9%85%8D%E7%BD%AE%E3%80%81%E7%BC%96%E8%AF%91%E5%B9%B6%E7%83%A7%E5%BD%95Application%E5%9B%BA%E4%BB%B6"><span class="toc-text">2.3. 配置、编译并烧录Application固件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-1-%E4%BB%A5asset-tracker-v2%E4%B8%BA%E6%A8%A1%E6%9D%BF%EF%BC%8C%E5%88%9B%E5%BB%BA%E6%96%B0%E5%B7%A5%E7%A8%8B"><span class="toc-text">2.3.1. 以asset_tracker_v2为模板，创建新工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-2-%E4%B8%BA%E6%96%B0%E5%B7%A5%E7%A8%8B%E5%88%9B%E5%BB%BAbuild%E9%85%8D%E7%BD%AE"><span class="toc-text">2.3.2. 为新工程创建build配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-3-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE"><span class="toc-text">2.3.3. 修改配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-4-%E7%BC%96%E8%AF%91"><span class="toc-text">2.3.4. 编译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-5-%E7%83%A7%E5%BD%95"><span class="toc-text">2.3.5. 烧录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-%E8%81%94%E7%BD%91%E6%B5%8B%E8%AF%95"><span class="toc-text">2.4. 联网测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-%E5%B0%86%E8%AE%BE%E5%A4%87%E6%B3%A8%E5%86%8C%E5%88%B0nRF-Cloud%E4%BA%91%E7%AB%AF"><span class="toc-text">2.5. 将设备注册到nRF Cloud云端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#JITP%E6%96%B9%E5%BC%8F%E6%B3%A8%E5%86%8C"><span class="toc-text">JITP方式注册</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%84%E8%BF%9E%E6%8E%A5%E6%96%B9%E5%BC%8F%E6%B3%A8%E5%86%8C"><span class="toc-text">预连接方式注册</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87"><span class="toc-text">（1）前期准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E8%8E%B7%E5%8F%96%E6%9C%80%E6%96%B0%E7%9A%84nRF-Cloud-Utils%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%B9%B6%E5%AE%89%E8%A3%85%E5%A5%BD%E4%BE%9D%E8%B5%96"><span class="toc-text">（2）获取最新的nRF Cloud Utils工具，并安装好依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E7%94%9F%E6%88%90%E4%BD%A0%E7%9A%84%E8%87%AA%E7%AD%BECA%E8%AF%81%E4%B9%A6"><span class="toc-text">（3）生成你的自签CA证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%884%EF%BC%89%E7%AD%BE%E5%8F%91%E5%B9%B6%E5%AE%89%E8%A3%85%E8%AE%BE%E5%A4%87%E8%AF%81%E4%B9%A6"><span class="toc-text">（4）签发并安装设备证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%885%EF%BC%89%E6%8A%8A%E8%AE%BE%E5%A4%87%E4%BF%A1%E6%81%AF%E6%89%B9%E9%87%8F%E6%B3%A8%E5%86%8C%E5%88%B0%E4%BA%91%E7%AB%AF"><span class="toc-text">（5）把设备信息批量注册到云端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%886%EF%BC%89%E5%9C%A8%E4%BA%91%E7%AB%AF%E6%9F%A5%E7%9C%8B%E5%88%9A%E5%88%9A%E6%B3%A8%E5%86%8C%E7%9A%84%E8%AE%BE%E5%A4%87"><span class="toc-text">（6）在云端查看刚刚注册的设备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%887%EF%BC%89%E4%BB%8E%E4%BA%91%E7%AB%AF%E5%88%A0%E9%99%A4%E8%AE%BE%E5%A4%87"><span class="toc-text">（7）从云端删除设备</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Asset-Tracker-v2-%E4%BE%8B%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-text">3. Asset Tracker v2 例程分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E6%9C%AC%E4%BE%8B%E7%A8%8B%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99"><span class="toc-text">3.1. 本例程设计原则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E4%BE%8B%E7%A8%8B%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="toc-text">3.2. 例程实现的功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%90%9C%E9%9B%86"><span class="toc-text">数据搜集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E6%97%B6%E9%85%8D%E7%BD%AE"><span class="toc-text">实时配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="toc-text">工作流程图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E6%8E%A5%E5%8F%A3"><span class="toc-text">用户接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A-GPS%E4%B8%8EP-GPS"><span class="toc-text">A-GPS与P-GPS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E4%BE%8B%E7%A8%8B%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84"><span class="toc-text">3.3. 例程的工程结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E6%A8%A1%E7%BB%84%E9%97%B4%E7%9A%84%E9%85%8D%E5%90%88%E6%96%B9%E5%BC%8F"><span class="toc-text">3.4. 模组间的配合方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-text">程序的调用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Application-Event-Manager"><span class="toc-text">Application Event Manager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E7%BB%84%E7%9A%84%E7%BA%BF%E7%A8%8B"><span class="toc-text">模组的线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98"><span class="toc-text">动态内存</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-%E4%BE%8B%E7%A8%8B%E6%A8%A1%E7%BB%84%E4%BB%8B%E7%BB%8D"><span class="toc-text">3.5. 例程模组介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6-%E4%BE%8B%E7%A8%8B%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">3.6. 例程代码分析</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-nRF-Cloud-API%E4%BB%8B%E7%BB%8D"><span class="toc-text">4. nRF Cloud API介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-REST-API"><span class="toc-text">4.1. REST API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#REST-API-%E8%AE%A4%E8%AF%81%E6%96%B9%E5%BC%8F"><span class="toc-text">REST API 认证方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#REST-API-%E8%B0%83%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="toc-text">REST API 调用示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-MQTT-API"><span class="toc-text">4.2. MQTT API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MQTT-topic%E5%89%8D%E7%BC%80%E7%9A%84%E8%8E%B7%E5%8F%96"><span class="toc-text">MQTT topic前缀的获取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%91%E7%AB%AF%E7%9A%84%E8%AE%A4%E8%AF%81"><span class="toc-text">云端的认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Topic"><span class="toc-text">Topic</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">代码分析</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E6%80%BB%E7%BB%93"><span class="toc-text">5. 总结</span></a></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/jayant97.github.io/imgs/nordic/nrf-cloud.png')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/jayant97.github.io/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
   const ele = document.createElement('link')
   ele.rel = 'stylesheet'
   ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
