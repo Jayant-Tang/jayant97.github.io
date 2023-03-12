@@ -1,0 +1,766 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>详解Zephyr设备树（DeviceTree）与驱动模型 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 前言​	Nordic最新的开发包NCS（nRF Connect SDK）相对于原来的nRF5 SDK来说，最大的更新莫过于采用了Zephyr系统。而Zephyr不单单是一个用来做多线程的RTOS，它更大的价值在于其自带的各种开源的协议栈、框架、软件包、驱动代码等。如果不是为了使用这些现成的协议栈和软件包，只是单纯使用RTOS，实际上并不会产生什么价值。可以说，Zephyr是为物联网而生的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="详解Zephyr设备树（DeviceTree）与驱动模型">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 前言​	Nordic最新的开发包NCS（nRF Connect SDK）相对于原来的nRF5 SDK来说，最大的更新莫过于采用了Zephyr系统。而Zephyr不单单是一个用来做多线程的RTOS，它更大的价值在于其自带的各种开源的协议栈、框架、软件包、驱动代码等。如果不是为了使用这些现成的协议栈和软件包，只是单纯使用RTOS，实际上并不会产生什么价值。可以说，Zephyr是为物联网而生的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/nordic/zephyr.png">
+<meta property="article:published_time" content="2023-03-12T06:27:19.000Z">
+<meta property="article:modified_time" content="2023-03-12T14:17:36.919Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Zephyr">
+<meta property="article:tag" content="DeviceTree">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/nordic/zephyr.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '详解Zephyr设备树（DeviceTree）与驱动模型',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-03-12 22:17:36'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">16</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/jayant97.github.io/imgs/nordic/zephyr.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/jayant97.github.io/">一苇万顷</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">详解Zephyr设备树（DeviceTree）与驱动模型</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-03-12T06:27:19.000Z" title="发表于 2023-03-12 14:27:19">2023-03-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-03-12T14:17:36.919Z" title="更新于 2023-03-12 22:17:36">2023-03-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/RTOS/">RTOS</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="详解Zephyr设备树（DeviceTree）与驱动模型"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2023/03/4b274a50e575/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>​	Nordic最新的开发包NCS（nRF Connect SDK）相对于原来的nRF5 SDK来说，最大的更新莫过于采用了Zephyr系统。而Zephyr不单单是一个用来做多线程的RTOS，它更大的价值在于其自带的各种开源的协议栈、框架、软件包、驱动代码等。如果不是为了使用这些现成的协议栈和软件包，只是单纯使用RTOS，实际上并不会产生什么价值。可以说，Zephyr是为物联网而生的。</p>
+<p>​	Zephyr采用Kconfig对这些软件包进行管理，可以方便地使能或剪裁。而为了使Zephyr自带的硬件驱动代码能够通用，Zephyr采用了DeviceTree来描述硬件。各个半导体厂商把自己的硬件描述成标准DeviceTree，并且按照Zephyr的接口提供驱动代码，然后一起提交给Zephyr。在方便地使用Zephyr中协议栈的同时，用户还能简单方便地使用到各个半导体厂家的硬件功能，这多是一件美事。</p>
+<p>​	但由于目前中文互联网上没有一个很详细的从零开始的教程，导致很多人遇到Zephyr的DeviceTree感到很厌烦：「我之前配一下寄存器、调一下库函数就能操作硬件，怎么现在搞这么复杂？」</p>
+<p>​	但是相信你读完本文后，能够感受到DeviceTree的便利之处。而所谓的<strong>复杂</strong>与<strong>简单</strong>，往往是相对的。人的大脑容量有限，所以我们要不断地对做事的方法进行压缩、抽象，充分利用别人已经完成的工作成果。这也是最早从机器码发展到汇编，再到现在各种高级语言的底层逻辑。</p>
+<p>​	下面正式开始。</p>
+<h1 id="2-从一些习惯开始"><a href="#2-从一些习惯开始" class="headerlink" title="2. 从一些习惯开始"></a>2. 从一些习惯开始</h1><h2 id="硬件的抽象"><a href="#硬件的抽象" class="headerlink" title="硬件的抽象"></a>硬件的抽象</h2><p>​	在做传统的嵌入式C语言开发时，我们常会使用宏定义的方式来实现<strong>硬件的抽象</strong>，例如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;gpio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PORT_LED_1 GPIO_PORT_0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PIN_LED_1 GPIO_PIN_12</span></span><br></pre></td></tr></table></figure>
+
+<p>​	在实际的应用代码中，如果多次使用到这个GPIO，在想要修改IO的时候，只需要修改宏定义即可，而不需要把每一个用到这个IO的地方都改一遍。这种方法的优点很明显：简单直观。</p>
+<blockquote>
+<p>​	其实我们写代码，最终都是在CPU上运行，操作的都是外设寄存器，而不是板子上的LED。当我们在代码里写什么LED驱动、屏幕驱动、电机驱动的时候，只是在用<strong>面向对象</strong>的思维方便开发者（也就是我们自己）而已。CPU是不会理解什么是LED、什么是屏幕、什么是电机的，它只是勤勤恳恳按照指令执行代码，从某些地址读写数据而已。</p>
+<p>​	也就是说，地址、指令和数据才是核心。牢记这一点，才不会被DeviceTree中乱七八糟的硬件节点绕晕。</p>
+</blockquote>
+<p>​	理解这种简单的操作，其实就已经为理解DeviceTree做好了铺垫。</p>
+<h2 id="代码的解耦"><a href="#代码的解耦" class="headerlink" title="代码的解耦"></a>代码的解耦</h2><p>​	大家初学代码时，一定有过想要“解耦”开发的想法：把不同的功能写进不同的文件里，封装成模块，然后在主函数里分别调用这些库即可，不同的模块之间完全解耦。</p>
+<p>​	这种想法在做纯软件时是很容易的。但是，遇到硬件时，往往会遇到一些麻烦。这里举一个例子：假设我们有一个按钮和一个sensor，都需要用到GPIO以及中断，并且我们想实现代码的解耦，如下图。初始化、应用代码、中断服务函数均解耦。</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312145925945.png" alt="image-20230312145925945"></p>
+<p>​	看似这种解耦很美好，但是实际上是实现不了的。因为，认为按钮和sensor之间有区别，这完全是我们人类的观点。对于MCU来说，它都是在操作外设寄存器，按钮和sensor没什么区别。因此gpio外设只需初始化一次，并且中断服务函数也不能定义在两处。</p>
+<p>​	实际上，现在很多成熟的SDK，简单来说是用下图这种方式进行实现的解耦：</p>
+<img src="/jayant97.github.io/imgs/详解Zephyr设备树（DeviceTree）与驱动模型.assets/image-20230312150536356.png" alt="image-20230312150536356" style="zoom:80%;">
+
+<p>​	有一个专门的<code>board.c</code>，或者说BSP（Board Support Package，板级支持包），来处理MCU本身的硬件初始化和中断服务函数。然后，剩余的<strong>应用代码</strong>再做解耦，也可以把回调函数注册进中断服务函数中去。<code>board.c</code>可以说是返璞归真，真正的是在面向MCU编程，而不是面向抽象的对象编程。</p>
+<h2 id="DeviceTree与Zephyr驱动的引入"><a href="#DeviceTree与Zephyr驱动的引入" class="headerlink" title="DeviceTree与Zephyr驱动的引入"></a>DeviceTree与Zephyr驱动的引入</h2><p>​	先说硬件的抽象，前面说的这种宏定义的方式虽然方便，但往往只是方便个人开发者，或者是一个项目内几个同事之间口口相传，没有什么规范可言。不同开发者之间定义宏的方式可能差别很大。</p>
+<p>​	Zephyr不会自己再定义一套新的宏用来描述硬件，那样和各个厂商自己的SDK里的宏也没什么区别，徒增麻烦而已。Zephyr的设计思路就是：能用现成的轮子就不自己造。</p>
+<p>​	因此，Zephyr引入了DeviceTree这一成熟的方案，像Linux一样，各个半导体厂商自己出DeviceTree来描述自己的产品，并且自己提供各个外设的驱动代码。用户只需调用Zephyr标准驱动，底层就会根据DeviceTree自动找到对应厂商的驱动代码，然后编译进固件中。</p>
+<p>​	并且，Zephyr支持在系统初始化时就自动初始化好所有驱动。这样系统进入到Application（主线程）时，所有驱动就已经初始化好了，可以直接进行操作。用类比的说法，就是Zephr内置了所有厂商的所有外设的<code>board.c</code>，你只需动动手指改一下DeviceTree，就可以直接做应用开发，不需要自己写这个<code>board.c</code>了。</p>
+<p>​		总的来说，DeviceTree是一个标准的描述硬件的方法，厂商提供了标准的DeviceTree和驱动代码。用户只需配置好DeviceTree，硬件就会自动初始化好。并且只需调用Zephyr通用驱动API，跨平台。</p>
+<h1 id="3-DeviceTree的结构和语法"><a href="#3-DeviceTree的结构和语法" class="headerlink" title="3. DeviceTree的结构和语法"></a>3. DeviceTree的结构和语法</h1><p>本节参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/dts/intro.html">Introduction to devicetree — Zephyr Project Documentation</a></p>
+<h2 id="3-1-DeviceTree的层次结构"><a href="#3-1-DeviceTree的层次结构" class="headerlink" title="3.1. DeviceTree的层次结构"></a>3.1. DeviceTree的层次结构</h2><p>​	先抛开语法本身，我们先用框图的形式理解DeviceTree表达的是什么。如下图是一个示例，描述了一块板子，上面有一颗Soc、一组LED、一组按钮，还有一个I2C接口的RTC时钟ds3231。</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312162505279.png" alt="image-20230312162505279"></p>
+<p>​	首先，DeviceTree是一个树状结构。那么，树状结构的层次结构是由什么决定的？是什么决定了节点之间的父子关系？</p>
+<p>​	答案是：<strong>首先看总线的主从关系、其次看硬件的包含关系</strong>。</p>
+<p>​	具体来说，就是：</p>
+<ol>
+<li>SoC的所有外设都在ARM地址空间内可被<strong>寻址</strong>（AHB总线和APB总线），因此<code>gpio0</code>、<code>i2c0</code>、<code>adc0</code>等外设节点都是<code>SoC</code>的子节点；</li>
+<li><code>ds3231</code> RTC是i2c从机，具有i2c地址，故是<code>i2c</code>外设的子节点；</li>
+<li>Button和LED虽然使用GPIO，但GPIO不是<strong>总线</strong>。并且根据前一章节所述，Button和LED对SoC来说并没有什么意义，它只是便于人类面向对象编程的。因此，这里的<code>Buttons</code>和<code>Leds</code>就根据<strong>硬件的包含关系</strong>，直接挂在板子（也就是根节点<code>/</code>）下面即可；</li>
+<li>同理，如果有某种电压表设备用到了ADC的通道，这里，ADC的通道也不是总线，因此这个电压表设备也应该直接挂在根节点下面。</li>
+</ol>
+<h2 id="3-2-DeviceTree的适用范围"><a href="#3-2-DeviceTree的适用范围" class="headerlink" title="3.2. DeviceTree的适用范围"></a>3.2. DeviceTree的适用范围</h2><p>​	DeviceTree是为<strong>编译固件</strong>服务的，描述的是这个固件所运行的CPU，所在的板子的硬件信息。因此DeviceTree描述的是<strong>板级</strong>信息。再结合「DeviceTree的层次结构是基于<strong>总线地址</strong>的」，可以得出以下的结论：</p>
+<ol>
+<li><strong>如果一块板子上有两颗MCU，则这两颗MCU固件编译时所采用的DeviceTree不相同。</strong><br>例如nRF9160 DK上有一颗9160，还有一颗52840。在NCS中选择Board时，就有以下两个选项</li>
+</ol>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312163613633.png" alt="image-20230312163613633"></p>
+<ol start="2">
+<li><strong>如果一颗MCU具有两个独立运行固件的CPU，则这两颗CPU不能共用DeviceTree</strong><br>例如nRF5340，具有应用核和网络核，这两颗CPU固件独立。因此选择board时有两个选项。</li>
+</ol>
+<img src="/jayant97.github.io/imgs/详解Zephyr设备树（DeviceTree）与驱动模型.assets/image-20230312163934665.png" alt="image-20230312163934665" style="zoom:80%;">
+
+<ol start="3">
+<li><strong>如果一颗CPU具有两种不同的地址空间（例如Cortex M33的安全地址空间和非安全地址空间），则这两种情况也不能共用DeviceTree</strong></li>
+</ol>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312164104566.png" alt="image-20230312164104566"></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312164125085.png" alt="image-20230312164125085"></p>
+<center>nRF5340的地址空间，分为应用核和网络核</center>
+<center>且每个核的外设还分安全（secure）和非安全（non-secure）</center>
+
+<h2 id="3-3-DeviceTree的语法"><a href="#3-3-DeviceTree的语法" class="headerlink" title="3.3. DeviceTree的语法"></a>3.3. DeviceTree的语法</h2><p>​	DeviceTree既然是一个标准，那么一定有它的标准文档，如果大家有兴趣可以去官网下载：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.devicetree.org/specifications/">Specifications - DeviceTree</a></p>
+<p>​	本文就只捡重点讲：</p>
+<h3 id="3-1-DeviceTree基本结构示例"><a href="#3-1-DeviceTree基本结构示例" class="headerlink" title="3.1. DeviceTree基本结构示例"></a>3.1. DeviceTree基本结构示例</h3><p>​	DeviceTree的源码称为DTS（DeviceTree Source），后缀为<code>.dts</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/dts-v1/</span><br><span class="line"></span><br><span class="line">/&#123;</span><br><span class="line">    a-node&#123;</span><br><span class="line">        a_node_label: a-sub-node &#123;</span><br><span class="line">            foo = &lt;3&gt;;</span><br><span class="line">        &#125;;</span><br><span class="line">        another-sub-node &#123;</span><br><span class="line">            foo = &lt;3&gt;;</span><br><span class="line">            bar = &lt;&amp;a_node_label&gt;;</span><br><span class="line">        &#125;;	</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><code>/dts-v1/</code>，指明了DeviceTree的版本；</li>
+<li>设备树具有唯一的根节点<code>/</code>；</li>
+<li>节点的<strong>名称</strong>写在大括号之前。如<code>a-node</code>、<code>a-sub-node</code>和<code>another-sub-node</code>；</li>
+<li>节点的<strong>属性</strong>写在大括号内，是键值对（Key-Value Pair）的形式。如<code>foo = &lt;3&gt;;</code>；</li>
+<li>子节点直接写在父节点的大括号内，从而可以表达树状的层次关系；</li>
+<li>可以给节点写一个标签，例如<code>a_node_label</code>，标签与节点之间用冒号<code>:</code>连接。</li>
+</ol>
+<blockquote>
+<p>标签（Label）的意义：</p>
+<ol>
+<li>要指明一个节点，标准的做法必须指明绝对路径，例如：<code>/a-node/a-sub-node</code>。<br>有了标签，就可以省略路径，直接用标签表示一个节点，如<code>a_node_label</code>。</li>
+<li>标签可以被作为<strong>属性</strong>引用，让一个节点成为另一个节点的某个属性的<strong>值</strong>。注意，这里说的是成为「属性的值」，而不是成为「子节点」。</li>
+</ol>
+</blockquote>
+<h3 id="3-2-DeviceTree节点的名称"><a href="#3-2-DeviceTree节点的名称" class="headerlink" title="3.2. DeviceTree节点的名称"></a>3.2. DeviceTree节点的名称</h3><p>DeviceTree中的节点名称遵循以下命名规则：<code>name@address</code></p>
+<ol>
+<li><code>name</code>：必须以字母开头。长度在1~31子节。允许大小写字母、数字、<strong>英文逗号、小数点、加号、减号、下划线</strong>；</li>
+<li><code>@address</code>：称为<strong>「Unit Address」</strong>，如果节点有<code>reg</code>属性，则address的值必须与<code>reg</code>描述的<strong>第一个寄存器地址</strong>相等，可以理解为某个外设在它的总线上的首地址。如果某个节点没有reg属性，则<code>@address</code><strong>必须省略</strong>。<br>值得一提的是，address和reg都是16进制。但address不需要写<code>0x</code>前缀，而reg的16进制值需要写<code>0x</code>前缀。</li>
+</ol>
+<blockquote>
+<p>​	实际上，Zephyr对address有一些特殊的规则，见：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/dts/intro-syntax-structure.html#id7">Unit address</a></p>
+<p>​	这里也说一下：</p>
+<ul>
+<li><p>挂在SPI总线上的设备：address表示片选线（CS）的编号，如果没有片选线，则为<code>0</code>；</p>
+</li>
+<li><p>RAM：address直接为RAM的物理起始地址，如<code>memory@20000000</code>，表示<code>0x20000000</code>；</p>
+</li>
+<li><p>Flash：address直接为Flash的物理起始地址，如<code>flash@800000</code>，表示<code>0x08000000</code>。</p>
+</li>
+<li><p>Flash分区：可以在DeviceTree里存一个Flash分区表，分区的address是相对于Flash物理首地址的偏移量，如：</p>
+ <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">flash@8000000 &#123;</span><br><span class="line">    /* ... */</span><br><span class="line">    partitions &#123;</span><br><span class="line">        partition@0 &#123; /* ... */ &#125;;</span><br><span class="line">        partition@20000 &#123;  /* ... */ &#125;;</span><br><span class="line">        /* ... */</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</blockquote>
+<p>几个示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// address必须和reg首地址相等，无论是ARM地址还是i2c地址</span><br><span class="line">i2c@40003000 &#123;</span><br><span class="line">    reg = &lt;0x40003000 0x1000&gt;;</span><br><span class="line">    /* ... */</span><br><span class="line">    ds3231@68 &#123;</span><br><span class="line">        reg = &lt;0x68&gt;;</span><br><span class="line">        /* ... */</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 不带地址的节点，不含@address字段</span><br><span class="line">buttons&#123;</span><br><span class="line">   /* ... */</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 英文逗号也是name的一部分</span><br><span class="line">zephyr,user &#123;</span><br><span class="line">    /* ... */</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-DeviceTree的属性"><a href="#3-3-DeviceTree的属性" class="headerlink" title="3.3. DeviceTree的属性"></a>3.3. DeviceTree的属性</h3><p>​	DeviceTree中每个节点可以有几个属性来描述这个节点。</p>
+<p>​	属性是键值对。属性的名称可以含<strong>大小写字母、数字、逗号、小数点、下划线，加号、减号、问号、”#”号</strong>。</p>
+<p>​	属性是有<strong>类型</strong>的，并且，Zephyr中的属性类型和标准的DeviceTree还有一定的区别，总之是更详细了，见下表：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>属性示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>string</td>
+<td><code>a-string=&quot;hello world!&quot;;</code></td>
+<td>字符串</td>
+</tr>
+<tr>
+<td>string-array</td>
+<td><code>a-string-array=&quot;string one&quot;,&quot;string two&quot;.&quot;string three&quot;;</code></td>
+<td>字符串数组</td>
+</tr>
+<tr>
+<td>int</td>
+<td>10进制：<code>an-int = &lt;1&gt;;</code> <br>16进制：<code>an-int = &lt;0xab&gt;;</code></td>
+<td>32bit整数</td>
+</tr>
+<tr>
+<td>array</td>
+<td><code>foo = &lt;0xdeadbeef 1234 0&gt;;</code></td>
+<td>整数数组</td>
+</tr>
+<tr>
+<td>uint8-array</td>
+<td><code>a-byte-array = [00 01 ab];</code></td>
+<td>字节数组，16进制，可省略0x</td>
+</tr>
+<tr>
+<td>boolean</td>
+<td><code>my-true-boolean;</code></td>
+<td>无值属性。值存在则表示<code>true</code>，不存在则表示<code>false</code></td>
+</tr>
+<tr>
+<td>phandle</td>
+<td><code>a-phandle = &lt;&amp;mynode&gt;;</code></td>
+<td>节点句柄，指向其他的节点。可以认为是一个指针（p）或句柄（handle）</td>
+</tr>
+<tr>
+<td>phandles</td>
+<td><code>some-phandles = &lt;&amp;mynode0 &amp;mynode1 &amp;mynode2&gt;;</code></td>
+<td>节点句柄数组</td>
+</tr>
+<tr>
+<td>phandle-array</td>
+<td><code>a-phandle-array = &lt;&amp;mynode0 1 2&gt;,&lt; &lt;&amp;mynode1 3 4&gt;;</code></td>
+<td>见下方详细说明</td>
+</tr>
+</tbody></table>
+<p>​	其实最基本的属性就是整数、布尔、字符串。以及由它们构成的数组。</p>
+<p>​	<code>phandle</code>本质也是整数，当给一个节点赋予标签时，其实是给这个节点添加了一个隐藏属性<code>phandle = &lt;n&gt;;</code>。构建系统会确保整个DeviceTree中的<code>n</code>不会重复。所以这里<code>a-phandle = &lt;&amp;mynode&gt;;</code>，<code>&amp;mynode</code>的值就是这个标签指向的节点的隐藏phandle属性的值。</p>
+<p>​	这里其他的都好理解，值得详细说的是<code>phandle-array</code>类型。其实，将其取名为「结构体数组」更加合适。这个数组的每一个元素都是一个特殊的结构体，结构体的第一个值必定是一个<code>phandle</code>，后续的值可以是任意值，数量也可以任意。Zephyr将这种类型用来做硬件通道的配置，例如<code>&lt;&amp;gpio0 1 GPIO_INPUT&gt;</code>表示gpio0，1号引脚，模式为输入。后续的硬件支持章节会更详细地讲解实例。</p>
+<h3 id="3-4-DeviceTree的文件引用"><a href="#3-4-DeviceTree的文件引用" class="headerlink" title="3.4. DeviceTree的文件引用"></a>3.4. DeviceTree的文件引用</h3><p>​	<code>.dts</code>可以引用其他的<code>.dts</code>或<code>.dtsi</code>。这样<strong>板卡级dts</strong>就可以引用厂商写好的<strong>芯片级dtsi</strong>，从而减少编写dts的工作量。</p>
+<img src="/jayant97.github.io/imgs/详解Zephyr设备树（DeviceTree）与驱动模型.assets/image-20230312180147944.png" alt="image-20230312180147944" style="zoom:80%;">
+
+<p>​		<code>.dts</code>也可以引用C语言头文件，从而使用里面的宏定义和枚举值：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312180310480.png" alt="image-20230312180310480"></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312180319140.png" alt="image-20230312180319140"></p>
+<h1 id="4-Zephyr中的DeviceTree文件"><a href="#4-Zephyr中的DeviceTree文件" class="headerlink" title="4. Zephyr中的DeviceTree文件"></a>4. Zephyr中的DeviceTree文件</h1><p>​	在Zephyr中，在许多地方都保存的有dts文件。</p>
+<p>​	首先，在NCS中创建build时，需要选择board，而板子的一系列文件中就包含了<code>.dts</code>文件。</p>
+<h2 id="4-1-dts文件"><a href="#4-1-dts文件" class="headerlink" title="4.1. dts文件"></a>4.1. dts文件</h2><h3 id="4-1-1-芯片级dtsi文件"><a href="#4-1-1-芯片级dtsi文件" class="headerlink" title="4.1.1. 芯片级dtsi文件"></a>4.1.1. 芯片级dtsi文件</h3><p>各个厂商提供的芯片级dtsi文件，对于nordic的产品，其dtsi文件位于<code>$&#123;NCS&#125;/zephyr/dts/arm/nordic/</code>中。</p>
+<h3 id="4-1-2-板卡级dts文件"><a href="#4-1-2-板卡级dts文件" class="headerlink" title="4.1.2. 板卡级dts文件"></a>4.1.2. 板卡级dts文件</h3><p>​	各个厂商可能会推出一些开发板、评估板。这些板子的dts文件位于<code>$&#123;NCS&#125;/zephyr/board/arm/$&#123;board-name&#125;/</code>中</p>
+<h2 id="4-2-overlay文件"><a href="#4-2-overlay文件" class="headerlink" title="4.2. overlay文件"></a>4.2. overlay文件</h2><h3 id="4-2-1-overlay文件的位置"><a href="#4-2-1-overlay文件的位置" class="headerlink" title="4.2.1. overlay文件的位置"></a>4.2.1. overlay文件的位置</h3><p>​	在我们开发应用时，往往需要基于厂商的开发板Dts，新增一些功能，或者禁用一些功能。Zephyr提供了overlay的方式让我们可以<strong>覆写</strong>原始的板卡级dts。</p>
+<p>​	在一些例程中，可以看到<code>boards/&lt;board&gt;.overlay</code>文件：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312182939910.png" alt="image-20230312182939910"></p>
+<p>​	如果没有看到，说明这个例程无需修改开发板的原始dts就能实现功能。如果用户想修改，也可以自己在应用根目录创建一个<code>app.overlay</code>：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312183130067.png" alt="image-20230312183130067"></p>
+<p>​	其实添加overlay的方式有很多，并且zephyr会按照一定的顺序找这些overlay，如果在多个地方都定义了overlay，可能zephyr只会使用其中的一部分。具体规则请看：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/dts/howtos.html#set-devicetree-overlays">set-devicetree-overlays</a>。</p>
+<h3 id="4-2-2-overlay的使用"><a href="#4-2-2-overlay的使用" class="headerlink" title="4.2.2. overlay的使用"></a>4.2.2. overlay的使用</h3><p><strong>（1）直接在原有节点覆盖&#x2F;新增属性，可以从根节点开始写：</strong></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312192849065.png" alt="image-20230312192849065"></p>
+<p>​	也可以直接用label写：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312191745811.png" alt="image-20230312191745811"></p>
+<p><strong>（2）删除原有的属性</strong></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312192939102.png" alt="image-20230312192939102"></p>
+<p><strong>（3）删除原有的节点</strong></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312193017699.png" alt="image-20230312193017699"></p>
+<h2 id="4-3-完整的dts文件"><a href="#4-3-完整的dts文件" class="headerlink" title="4.3. 完整的dts文件"></a>4.3. 完整的dts文件</h2><p>每个项目构建时，编译之前，会在构建目录下生成最终的完整dts。位置为<code>$&#123;project_folder&#125;/build/zephyr/zephyr.dts</code></p>
+<h2 id="4-4-最终输出"><a href="#4-4-最终输出" class="headerlink" title="4.4. 最终输出"></a>4.4. 最终输出</h2><p>​	Linux的DTS会被编译为DTB，然后在启动时由Bootloader传递给kernel。但Zephyr运行在性能较差的嵌入式平台上，故不可能专门运行一个解析器去读DTB。</p>
+<p>​	因此，DTS实际上实在编译时被Zephyr的构建系统（一套python脚本）变成了头文件，这个头文件的位置是：</p>
+<p><code>$&#123;project_folder&#125;/build/zephyr/include/generated/devicetree_generated.h</code></p>
+<p>​	了解即可，实际开发不需要查看这个头文件。</p>
+<h1 id="5-用DeviceTree配置硬件信息"><a href="#5-用DeviceTree配置硬件信息" class="headerlink" title="5. 用DeviceTree配置硬件信息"></a>5. 用DeviceTree配置硬件信息</h1><p>​    从上一节我们可以知道，DeviceTree本身的结构和语法其实非常简单，只是规定了一个形式而已，跟硬件的配置没有任何关系。</p>
+<p>​    要想了解DeviceTree是如何对硬件配置产生影响的，需要了解一些常见的属性和概念。</p>
+<h2 id="5-1-标准属性"><a href="#5-1-标准属性" class="headerlink" title="5.1. 标准属性"></a>5.1. 标准属性</h2><p>​	DeviceTree中有一些标准的属性，这些属性和Linux是一样的，在DeviceTree Specification中是有定义的。此处简要介绍一下：</p>
+<h3 id="reg-address-cells-与-size-cells"><a href="#reg-address-cells-与-size-cells" class="headerlink" title="reg, #address-cells 与 #size-cells"></a>reg, #address-cells 与 #size-cells</h3><p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312200747143.png" alt="image-20230312200747143"></p>
+<p>  <strong>reg</strong>属性代表此节点在总线上占用的地址和范围。是由<strong>多对</strong> <strong>(address, length)<strong>组合而成的。而</strong>#address-cells</strong> 和**#sieze-cells**则表示了这个总线上的节点的reg属性里，每个address和size要占用多少个uint32单元。</p>
+<p>  如上图，先看父节点<code>soc</code>，可以得知这条总线上，所有寄存器的address和size各占一个uint32单元。则serial有两个寄存器，第一个寄存器首地址是0x0，长度是0x100；第二个寄存器首地址是0x200，长度是0x300。</p>
+<blockquote>
+<p>​	如果地址长度为64位或更多（即要占用多个Uint32单元），则reg中的写法为大端模式（Big-Endian ），即高地址在前，低地址在后。</p>
+</blockquote>
+<h3 id="ranges"><a href="#ranges" class="headerlink" title="ranges"></a>ranges</h3><p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312201206619.png" alt="image-20230312201206619"></p>
+<p>当一个节点定义了ranges属性，那么它的子节点就可以使用<strong>相对地址</strong>，而非<strong>绝对地址</strong>。</p>
+<p>如上图。peripheral基地址为0x40000000。而ADC的地址从0xe000开始，这是一个相对地址。则ADC在ARM地址空间的绝对地址为0x4e000000。</p>
+<blockquote>
+<p>ranges属性的格式为：</p>
+<p><code>ranges = &lt;子空间首地址  父空间首地址 长度&gt;</code></p>
+<p>子空间首地址为0时，子节点的地址就是相对地址。</p>
+<p>至于这三个元素分别要占用几个uint32单元，看图中同色的部分即可。</p>
+</blockquote>
+<p>  一般用户也用不到，了解即可。厂商才会去改芯片内部的dts。</p>
+<h3 id="status"><a href="#status" class="headerlink" title="status"></a>status</h3><p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312201508849.png" alt="image-20230312201508849"></p>
+<p>  <strong>status</strong>用来指定是否启用一个设备（节点），根据DeviceTree Spec有以下几个选项：</p>
+<ul>
+<li>“okay” ： 设备是可操作的</li>
+<li>“disabled” ： 设备目前是不可操作的（但未来可能可以操作，比如设备插入、安装后）</li>
+<li>“fail” ： 设备不可操作。设备中检测到错误。</li>
+<li>“fail-sss”：设备不可操作。其中sss的部分会根据不同的设备而变换，用于指定特定的错误码</li>
+<li>“reserved” ： 设备可操作，但不应该使用。通常用于设备被其他软件控制的情况。</li>
+</ul>
+<p>但是实际上Zephyr中基本只会用「okay」和「disabled」 ，用来启用或禁用节点。</p>
+<h3 id="compatible"><a href="#compatible" class="headerlink" title="compatible"></a>compatible</h3><p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312201647347.png" alt="image-20230312201647347"></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312201652944.png" alt="image-20230312201652944"></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312201657935.png" alt="image-20230312201657935"></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312201702581.png" alt="image-20230312201702581"></p>
+<p>  <strong>compatible</strong>用来说明一个节点设备的兼容性。它的值是一个字符串或一个字符串数组。</p>
+<p>  Zephyr构建系统就是用它来为每个节点找到合适的驱动程序。其具体的应用后面会讲解。</p>
+<p>  compatible的每个值的通常命名方式是”vendor,device”，即某个供应商的某个产品。这不是强制的要求，也可以没有vendor。</p>
+<p>  如果compatible有多个值，zephyr会按顺序寻找驱动。会使用找到的第一个驱动。</p>
+<h2 id="5-2-重要概念——域（Domain）"><a href="#5-2-重要概念——域（Domain）" class="headerlink" title="5.2. 重要概念——域（Domain）"></a>5.2. 重要概念——域（Domain）</h2><p>  我们知道，DeviceTree是基于<strong>总线地址的层次结构</strong>。然而，实际的硬件之间的关系错综复杂，实为网状结构，如何才能简洁地描述好真实的硬件之间的关系呢？</p>
+<p>  其实，除了DeviceTree本身基于地址的树之外，在逻辑上，还存在一些其他的树，例如GPIO树、中断树、ADC树等等。</p>
+<p>  我们将这种附加在DeviceTree上的，逻辑上的树称为<strong>域（Domain）</strong>。如下图，蓝色为一个按照总线地址的层次结构写好的DeviceTree，但是，在这个树上其实附加了其他的包含关系：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312201750000.png" alt="image-20230312201750000"></p>
+<p>  很容易发现，每个域都有一个自己的“<strong>根节点</strong>”，称为<strong>控制器（Controller）</strong>。不难发现，其实控制器才是真正的我们编程操作的对象，而域中的子节点，都是我们为了方便理解，而抽象出来的概念，这与本文第2章节的观点是一致的。</p>
+<h3 id="域的控制器与子节点"><a href="#域的控制器与子节点" class="headerlink" title="域的控制器与子节点"></a>域的控制器与子节点</h3><p>​	控制器节点通常会有一个布尔类型属性 <code>*-controller</code>，来表示自己是某个域的控制器，如下图：</p>
+<img src="/jayant97.github.io/imgs/详解Zephyr设备树（DeviceTree）与驱动模型.assets/image-20230312202317603.png" alt="image-20230312202317603" style="zoom:67%;">
+
+<p>​	而域中的子节点，就可以使用<code>phandle-array</code>类型的属性来说明自己属于哪个域。此属性的第一个值是指向<strong>控制器的</strong>句柄。后续的值是此节点在这个域中的<strong>配置</strong>。这一条配置被称为<strong>specifier</strong>。</p>
+<img src="/jayant97.github.io/imgs/详解Zephyr设备树（DeviceTree）与驱动模型.assets/image-20230312202350076.png" alt="image-20230312202350076" style="zoom:80%;">
+
+<p>控制器节点中会有一个<code>#*-cells</code>属性来指明specifier的大小，需要占用多少个<code>uint32</code>单元。</p>
+<h3 id="中断域"><a href="#中断域" class="headerlink" title="中断域"></a>中断域</h3><p>中断域和GPIO域有点类似，但有点区别：</p>
+<img src="/jayant97.github.io/imgs/详解Zephyr设备树（DeviceTree）与驱动模型.assets/image-20230312202551215.png" alt="image-20230312202551215" style="zoom:67%;">
+
+<p>  首先，我们发现adc的<code>interrupts</code>属性只写了specifier，并没有写controller指向哪里。</p>
+<p>   这是因为，根据DeviceTree标准，构建系统默认把devicetree父节点当作中断域的controller。如果父节点不是controller，则继续向上寻找。直到遇到controller，或者遇到<code>interrupt-parent</code>属性时，才会指定父节点。</p>
+<p>​	如图可以看出，<code>adc</code>节点向上寻找，遇到<code>soc</code>节点，在<code>soc</code>节点内，指明了其中断域控制器是<code>nvic</code>。于是<code>adc</code>节点中断域的控制器就是nvic。</p>
+<h3 id="其他类似的域"><a href="#其他类似的域" class="headerlink" title="其他类似的域"></a>其他类似的域</h3><p>类似的还有adc域、pwm域、pin-ctrl域等等。这些域的子节点也都采用了<strong>specifier</strong>的方式，来记录配置信息：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312202839931.png" alt="image-20230312202839931"></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312202850193.png" alt="image-20230312202850193"></p>
+<center>pwm控制器与子节点</center>
+
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312202924182.png" alt="image-20230312202924182"></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312202928953.png" alt="image-20230312202928953"></p>
+<center>adc控制器与子节点</center>
+
+<p>​	不过，这里没有*-controller属性来指明controller节点。</p>
+<blockquote>
+<p>​	这些域的控制器的写法，可能有细小的差别，但是背后的道理是相通的。用户也不用关心控制器具体的写法，按照手册写好子节点即可。</p>
+</blockquote>
+<h3 id="域的总结"><a href="#域的总结" class="headerlink" title="域的总结"></a>域的总结</h3><p>​	总之，对于初学者，这里只需记住「specifier是用来写配置的」即可，后面会讲到具体的用法。</p>
+<h2 id="5-3-DeviceBinding"><a href="#5-3-DeviceBinding" class="headerlink" title="5.3.  DeviceBinding"></a>5.3.  DeviceBinding</h2><p>​	前面讲到<strong>域</strong>的概念，我们会发现不同的域的配置方法有一些共性，但也有一些差异，这让我们感觉devicetree的规则很混乱：</p>
+<p>​    “<em>除了<strong>dts</strong>本身的语法之外，竟然还有其他的<strong>规则</strong>，一个不小心就会写错！”</em></p>
+<p>​	我想说，规则是双刃剑。既可以说规则带来了麻烦（提高了门槛），又可以说规则创造了便利（在配置时就提前检查dts是否正确，防止编译的时候出错，那时候更难排查）。</p>
+<p>​	这里的便利性还体现在VS Code编辑器的<strong>代码提示</strong>与<strong>自动补全</strong>，这是Nordic提供的nRF Connect for VS Code插件实现的：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/%E6%8F%90%E7%A4%BA.gif" alt="提示"></p>
+<center>自动补全（枚举类型可以给出预选项）</center>
+
+<p>![GIF 2023-2-22 23-54-54](&#x2F;imgs&#x2F;详解Zephyr设备树（DeviceTree）与驱动模型.assets&#x2F;GIF 2023-2-22 23-54-54.gif)</p>
+<center>错误提示（specifier多写了一个单元）</center>
+
+<h3 id="DeviceBinding文件"><a href="#DeviceBinding文件" class="headerlink" title="DeviceBinding文件"></a>DeviceBinding文件</h3><p>​	所谓的<strong>规则</strong>，被称为Device Binding文件。binding文件是yaml格式文件，yaml是标记语言，由多组键值对组成。每个值可以是：</p>
+<ul>
+<li>纯量（单个不可分割的值，如整数、字符串）</li>
+<li>对象（把键值对当成值）</li>
+<li>数组（一组同类型的<strong>值</strong>）</li>
+</ul>
+<p>示例：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312204227457.png" alt="image-20230312204227457"></p>
+<p>简易语法：</p>
+<ul>
+<li>键、值之间用<strong>冒号+空格</strong>分隔</li>
+<li>yaml的层级关系只看缩进（类似python），相同层级的缩进必须相同</li>
+<li>数组元素可以是纯量、对象。对象的成员也可以有数组</li>
+</ul>
+<blockquote>
+<p>​	可能新手会感觉很麻烦，又冒出来一种语法。但是其实用户无需有畏难情绪，因为这些内容都是使开发更简单，而不是更麻烦的。bingding文件本身的可读性很强，用户只需要能大概看懂即可，编写yaml文件是厂商的工作。</p>
+</blockquote>
+<p>​	binding和DeviceTree中的节点，是通过<code>compatible</code>属性实现联动的。**在VS Code中直接Ctrl+鼠标左键点击<code>compatible</code>**，就可以跳转到对应的binding文件中：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/jump.gif" alt="jump"></p>
+<p>​	DeviceTree中节点的属性，必须严格按照binding文件中的要求。如下图，我自定义了一个电压传感器设备，需要用到ADC。那么我在binding文件中，要求符合<code>compatible = &quot;jayant,voltage-sensor&quot;</code>的所有节点，都必须具有<code>io-channels</code>属性，且类型必须是<code>phandle-array</code>。从而使得这个节点可以通过写specifier的方式，把自己加入到ADC域中：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312204702592.png" alt="image-20230312204702592"></p>
+<p>​	device binding的约束能力很强大，不仅可以约束节点的属性（指定数据的类型、枚举、甚至强行赋值），还可以约束此compatible节点的子节点的属性。</p>
+<img src="/jayant97.github.io/imgs/详解Zephyr设备树（DeviceTree）与驱动模型.assets/image-20230312204824297.png" alt="image-20230312204824297" style="zoom:80%;">
+
+<center>约束一个节点的子节点的属性</center>
+
+<pre><code>  此外，还能给specifier中记录的数值赋予含义。
+</code></pre>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312204820151.png" alt="image-20230312204820151"></p>
+<center>给gpio specifier中的2个单元赋予含义</center>
+
+<p>  由于内容较多，本文不多赘述，可参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/dts/bindings.html">Devicetree</a><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/dts/bindings.html"> bindings — Zephyr Project Documentation</a>了解更多信息。大家在实际开发过程中，直接通过Ctrl + 鼠标左键跳进binding文件，然后望文生义即可。</p>
+<h3 id="DeviceBinding文件的位置"><a href="#DeviceBinding文件的位置" class="headerlink" title="DeviceBinding文件的位置"></a>DeviceBinding文件的位置</h3><p>zephyr build system会从以下位置寻找binding文件：</p>
+<ul>
+<li><code>$&#123;NCS&#125;/zephyr/dts/bindings/</code></li>
+<li><code>$&#123;board_dir&#125;/dts/bindings/</code></li>
+<li><code>$&#123;project_dir&#125;/dts/bindings/</code></li>
+</ul>
+<p>也可以在CMakeLists.txt中，用 <code>list(APPEND DTS_ROOT /path/to/your/dts) </code>命令增加binding文件的目录</p>
+<p>也可以在编译时，增加选项 <code>west build -b &lt;board_name&gt; -- -DTS_ROOT=&lt;path/to/your/dts&gt;</code></p>
+<p>如果想要自定义设备类型，可以把yaml文件添加到以上位置。文件名推荐和compatible一致，但不是必须的。</p>
+<p>如下图为我自己写的两个bingding文件的位置示例：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312205310166.png" alt="image-20230312205310166"></p>
+<h2 id="5-4-特殊节点"><a href="#5-4-特殊节点" class="headerlink" title="5.4. 特殊节点"></a>5.4. 特殊节点</h2><p>在5.1种描述了一些常见的属性。本节会描述一些常见的特殊节点。这些节点都是虚拟的，不是实际存在的硬件：</p>
+<ul>
+<li><p><code>/chosen</code>：为<strong>Zephyr Kernel</strong>选择特定设备（如日志串口）；<br><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312205611402.png" alt="image-20230312205611402"></p>
+</li>
+<li><p><code>/aliases</code>：给节点起一个别名，类似label。不过label仍是节点，而aliases中的别名是属性名。<code>/aliases</code>通常是厂商在<strong>开发板级</strong>的驱动代码中操作硬件所需要的。<br><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312205618639.png" alt="image-20230312205618639"></p>
+</li>
+<li><p><code>/pinctrl</code>：直属于根节点，不属于soc的一个虚拟节点，用于管理<strong>数字IO</strong>的复用（目前不管模拟IO，因为ADC的模拟通道和MCU的硬件引脚往往是绑定死的，不能配置）；</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312210048297.png" alt="image-20230312210048297"><br>具体的介绍，我后续会写一篇文章专门讲解。大家可以直接Ctrl + 鼠标左键点击dts文件中的<code>pin-ctrl</code>，跳转过去，也能自己看懂。</p>
+</li>
+<li><p><code>/zephyr,user</code>：方便用户开发的节点，此节点无需<code>compatible</code>属性。用户可以直接在里面随便写各种specifier、自定义属性等。于是就可以直接在代码里操作GPIO通道、ADC通道、pwm通道等，或者把自己随便写的配置项读出。这免去了如果自定义一个device，还要自己写binding的麻烦。<br><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312205944691.png" alt="image-20230312205944691"></p>
+</li>
+</ul>
+<h1 id="6-在C代码中访问DeviceTree内容"><a href="#6-在C代码中访问DeviceTree内容" class="headerlink" title="6. 在C代码中访问DeviceTree内容"></a>6. 在C代码中访问DeviceTree内容</h1><p>​	在4.4小节中，已经介绍过，DeviceTree最终会用来生成<code>devicetree_generated.h</code>头文件，包含了DeviceTree中的所有信息。自然而然的，我们会想到要在C&#x2F;C++代码中访问这些信息。</p>
+<blockquote>
+<p>​	注意，由于DeviceTree中节点名称、属性名称允许使用的字符集是比C语言变量命名所允许的字符集更广泛的，因此，Zephyr规定，在C语言中访问DeviceTree的内容时，名称内的字母全部都变成<strong>小写字母</strong>、且特殊符号都变成<strong>下划线</strong>。</p>
+<p>​	例如<code>zephyr,user</code>变为<code>zephyr_user</code>；<code>my-gpio</code>变为<code>my_gpio</code>。</p>
+</blockquote>
+<p>​	我们无需关心<code>devicetree_generated.h</code>文件本身的内容，因为它不是给人看的，需要使用一套宏函数来将其读出。在需要操作DeviceTree的文件中包含以下头文件：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/devicetree.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>这里给出一个示例：</p>
+<ol>
+<li>在overlay文件中新增一个属性，表示自己需要一个GPIO进行测试，属性名称为<code>test-gpios</code>。这是一个gpio specifier。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/&#123;</span><br><span class="line">    zephyr,user &#123;</span><br><span class="line">        test-gpios = &lt;&amp;gpio0 17 0&gt;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在<code>main.c</code>中，获取这个specifier，并操作GPIO</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/drivers/gpio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 自己想要操作的节点的id，这里想要操作的节点是zephyr,user</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NODE_ID DT_PATH(zephyr_user)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取到zephyr,user节点的test-gpios属性，并把它作为gpio specifier，读入GPIO驱动。</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">gpio_dt_spec</span> <span class="title">test_io</span> =</span> GPIO_DT_SPEC_GET(NODE_ID, test_gpios);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实际代码</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 判断设备（这里是gpio控制器）是否已初始化完毕</span></span><br><span class="line">    <span class="comment">// 一般情况下，在application运行前，zephyr驱动就已经把控制器初始化好了</span></span><br><span class="line">    <span class="keyword">if</span> (!device_is_ready(test_io.port)) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 重新配置IO</span></span><br><span class="line">    <span class="comment">// 如果DeviceTree里写好了，这里也可以不配</span></span><br><span class="line">    gpio_pin_configure_dt(&amp;test_io, GPIO_OUTPUT_INACTIVE);</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 操作IO</span></span><br><span class="line">    gpio_pin_set_dt(&amp;test_io,<span class="number">1</span>);</span><br><span class="line">    gpio_pin_set_dt(&amp;test_io,<span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="6-1-获取节点ID"><a href="#6-1-获取节点ID" class="headerlink" title="6.1. 获取节点ID"></a>6.1. 获取节点ID</h2><p>​	DeviceTree的一切信息都包含在属性之中。要想获得属性，首先要获得节点ID（node identifier）来作为句柄。获得节点id的方式有很多：</p>
+<table>
+<thead>
+<tr>
+<th><strong>获取方式</strong></th>
+<th><strong>示例</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>根节点</td>
+<td><code>DT_ROOT</code></td>
+<td>根节点id</td>
+</tr>
+<tr>
+<td>绝对路径</td>
+<td><code>DT_PATH(soc, serial_40001000)</code></td>
+<td><code>/soc/serial@40001000  </code></td>
+</tr>
+<tr>
+<td>Label</td>
+<td><code>DT_NODELABEL(serial1)</code></td>
+<td>根据dts中定义的label来找到节点</td>
+</tr>
+<tr>
+<td>chosen节点</td>
+<td><code>DT_CHOSEN(zephyr_console)</code></td>
+<td>根据dts中chosen节点的配置：     zephyr,console&#x3D;&amp;uart0</td>
+</tr>
+</tbody></table>
+<p>​	获得节点id的方式还有很多：通过父节点找子节点、通过子节点找父节点等等。详细不多赘述，可参考：<br> <a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/dts/api-usage.html">https://docs.zephyrproject.org/latest/build/dts/api-usage.html#node-identifiers</a></p>
+<p>​	但是有一种方式需要注意，它与最后一节讲的Zephyr驱动自动初始化息息相关。那就是通过<strong>实例ID</strong>的方式获取节点ID。所谓实例，就是指，同一个<code>compatible</code>，可能在一个dts中有多个实体。比如<code>nordic,nrf-timer</code>，可能一颗MCU上有很多timer。把它们按照在dts中出现的顺序进行编号，就是实例ID。实例ID从0开始。</p>
+<p>​	比如：<code>DT_INST(0, nordic_nrf_timer)</code>，对应的就是<code>nordic,nrf-timer</code>的第0个实例节点。</p>
+<p>​	通过实例ID获取节点ID的好处在于，可以通过遍历的方式来一次性获取到同一个compatible下所有的节点。这正是Zephyr能够在Application运行前就能找到所有dts中配置好的硬件的基础。</p>
+<blockquote>
+<p>注意，所有Device Tree API都是宏，是预编译的结果。因此：</p>
+<ul>
+<li>API参数必须是常量。不能在<code>for(int i=0;i&lt;n;++i)</code>的<strong>运行时</strong>循环中用变量<code>i</code>去调用INST的API；</li>
+<li>调用API的过程也必须在编译时就完成。也就是说API宏的返回值只能赋值给const变量，不能在<strong>运行时</strong>调用，赋值给非const的任何变量。</li>
+</ul>
+</blockquote>
+<h2 id="6-2-获取属性"><a href="#6-2-获取属性" class="headerlink" title="6.2. 获取属性"></a>6.2. 获取属性</h2><p>利用DeviceTree API，输入节点id和属性名称，就可以获得属性。</p>
+<h3 id="检查属性是否存在"><a href="#检查属性是否存在" class="headerlink" title="检查属性是否存在"></a>检查属性是否存在</h3><p>​	使用node id和小写、下划线命名的属性名称</p>
+<p>示例：查找<code>i2c1</code>节点的<code>clock-frequency</code>属性。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">DT_NODE_HAS_PROP(DT_NODELABEL(i2c1), clock_frequency)  <span class="comment">/* 宏展开为 1 */</span></span><br><span class="line">DT_NODE_HAS_PROP(DT_NODELABEL(i2c1), not_a_property)   <span class="comment">/* 宏展开为 0 */</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>DTS里允许的所有特殊符号<code>「-」 「,」 「#」 「@」</code>在C源码里都要变成<code>「_」</code>，且字母都要变成小写。</p>
+</blockquote>
+<blockquote>
+<p>如果是布尔类型，直接使用下面介绍的<code>DT_PROP()</code>即可。不要再使用<code>DT_HAS_PROP()</code>判断其是否存在。</p>
+</blockquote>
+<h3 id="获取普通属性"><a href="#获取普通属性" class="headerlink" title="获取普通属性"></a>获取普通属性</h3><p>​	整数、布尔、字符串、数组、字符串数组都是普通属性，用<code>DT_PROP(node_id)</code>读取。</p>
+<p>整数与字符串示例：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">DT_PROP(DT_PATH(soc, i2c_40002000), clock_frequency)  <span class="comment">/* 宏展开为 100000, */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> I2C1 DT_NODELABEL(i2c1)</span></span><br><span class="line">DT_PROP(I2C1, status)  <span class="comment">/* 宏展开为 &quot;okay&quot; */</span></span><br></pre></td></tr></table></figure>
+
+<p>数组示例：</p>
+<p>​	假设dts为</p>
+<figure class="highlight dts"><table><tr><td class="code"><pre><span class="line"><span class="symbol">foo:</span> <span class="title class_">foo@1234</span> <span class="punctuation">&#123;</span></span><br><span class="line">        a = <span class="params">&lt;<span class="number">1000</span> <span class="number">2000</span> <span class="number">3000</span>&gt;</span><span class="punctuation">;</span> <span class="comment">/* array */</span></span><br><span class="line">        b = [aa bb cc dd]<span class="punctuation">;</span>    <span class="comment">/* uint8-array */</span></span><br><span class="line">        c = <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;baz&quot;</span><span class="punctuation">;</span>     <span class="comment">/* string-array */</span></span><br><span class="line"><span class="punctuation">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>则C代码中可以写作：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> FOO DT_NODELABEL(foo)</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> a[] = DT_PROP(FOO, a);           <span class="comment">/* &#123;1000, 2000, 3000&#125; */</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> b[] = DT_PROP(FOO, b); <span class="comment">/* &#123;0xaa, 0xbb, 0xcc, 0xdd&#125; */</span></span><br><span class="line"><span class="type">char</span>* c[] = DT_PROP(FOO, c);         <span class="comment">/* &#123;&quot;foo&quot;, &quot;bar&quot;&#125; */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取数组的长度</span></span><br><span class="line"><span class="type">size_t</span> a_len = DT_PROP_LEN(FOO, a); <span class="comment">/* 3 */</span></span><br><span class="line"><span class="type">size_t</span> b_len = DT_PROP_LEN(FOO, b); <span class="comment">/* 4 */</span></span><br><span class="line"><span class="type">size_t</span> c_len = DT_PROP_LEN(FOO, c); <span class="comment">/* 2 */</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="读取reg属性"><a href="#读取reg属性" class="headerlink" title="读取reg属性"></a>读取reg属性</h3><ul>
+<li><p>获取reg blocks数量：<code>DT_NUM_REGS(node_id)</code></p>
+</li>
+<li><p>若只有1个block，则直接读取其地址和长度：</p>
+<ul>
+<li><p><code>DT_REG_ADDR(node_id)</code></p>
+</li>
+<li><p><code>DT_REG_SIZE(node_id)</code></p>
+</li>
+</ul>
+</li>
+<li><p>若有多个block，则需要通过下标来索引</p>
+<ul>
+<li><code>DT_REG_ADDR_BY_IDX(node_id, idx)</code></li>
+<li><code>DT_REG_SIZE_BY_IDX(node_id, idx)</code></li>
+</ul>
+<blockquote>
+<p>注意，node_id和idx都必须是常量。因为宏的值在编译时就已经展开，因此不能放在循环里运行。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="读取interrupts属性"><a href="#读取interrupts属性" class="headerlink" title="读取interrupts属性"></a>读取interrupts属性</h3><ul>
+<li><p>获取interrupt specifier数量：<code>DT_NUM_IRQS(node_id)</code></p>
+</li>
+<li><p>获取interrupt specifier：通过node id，下标和val来访问中断配置</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">DT_IRQ_BY_IDX(node_id, idx, val)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<blockquote>
+<p>val的含义：</p>
+<p>​	是中断控制器devicebind文件中规定的结构体成员名。</p>
+<p>​	以设备树中的<code>/soc/peripheral/adc@e000</code>节点为例，节点中未指明interrupt parent，故从设备树向上推断，推到<code>/soc</code>节点，此节点指明中断控制器是<code>&amp;nivc</code>，即<code>/soc/interrupt-cntroller@e000e100</code>，其device-binding是<code>&quot;arm,v8m-nvic&quot;</code>。</p>
+<p>​	在<code>ncs/zephyr/dts/bindings/interrupt-controller/&quot;arm,v8m-nvic.yaml&quot;</code>文件中，指明了interrupt specifier的解析方式：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">interrupt-cells:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">irq</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">priority</span></span><br></pre></td></tr></table></figure>
+
+<p>所以，<code>adc</code>节点中的：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">interrupts = &lt; 0xe 0x1 &gt;;</span><br></pre></td></tr></table></figure>
+
+<p>可被解析为：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> ADC_NODE DT_NODELABEL(adc)</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> irq = DT_IRQ_BY_IDX(ADC_NODE, <span class="number">0</span>, irq) <span class="comment">// 中断号是0xe</span></span><br><span class="line"><span class="type">int</span> priority =  DT_IRQ_BY_IDX(ADC_NODE, <span class="number">0</span>, priority) <span class="comment">// 优先级是priority</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="读取phandle属性"><a href="#读取phandle属性" class="headerlink" title="读取phandle属性"></a>读取phandle属性</h3><p>例如，dts中有：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">n1: node-1 &#123;</span><br><span class="line">    foo = &lt;&amp;n2 &amp;n3&gt;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">n2: node-2 &#123; ... &#125;;</span><br><span class="line">n3: node-3 &#123; ... &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>则可在C代码中，通过<code>n1</code>节点找到另外两个节点的node id：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> N1 DT_NODELABEL(n1)\</span></span><br><span class="line"><span class="meta">DT_PHANDLE_BY_IDX(N1, foo, 0) <span class="comment">// node identifier for node-2</span></span></span><br><span class="line">DT_PHANDLE_BY_IDX(N1, foo, <span class="number">1</span>) <span class="comment">// node identifier for node-3</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="6-3-遍历宏"><a href="#6-3-遍历宏" class="headerlink" title="6.3. 遍历宏"></a>6.3. 遍历宏</h2><p>​	前面提到，DeviceTree API都是宏，不能在代码运行时用循环语句（for和while）来调用。但是DeviceTree API提供了遍历展开宏。如：</p>
+<ul>
+<li>对设备树中的每一个节点都调用宏函数<code>fn</code><br><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312213721605.png" alt="image-20230312213721605"></li>
+<li>对设备树中的每一个status为okay的节点调用宏函数<code>fn</code><br><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312213728227.png" alt="image-20230312213728227"></li>
+<li>对一个节点的所有子节点遍历调用宏函数<code>fn</code><br><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312213734780.png" alt="image-20230312213734780"></li>
+</ul>
+<blockquote>
+<p>更多遍历API，请参考： <a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/dts/api/api.html">https://docs.zephyrproject.org/latest/build/dts/api/api.html#for-each-macros</a></p>
+</blockquote>
+<p>​	这些API看似是循环，实际上是在预编译时，把所有遍历的可能性全部展开。</p>
+<p>​	实际上Nordic提供的很多Zephyr驱动，都是用遍历宏来创建外设相关的变量（例如config结构体），从而能调用nrfx api来完成实际的初始化。</p>
+<p>​	举一个实际的例子，在<code>$&#123;NCS&#125;/zephyr/drivers/led/led_gpio.c</code>中，定义了：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> DT_DRV_COMPAT gpio_leds</span></span><br></pre></td></tr></table></figure>
+
+<p>​	有了这个定义，就可以使用Inst API来访问<code>compatible = &quot;gpio-leds&quot;</code>的所有led，如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">leds0 &#123;</span><br><span class="line">    compatible = &quot;gpio-leds&quot;;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    label = &quot;LED1&quot;;</span><br><span class="line">    led0: led_0 &#123;</span><br><span class="line">        gpios = &lt;&amp;gpio0 4 0&gt;;</span><br><span class="line">        label = &quot;Green LED 1&quot;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line">leds1 &#123;</span><br><span class="line">    compatible = &quot;gpio-leds&quot;;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    label = &quot;LED2&quot;;</span><br><span class="line">    led1: led_1 &#123;</span><br><span class="line">        gpios = &lt;&amp;gpio0 5 0&gt;;</span><br><span class="line">        label = &quot;Green LED 2&quot;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><code>DT_DRV_INST(0)</code>表示led0的Node ID，等价于<code>DT_INST(0, gpio_leds)</code></p>
+<p><code>DT_DRV_INST(1)</code>表示led1的Node ID，等价于<code>DT_INST(1, gpio_leds)</code></p>
+<blockquote>
+<p>因为<code>devicetree.h</code>中，有</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> DT_DRV_INST(inst) DT_INST(inst, DT_DRV_COMPAT)</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>​	Inst API提供了基于<strong>下标</strong>的访问DeviceTree节点的方式。</p>
+<p>​	接下来，下图用宏函数的方式定义了一个代码模板，内部定义了led 驱动程序所需的变量、device结构体等。所有内部调用的宏函数都是基于实例ID的INST API。</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312214413238.png" alt="image-20230312214413238"></p>
+<p>​	最后，用<strong>遍历宏</strong>调用了前面的代码模板。这个遍历宏的效果是：对所有<code>status=&quot;okay&quot;</code>，且<code>compatible=&quot;gpio-leds&quot;</code>的节点，执行一次上面的宏函数。</p>
+<p>​	zephyr就是用这种方式，在驱动代码中自动遍历所有<code>status=&quot;okay&quot;</code>的节点，提取其信息，然后用遍历宏来定义驱动结构体，在kernel启动之前就把硬件的初始化给完成。</p>
+<h2 id="6-4-specifier硬件支持"><a href="#6-4-specifier硬件支持" class="headerlink" title="6.4. specifier硬件支持"></a>6.4. specifier硬件支持</h2><p>Device Tree API 中还有很多硬件支持的宏，方便你直接读取specifier等。具体可参考：</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/dts/api/api.html">https://docs.zephyrproject.org/latest/build/dts/api/api.html#hardware-specific-apis</a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/hardware/index.html">https://docs.zephyrproject.org/latest/hardware/index.html</a></p>
+<p>这里以ADC的硬件支持宏为例。例如，一个节点为：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312214651795.png" alt="image-20230312214651795"></p>
+<p>使用<code>ADC_DT_SPEC_GET_BY_IDX(node_id, idx)</code>,就会展开为：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   .dev = xxxx,</span><br><span class="line">   .channel_id = xxxx,</span><br><span class="line">   .channel_cfg = xxx,</span><br><span class="line">   .vref_mv = xxxxx,</span><br><span class="line">   <span class="comment">/*...*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>刚好和zephyr的adc驱动中定义的adc channel结构体的成员一致</p>
+<p>这就是为什么我们可以直接写：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">adc_dt_spec</span> <span class="title">my_adc_channel_0</span> =</span> ADC_DT_SPEC_GET_BY_IDX(zephyr_user, <span class="number">0</span>);</span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">adc_dt_spec</span> <span class="title">my_adc_channel_1</span> =</span> ADC_DT_SPEC_GET_BY_IDX(zephyr_user, <span class="number">1</span>);</span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">adc_dt_spec</span> <span class="title">my_adc_channel_2</span> =</span> ADC_DT_SPEC_GET_BY_IDX(zephyr_user, <span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+
+<p>如果用上前面说的遍历宏，还能更加简单，直接生成数组：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 给一个specifier对应的大括号末尾加上逗号</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DT_SPEC_AND_COMMA(node_id, prop, idx) \</span></span><br><span class="line"><span class="meta">    ADC_DT_SPEC_GET_BY_IDX(node_id, idx), <span class="comment">// &lt;--逗号加在这里</span></span></span><br><span class="line">    </span><br><span class="line"><span class="comment">// 使用遍历宏直接把所有specifier读进数组</span></span><br><span class="line"><span class="comment">// 这些宏展开后相当于三个结构体初始化大括号，中间用逗号分隔</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">adc_dt_spec</span> <span class="title">adc_channels</span>[] =</span> &#123;</span><br><span class="line">    DT_FOREACH_PROP_ELEM(DT_PATH(zephyr_user), </span><br><span class="line">                         io_channels,</span><br><span class="line">                 		DT_SPEC_AND_COMMA)</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="7-Zephyr-Driver的实现方式"><a href="#7-Zephyr-Driver的实现方式" class="headerlink" title="7. Zephyr Driver的实现方式"></a>7. Zephyr Driver的实现方式</h1><h2 id="什么是驱动程序？"><a href="#什么是驱动程序？" class="headerlink" title="什么是驱动程序？"></a><strong>什么是驱动程序？</strong></h2><p>​	驱动程序是面向对象的。首先要有一个被操作的对象，然后才有驱动程序。这个被操作的对象就是 <strong>device结构体</strong>。 device结构体本身是抽象的，没有具体的含义:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">device</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;           <span class="comment">// 设备的名称</span></span><br><span class="line">    <span class="type">const</span> <span class="type">void</span> *config;         <span class="comment">// 设备的初始配置</span></span><br><span class="line">    <span class="type">const</span> <span class="type">void</span> *api;            <span class="comment">// 设备的api函数集合</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">device_state</span> *<span class="title">state</span>;</span> <span class="comment">// 设备的工作状态</span></span><br><span class="line">    <span class="type">void</span> *data;                 <span class="comment">// 设备的运行数据</span></span><br><span class="line">    <span class="comment">/* ... */</span>                   <span class="comment">// 其他参数，例如电源管理，后续有专门文章讲解</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>​	驱动程序在Appilication程序运行之前，就把硬件初始化做好，然后定义好device结构体的内容。下图中的五个红色的主要级别都是可以定义驱动程序初始化的时间，每个级别内还可以再细分优先级。</p>
+<img src="/jayant97.github.io/imgs/详解Zephyr设备树（DeviceTree）与驱动模型.assets/image-20230312215847338.png" alt="image-20230312215847338" style="zoom:67%;">
+
+<h2 id="在Application中如何拿到Device结构体？"><a href="#在Application中如何拿到Device结构体？" class="headerlink" title="在Application中如何拿到Device结构体？"></a>在Application中如何拿到Device结构体？</h2><p>​	如果说，zephyr在系统初始化阶段就能把所有device结构体定义好。那么Application运行后，要如何拿到这些device呢？</p>
+<h3 id="（1）通过Name的方式"><a href="#（1）通过Name的方式" class="headerlink" title="（1）通过Name的方式"></a>（1）通过Name的方式</h3><p>​	这种方式，可以与DeviceTree完全无关。可以自己定义一个与DeviceTree无关的纯软件设备，也可以编写驱动程序。</p>
+<p>  例程：<code>$&#123;NCS&#125;/zephyr/samples/application_development/out_of_tree_driver</code> 中，介绍了out of tree driver的写法。</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312220123168.png" alt="image-20230312220123168"></p>
+<center>驱动程序中，定义了device的name</center>
+
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312220147908.png" alt="image-20230312220147908"></p>
+<center>应用程序中，通过`device_get_binding()`函数获取device指针 </center>
+
+<h3 id="（2）通过DeviceTree的方式"><a href="#（2）通过DeviceTree的方式" class="headerlink" title="（2）通过DeviceTree的方式"></a>（2）通过DeviceTree的方式</h3><p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312220418544.png" alt="image-20230312220418544"></p>
+<p>​	在驱动程序中，通过<code>DEVICE_DT_DEFINE()</code>，定义了device结构体，并与DeviceTree中的节点绑定：</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312220359492.png" alt="image-20230312220359492"></p>
+<p>在Application中，通过<code>DEVICE_DT_GET(node_id) </code>宏来获得这个device结构体</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312220423449.png" alt="image-20230312220423449"></p>
+<h2 id="Kconfig与DeviceTree"><a href="#Kconfig与DeviceTree" class="headerlink" title="Kconfig与DeviceTree"></a>Kconfig与DeviceTree</h2><p>我们修改<code>prj.config</code>中的<code>CONFIG_XXXX</code>选项、修改dts中的<code>status</code>属性，其本质是在做什么？</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312220546761.png" alt="image-20230312220546761"></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312220553466.png" alt="image-20230312220553466"></p>
+<p>综合前面介绍的device tree、遍历宏的内容，我们可以知道：</p>
+<ol>
+<li>修改driver相关的config选项，其本质是让CMake把驱动程序包含进来。<strong>只要启用了相关config，驱动程序就会载入，固件就会变大。</strong></li>
+<li>修改status为”okay”，其本质是，让驱动程序在使用遍历宏创建device结构体时，能够为这个okay的节点创建device对象。</li>
+</ol>
+<p><strong>只有两者都启用，硬件节点才真正的被驱动了，application中才能真正的操作这个节点。</strong></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312220655857.png" alt="image-20230312220655857"></p>
+<h2 id="Zephyr标准驱动"><a href="#Zephyr标准驱动" class="headerlink" title="Zephyr标准驱动"></a>Zephyr标准驱动</h2><p>Zephyr是一个跨平台的操作系统，自然少不了对各类标准硬件的跨平台支持。</p>
+<p>详见：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/hardware/peripherals/index.html">https://docs.zephyrproject.org/latest/hardware/peripherals/index.html</a></p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312220754929.png" alt="image-20230312220754929"></p>
+<p>这里以Counter为例：</p>
+<blockquote>
+<p>在Zephyr中，Timer指的是内核软定时器，而Counter指硬件定时器</p>
+</blockquote>
+<p>在<code>zephyr/include/zephyr/drivers/counter.h</code>中，规定了zephyr标准的counter应该具有哪些api。</p>
+<p>在<code>zephyr/drivers/counter/</code>目录下，有各个厂商对自家MCU产品写好的timer驱动，全部都符合zephyr标准的API。</p>
+<p>在Kconfig中启用counter驱动时，zephyr build system就会自动把板子对应厂商的counter驱动编译进来。</p>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312220830650.png" alt="image-20230312220830650"></p>
+<h2 id="Zephyr标准驱动支持硬件的全功能吗？"><a href="#Zephyr标准驱动支持硬件的全功能吗？" class="headerlink" title="Zephyr标准驱动支持硬件的全功能吗？"></a>Zephyr标准驱动支持硬件的全功能吗？</h2><p>​	很遗憾，答案是<strong>不能</strong>。Zephyr只支持<strong>最基础</strong>、<strong>最标准</strong>的硬件驱动，不支持各个厂商的硬件特性。</p>
+<p>​	例如nrf系列的PPI，非常方便，zephyr没有为PPI提供标准驱动，因为其他厂商平台并没有这个功能，所以是不可能有「device tree里写一下配置，PPI就自动连好了」这种操作的。Nordic外设的<code>SHORT</code>寄存器也是同理。</p>
+<p>​	下面是一段混合代码：</p>
+<ul>
+<li>前半部分，zephyr标准已经自动初始化好timer0，所以可以用counter api，配置计时；</li>
+<li>后半部分，利用nrfx api，来连接short寄存器，让timer0计时结束后，自动触发clear。</li>
+</ul>
+<p><img src="/jayant97.github.io/imgs/%E8%AF%A6%E8%A7%A3Zephyr%E8%AE%BE%E5%A4%87%E6%A0%91%EF%BC%88DeviceTree%EF%BC%89%E4%B8%8E%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B.assets/image-20230312221017468.png" alt="image-20230312221017468"></p>
+<blockquote>
+<p>这里还有个注意事项：<br>    nrf timer本身没有overflow事件，所以把channel 0拿去设置top value了；此外，还把channel 1拿去做输入捕获了。</p>
+<p>​	因此，nrf timer暴露给zephyr标准驱动的通道就少了两个，实际上zephyr counter的通道0，是硬件定时器的通道2。</p>
+</blockquote>
+<h1 id="8-总结"><a href="#8-总结" class="headerlink" title="8. 总结"></a>8. 总结</h1><ol>
+<li>DeviceTree描述的是<strong>板卡级</strong>的硬件信息。DeviceTree是树型逻辑结构，层次关系是由<strong>总线的主从关系，</strong>以及<strong>硬件的包含关系</strong>决定的 。</li>
+<li>DeviceTree的基本单元是节点（Node），节点具有一个<strong>名称</strong>和多条<strong>属性</strong>。可以给节点增加标签（label），来便于引用这个节点。</li>
+<li>板卡级的dts文件可以引用芯片级的dtsi文件，也可以引用.h头文件，从而使用其定义的枚举值和宏。</li>
+<li>用户可以在自己的工程里通过写overlay的方式，来覆写原始board dts里的配置</li>
+<li>Zephyr Build System在构建时会合并所有的dts以及overlay，生成最终的zephyr.dts，并导出为devicetree_generated.h头文件</li>
+<li>DeviceTree本身的语法只提供了一个基于总线主从关系的树形层次结构，此外每个节点可以用属性来存储信息。语法本身并没有规定硬件要如何描述。DeviceTree中的一些常见属性，补充了这方面的空缺。<ul>
+<li>reg、ranges、#address-cells、#size-cells这四个属性描述了总线上的地址分布</li>
+<li>status属性描述了设备是否使能</li>
+<li>compatible属性描述了设备的兼容性</li>
+</ul>
+</li>
+<li>在DeviceTree中，除了本身的树形结构以外，还具有一些逻辑上的树形结构，称为域。域具有<strong>控制器</strong>和设备节点，控制器是真正实现域的功能的硬件外设，而设备节点只是为了开发方便解耦而进行的一种抽象。</li>
+<li>真正限制device tree中属性该如何写的，是device binding文件。binding文件是芯片厂商提供的。有了binding文件，就可以在VS Code中实现自动的检查与补全。Zephyr实际构建项目时，也是参考binding文件来检查dts的正确性。只有dts按照正确的规则写了，zephyr的驱动代码才能识别到硬件配置，进行自动初始化。</li>
+<li>zephyr中会有一些特殊的虚拟节点来为开发提供便利。</li>
+<li>要从C语言中访问DeviceTree中的信息，需要先获得node id。用绝对路径、label、chosen、alias等许多方法都可以获取一个节点的node id。其中要注意的是通过实例id的方法（INST）</li>
+<li>有了node id，就可以获取node的属性。普通的属性与reg、phandle、interrupt属性的获取API不相同。</li>
+<li>zephyr还提供了遍历宏，从而可以针对特定条件的节点&#x2F;属性遍历执行宏函数。</li>
+<li>Zephyr用前面提到的通用API，封装出了各种硬件支持API，方便直接读取各种硬件指定的specifier。</li>
+<li>Zephyr驱动程序，在Application运行之前就会执行初始化，并且定义device结构体。</li>
+<li>Application可以通过Name或者Node id的方式，获得device结构体</li>
+<li>我们在Kconfig中使能driver，本质上是载入了驱动程序，固件会变大。在dts中把节点的status设为okay，本质上是让驱动程序在初始化时，能够自动搜到这个节点，并为这个节点创建device实例。</li>
+<li>Zephyr的标准驱动，让各个厂商都实现了相同功能的驱动API代码，从而实现了跨平台的统一驱动。<br> 但是如果想要使用硬件特性的功能，就还是必须使用厂商自己的driver library或者直接写寄存器。</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/">https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/Zephyr/">Zephyr</a><a class="post-meta__tags" href="/jayant97.github.io/tags/DeviceTree/">DeviceTree</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/nordic/zephyr.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/jayant97.github.io/2022/12/f9e1871a88ea/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">WiFi抓包的过滤器设置</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">理解Zephyr项目的配置与构建系统</div></div></a></div><div><a href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-cloud.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-01</div><div class="title">nRF9160与nRF Cloud应用示例</div></div></a></div><div><a href="/jayant97.github.io/2022/12/779143a4bec8/" title="安装nRF-Connect-SDK"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-connect.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">安装nRF-Connect-SDK</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%89%8D%E8%A8%80"><span class="toc-text">1. 前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E4%BB%8E%E4%B8%80%E4%BA%9B%E4%B9%A0%E6%83%AF%E5%BC%80%E5%A7%8B"><span class="toc-text">2. 从一些习惯开始</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A1%AC%E4%BB%B6%E7%9A%84%E6%8A%BD%E8%B1%A1"><span class="toc-text">硬件的抽象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%9A%84%E8%A7%A3%E8%80%A6"><span class="toc-text">代码的解耦</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DeviceTree%E4%B8%8EZephyr%E9%A9%B1%E5%8A%A8%E7%9A%84%E5%BC%95%E5%85%A5"><span class="toc-text">DeviceTree与Zephyr驱动的引入</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-DeviceTree%E7%9A%84%E7%BB%93%E6%9E%84%E5%92%8C%E8%AF%AD%E6%B3%95"><span class="toc-text">3. DeviceTree的结构和语法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-DeviceTree%E7%9A%84%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84"><span class="toc-text">3.1. DeviceTree的层次结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-DeviceTree%E7%9A%84%E9%80%82%E7%94%A8%E8%8C%83%E5%9B%B4"><span class="toc-text">3.2. DeviceTree的适用范围</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-DeviceTree%E7%9A%84%E8%AF%AD%E6%B3%95"><span class="toc-text">3.3. DeviceTree的语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-DeviceTree%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84%E7%A4%BA%E4%BE%8B"><span class="toc-text">3.1. DeviceTree基本结构示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-DeviceTree%E8%8A%82%E7%82%B9%E7%9A%84%E5%90%8D%E7%A7%B0"><span class="toc-text">3.2. DeviceTree节点的名称</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-DeviceTree%E7%9A%84%E5%B1%9E%E6%80%A7"><span class="toc-text">3.3. DeviceTree的属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-DeviceTree%E7%9A%84%E6%96%87%E4%BB%B6%E5%BC%95%E7%94%A8"><span class="toc-text">3.4. DeviceTree的文件引用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Zephyr%E4%B8%AD%E7%9A%84DeviceTree%E6%96%87%E4%BB%B6"><span class="toc-text">4. Zephyr中的DeviceTree文件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-dts%E6%96%87%E4%BB%B6"><span class="toc-text">4.1. dts文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-1-%E8%8A%AF%E7%89%87%E7%BA%A7dtsi%E6%96%87%E4%BB%B6"><span class="toc-text">4.1.1. 芯片级dtsi文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-2-%E6%9D%BF%E5%8D%A1%E7%BA%A7dts%E6%96%87%E4%BB%B6"><span class="toc-text">4.1.2. 板卡级dts文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-overlay%E6%96%87%E4%BB%B6"><span class="toc-text">4.2. overlay文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-1-overlay%E6%96%87%E4%BB%B6%E7%9A%84%E4%BD%8D%E7%BD%AE"><span class="toc-text">4.2.1. overlay文件的位置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-2-overlay%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-text">4.2.2. overlay的使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-%E5%AE%8C%E6%95%B4%E7%9A%84dts%E6%96%87%E4%BB%B6"><span class="toc-text">4.3. 完整的dts文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-4-%E6%9C%80%E7%BB%88%E8%BE%93%E5%87%BA"><span class="toc-text">4.4. 最终输出</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E7%94%A8DeviceTree%E9%85%8D%E7%BD%AE%E7%A1%AC%E4%BB%B6%E4%BF%A1%E6%81%AF"><span class="toc-text">5. 用DeviceTree配置硬件信息</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E6%A0%87%E5%87%86%E5%B1%9E%E6%80%A7"><span class="toc-text">5.1. 标准属性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#reg-address-cells-%E4%B8%8E-size-cells"><span class="toc-text">reg, #address-cells 与 #size-cells</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ranges"><span class="toc-text">ranges</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#status"><span class="toc-text">status</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#compatible"><span class="toc-text">compatible</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-%E9%87%8D%E8%A6%81%E6%A6%82%E5%BF%B5%E2%80%94%E2%80%94%E5%9F%9F%EF%BC%88Domain%EF%BC%89"><span class="toc-text">5.2. 重要概念——域（Domain）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E7%9A%84%E6%8E%A7%E5%88%B6%E5%99%A8%E4%B8%8E%E5%AD%90%E8%8A%82%E7%82%B9"><span class="toc-text">域的控制器与子节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E5%9F%9F"><span class="toc-text">中断域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E7%B1%BB%E4%BC%BC%E7%9A%84%E5%9F%9F"><span class="toc-text">其他类似的域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E7%9A%84%E6%80%BB%E7%BB%93"><span class="toc-text">域的总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-3-DeviceBinding"><span class="toc-text">5.3.  DeviceBinding</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DeviceBinding%E6%96%87%E4%BB%B6"><span class="toc-text">DeviceBinding文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DeviceBinding%E6%96%87%E4%BB%B6%E7%9A%84%E4%BD%8D%E7%BD%AE"><span class="toc-text">DeviceBinding文件的位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-4-%E7%89%B9%E6%AE%8A%E8%8A%82%E7%82%B9"><span class="toc-text">5.4. 特殊节点</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E5%9C%A8C%E4%BB%A3%E7%A0%81%E4%B8%AD%E8%AE%BF%E9%97%AEDeviceTree%E5%86%85%E5%AE%B9"><span class="toc-text">6. 在C代码中访问DeviceTree内容</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-1-%E8%8E%B7%E5%8F%96%E8%8A%82%E7%82%B9ID"><span class="toc-text">6.1. 获取节点ID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-2-%E8%8E%B7%E5%8F%96%E5%B1%9E%E6%80%A7"><span class="toc-text">6.2. 获取属性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5%E5%B1%9E%E6%80%A7%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8"><span class="toc-text">检查属性是否存在</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%99%AE%E9%80%9A%E5%B1%9E%E6%80%A7"><span class="toc-text">获取普通属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96reg%E5%B1%9E%E6%80%A7"><span class="toc-text">读取reg属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96interrupts%E5%B1%9E%E6%80%A7"><span class="toc-text">读取interrupts属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96phandle%E5%B1%9E%E6%80%A7"><span class="toc-text">读取phandle属性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-3-%E9%81%8D%E5%8E%86%E5%AE%8F"><span class="toc-text">6.3. 遍历宏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-4-specifier%E7%A1%AC%E4%BB%B6%E6%94%AF%E6%8C%81"><span class="toc-text">6.4. specifier硬件支持</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-Zephyr-Driver%E7%9A%84%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="toc-text">7. Zephyr Driver的实现方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%EF%BC%9F"><span class="toc-text">什么是驱动程序？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%A8Application%E4%B8%AD%E5%A6%82%E4%BD%95%E6%8B%BF%E5%88%B0Device%E7%BB%93%E6%9E%84%E4%BD%93%EF%BC%9F"><span class="toc-text">在Application中如何拿到Device结构体？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E9%80%9A%E8%BF%87Name%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-text">（1）通过Name的方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E9%80%9A%E8%BF%87DeviceTree%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-text">（2）通过DeviceTree的方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kconfig%E4%B8%8EDeviceTree"><span class="toc-text">Kconfig与DeviceTree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zephyr%E6%A0%87%E5%87%86%E9%A9%B1%E5%8A%A8"><span class="toc-text">Zephyr标准驱动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zephyr%E6%A0%87%E5%87%86%E9%A9%B1%E5%8A%A8%E6%94%AF%E6%8C%81%E7%A1%AC%E4%BB%B6%E7%9A%84%E5%85%A8%E5%8A%9F%E8%83%BD%E5%90%97%EF%BC%9F"><span class="toc-text">Zephyr标准驱动支持硬件的全功能吗？</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E6%80%BB%E7%BB%93"><span class="toc-text">8. 总结</span></a></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/jayant97.github.io/imgs/nordic/zephyr.png')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/jayant97.github.io/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'c91ce0493b5c3e886110',
+      clientSecret: '7599decf69128ba1a83c1f3ef0923395a9bd8a60',
+      repo: 'jayant97.github.io',
+      owner: 'Jayant-Tang',
+      admin: ['Jayant-Tang'],
+      id: 'bef843de77f7754e1fd7177a283a0309',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
