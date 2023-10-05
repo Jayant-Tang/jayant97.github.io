@@ -1,0 +1,572 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>在nRF7002开发板上运行MQTT例程 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 简介本文面向零基础读者，将一步一步介绍如何通过nRF7002DK开发板来运行MQTT例程，并分析此例程的框架、代码，以及用到的库。 本文包含以下内容：  MQTT协议简介 手把手教你运行MQTT over WiFi例程 MQTT例程解析 线程间通信框架：ZBus Zephyr状态机框架：SMF (State Machine Framework) NCS中的Wi-Fi连接方法 NCS中的MQT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在nRF7002开发板上运行MQTT例程">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2023/08/045cdc9c9b10/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 简介本文面向零基础读者，将一步一步介绍如何通过nRF7002DK开发板来运行MQTT例程，并分析此例程的框架、代码，以及用到的库。 本文包含以下内容：  MQTT协议简介 手把手教你运行MQTT over WiFi例程 MQTT例程解析 线程间通信框架：ZBus Zephyr状态机框架：SMF (State Machine Framework) NCS中的Wi-Fi连接方法 NCS中的MQT">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png">
+<meta property="article:published_time" content="2023-08-14T06:52:34.000Z">
+<meta property="article:modified_time" content="2023-10-05T19:13:47.313Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="nRF_Cloud">
+<meta property="article:tag" content="nRF70">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2023/08/045cdc9c9b10/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '在nRF7002开发板上运行MQTT例程',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-06 03:13:47'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">在nRF7002开发板上运行MQTT例程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-08-14T06:52:34.000Z" title="发表于 2023-08-14 14:52:34">2023-08-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-10-05T19:13:47.313Z" title="更新于 2023-10-06 03:13:47">2023-10-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/">Nordic</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="在nRF7002开发板上运行MQTT例程"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2023/08/045cdc9c9b10/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>本文面向零基础读者，将一步一步介绍如何通过nRF7002DK开发板来运行MQTT例程，并分析此例程的框架、代码，以及用到的库。</p>
+<p>本文包含以下内容：</p>
+<ul>
+<li>MQTT协议简介</li>
+<li>手把手教你运行MQTT over WiFi例程</li>
+<li>MQTT例程解析<ul>
+<li>线程间通信框架：ZBus</li>
+<li>Zephyr状态机框架：SMF (State Machine Framework)</li>
+<li>NCS中的Wi-Fi连接方法</li>
+<li>NCS中的MQTT连接方法</li>
+<li>MQTT加密连接配置（TLS配置）</li>
+</ul>
+</li>
+</ul>
+<h2 id="1-1-nRF7002DK"><a href="#1-1-nRF7002DK" class="headerlink" title="1.1. nRF7002DK"></a>1.1. nRF7002DK</h2><p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/nRF7002-DK-1.0.0_perspective_prod_page.webp" alt="nRF7002-DK-1.0.0_perspective"></p>
+<p>nRF7002DK是Nordic的WiFi6开发板，上面有nRF7002和nRF5340两颗芯片。其中nRF7002是Wi-Fi6双频IC，nRF5340是双核蓝牙主控MCU，二者通过QSPI连接。此开发板提供了5GHz和2.4GHz双频WiFi和蓝牙共存的功能。</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230908164659947.png" alt="image-20230908164659947"></p>
+<p>此外如果你在今年的Nordic Tech Tour上获得了免费的Clever Connect Kit（CCK），也可以使用。它和7002DK的主要电路都相同（7002, 5340，Jlink和外挂Flash），只是缺少一些外围保护电路和IO口切换用的电子开关。你可以在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://devzone.nordicsemi.com/cfs-file/__key/communityserver-discussions-components-files/4/INTERNAL-CCK-Quick-Guide-v1.pdf">这里</a>下载到它的说明文档。</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230823115736114.png" alt="image-20230823115736114"></p>
+<h2 id="1-2-MQTT协议简介"><a href="#1-2-MQTT协议简介" class="headerlink" title="1.2. MQTT协议简介"></a>1.2. MQTT协议简介</h2><h3 id="什么是MQTT协议？"><a href="#什么是MQTT协议？" class="headerlink" title="什么是MQTT协议？"></a>什么是MQTT协议？</h3><p>MQTT是物联网领域常用的通讯协议，它轻量、高效，适合需要联网的嵌入式应用。要快速了解MQTT协议，可以从以下几个角度看。</p>
+<h3 id="设备之间如何建立连接？"><a href="#设备之间如何建立连接？" class="headerlink" title="设备之间如何建立连接？"></a>设备之间如何建立连接？</h3><p>许多设备通过TCP连接到一个服务器上，这个服务器是MQTT Broker，它代理了设备之间的通信。</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230823115755610.png" alt="image-20230823115755610"></p>
+<p>这种方式优势很多。由于<strong>设备之间</strong>不需要建立<strong>直接</strong>连接，因此当一个设备要与另一个设备通信时，既不需要知道对方的地址，也不需要等待对方的唤醒，甚至不需要知道对方的存在。设备只需要把消息交给服务器，并且从服务器取回自己所需的数据即可，然后就能继续休眠。</p>
+<h3 id="MQTT消息如何传输？"><a href="#MQTT消息如何传输？" class="headerlink" title="MQTT消息如何传输？"></a>MQTT消息如何传输？</h3><p>消息被发布到主题上，然后就能被订阅此主题的设备接收到。</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230908165648117.png" alt="image-20230908165648117"></p>
+<p>MQTT是基于发布&#x2F;订阅模型的消息传输协议。任何一个设备都可以向某个主题（Topic）发布（Publish）消息，也可以订阅（Subscribe）某个主题从而接收消息。当某个客户端向一个主题发布数据时，所有订阅了这个主题的客户端都可以收到这个消息。</p>
+<blockquote>
+<p>消息：可以是任何数据。如json字符串或纯二进制数据；</p>
+<p>客户端：既可以是IoT设备，也可以是PC、手机或服务器；</p>
+<p>主题：一串符合格式要求的字符串。其格式不是本文的重点，此处不详细叙述。</p>
+</blockquote>
+<h3 id="MQTT协议安全吗？"><a href="#MQTT协议安全吗？" class="headerlink" title="MQTT协议安全吗？"></a>MQTT协议安全吗？</h3><p>从最简单的角度考虑，安全分为两个方面，一个是设备身份的认证，一个是传输本身的加密。</p>
+<p>每一个MQTT客户端都有一个Client ID，用于标识设备的身份。在一些仅供测试学习的MQTT broker上，只需要自己随便填写一个个Client ID就可以登录了。而商用的MQTT broker可能还需要密码、密钥、证书等凭据才可以允许设备登录。</p>
+<p>此外，MQTT是基于TCP&#x2F;IP的协议，这意味着MQTT也可以通过TLS加密通讯。在这种情况下：</p>
+<ul>
+<li>如果客户端需要验证服务端的身份，则客户端内需要安装CA证书，用于验证TLS握手时服务器出示的证书是否合法；</li>
+<li>如果服务端要验证客户端的身份，那么除了前面讲的通过<strong>密码</strong>进行登陆的方式外，还可以通过<strong>设备证书</strong>的方式进行验证。这种情况下，客户端需要持有<strong>设备证书</strong>（包含公钥）及其<strong>私钥</strong>。并且设备的证书和Client  ID要提前被注册到云端。</li>
+</ul>
+<h1 id="2-环境准备"><a href="#2-环境准备" class="headerlink" title="2. 环境准备"></a>2. 环境准备</h1><ol>
+<li>nRF7002DK或CCK</li>
+<li>一台安装了nRF Connect SDK v2.4.0的开发环境的PC (Windows&#x2F;Linux&#x2F;MacOS)</li>
+<li>PC上安装一个MQTT客户端，例如：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://mqttx.app/zh">MQTTX</a></li>
+<li>联网的WiFi环境（目前仅支持PSK，也就是输入密码的类型；不支持企业级Wi-Fi）</li>
+</ol>
+<h1 id="3-运行例程"><a href="#3-运行例程" class="headerlink" title="3. 运行例程"></a>3. 运行例程</h1><h2 id="3-1-通过例程模板创建新工程"><a href="#3-1-通过例程模板创建新工程" class="headerlink" title="3.1. 通过例程模板创建新工程"></a>3.1. 通过例程模板创建新工程</h2><p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20231002150634368.png" alt="image-20231002150634368"></p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20231002150727465.png" alt="image-20231002150727465"></p>
+<ol>
+<li>打开一个VS Code新窗口，进入nRF Connect插件界面，选择Create a new application，创建一个新工程</li>
+<li>选择copy a sample，复制一个例程</li>
+<li>在搜索框输入mqtt，选择<code>nrf/samples/net/mqtt</code></li>
+<li>输入工程存放的路径，回车</li>
+<li>输入新工程的名称，回车创建</li>
+</ol>
+<blockquote>
+<p>通过这种方式创建的新工程会自动创建单独的git仓库，方便我们后续追踪文件的变动。</p>
+</blockquote>
+<h2 id="3-2-修改工程配置文件"><a href="#3-2-修改工程配置文件" class="headerlink" title="3.2. 修改工程配置文件"></a>3.2. 修改工程配置文件</h2><p>在<code>boards/nrf7002dk_nrf5340_cpuapp.conf</code>中，添加WiFi SSID和密码的配置，例如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># WIFI SSID与密码</span></span><br><span class="line">CONFIG_WIFI_CREDENTIALS_STATIC_SSID=<span class="string">&quot;Nordicsh-5G&quot;</span></span><br><span class="line">CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD=<span class="string">&quot;xxxxxxxx&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 加密方式，根据AP的情况四选一</span></span><br><span class="line"><span class="comment">#CONFIG_WIFI_CREDENTIALS_STATIC_TYPE_OPEN=y </span></span><br><span class="line">CONFIG_WIFI_CREDENTIALS_STATIC_TYPE_PSK=y</span><br><span class="line"><span class="comment">#CONFIG_WIFI_CREDENTIALS_STATIC_TYPE_PSK_SHA256=y</span></span><br><span class="line"><span class="comment">#CONFIG_WIFI_CREDENTIALS_STATIC_TYPE_SAE=y</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>提示：</p>
+<ol>
+<li><p>本例程的<code>src/modules/network_wifi.c</code>中要求必须静态配置WiFi SSID和密码</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">BUILD_ASSERT(IS_ENABLED(CONFIG_WIFI_CREDENTIALS_STATIC), <span class="string">&quot;Static Wi-Fi config must be used&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>因此，若不在编译前就设置好WiFi SSID与密码，则Assert无法通过。<br>不过在实际的产品开发中，肯定是希望在程序运行后再动态配置，具体方法请参考后续章节。</p>
+</li>
+<li><p>由于<code>mqtt</code>例程除了可以用7002wifi开发板运行外，也可用9160蜂窝网开发板运行，因此Wi-Fi的相关配置最好放在<code>boards</code>目录下与WiFi板子相关的配置文件中，而不是放在<code>prj.conf</code>这个通用的配置文件中。这是一种更合理的做法。</p>
+</li>
+</ol>
+</blockquote>
+<h2 id="3-3-创建编译目标"><a href="#3-3-创建编译目标" class="headerlink" title="3.3. 创建编译目标"></a>3.3. 创建编译目标</h2><p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230823115834345.png" alt="image-20230823115834345"></p>
+<ol>
+<li>选择nRF Connect 插件</li>
+<li>在mqtt工程下新建一个编译目标</li>
+<li>选择板子<code>nrf7002dk_nrf5340_cpuapp</code> （含义：7002DK开发板——5340MCU——应用核）</li>
+<li>追加的配置文件选择<code>overlay-tls-nrf7002.conf</code>。（也可以把这个追加配置文件的内容复制到prj.conf中）</li>
+<li>编译</li>
+</ol>
+<blockquote>
+<p>提示：</p>
+<ol>
+<li><p>通过按<code>CTRL + ` </code> 可以呼出命令行界面，查看编译进度</p>
+</li>
+<li><p>编译时，命令行中会显示运行的命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/bin/sh -c west build --build-dir /home/jayant/project/ncs-project/wifi/mqtt/build /home/jayant/project/ncs-project/wifi/mqtt --pristine --board nrf7002dk_nrf5340_cpuapp --no-sysbuild -- -DNCS_TOOLCHAIN_VERSION:STRING=<span class="string">&quot;NONE&quot;</span> -DBOARD_ROOT:STRING=<span class="string">&quot;/home/jayant/project/ncs-project/wifi/mqtt&quot;</span> -DCONF_FILE:STRING=<span class="string">&quot;/home/jayant/project/ncs-project/wifi/mqtt/prj.conf;/home/jayant/project/ncs-project/wifi/mqtt/boards/nrf7002dk_nrf5340_cpuapp.conf&quot;</span> -DOVERLAY_CONFIG:STRING=<span class="string">&quot;/home/jayant/project/ncs-project/wifi/mqtt/overlay-tls-nrf7002.conf&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>通过阅读这个命令携带的冗长的参数，我们可以知道，编译系统采用了以下三个配置文件：</p>
+<ul>
+<li><code>prj.conf</code></li>
+<li><code>boards/nrf7002dk_nrf5340_cpuapp.conf</code></li>
+<li><code>overlay-tls-nrf7002.conf</code></li>
+</ul>
+<p>第一个是zephyr系统默认的配置文件，第二个是系统根据所选的板子自动选择的配置文件，第三个是我们创建编译目标时手动选择的附加的配置文件。三者的内容最终是合并在一起，然后才采用的。</p>
+</li>
+</ol>
+</blockquote>
+<h2 id="3-4-程序下载与运行"><a href="#3-4-程序下载与运行" class="headerlink" title="3.4. 程序下载与运行"></a>3.4. 程序下载与运行</h2><p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230823115845564.png" alt="image-20230823115845564"></p>
+<ol>
+<li>连接好开发板，确认VS Code中可以识别到已连接的Jlink</li>
+<li>点击“Flash”按钮，下载编译好的程序（如果是点击图中红色框内按钮，则是擦除并下载）</li>
+</ol>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230823121558235.png" alt="image-20230823121558235"></p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824102839317.png" alt="image-20230824102839317"></p>
+<ol start="3">
+<li>打开编号较大的串口（这是应用核的串口，另一个串口是5340网络核的默认串口），并点击开发板上的reset 按钮让程序重新运行<br><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230823122202243.png" alt="image-20230823122202243"></li>
+<li>等待一段时间，就能看到板子已经依次成功连上WiFi、互联网、MQTT broker、并订阅了topic。由于我们之前设置编译目标时选择了TLS的overlay配置文件，所以可以看到这里连接的是MQTTS默认的8883端口，并且启用了TLS协议。<br><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824103416044.png" alt="image-20230824103416044"></li>
+</ol>
+<h2 id="3-5-MQTT通信测试"><a href="#3-5-MQTT通信测试" class="headerlink" title="3.5. MQTT通信测试"></a>3.5. MQTT通信测试</h2><p>例程默认连接的是<code>test.mosquitto.org</code>这个免费的公共MQTT broker，它仅供测试使用。</p>
+<p>我们在PC上使用一个MQTT客户端，也连上这个broker，与板子进行通讯测试。这里以MQTTX为例：</p>
+<h3 id="连接到MQTT-broker"><a href="#连接到MQTT-broker" class="headerlink" title="连接到MQTT broker"></a>连接到MQTT broker</h3><p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824104643996.png" alt="image-20230824104643996"></p>
+<p>首先打开MQTTX，在连接的右侧点击“+”，选择新建连接。在右侧填入基本信息：</p>
+<ul>
+<li>名称：此链接在客户端软件里显示的名称，与MQTT协议本身无关；</li>
+<li>Client ID：此客户端在MQTT broker上被识别的身份。由于这是个免费公共broker，因此可以随意填写，不要填写容易与其他人重复的ID即可；</li>
+<li>服务器地址：协议选择MQTT，地址填写<code>test.mosquitto.org</code>。</li>
+<li>SSL&#x2F;TLS：无需启用。此Broker既支持TLS连接也支持非加密连接。虽然开发板是通过TLS方式连接的，但PC客户端即使通过不同方式连接，最终只要连接到同一个broker上，也是可以通讯的。</li>
+</ul>
+<p>其余参数保持默认即可，然后点击右上角的“连接”。</p>
+<h3 id="订阅主题并接收数据"><a href="#订阅主题并接收数据" class="headerlink" title="订阅主题并接收数据"></a>订阅主题并接收数据</h3><p>通过串口日志我们可以看出:</p>
+<ul>
+<li>开发板订阅的topic为：<code>F4CE36000384/my/subscribe/topic</code></li>
+<li>开发板发布数据的topic为：<code>F4CE36000384/my/publish/topic</code></li>
+</ul>
+<blockquote>
+<p>这里的Client ID是硬件ID生成的，你需要查看你的板子的ID是多少。</p>
+</blockquote>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824105539237.png" alt="image-20230824105539237"></p>
+<p>因此在MQTTX中，我们要订阅<code>F4CE36000384/my/publish/topic</code>，从而接收开发板上发送的数据：</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824105703966.png" alt="image-20230824105703966"></p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824105745173.png" alt="image-20230824105745173"></p>
+<ul>
+<li>点击“添加订阅”</li>
+<li>填写Topic，并将服务质量（QoS）设置为1（确保对方收到至少一次，也就是有重传确认机制）。</li>
+</ul>
+<p>此例程是定时发送数据的，但也可以通过按下开发板上的Button1或Button2来立即发送数据。</p>
+<h3 id="发送数据到开发板"><a href="#发送数据到开发板" class="headerlink" title="发送数据到开发板"></a>发送数据到开发板</h3><p>同理，我们可以发送数据到<code>F4CE36000384/my/subscribe/topic</code>，从而让开发板可以接收到：</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824110521147.png" alt="image-20230824110521147"></p>
+<ul>
+<li>Paylod：选择字符串（Plaintext）。由于MQTT传输的底层就是二进制传输。因此，我们在Playload选项中，选择的其实是客户端如何编码，如何进行格式检查。MQTT协议本身并不会有什么字段来描述自己携带的数据类型。</li>
+<li>QoS：选择1，确保Broker会收到至少一次。</li>
+<li>Topic：填入开发板订阅的Topic，这里是<code>F4CE36000384/my/subscribe/topic</code></li>
+<li>下方填入要发送的内容，并发送数据</li>
+</ul>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824111005271.png" alt="image-20230824111005271"></p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824111020710-1692846622507-1.png" alt="image-20230824111020710"></p>
+<p>可以看到开发板成功收到数据。</p>
+<h1 id="4-代码解析"><a href="#4-代码解析" class="headerlink" title="4. 代码解析"></a>4. 代码解析</h1><h2 id="4-1-编译与配置系统"><a href="#4-1-编译与配置系统" class="headerlink" title="4.1. 编译与配置系统"></a>4.1. 编译与配置系统</h2><h3 id="源码的组织"><a href="#源码的组织" class="headerlink" title="源码的组织"></a>源码的组织</h3><p>源码都位于<code>src</code>目录下，分成了<code>common</code>和几个模块：</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824113012286.png" alt="image-20230824113012286"></p>
+<p>我们可以注意到，代码是没有<code>main()</code>函数的。因为Zephyr支持静态定义线程，系统上电reset后，各个模块的线程就直接运行起来了，无需<code>main()</code>函数。</p>
+<p>源码使用CMake进行管理，我们可以看到项目顶层<code>CMakeLists.txt</code>使用<code>add_subdirectory()</code>引用了各个模块的<code>CMakeLists.txt</code>，从而把所有源码组织在一起。</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824114611064.png" alt="image-20230824114611064"></p>
+<h3 id="Kconfig配置系统"><a href="#Kconfig配置系统" class="headerlink" title="Kconfig配置系统"></a>Kconfig配置系统</h3><p>各个模块以及Zephyr系统有大量的配置项可以修改，这些配置项是以预编译宏的形式存在的。由于配置项很多，Zephyr采用了Kconfig进行配置项的管理。</p>
+<p>例程目录下的顶层Kconfig文件定义了本工程的一个配置项菜单，它包含本工程所需的全部配置：</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230823115854511.png" alt="image-20230823115854511"></p>
+<p>和CMake的逻辑类似。顶层Kconfig也是可以通过引用各个模块的菜单，从而形成一个整个项目的大型菜单。菜单的前一部分是引用了<code>src/modules/</code>目录下各个子模块的Kconfig菜单，后一部分是引用了Zephyr的Kconfig菜单。我们可以通过点击Kconfig按钮来查看这个完整的菜单：</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824115336388.png" alt="image-20230824115336388"></p>
+<p>在完整的菜单中，我们可以看到，顶层的两级目录就分别是例程本身的各个模块的菜单，以及Zephyr系统的配置菜单。</p>
+<h3 id="设置配置项的值"><a href="#设置配置项的值" class="headerlink" title="设置配置项的值"></a>设置配置项的值</h3><p>Kconfig是一个<strong>菜单</strong>，真正发挥作用的是菜单中各个<strong>配置项的值</strong>。其中的配置项的值会有很多个来源：</p>
+<ul>
+<li>在Kconfig文件定义菜单时，某些配置项会有默认值</li>
+<li>在创建编译目标，选择板子时，这个板子自带的一些配置项。见<code>$&#123;NCS&#125;/nrf/boards/arm/</code>或<code>$&#123;NCS&#125;/zephyr/boards/arm/</code>下各个板子的目录中的<code>.conf</code>文件</li>
+<li>工程目录下，<code>boards/</code>目录下与板子对应的<code>.conf</code>配置文件</li>
+<li>工程目录下默认的<code>prj.conf</code>配置文件，这也是最常用的</li>
+<li>创建编译目标时，选择附加的Kconfig片段，例如<code>overlay-tls-7002.conf</code></li>
+</ul>
+<blockquote>
+<p>配置项的来源还有很多，例如使用CMake编译时指定<code>CONFIG_</code>开头的变量，还有一些隐含的配置项，无法直接修改，只会被其他配置项联动修改等等。要了解更多关于配置项的问题，可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/kconfig/setting.html#the-initial-configuration">https://docs.zephyrproject.org/latest/build/kconfig/setting.html#the-initial-configuration</a></p>
+</blockquote>
+<p>所有的配置项最终在编译时都会合并到<code>build/zephyr/.config</code>临时文件中，要想知道自己的配置有没有成功适用，查看这个文件即可。</p>
+<p>在Kconfig菜单界面修改后，如果只点击”Apply”，那么此修改只会保存到<code>.config</code>临时文件中。下次Build时可以生效。但是如果修改了其他config文件、CMake文件，或者执行了重新编译的情况下，这些修改就会随着<code>.config</code>文件一起消失。如果想让自己的修改永久保存，需要点击Save to file，然后选择一个合适的文件保存。通常，与特定板子有关的，可以保存到<code>boards</code>目录下的配置文件中；如果是这个项目通用的配置，可以保存到<code>prj.conf</code>中。</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824122017814.png" alt="image-20230824122017814"></p>
+<p>举例来说：</p>
+<ol>
+<li>MQTT服务器地址是在哪里配置的？<br>在<code>src/modules/transport/Kconfig.transport</code>中，定义菜单时，<code>MQTT_SAMPLE_TRANSPORT_BROKER_HOSTNAME</code>的默认值是<code>test.mosquitto.org</code></li>
+<li>Wi-Fi密码在哪里配置的？<br>可以像第3节中一样，在板子的<code>conf</code>文件中配置，也可以直接写在项目的<code>prj.conf</code>中。</li>
+</ol>
+<h2 id="4-2-代码框架"><a href="#4-2-代码框架" class="headerlink" title="4.2. 代码框架"></a>4.2. 代码框架</h2><p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824141934689.png" alt="image-20230824141934689"></p>
+<p>此例程有6个模块，分别是：</p>
+<ul>
+<li>Trigger：定时触发，让其他模块向MQTT broker发布消息，同时在检测到按钮按下时也触发；</li>
+<li>Sampler：当其他模块发出请求时，采样数据，并发送给其他模块。此例程中，采样的数据用一串字符串代替；</li>
+<li>Transport：负责处理MQTT连接；</li>
+<li>Network：负责网络连接；</li>
+<li>LED：负责根据其他模块发出的消息，控制不同的LED状态；</li>
+<li>Error：监控其他模块发出的报错信息，若出现报错，则执行重启。</li>
+</ul>
+<h3 id="Zbus与模块化编程"><a href="#Zbus与模块化编程" class="headerlink" title="Zbus与模块化编程"></a>Zbus与模块化编程</h3><p>在模块化的编程中，除了模块本身的实现以外，模块间的通信也是非常重要的一环，往往牵扯到大量的队列、信号量和锁的交互。</p>
+<p>为了减轻这部分的工作量，Zephyr提供了Zbus通信框架，相当于对上述操作进行了一个封装。Zbus有点像“本地的MQTT”，每个模块可以在不同的通道（Channel）上发布&#x2F;订阅消息。</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230824143949656.png" alt="image-20230824143949656"></p>
+<p>Zbus可以使模块间实现解耦，因为每个模块实际上只和Zbus交互，并不知道其他模块的存在。</p>
+<p>我们在<code>src/common/message_channel.h</code>中可以看到总共<strong>声明</strong>了4个Zbus通道：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">ZBUS_CHAN_DECLARE(TRIGGER_CHAN, PAYLOAD_CHAN, NETWORK_CHAN, FATAL_ERROR_CHAN);</span><br></pre></td></tr></table></figure>
+
+<p>在<code>src/common/message_channel.c</code>中可以看到每个通道的<strong>定义</strong>，这里以<code>NETWORK_CHAN</code>通道为例：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">ZBUS_CHAN_DEFINE(NETWORK_CHAN,</span><br><span class="line">         <span class="keyword">enum</span> network_status,</span><br><span class="line">         <span class="literal">NULL</span>,</span><br><span class="line">         <span class="literal">NULL</span>,</span><br><span class="line">         ZBUS_OBSERVERS(transport IF_ENABLED(CONFIG_MQTT_SAMPLE_LED, (, led)), sampler),</span><br><span class="line">         ZBUS_MSG_INIT(<span class="number">0</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>可以看到定义了通道的名称，payload的数据类型以及通道数据的接收者（Observers）。这里的Observers就是能从这个Channel接收消息的模块，可以填写多个。这里可以看到一个条件预编译：如果定义了<code>CONFIG_MQTT_SAMPLE_LED=y</code>，则此处就会插入一个“<code>, led</code>”字符串。</p>
+<p>Zbus支持多对多通信，支持同步、异步通信。</p>
+<h3 id="Zbus同步接收"><a href="#Zbus同步接收" class="headerlink" title="Zbus同步接收"></a>Zbus同步接收</h3><p>同步通信的例子是<code>led</code>模块，我们可以看到<code>src/modules/led/led.c</code>中并没有定义线程，而是只定义了一个Zbus Listener和LED的回调函数：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 此处仅定义了listener，没有定义其要监听哪个channel，因为在前面Zbus定义channel时就已经确定好observer的名称了</span></span><br><span class="line">ZBUS_LISTENER_DEFINE(led, led_callback);</span><br></pre></td></tr></table></figure>
+
+<p>这就是同步通信的例子，每当Channel上有消息产生时，这个回调函数都会<strong>在发送端的发送函数内被执行一次</strong>。所以，同步接收的回调函数应该尽量快速执行，以免阻塞发送端的线程。</p>
+<h3 id="Zbus异步接收"><a href="#Zbus异步接收" class="headerlink" title="Zbus异步接收"></a>Zbus异步接收</h3><p>异步通信的例子是<code>sampler</code>模块，我们可以看到<code>src/modules/sample/sampler.c</code>中分别定义了Zbus Subscriber和一个线程：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 由于在src/common/message_channel.c中，定义Zbus channel时就已经确定好observer的名称了</span></span><br><span class="line"><span class="comment">// 因此此处只需定义自身的observer的名称即可</span></span><br><span class="line">ZBUS_SUBSCRIBER_DEFINE(sampler, CONFIG_MQTT_SAMPLE_SAMPLER_MESSAGE_QUEUE_SIZE);</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">sampler_task</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">zbus_channel</span> *<span class="title">chan</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (!zbus_sub_wait(&amp;sampler, &amp;chan, K_FOREVER)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (&amp;TRIGGER_CHAN == chan) &#123;</span><br><span class="line">            sample();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">K_THREAD_DEFINE(sampler_task_id,</span><br><span class="line">        CONFIG_MQTT_SAMPLE_SAMPLER_THREAD_STACK_SIZE,</span><br><span class="line">        sampler_task, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>在线程中，通过<code>zbus_sub_wait()</code>函数来监听通道上是否有消息。由于此消息只是用来触发采样的，消息内的payload并无任何作用，因此此处没有使用<code>zbus_chan_read()</code>函数。</p>
+<blockquote>
+<p>Zbus接收的本质：</p>
+<ol>
+<li>每定义一个subscriber，就会同时为它定义一个<code>k_msgq</code>队列；</li>
+<li>每次数据发送到某个channel时，实际上是给这个channel下的每个obsever的队列都填充了相同的消息；</li>
+<li><code>zbus_sub_wait()</code>的作用是阻塞等待，并从队列中取出消息；</li>
+<li><code>zbus_chane_read()</code>的作用是从已经出队的消息中提取真正的数据；</li>
+</ol>
+</blockquote>
+<h3 id="Zbus数据发送"><a href="#Zbus数据发送" class="headerlink" title="Zbus数据发送"></a>Zbus数据发送</h3><p>在<code>src/modules/trigger/trigger.c</code>中可以看到，发送的行为不需要定义类似publisher的东西。直接向channel发布数据即可：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">err = zbus_chan_pub(&amp;TRIGGER_CHAN, &amp;not_used, K_SECONDS(<span class="number">1</span>));</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>关于Zbus的总结：</p>
+<ul>
+<li>每次数据发送到某个channel时，实际上是给这个channel下的每个observer的消息队列都push了相同的消息；并且如果有注册的同步接收的回调函数的话，还要执行这个回调函数</li>
+<li>由于发布、接收都是对锁操作的封装，因此它们都不能在中断服务函数中使用；并且都可以设置超时时间以避免一直阻塞</li>
+<li>不必担心线程阻塞造成功耗问题，因为在Zephyr中，进入IDLE线程时会自动进入低功耗模式</li>
+<li>发送数据是拷贝的，因此，消息数据用局部变量即可。此外，有多少个observer就会把数据拷贝多少份，如果需要做大量数据的传输，注意CPU的开销。</li>
+<li>更多资料，参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/services/zbus/index.html#zbus">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/services/zbus/index.html#zbus</a></li>
+</ul>
+</blockquote>
+<h2 id="4-3-Wi-Fi连接过程"><a href="#4-3-Wi-Fi连接过程" class="headerlink" title="4.3. Wi-Fi连接过程"></a>4.3. Wi-Fi连接过程</h2><p>网络连接由network模块控制，在<code>src/modules/network/CMLakeists.txt</code>中，我们可以看到，根据不同的板子选择，实际参与编译的是不同的源代码。由于我们选择的是7002开发板，因此这里只会编译<code>network_wifi.c</code>.</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">connect</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">net_if</span> *<span class="title">iface</span> =</span> net_if_get_default();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (iface == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;Returned network interface is NULL&quot;</span>);</span><br><span class="line">        SEND_FATAL_ERROR();</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> err = net_mgmt(NET_REQUEST_WIFI_CONNECT_STORED, iface, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;Connecting to Wi-Fi failed. error: %d&quot;</span>, err);</span><br><span class="line">        SEND_FATAL_ERROR();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">....</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">network_task</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    net_mgmt_init_event_callback(&amp;net_mgmt_callback, wifi_mgmt_event_handler, MGMT_EVENTS);</span><br><span class="line">    net_mgmt_add_event_callback(&amp;net_mgmt_callback);</span><br><span class="line">    net_mgmt_init_event_callback(&amp;net_mgmt_ipv4_callback, ipv4_mgmt_event_handler,</span><br><span class="line">                     NET_EVENT_IPV4_ADDR_ADD | NET_EVENT_IPV4_ADDR_DEL);</span><br><span class="line">    net_mgmt_add_event_callback(&amp;net_mgmt_ipv4_callback);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Add temporary fix to prevent using Wi-Fi before WPA supplicant is ready. */</span></span><br><span class="line">    k_sleep(K_SECONDS(<span class="number">1</span>));</span><br><span class="line"></span><br><span class="line">    connect();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码非常直观，先是分别给WiFi和IPv4注册了不同的回调函数，然后再执行连接。这里的网络回调函数和连接分别用到了两个模块，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/networking/api/net_if.html#net-if-interface">Network Interface</a>和<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/networking/api/net_mgmt.html#net-mgmt-interface">Network Management</a>。</p>
+<h3 id="Network-Interface"><a href="#Network-Interface" class="headerlink" title="Network Interface"></a>Network Interface</h3><p>所有与网络相关的处理都与网络接口有关。网络接口是在编译时就确定的。我们可以看到<code>connect()</code>函数中获得了默认的网络接口：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">net_if</span> *<span class="title">iface</span> =</span> net_if_get_default();</span><br></pre></td></tr></table></figure>
+
+<p>由于Zephyr将nRF7002抽象成了网卡，并且在NCS中已经有了7002的驱动代码，所以我们不必太关心底层细节，就能实现网络通信。</p>
+<p>有关7002驱动的架构，可以查看：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/drivers/wifi/nrf700x/nrf700x.html">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/drivers/wifi/nrf700x/nrf700x.html</a></p>
+<h3 id="Network-Management库"><a href="#Network-Management库" class="headerlink" title="Network Management库"></a>Network Management库</h3><p>Network Management可以让应用层与网络层之间、或者网络层的内部进行方便的函数调用。我们通过查看<code>net_mgmt</code>的定义可以知道，实际上<code>net_mgmt()</code>并不是一个单独的函数，而是把第一个参数放入函数名的多个函数。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> net_mgmt(_mgmt_request, _iface, _data, _len)            \</span></span><br><span class="line"><span class="meta">    net_mgmt_##_mgmt_request(_mgmt_request, _iface, _data, _len)</span></span><br></pre></td></tr></table></figure>
+
+<p>这也意味着每个调用<code>net_mgmt(ABC)</code>的地方，都会在SDK的某个地方对应一个函数的定义：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> NET_MGMT_DEFINE_REQUEST_HANDLER(_mgmt_request)            \</span></span><br><span class="line"><span class="meta">    extern int net_mgmt_##_mgmt_request(uint32_t mgmt_request,	\</span></span><br><span class="line"><span class="meta">                        struct net_if *iface,	\</span></span><br><span class="line"><span class="meta">                        void *data, size_t len)</span></span><br></pre></td></tr></table></figure>
+
+<p>这种实现方式可以让整个网络API有更强的扩展性，同时，让用不到的函数在编译时就被消除，从而减少代码的大小。</p>
+<p>因此，当我们想查看某个<code>net_mgmt(request,...)</code>函数做了什么的时候，可以去整个SDK中搜索这个函数的参数，从而找到这个函数注册的地方，从而查看它的具体的实现。</p>
+<blockquote>
+<p>此Network Management的实现方式是实验性的，今后可能会更新。</p>
+</blockquote>
+<h3 id="Wi-Fi的自动连接"><a href="#Wi-Fi的自动连接" class="headerlink" title="Wi-Fi的自动连接"></a>Wi-Fi的自动连接</h3><p>我们在整个SDK中全局搜索<code>NET_REQUEST_WIFI_CONNECT_STORED</code>就可以查到前述网络API被注册的地方，其实际的代码位于<code>$&#123;NCS&#125;/nrf/subsys/net/lib/wifi_mgmt_ext/wifi_mgmt_ext.c</code>。</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20230908172441366.png" alt="image-20230908172441366"></p>
+<p>由此我们可以看出Network Management API的扩展性很强。Nordic直接在Zephyr的Network Management API里，注册了一个新的API，扩展出了通过config文件配置Wi-Fi凭据的功能，方便了例程的配置。这就是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/networking/wifi_mgmt_ext.html">Wi-Fi management extension</a>库，它能让例程上电自动连接预设Wi-Fi。</p>
+<p>从代码中可以看出，它的具体步骤是：先把config中静态配置的Wi-Fi凭据保存到Flash中，然后自动执行Wi-Fi连接。大家可以打开这个代码文件，去查看具体的代码。</p>
+<h3 id="Wi-Fi凭据的管理"><a href="#Wi-Fi凭据的管理" class="headerlink" title="Wi-Fi凭据的管理"></a>Wi-Fi凭据的管理</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/networking/wifi_credentials.html#wi-fi-credentials">Wi-Fi credentials</a>这个库用于管理Wi-Fi凭据。它可以让Wi-Fi凭据存储在MCU内部。</p>
+<p>Wi-Fi凭据，对于Personal模式（PSK, Pre-Shared Key）来说，就是密码。对于Enterprise模式来说，就是各类证书和密钥。我们可以从<code>$&#123;NCS&#125;/nrf/include/net/wifi_credentials.h</code>中看出，这两种凭据是通过不同的两种结构体来存储的：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">wifi_credentials_header</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">enum</span> <span class="title">wifi_security_type</span> <span class="title">type</span>;</span></span><br><span class="line">    <span class="type">char</span> ssid[WIFI_SSID_MAX_LEN];</span><br><span class="line">    <span class="type">size_t</span> ssid_len;</span><br><span class="line">    <span class="type">uint8_t</span> bssid[WIFI_MAC_ADDR_LEN];</span><br><span class="line">    <span class="type">uint32_t</span> flags;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Personal凭据只存储header和密码</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">wifi_credentials_personal</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">wifi_credentials_header</span> <span class="title">header</span>;</span></span><br><span class="line">    <span class="type">char</span> password[WIFI_CREDENTIALS_MAX_PASSWORD_LEN];</span><br><span class="line">    <span class="type">size_t</span> password_len;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Enterprise凭据会存储Header和各类身份信息，可能包含密码、密钥、证书等</span></span><br><span class="line"><span class="comment">// 注意：Enterprise凭据目前只有定义，其功能并未实现</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">wifi_credentials_enterprise</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">wifi_credentials_header</span> <span class="title">header</span>;</span></span><br><span class="line">    <span class="type">size_t</span> identity_len;</span><br><span class="line">    <span class="type">size_t</span> anonymous_identity_len;</span><br><span class="line">    <span class="type">size_t</span> password_len;</span><br><span class="line">    <span class="type">size_t</span> ca_cert_len;</span><br><span class="line">    <span class="type">size_t</span> client_cert_len;</span><br><span class="line">    <span class="type">size_t</span> private_key_len;</span><br><span class="line">    <span class="type">size_t</span> private_key_pw_len;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Wi-Fi凭据的写和读都很简单，分别提供了两种API。一种是直接传递参数，另一种是通过结构体来传递参数。由于篇幅原因，这里只列出较短的，也就是通过结构体传参数的形式：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 写</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">wifi_credentials_get_by_ssid_personal_struct</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *ssid, <span class="type">size_t</span> ssid_len,</span></span><br><span class="line"><span class="params">                          <span class="keyword">struct</span> wifi_credentials_personal *buf)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">wifi_credentials_get_by_ssid_personal_struct</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *ssid, <span class="type">size_t</span> ssid_len,</span></span><br><span class="line"><span class="params">                          <span class="keyword">struct</span> wifi_credentials_personal *buf)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">wifi_credentials_delete_by_ssid</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *ssid, <span class="type">size_t</span> ssid_len)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 遍历</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">wifi_credentials_for_each_ssid</span><span class="params">(wifi_credentials_ssid_cb cb, <span class="type">void</span> *cb_arg)</span>;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：</p>
+<ul>
+<li>Enterprise模式的相关API目前并未实现，因此无法连接。</li>
+<li>用于凭据永久存储的后端（Backend）有两种。一种是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/services/settings/index.html">Zephyr Settings存储服务</a>，另一种是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/samples/tfm_integration/psa_protected_storage/README.html">PSA安全存储</a>。前者只是对Flash读写进行封装的库，使得整个Zephyr系统中的各个模组都可以方便地存储自己的非易失数据；而后者是ARM PSA (Platform Security Archtecture)中提出的一种安全存储服务，这种方式可以让自己的应用程序运行在“非安全（Non-Secure）”空间的同时，把凭据存储在“安全（Secure）空间”中，它需要TF-M才能工作。具体内容不在本文中阐述。修改后端的配置可以参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/networking/wifi_credentials.html#configuration">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/networking/wifi_credentials.html#configuration</a></li>
+</ul>
+</blockquote>
+<h3 id="Wi-Fi连接的管理"><a href="#Wi-Fi连接的管理" class="headerlink" title="Wi-Fi连接的管理"></a>Wi-Fi连接的管理</h3><p>前面提到，在<code>$&#123;NCS&#125;/nrf/subsys/net/lib/wifi_mgmt_ext/wifi_mgmt_ext.c</code>中，对存储中的每一个SSID遍历执行了<code>add_stored_network</code>函数。如果我们追踪下去，就会发现最终执行的连接函数，内部都是<code>wpa_cli</code>的命令，也就是我们在Linux上常见的一个Wi-Fi管理工具。</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20231002155758866.png" alt="image-20231002155758866"></p>
+<p>不过，当我们开发实际的产品时，肯定还是要通过蓝牙、USB、串口等其他方式把Wi-Fi凭据传入的。而且，实际上非专业的客户也不可能真的去写这些<code>wpa_cli</code>命令。</p>
+<p>Nordic当然也提供了通过BLE配置Wi-Fi凭据的方案，例程是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/samples/wifi/provisioning/README.html#wi-fi-provisioning-service">Wi-Fi: Provisioning Service</a>，位于<code>$&#123;NCS&#125;/nrf/samples/wifi/provisioning</code>。这是一个完整的BLE服务，可以通过手机APP（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://play.google.com/store/apps/details?id=no.nordicsemi.android.wifi.provisioning">安卓版本</a>和<a target="_blank" rel="external nofollow noopener noreferrer" href="https://apps.apple.com/cn/app/nrf-wi-fi-provisioner/id1638948698">iOS版本</a>都有）对nRF7002DK进行配网。手机App和BLE Service之间数据的格式使用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://protobuf.dev/">Protocol Buffers</a>来管理。当然手机App的源码也是开放的，客户可以把它们集成到自己的手机App中：</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/NordicSemiconductor/Android-nRF-Wi-Fi-Provisioner">https://github.com/NordicSemiconductor/Android-nRF-Wi-Fi-Provisioner</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/NordicSemiconductor/IOS-nRF-Wi-Fi-Provisioner">https://github.com/NordicSemiconductor/IOS-nRF-Wi-Fi-Provisioner</a></li>
+</ul>
+<p>如果你愿意阅读这个BLE Service的源码，会发现这个Service中，它通过BLE获得Wi-Fi密码后，也是用前面说的 Wi-Fi credentials 库对凭据进行存储。此外，它连接Wi-Fi所使用的方法是：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">rc = net_mgmt(NET_REQUEST_WIFI_CONNECT, iface,</span><br><span class="line">             &amp;cnx_params, <span class="keyword">sizeof</span>(<span class="keyword">struct</span> wifi_connect_req_params));</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这段代码位于<code>$&#123;NCS&#125;/nrf/subsys/bluetooth/services/wifi_prov/wifi_prov_handler.c</code></p>
+</blockquote>
+<p>这又是一个Network Management API。其注册的位置在<code>$&#123;NCS&#125;/zephyr/subsys/net/l2/wifi/wifi_mgmt.c</code>。它需要的参数除了基本的wifi连接所需的信息以外，还需要的就是一个Interface。而这个Interface已经由nRF7002的驱动提供好了，就像前文所述，直接用<code>net_if_get_default()</code>就能获得这个Interface。</p>
+<p>如果你想用其他方式配置Wi-Fi凭据，也推荐参考这个BLE Service中连接Wi-Fi的方式。</p>
+<h2 id="4-4-MQTT连接过程"><a href="#4-4-MQTT连接过程" class="headerlink" title="4.4. MQTT连接过程"></a>4.4. MQTT连接过程</h2><h3 id="MQTT-Helper-库"><a href="#MQTT-Helper-库" class="headerlink" title="MQTT Helper 库"></a>MQTT Helper 库</h3><p>Zephyr有一个很基础的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/networking/api/mqtt.html#mqtt">MQTT库</a>，支持MQTT 3.1.0和3.1.1。它是基于Socket编写的，简单直接，但是不太好用。由于它只提供API，也就是连接、发布、订阅这些，还要开发者自己处理一些文件描述符（fd）。在之前版本的NCS中有个例程叫<code>mqtt_simple</code>，MQTT的心跳包甚至要在main.c里单独用一个定时任务来发送，目前这个例程已经被删除了。</p>
+<p>Nordic提供了<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/networking/mqtt_helper.html#api-documentation">MQTT Helper库</a>，对Zephyr的MQTT接口进行了封装，使其更加易用。一方面，它单独建立了一个线程，用来发送MQTT心跳包；另一方面，它把大部分重要的MQTT参数都变成了Kconfig菜单中的参数，便于你做配置。</p>
+<p>通过阅读例程<code>src/modules/transport/transport.c</code>，可知MQTT Helper的用法：</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20231005225532340.png" alt="image-20231005225532340"></p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20231005230011226.png" alt="image-20231005230011226"></p>
+<p>基本上，就是配好回调函数和各种参数，初始化一下再连接服务器即可。当然，实际的例程代码写的不是这么直接。</p>
+<h3 id="Zephyr状态机框架-SMF-State-Machine-Framework"><a href="#Zephyr状态机框架-SMF-State-Machine-Framework" class="headerlink" title="Zephyr状态机框架 (SMF, State Machine Framework)"></a>Zephyr状态机框架 (SMF, State Machine Framework)</h3><p>由于<code>transport.c</code>代码中的MQTT连接并不是像前文说的直来直去进行的，而是分散在各处。因此，在继续分析MQTT代码之前，有必要先分析一下SMF的代码，以方便不熟悉的读者。</p>
+<p>我们知道状态机是开发中常用的一种框架，只要<strong>明确</strong>规定好一个模块被允许存在的所有状态、规定好每个状态下被允许的行为，以及各个状态之间切换的条件，就能写出较为完善、逻辑清晰、健壮性强、易于调试的代码。</p>
+<p>最常见的状态机代码是用<code>switch...case</code>语句编写的，通过一个<code>state</code>变量来判断当前处于哪个<code>case</code>，执行完不同的处理代码后，根据其他变量、事件等等不同的因素，来决定是否要切换到其他<code>state</code>值。常见的例子是写一个自定义二进制协议的解包代码，“状态”就是当前正在处理的是包头、数据、包尾还是转义字符，而“切换条件”就是输入的二进制流。</p>
+<p>Zephyr SMF和<code>switch...case</code>也没什么区别，只不过它把各个步骤进行了拆分，让你把“状态机的结构”和“各个状态的处理代码”分开，然后通过回调函数注册。比如，它把每个状态内的处理函数分为了<code>entry</code>、<code>run</code>、<code>exit</code>三部分，分别对应“进入此状态时要执行的一次性代码”、“在此状态循环处理时运行的代码”、“退出此状态时要执行的一次性代码”，让你不用写一堆标志位来判断状态的切换、也不用在<code>switch...case</code>语句中嵌套一堆<code>if...else</code>语句。另一方面，SMF也做好了状态机的嵌套处理，每个状态的内部还可以有一堆子状态，每个子状态也可以有<code>entry</code>、<code>run</code>、<code>exit</code>三个处理函数。通过把这些内容拆开，让我们可以先定义好一个状态机的结构，再给每个状态和子状态注册回调函数，从而使得代码更加清晰。</p>
+<p>要使用SMF，首先需要定义上下文(context)结构体：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">s_object</span> &#123;</span></span><br><span class="line">    <span class="comment">/* This must be first */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">smf_ctx</span> <span class="title">ctx</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Last channel type that a message was received on */</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">zbus_channel</span> *<span class="title">chan</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Network status */</span></span><br><span class="line">    <span class="class"><span class="keyword">enum</span> <span class="title">network_status</span> <span class="title">status</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Payload */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">payload</span> <span class="title">payload</span>;</span></span><br><span class="line">&#125; s_obj;</span><br></pre></td></tr></table></figure>
+
+<p>所谓的上下文，就是你在处理这个状态机时所需要的全部信息，例如标志位等，把他们全填入这个自定义结构体。</p>
+<p>然后，定义好所有的状态枚举，注册好每个状态的<code>entry</code>、<code>run</code>和<code>exit</code>函数即可。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* Internal states */</span></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">module_state</span> &#123;</span> MQTT_CONNECTED, MQTT_DISCONNECTED &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Construct state table */</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">smf_state</span> <span class="title">state</span>[] =</span> &#123;</span><br><span class="line">    [MQTT_DISCONNECTED] = SMF_CREATE_STATE(disconnected_entry, disconnected_run, <span class="literal">NULL</span>),</span><br><span class="line">    [MQTT_CONNECTED] = SMF_CREATE_STATE(connected_entry, connected_run, connected_exit),</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>关于状态切换，可以用<code>smf_set_state</code>函数，如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">smf_set_state(SMF_CTX(&amp;s_obj), &amp;state[MQTT_CONNECTED]);</span><br></pre></td></tr></table></figure>
+
+<p>状态切换时，就会执行前一个状态的<code>exit</code>函数，以及后一个状态的<code>entry</code>函数。</p>
+<p>在本模块的线程函数中，每次通过ZBus接收到新的消息后，都会通过<code>smf_run_state(SMF_CTX(&amp;s_obj))</code>来处理这个消息携带的数据。这个函数底层执行的就是当前状态的<code>run</code>函数。</p>
+<p>由此可见SMF也是比较简单易用的，步骤就是先定义状态，然后注册回调函数，最后执行。</p>
+<p>MQTT的连接就发生在状态机执行初始状态的这一步：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* Set initial state */</span></span><br><span class="line">    smf_set_initial(SMF_CTX(&amp;s_obj), &amp;state[MQTT_DISCONNECTED]);</span><br></pre></td></tr></table></figure>
+
+<p>这时就会执行初始状态的<code>entry</code>函数，进行MQTT的连接。</p>
+<blockquote>
+<p>其他补充：</p>
+<ol>
+<li>本例程没有展示出状态机嵌套的功能，要想了解这部分，可以参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/services/smf/index.html">SMF文档</a>。</li>
+<li>SMF的<code>run</code>函数和<code>set_state</code>函数何时执行，完全由开发者决定，如果你想要事件驱动型的状态机框架（阻塞等待某个事件，然后再执行run函数），可以参考SMF文档中的写法。。</li>
+<li>在<code>exit</code>函数内部进行<code>set_state</code>这种行为是有歧义的，因为<code>set_state</code>本身就是要进入一个新的状态，而<code>set_state</code>内部同时也会调用前一个状态的<code>exit</code>函数，因此SMF底层会拒绝这种操作，会报错。</li>
+<li>SMF框架没有限制<code>set_state</code>函数必须和状态机本身的<code>run</code>函数处于同一个线程（本例程中，<code>set_state</code>就在MQTT的回调函数中，与状态机不在一个线程）。因此完全有可能出现<code>run</code>函数还没执行完，<code>exit</code>函数就在另一个线程被执行了的情况。开发者自己要控制好这一情况。</li>
+<li>为了防止<strong>4</strong>的情况出现，我们的回调函数，不论是MQTT回调函数，还是状态机的回调函数，都要<strong>快进快出</strong>，而且要保证在状态机层面上是<strong>原子操作</strong>。因此，我们可以发现代码中，这些回调函数实际都没做什么工作，而是把具体的代码提交到<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/kernel/services/threads/workqueue.html">work queue</a>去执行，然后就马上返回了。work queue是个单独的线程，从work queue的层面上讲，每个work都是“原子”的，就不用担心<strong>4</strong>中的情况了。</li>
+</ol>
+</blockquote>
+<h3 id="TLS-Credentials-库与证书管理"><a href="#TLS-Credentials-库与证书管理" class="headerlink" title="TLS Credentials 库与证书管理"></a>TLS Credentials 库与证书管理</h3><p>我们知道，SSL加密通信，其核心不仅仅在于加密，还在于身份的认证，需要确保对方真的是你想要连接的那个对象，这里就分为三种情况：</p>
+<ul>
+<li><p>如果只是设备验证服务器，单向验证，则设备中需要存储服务器对应的<strong>CA证书</strong>，用CA证书校验服务器出示的证书是否合法。这也是我们电脑访问各大网站的常见方式。</p>
+</li>
+<li><p>如果只是服务器验证设备，单向验证，则设备中需要存储<strong>客户端证书</strong>，用于出示给服务器。服务器中预先注册了设备的证书信息，因此可以检查设备是否是冒充的。当然，设备也需要存储此证书对应的<strong>私钥</strong>；</p>
+</li>
+<li><p>若双向都要验证，则三样都需要。这也是目前物联网行业常见的方式。</p>
+</li>
+</ul>
+<p>在MQTTX客户端软件中，我们就可以看到这三个文件的配置项：</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20231006004212156.png" alt="image-20231006004212156"></p>
+<p>如果我们的开发板要想通过MQTTS连接到MQTT Broker，当然也需要存储这些凭据信息。</p>
+<p>我们使用的电脑已经预安装了世界上各大CA机构的证书，因此我们访问世界上绝大多数服务器，都可以用已经安装的CA证书去检查该服务器是否是冒充的。但是嵌入式设备不可能存这么多证书，最好是按需存储，要通过TLS连哪个服务器，就只存哪个服务器对应的CA证书。</p>
+<p>Zephyr提供了<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/connectivity/networking/api/sockets.html#tls-credentials-subsystem">TLS Credentials</a>库来管理各类证书、私钥。简而言之，它管理了一个TLS连接所需的<strong>CA证书</strong>、<strong>设备证书</strong>、<strong>设备私钥</strong>，并且通过一个编号来索引。每次要进行TLS连接时，只需要指定一个编号即可，这个编号叫做<code>SEC_TAG</code>。</p>
+<p>直观地说，就是要先存储证书和私钥：</p>
+<img src="/jayant97.github.io/imgs/在nRF7002开发板上运行MQTT例程.assets/image-20231006010250433.png" alt="image-20231006010250433" style="zoom:67%;">
+
+<blockquote>
+<p>同一个TLS连接所需的CA证书、设备证书、设备私钥都存储在同一个<code>SEC_TAG</code>下。</p>
+</blockquote>
+<p>然后，在底层建立Socket连接时，通过传参传入<code>SEC_TAG</code>，就可以使用这些证书了：</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20231006010436194.png" alt="image-20231006010436194"></p>
+<p>这个库的设计逻辑在于<strong>“存储”与“使用”分离</strong>。存储后端可以自由切换，它既可以是单纯的Flash存储，也可以是ARM平台安全架构（PSA）提供的安全存储服务（Protected Storage Service）。</p>
+<p>一个实例就是nRF9160，我们知道9160的证书是通过python脚本或者nRF Connect for Desktop软件烧录到Modem中的（底层都是AT指令），烧录时其实就指定了Security Tag号（例如，nRF Cloud默认用的就是<code>16842753</code>）。在应用层建立TLS连接时（例如连接到nRF Cloud时），都是通过<code>SEC_TAG</code>号来访问私钥的。这样既能完成握手，又能让应用层无法读取到证书、私钥的内容，从而确保了信息安全。</p>
+<blockquote>
+<p>实际上，9160的证书和私钥可以不烧进去，而是直接在Modem内部生成。然后生产线上只取出证书，上传到服务器即可，从而确保私钥绝对不会泄漏。</p>
+</blockquote>
+<h3 id="MQTT证书文件配置流程"><a href="#MQTT证书文件配置流程" class="headerlink" title="MQTT证书文件配置流程"></a>MQTT证书文件配置流程</h3><p>回到例程中来，我们的证书究竟是如何配置进去的？</p>
+<p>首先，例程默认连接的服务器是<code>mqtt://test.mosquitto.org:1883</code>。我们可以用HTTP协议，也就是直接用浏览器访问<a target="_blank" rel="external nofollow noopener noreferrer" href="https://test.mosquitto.org/%EF%BC%8C%E6%9F%A5%E7%9C%8B%E4%BB%8B%E7%BB%8D%EF%BC%9A">https://test.mosquitto.org/，查看介绍：</a></p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20231006012304338.png" alt="image-20231006012304338"></p>
+<p>我们可以得知，这个服务器有许多端口，每个不同的端口上运行的是不同的协议。其中8883端口运行的是MQTT over TLS，并且只需单向验证服务器，服务器不需要验证客户端。 </p>
+<p>我们先看看之前添加的<code>overlay-tls-nrf7002.conf</code>里有哪些与SSL有关的config：</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20231006004756724.png" alt="image-20231006004756724"></p>
+<p>首先要使能TLS，然后是目标服务器的端口号要改为8883。然后选择载入默认的SSL证书，启用加密库，最后Socket也要启用TLS的支持。</p>
+<p>MQTT Helper有默认的证书文件名，我们可以看到在<code>$&#123;NCS&#125;/nrf/subsys/net/lib/mqtt_helper/cert/mqtt-certs.h</code>中，默认包含的CA证书文件名为<code>ca-cert.pem</code>：</p>
+<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8nRF7002%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E8%BF%90%E8%A1%8CMQTT%E4%BE%8B%E7%A8%8B.assets/image-20231006013111085.png" alt="image-20231006013111085"></p>
+<p>而<code>CONFIG_MQTT_HELPER_PROVISION_CERTIFICATES</code>配置决定了MQTT Helper会不会在编译时自动包含这个证书，并且在MQTT连接前自动载入这个证书。具体代码位于<code>$&#123;NCS&#125;/nrf/subsys/net/lib/mqtt_helper/mqtt_helper.c</code></p>
+<blockquote>
+<p>读者可以尝试把服务器改成<code>broker.emqx.io</code>，这是另一个免费的测试用MQTT broker，文档地址是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.emqx.com/zh/mqtt/public-mqtt5-broker">https://www.emqx.com/zh/mqtt/public-mqtt5-broker</a></p>
+<p>在网页上下载到CA证书后，把代码中的<code>ca-cert.pem</code>改成下载好的证书即可。注意不能直接改文件名，因为这个文件是在C语言中被当成字符串包含的，所以下载好的证书要编辑一下，把里面的内容都用引号括起来，并添加好<code>\n</code>。</p>
+</blockquote>
+<h1 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h1><ol>
+<li>MQTT是轻量高效的网络协议，适合物联网，实现了设备间解耦通信。</li>
+<li>由于是例程，Wi-Fi的凭据和TLS的凭据都是静态配置，被编译进固件的。编译前注意检查配置。</li>
+<li>例程是无main架构，各个模块通过ZBUS进行线程间通信。</li>
+<li>程序先连上MQTT broker，然后订阅主题，再然后定时发布消息。</li>
+<li>Zephyr提供了状态机框架SMF</li>
+<li>Wi-Fi 连接的底层是 WPA Supplicant 软件，也有Network Management API可用。Wi-Fi凭据的存储用的是 Wi-Fi Credential 库。 Wi-Fi Credential 使用 SSID 来索引。</li>
+<li>MQTTS连接使用MQTT Helper库。MQTTS的连接需要SSL，SSL证书的存储用的是 TLS Credential库。它使用SEC_TAG来索引。</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2023/08/045cdc9c9b10/">https://jayant-tang.github.io/jayant97.github.io/2023/08/045cdc9c9b10/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/nRF-Cloud/">nRF_Cloud</a><a class="post-meta__tags" href="/jayant97.github.io/tags/nRF70/">nRF70</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/jayant97.github.io/2023/03/4b274a50e575/" title="详解Zephyr设备树（DeviceTree）与驱动模型"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">详解Zephyr设备树（DeviceTree）与驱动模型</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-cloud.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-01</div><div class="title">nRF9160与nRF Cloud应用示例</div></div></a></div><div><a href="/jayant97.github.io/2022/12/779143a4bec8/" title="安装nRF-Connect-SDK"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-connect.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">安装nRF-Connect-SDK</div></div></a></div><div><a href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">理解Zephyr项目的配置与构建系统</div></div></a></div><div><a href="/jayant97.github.io/2023/03/4b274a50e575/" title="详解Zephyr设备树（DeviceTree）与驱动模型"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-12</div><div class="title">详解Zephyr设备树（DeviceTree）与驱动模型</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-nRF7002DK"><span class="toc-text">1.1. nRF7002DK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-MQTT%E5%8D%8F%E8%AE%AE%E7%AE%80%E4%BB%8B"><span class="toc-text">1.2. MQTT协议简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFMQTT%E5%8D%8F%E8%AE%AE%EF%BC%9F"><span class="toc-text">什么是MQTT协议？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E4%B9%8B%E9%97%B4%E5%A6%82%E4%BD%95%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5%EF%BC%9F"><span class="toc-text">设备之间如何建立连接？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MQTT%E6%B6%88%E6%81%AF%E5%A6%82%E4%BD%95%E4%BC%A0%E8%BE%93%EF%BC%9F"><span class="toc-text">MQTT消息如何传输？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MQTT%E5%8D%8F%E8%AE%AE%E5%AE%89%E5%85%A8%E5%90%97%EF%BC%9F"><span class="toc-text">MQTT协议安全吗？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-text">2. 环境准备</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E8%BF%90%E8%A1%8C%E4%BE%8B%E7%A8%8B"><span class="toc-text">3. 运行例程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E9%80%9A%E8%BF%87%E4%BE%8B%E7%A8%8B%E6%A8%A1%E6%9D%BF%E5%88%9B%E5%BB%BA%E6%96%B0%E5%B7%A5%E7%A8%8B"><span class="toc-text">3.1. 通过例程模板创建新工程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E4%BF%AE%E6%94%B9%E5%B7%A5%E7%A8%8B%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">3.2. 修改工程配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E5%88%9B%E5%BB%BA%E7%BC%96%E8%AF%91%E7%9B%AE%E6%A0%87"><span class="toc-text">3.3. 创建编译目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E7%A8%8B%E5%BA%8F%E4%B8%8B%E8%BD%BD%E4%B8%8E%E8%BF%90%E8%A1%8C"><span class="toc-text">3.4. 程序下载与运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5-MQTT%E9%80%9A%E4%BF%A1%E6%B5%8B%E8%AF%95"><span class="toc-text">3.5. MQTT通信测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E5%88%B0MQTT-broker"><span class="toc-text">连接到MQTT broker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A2%E9%98%85%E4%B8%BB%E9%A2%98%E5%B9%B6%E6%8E%A5%E6%94%B6%E6%95%B0%E6%8D%AE"><span class="toc-text">订阅主题并接收数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE%E5%88%B0%E5%BC%80%E5%8F%91%E6%9D%BF"><span class="toc-text">发送数据到开发板</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="toc-text">4. 代码解析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E7%BC%96%E8%AF%91%E4%B8%8E%E9%85%8D%E7%BD%AE%E7%B3%BB%E7%BB%9F"><span class="toc-text">4.1. 编译与配置系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E7%9A%84%E7%BB%84%E7%BB%87"><span class="toc-text">源码的组织</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kconfig%E9%85%8D%E7%BD%AE%E7%B3%BB%E7%BB%9F"><span class="toc-text">Kconfig配置系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E9%85%8D%E7%BD%AE%E9%A1%B9%E7%9A%84%E5%80%BC"><span class="toc-text">设置配置项的值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-%E4%BB%A3%E7%A0%81%E6%A1%86%E6%9E%B6"><span class="toc-text">4.2. 代码框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Zbus%E4%B8%8E%E6%A8%A1%E5%9D%97%E5%8C%96%E7%BC%96%E7%A8%8B"><span class="toc-text">Zbus与模块化编程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Zbus%E5%90%8C%E6%AD%A5%E6%8E%A5%E6%94%B6"><span class="toc-text">Zbus同步接收</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Zbus%E5%BC%82%E6%AD%A5%E6%8E%A5%E6%94%B6"><span class="toc-text">Zbus异步接收</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Zbus%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81"><span class="toc-text">Zbus数据发送</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-Wi-Fi%E8%BF%9E%E6%8E%A5%E8%BF%87%E7%A8%8B"><span class="toc-text">4.3. Wi-Fi连接过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Network-Interface"><span class="toc-text">Network Interface</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Network-Management%E5%BA%93"><span class="toc-text">Network Management库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Wi-Fi%E7%9A%84%E8%87%AA%E5%8A%A8%E8%BF%9E%E6%8E%A5"><span class="toc-text">Wi-Fi的自动连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Wi-Fi%E5%87%AD%E6%8D%AE%E7%9A%84%E7%AE%A1%E7%90%86"><span class="toc-text">Wi-Fi凭据的管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Wi-Fi%E8%BF%9E%E6%8E%A5%E7%9A%84%E7%AE%A1%E7%90%86"><span class="toc-text">Wi-Fi连接的管理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-4-MQTT%E8%BF%9E%E6%8E%A5%E8%BF%87%E7%A8%8B"><span class="toc-text">4.4. MQTT连接过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MQTT-Helper-%E5%BA%93"><span class="toc-text">MQTT Helper 库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Zephyr%E7%8A%B6%E6%80%81%E6%9C%BA%E6%A1%86%E6%9E%B6-SMF-State-Machine-Framework"><span class="toc-text">Zephyr状态机框架 (SMF, State Machine Framework)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TLS-Credentials-%E5%BA%93%E4%B8%8E%E8%AF%81%E4%B9%A6%E7%AE%A1%E7%90%86"><span class="toc-text">TLS Credentials 库与证书管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MQTT%E8%AF%81%E4%B9%A6%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AE%E6%B5%81%E7%A8%8B"><span class="toc-text">MQTT证书文件配置流程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E6%80%BB%E7%BB%93"><span class="toc-text">5. 总结</span></a></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'c91ce0493b5c3e886110',
+      clientSecret: '7599decf69128ba1a83c1f3ef0923395a9bd8a60',
+      repo: 'jayant97.github.io',
+      owner: 'Jayant-Tang',
+      admin: ['Jayant-Tang'],
+      id: 'd8d232ed77f726ef9fe90024d783dd80',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/jayant97.github.io/js/search/local-search.js"></script></div></div></body></html>
