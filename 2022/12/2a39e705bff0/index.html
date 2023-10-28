@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>理解Zephyr项目的配置与构建系统 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 前言​	Zephyr Project是Linux基金会推出的一个Apache2.0开源项目，版权非常友好，适合用于商业项目开发。包含RTOS、编译系统、Zephyr组件。NCS中的例程基本都跑在[Zephyr RTOS](Kernel — Zephyr Project Documentation)上。 ​	对于之前只接触过MCU裸机开发的读者来说，Zephyr的配置和编译系统可能比较令人费解">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>理解Zephyr项目的配置与构建系统 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 前言Zephyr Project是Linux基金会推出的一个Apache2.0开源项目，版权非常友好，适合用于商业项目开发。包含RTOS、编译系统、各类第三方库。NCS中的例程基本都跑在[Zephyr RTOS](Kernel — Zephyr Project Documentation)上。 对于之前只接触过IDE+外设驱动库这种开发方式的开发者来说，Zephyr的配置和编译系统可能比较令">
 <meta property="og:type" content="article">
 <meta property="og:title" content="理解Zephyr项目的配置与构建系统">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/2a39e705bff0/index.html">
 <meta property="og:site_name" content="一苇万顷">
-<meta property="og:description" content="1. 前言​	Zephyr Project是Linux基金会推出的一个Apache2.0开源项目，版权非常友好，适合用于商业项目开发。包含RTOS、编译系统、Zephyr组件。NCS中的例程基本都跑在[Zephyr RTOS](Kernel — Zephyr Project Documentation)上。 ​	对于之前只接触过MCU裸机开发的读者来说，Zephyr的配置和编译系统可能比较令人费解">
+<meta property="og:description" content="1. 前言Zephyr Project是Linux基金会推出的一个Apache2.0开源项目，版权非常友好，适合用于商业项目开发。包含RTOS、编译系统、各类第三方库。NCS中的例程基本都跑在[Zephyr RTOS](Kernel — Zephyr Project Documentation)上。 对于之前只接触过IDE+外设驱动库这种开发方式的开发者来说，Zephyr的配置和编译系统可能比较令">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/nordic/zephyr.png">
 <meta property="article:published_time" content="2022-12-04T15:26:26.000Z">
-<meta property="article:modified_time" content="2023-10-05T19:13:47.313Z">
+<meta property="article:modified_time" content="2023-10-28T14:42:57.255Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="Zephyr">
@@ -58,7 +58,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2023-10-06 03:13:47'
+  postUpdate: '2023-10-28 22:42:57'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -162,130 +162,212 @@
       }
     }
     detectApple()
-    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/jayant97.github.io/imgs/nordic/zephyr.png')"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">理解Zephyr项目的配置与构建系统</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-12-04T15:26:26.000Z" title="发表于 2022-12-04 23:26:26">2022-12-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-10-05T19:13:47.313Z" title="更新于 2023-10-06 03:13:47">2023-10-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/RTOS/">RTOS</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="理解Zephyr项目的配置与构建系统"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2022/12/2a39e705bff0/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>​	Zephyr Project是Linux基金会推出的一个Apache2.0开源项目，版权非常友好，适合用于商业项目开发。包含RTOS、编译系统、Zephyr组件。NCS中的例程基本都跑在[Zephyr RTOS](<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/kernel/index.html">Kernel — Zephyr Project Documentation</a>)上。</p>
-<p>​	对于之前只接触过MCU裸机开发的读者来说，Zephyr的配置和编译系统可能比较令人费解，因为这些工作都被Keil、IAR之类的IDE给封装好了。但是一旦你能掌握，就会发现它的方便之处。</p>
-<p>​	本文会以最容易理解的方式讲解 Zephyr 的构建系统（Build System）。</p>
-<h1 id="2-ARM编译过程简介"><a href="#2-ARM编译过程简介" class="headerlink" title="2. ARM编译过程简介"></a>2. ARM编译过程简介</h1><p>​	本节简要介绍一下通用的ARM固件编译过程，力求以最通俗易懂的方式来提供一些背景知识。</p>
-<h2 id="2-1-ARM程序的编译与链接"><a href="#2-1-ARM程序的编译与链接" class="headerlink" title="2.1. ARM程序的编译与链接"></a>2.1. ARM程序的编译与链接</h2><p><img src="/jayant97.github.io/imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20221204234551290.png" alt="image-20221204234551290"></p>
-<p>简要步骤：</p>
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/jayant97.github.io/imgs/nordic/zephyr.png')"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">理解Zephyr项目的配置与构建系统</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-12-04T15:26:26.000Z" title="发表于 2022-12-04 23:26:26">2022-12-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-10-28T14:42:57.255Z" title="更新于 2023-10-28 22:42:57">2023-10-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/RTOS/">RTOS</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="理解Zephyr项目的配置与构建系统"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2022/12/2a39e705bff0/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>Zephyr Project是Linux基金会推出的一个Apache2.0开源项目，版权非常友好，适合用于商业项目开发。包含RTOS、编译系统、各类第三方库。NCS中的例程基本都跑在[Zephyr RTOS](<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/kernel/index.html">Kernel — Zephyr Project Documentation</a>)上。</p>
+<p>对于之前只接触过<strong>IDE+外设驱动库</strong>这种开发方式的开发者来说，Zephyr的配置和编译系统可能比较令人费解，但是一旦你能掌握，就会发现它的方便之处。</p>
+<p>本文会以最容易理解的方式讲解 Zephyr 的构建系统（Build System）。并列出一些例子。</p>
+<h1 id="2-通过CMake管理源码"><a href="#2-通过CMake管理源码" class="headerlink" title="2. 通过CMake管理源码"></a>2. 通过CMake管理源码</h1><p>本节讲解源码如何管理，不讲CMake的细节。</p>
+<h2 id="CMake基本写法"><a href="#CMake基本写法" class="headerlink" title="CMake基本写法"></a>CMake基本写法</h2><p>通过<code>zephyr/samples/hello_world</code>例程的<code>CMakeLists.txt</code>，我们可以看到：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定CMake版本</span></span><br><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>.<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从环境变量$&#123;ZEPHYR_BASE&#125;找到NCS中的Zephyr安装目录</span></span><br><span class="line"><span class="comment"># 并把整个Zephyr系统当作包来导入</span></span><br><span class="line"><span class="keyword">find_package</span>(Zephyr REQUIRED HINTS $ENV&#123;ZEPHYR_BASE&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设定项目名称</span></span><br><span class="line"><span class="keyword">project</span>(hello_world)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把main.c添加为app目标的源码</span></span><br><span class="line"><span class="keyword">target_sources</span>(app PRIVATE src/main.c)</span><br></pre></td></tr></table></figure>
+
+<p>这里的编译目标是<code>app</code>，最终会编译为<code>libapp.a</code>，也就是把用户自己的应用层代码编译成库的形式。最后再链接进Zephyr系统。</p>
+<p>这里的<code>PRIVATE</code>控制的是编译的行为：</p>
+<ul>
+<li><code>PRIVATE</code>：main.c修改后，只会重新编译app目标</li>
+<li><code>PUBLIC</code>：main.c修改后，app目标要重新编译，且所有与APP目标链接的其他目标也要重新编译</li>
+</ul>
+<h2 id="条件添加源码"><a href="#条件添加源码" class="headerlink" title="条件添加源码"></a>条件添加源码</h2><p>条件添加也很好理解，就是某个CMake变量值为true时，才把源码添加到目标中去。例如：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Include UART ASYNC API adapter</span></span><br><span class="line">target_sources_ifdef(CONFIG_BT_NUS_UART_ASYNC_ADAPTER app PRIVATE</span><br><span class="line">  src/uart_async_adapter.c</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这里就是<code>CONFIG_BT_NUS_UART_ASYNC_ADAPTER</code>为<code>y</code>时，才添加<code>src/uart_async_adapter.c</code>到源码中。</p>
+<h2 id="目录添加"><a href="#目录添加" class="headerlink" title="目录添加"></a>目录添加</h2><p>有时目录层级很多，我们没必要在一个CMakeLists.txt里把所有源码都添加完。</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">|-CMakeLists.txt</span><br><span class="line">|-aaa</span><br><span class="line">|  |-CMakeLists.txt</span><br><span class="line">|  `-main.c</span><br><span class="line">`-bbb</span><br><span class="line">   |-CMakeLists.txt</span><br><span class="line">   `-hello.c</span><br></pre></td></tr></table></figure>
+
+<p>这时，就可以在项目根目录的CMakeLists.txt中写：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">add_subdirectory</span>(aaa)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(bbb)</span><br></pre></td></tr></table></figure>
+
+<p>然后在两个子目录的CMakeLists.txt中添加对应的源码。</p>
+<p>当然，目录也是可以条件添加的，最典型的就是在<code>$&#123;NCS&#125;/zephyr/driver/CMakeLists.txt</code>中：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">add_subdirectory_ifdef(CONFIG_ADC adc)</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，只有启用了<code>CONFIG_ADC=y</code>，Zephyr才会去编译<code>$&#123;NCS&#125;/zephyr/driver/adc/</code>目录下的驱动。</p>
+<p>此外，如果再去看<code>$&#123;NCS&#125;/zephyr/driver/adc/CMakeLists.txt</code>：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">zephyr_library_sources_ifdef(CONFIG_ADC_MCUX_LPADC    adc_mcux_lpadc.c)</span><br><span class="line">zephyr_library_sources_ifdef(CONFIG_ADC_SAM_AFEC    adc_sam_afec.c)</span><br><span class="line">zephyr_library_sources_ifdef(CONFIG_ADC_NRFX_ADC    adc_nrfx_adc.c)</span><br><span class="line">zephyr_library_sources_ifdef(CONFIG_ADC_NRFX_SAADC    adc_nrfx_saadc.c)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>就可以看到，这里又根据不同的MCU平台，来添加对应的adc驱动代码。</p>
+<h2 id="添加include目录"><a href="#添加include目录" class="headerlink" title="添加include目录"></a>添加include目录</h2><p>也就是存放头文件的目录，如：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 添加CMakeLists.txt所在目录下的inc/目录到app目标</span></span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE inc)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 也是可以条件添加的</span></span><br><span class="line">zephyr_include_directories_ifdef(CONFIG_MEMFAULT configuration/memfault)</span><br></pre></td></tr></table></figure>
+
+<h2 id="设置变量"><a href="#设置变量" class="headerlink" title="设置变量"></a>设置变量</h2><p>和宏定义类似，把A定义成B。这里，主要是用来定义一些编译系统会用到的东西：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 指定自己项目的device tree overlay文件（和VS Code中添加build target时，手动选择overlay是一样的）</span></span><br><span class="line"><span class="keyword">set</span>(DTC_OVERLAY_FILE app.oerlay)</span><br></pre></td></tr></table></figure>
+
+<p>这和命令行编译时，通过<code>-D</code>选项传入的参数是一样的：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build --build-dir /home/jayant/project/ncs-project/peripheral_uart/build \</span><br><span class="line">  /home/jayant/project/ncs-project/peripheral_uart \</span><br><span class="line">  --pristine \</span><br><span class="line">  --board nrf52840dk_nrf52840 \</span><br><span class="line">  --no-sysbuild \</span><br><span class="line">  -- \</span><br><span class="line">      -DNCS_TOOLCHAIN_VERSION:STRING=<span class="string">&quot;NONE&quot;</span> \</span><br><span class="line">      -DBOARD_ROOT:STRING=<span class="string">&quot;/home/jayant/project/ncs-project/peripheral_uart&quot;</span> \</span><br><span class="line">      -DCONF_FILE:STRING=<span class="string">&quot;/home/jayant/project/ncs-project/peripheral_uart/prj.conf&quot;</span> \</span><br><span class="line">      -DDTC_OVERLAY_FILE:STRING=<span class="string">&quot;/home/jayant/project/ncs-project/peripheral_uart/app.overlay&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>项目通过CMake管理源码和include目录。项目本身会把应用代码编译成<code>build/app/libapp.a</code>，最后和Zephyr系统一起链接成可执行文件。</p>
+<p>Zephyr系统本身的内核、库、驱动等源码也都是用CMake来管理的。</p>
+<h1 id="3-通过Kconfig管理配置"><a href="#3-通过Kconfig管理配置" class="headerlink" title="3. 通过Kconfig管理配置"></a>3. 通过Kconfig管理配置</h1><p>一个编译系统中，肯定有很多配置项的需求，如：</p>
+<ul>
+<li>前面所述的CMake条件添加源码的功能，实现内核的功能的裁减，按需添加源码</li>
+<li>代码中的宏，通过宏来实现一些参数值的配置，或者进行条件编译</li>
+</ul>
+<p>在Zephyr系统中，每个模块都会有自己的配置项；并且，开发者自己的项目也会有很多配置项；此外，有些配置项之间还有依赖关系。如此复杂的关系，该如何管理？</p>
+<p>Kconfig就是把一个模块的所有配置项组成一个菜单。所有模块的菜单，通过层级关系拼接在一起，形成一个大菜单。</p>
+<h2 id="了解Kconfig菜单基本写法"><a href="#了解Kconfig菜单基本写法" class="headerlink" title="了解Kconfig菜单基本写法"></a>了解Kconfig菜单基本写法</h2><p>可以先从一个简单的例子<code>$&#123;NCS&#125;/nrf/samples/bluetooth/peripheral_uart</code>来参考：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 引用Zephyr的Kconfig菜单</span><br><span class="line">source &quot;Kconfig.zephyr&quot;</span><br><span class="line"></span><br><span class="line"># 自定义本项目的菜单</span><br><span class="line">menu &quot;Nordic UART BLE GATT service sample&quot;</span><br><span class="line">   ... 此处省略...</span><br><span class="line">endmenu</span><br></pre></td></tr></table></figure>
+
+<p>菜单中的选项，可以配置它的类型、说明，和<strong>默认值</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 此选项用来设置Nordic UART Service线程的栈大小</span><br><span class="line"># 并且具有默认值</span><br><span class="line">config BT_NUS_THREAD_STACK_SIZE</span><br><span class="line">    int &quot;Thread stack size&quot;</span><br><span class="line">    default 1024</span><br><span class="line">    help</span><br><span class="line">      Stack size used in each of the two threads</span><br></pre></td></tr></table></figure>
+
+<p>菜单中的选项可以<strong>连锁使能</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 当本选项被设置成y时，通过select，同时把CONFIG_BT_SMP的值设置成y</span><br><span class="line">config BT_NUS_SECURITY_ENABLED</span><br><span class="line">    bool &quot;Enable security&quot;</span><br><span class="line">    default y</span><br><span class="line">    select BT_SMP</span><br><span class="line">    help</span><br><span class="line">      &quot;Enable BLE security for the UART service&quot;</span><br></pre></td></tr></table></figure>
+
+<p>此外，一个选项也可以指定一个<strong>依赖项</strong>。如果本选项被启用，但依赖项未被启用，则编译前的配置过程就会报错：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 配置是否在系统启动时，自动初始化USB ACM设备 （用于输出日志）</span><br><span class="line"># 此配置依赖于CONFIG_USB_CDC_ACM=y，也就是说，起码要把USB_CDC_ACM的代码编译进来</span><br><span class="line">config USB_DEVICE_INITIALIZE_AT_BOOT</span><br><span class="line">    bool &quot;Initialize USB device support at boot&quot;</span><br><span class="line">    depends on USB_CDC_ACM</span><br><span class="line">    help</span><br><span class="line">      Use CDC ACM UART as backend for console, shell, or logging.</span><br></pre></td></tr></table></figure>
+
+<p>当然，Kconfig也不是说要写的非常大，把整个项目的配置都写进去。你也可以每个子文件夹下单独写Kconfig，然后在项目的Kconfig中进行包含：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 通过绝对路径进行包含</span><br><span class="line">source &quot;xxx.Kconfig&quot;</span><br><span class="line"></span><br><span class="line"># 通过相对路径进行包含</span><br><span class="line">rsource &quot;src/xxx.Kconfig&quot;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>某些简单例程，例如<code>zephyr/samples/hello_world</code>，没有什么配置项，所以是可以没有自己的Kconfig的。这种情况下，相当于直接用了Zephyr的Kconfig菜单，也就是相当于：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt;source &quot;Kconfig.zephyr&quot;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="Kconfig交互式菜单"><a href="#Kconfig交互式菜单" class="headerlink" title="Kconfig交互式菜单"></a>Kconfig交互式菜单</h2><p>我们知道，Kconfig实际上是定义了一个菜单，在哪里能看到这个菜单呢？</p>
+<p>我们可以在VS Code中点击nRF Kconfig GUI:</p>
+<p><img src="/jayant97.github.io/./imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20231028192036882.png" alt="image-20231028192036882"></p>
+<p>也可以把鼠标悬浮在这个按钮上，点右边的三个点，然后用Guiconfig（弹窗）或Menuconfig（命令行）的方式进行配置。</p>
+<p><img src="/jayant97.github.io/./imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20231028192059493.png" alt="image-20231028192059493"></p>
+<p>这里就只介绍nRF Kconfig GUI：</p>
+<p><img src="/jayant97.github.io/./imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20231028192424706.png" alt="image-20231028192424706"></p>
+<p>可以看到，菜单的顺序，与我们在Kconfig中编写的顺序是一致的。前面是<code>source &quot;Kconfig.zephyr&quot;</code>添加的Zephyr菜单；后面是<code>menu &quot;Nordic UART BLE GATT service sample&quot;</code>定义的本例程的菜单。</p>
+<h2 id="保存Kconfig交互式菜单的修改"><a href="#保存Kconfig交互式菜单的修改" class="headerlink" title="保存Kconfig交互式菜单的修改"></a>保存Kconfig交互式菜单的修改</h2><p>如果我们只是单纯点击界面右上角的”Apply”，那么这些配置是保存在<code>build/zephyr/.config</code>中的。这是编译过程中生成的一个临时文件，是把各种配置项来源整合到一起，得到的最终配置文件。</p>
+<p>如果我们进行pristine build，那么<code>.config</code>文件就会重新生成，我们之前的修改就消失了。</p>
+<p>要想永久保存，应该点击“save to file”。然后保存到<code>prj.conf</code>中。</p>
+<h2 id="Kconfig配置项的来源"><a href="#Kconfig配置项的来源" class="headerlink" title="Kconfig配置项的来源"></a>Kconfig配置项的来源</h2><p>前面提到，<code>.config</code>是把各种来源的配置项整合到一起。那么，配置项总共有哪些来源呢？</p>
 <ol>
-<li>你写的源码（<code>.c</code>，<code>.s</code>等），被编译器编译成目标文件(<code>.o</code>，<code>.lib</code>,<code>.a</code>等)</li>
-<li>目标文件里，函数被编译为机器码，变量也在其中。但是这时这些机器码还不知道要存放在flash中的哪个位置，变量也不知道要放在内存中的哪个位置。这时他们都还只是<strong>符号</strong>。即使是调用其他文件中的函数，也只是调用了一个符号而已，每个目标文件都不知道其他文件的函数具体的机器码是什么。</li>
-<li>链接脚本（<code>.ld</code>）描述了不同类型的二进制数据应该<strong>存放</strong>在ROM的哪个位置，运行时又应该<strong>加载</strong>到RAM中的哪个位置。这些二进制的数据包括代码、全局变量、堆、栈等。然后链接器根据链接脚本，把所有的目标文件和第三方库链接起来，生成最终的elf文件。</li>
-<li>elf文件是可执行文件，是机器码，也包含一些调试信息。为了方便烧录，也会使用<code>objcopy</code>工具将其转换成hex和bin，hex和bin是纯机器码。</li>
+<li>Kconfig菜单中的默认值</li>
+<li>选择板子后，板子自带的一些config。可以在<code>zephyr/boards</code>或者<code>nrf/boards</code>中查看。</li>
+<li>CMake变量<code>CONF_FILE</code>指定的配置文件，<strong>这也是最常用的</strong>。默认情况下是以下两个文件：<ul>
+<li>项目的<code>prj.conf</code>，它可以覆盖默认值；</li>
+<li>项目的<code>boards/&lt;board_name&gt;.conf</code>，当编译目标中选择的板子和这里的board_name一致时，可以覆盖默认值。此配置和前一项会合并。</li>
+</ul>
+</li>
+<li>CMake变量<code>OVERLAY_CONFIG</code>指定的额外配置文件，也就是在VS Code中创建新的build target时，可以选择的”Kconfig fragments”</li>
+</ol>
+<h2 id="显性与隐性配置项"><a href="#显性与隐性配置项" class="headerlink" title="显性与隐性配置项"></a>显性与隐性配置项</h2><p>在Kconfig中定义菜单选项时，我们会发现，大多数选项，在变量类型后面会有一个**说明字符串(prompt)**：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">config FPU</span><br><span class="line">   bool &quot;Support floating point operations&quot;</span><br><span class="line">   depends on HAS_FPU</span><br></pre></td></tr></table></figure>
+
+<p>这意味着，这个配置项会出现在Kconfig交互式菜单中，我们可以在交互式菜单中修改它的值：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[ ] Support floating point operations</span><br></pre></td></tr></table></figure>
+
+<p>也可以用<code>prj.conf</code>之类的配置文件来直接改它的值：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_FPU=y</span><br></pre></td></tr></table></figure>
+
+<p>但是，也有一些<strong>隐性配置项</strong>，它们的变量类型后面不带说明字符串，我们无法直接修改它的值：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">config CPU_HAS_FPU</span><br><span class="line">   bool</span><br><span class="line">   help</span><br><span class="line">     This symbol is y if the CPU has a hardware floating point unit.</span><br></pre></td></tr></table></figure>
+
+<p>一个CPU到底带不带FUP，肯定不由开发者的配置决定，因此不能直接修改是很合理的。</p>
+<p>这种配置，通常是通过<strong>连锁使能select</strong>的方式，被其他配置项使能的，例如<code>zephyr/soc/arm/nordic_nrf/nrf52/Kconfig.soc</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 隐性配置项</span><br><span class="line">config SOC_NRF52840</span><br><span class="line">    bool</span><br><span class="line">    select CPU_CORTEX_M_HAS_DWT</span><br><span class="line">    select CPU_HAS_FPU</span><br><span class="line">    </span><br><span class="line"> ... </span><br><span class="line"> </span><br><span class="line"> # 显性配置项</span><br><span class="line"> config SOC_NRF52840_QIAA</span><br><span class="line">    bool &quot;NRF52840_QIAA&quot;</span><br><span class="line">    select SOC_NRF52840</span><br></pre></td></tr></table></figure>
+
+<p>而这个<code>SOC_NRF52840_QIAA</code>，是我们选择板子时，52840DK的板子自带的默认配置，来自于<code>zephyr/samples/application_development/out_of_tree_board/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840_defconfig</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_SOC_NRF52840_QIAA=y</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>Zephyr的配置系统是Kconfig定义的菜单。可以用<code>prj.conf</code>之类的文件来修改配置项的值。</p>
+<p>Kconfig中的配置项，可以影响CMake中的条件，选择是否添加哪些源码，从而剪裁内核。</p>
+<p>Kconfig中的配置项，最终会生成到<code>build/zephyr/include/generated/autoconf.h</code>中，成为源代码中也可以用到的宏。</p>
+<p>不要去尝试修改隐性的Kconfig配置项。</p>
+<h1 id="4-DeviceTree和Zephyr驱动模型"><a href="#4-DeviceTree和Zephyr驱动模型" class="headerlink" title="4. DeviceTree和Zephyr驱动模型"></a>4. DeviceTree和Zephyr驱动模型</h1><p>device tree比较复杂，具体的语法、使用方法可以参考我的另一篇文章：<a href="https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/">《详解Zephyr设备树（DeviceTree）与驱动模型》</a>。</p>
+<p>本文中尽量简洁地说明device tree的用途。</p>
+<h2 id="DTS文件"><a href="#DTS文件" class="headerlink" title="DTS文件"></a>DTS文件</h2><p>device tree的文件是Device Tree Source (DTS)。这里用最简洁的语言描述一下dts文件的产生：</p>
+<ol>
+<li>芯片级的dts文件，定义了芯片上的各种外设资源及其地址；</li>
+<li>板级的dts文件，可以包含芯片级的dts文件。板级的dts文件中，也会包含板子上的资源，如按键、LED、i2c外设等等；</li>
+<li>在工程中选板子时，实际上就是选择了板级的dts文件。在工程中，如果想修改默认的dts，是通过<code>*.overlay</code>文件进行覆盖；</li>
+<li>编译时，所有这些dts会合并成<code>build/zephyr.dts</code>。这就是最终的dts。</li>
 </ol>
 <blockquote>
-<p>这些编译器、链接器就包含在之前安装的Zephyr工具链中</p>
-</blockquote>
-<h2 id="2-2-构建规则"><a href="#2-2-构建规则" class="headerlink" title="2.2. 构建规则"></a>2.2. 构建规则</h2><p>​	实际的一个复杂项目构建的时候，会有很复杂的依赖关系。<code>.elf</code>文件依赖一堆<code>.o</code>和<code>.lib</code>和链接脚本文件才能生成，而<code>.o</code>和<code>.lib</code>文件又依赖<code>.c</code>和<code>.s</code>文件才能生成。</p>
-<p>​	所有的依赖构成一个树形的关系。如果我们只改动了几个文件，那么就只编译要依赖这些源文件的目标文件，其他的目标文件就使用上次编译的，这样可以节约时间。</p>
-<p>​	构建工具的作用，就是让我们把这些<strong>依赖关系</strong>和<strong>生成方式</strong>提前写进一个文件，然后构建工具自动根据这个文件的内容，如果发现一个source比一个target的文件日期新，那么就执行写好的命令，把target重新生成出来。</p>
-<blockquote>
-<p>​	最有名的构建工具应该是Make，使用<code>Makefile</code>来描述各个文件之间的依赖关系，并且写明了该用什么命令来生成文件。举例来说，如果一个Makefile中有这样的一组描述：</p>
-<figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line"><span class="section">test.o: test.c test.h</span></span><br><span class="line">    gcc -c test.c -o test.o</span><br></pre></td></tr></table></figure>
-
-<p>​	冒号前是<strong>target</strong>，冒号后是<strong>source</strong>，下方是<strong>生成命令</strong>。只要敲一个<code>make</code>命令，make就会去判断电脑文件系统中记录的修改时间，如果source的日期时间比target新，那么就执行下方的命令，用source生成target，否则就跳过。</p>
-<pre><code> 如果条目有很多，Make会自动梳理其依赖关系，找到最终要生成的那个文件，一层一层的生成。Make并不关心如何生成，Make只关心依赖关系，然后调用下方写好的命令。
-</code></pre>
-</blockquote>
-<p>​	NCS中使用的工具是Ninja，其构建文件是<code>*.ninja</code>。<code>*.ninja</code>的语法与<code>Makfile</code>类似。也是由target作为输出，source作为输入，有一条<strong>生成规则</strong>。简要示例如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rule my_compile</span><br><span class="line">    command = gcc -c $&#123;in&#125; -o $&#123;out&#125;  # 执行命令</span><br><span class="line"></span><br><span class="line">build test.o: my_compile test.c</span><br></pre></td></tr></table></figure>
-
-<blockquote>
+<p>overlay文件的逻辑和Kconfig的逻辑类似：</p>
 <ul>
-<li>rule关键字定义生成规则</li>
-<li>build关键字定义依赖关系，这样的一个条目称为一个edge。冒号前是target，冒号后的第一项是rule，后面的项是source。</li>
+<li><code>app.overlay</code>是整个项目的overlay</li>
+<li><code>boards/&lt;board_name&gt;.overlay</code>是板子对应的overlay</li>
 </ul>
 </blockquote>
-<p>​	不用细致学习ninja的语法，因为ninja的两大设计原则是：</p>
-<ul>
-<li>构建速度越快越好</li>
-<li>用更高级的构建工具来自动生成ninja的配置文件</li>
-</ul>
-<p>​	所以一般不会自己写ninja配置</p>
-<h1 id="3-Zephyr构建系统模块介绍"><a href="#3-Zephyr构建系统模块介绍" class="headerlink" title="3. Zephyr构建系统模块介绍"></a>3. Zephyr构建系统模块介绍</h1><h2 id="3-1-CMake"><a href="#3-1-CMake" class="headerlink" title="3.1. CMake"></a>3.1. CMake</h2><p>​	目前，Zephyer中有成千上万的文件，如果要维护一组<code>Makefile</code>或者<code>.ninja</code>可能要累死。CMake的作用就是通过配置自动生成<code>Makefile</code>或者<code>.ninja</code>。</p>
-<p>​	项目的CMake配置文件是<code>CMakeList.txt</code>，它可以引用库中其他组件的<code>CMakeList.txt</code>。可能你觉得这有点套娃，怎么又来个配置的配置。关于这一点，我认为，配置的<strong>灵活性</strong>和<strong>直接性</strong>总是不能兼得的，如果想简单粗暴几个选项就搞定，就得有好几层自动化的东西帮你完成其他工作。其实不只是配置，包括写代码，团队管理，社会运行规则都是这样的，这么说，CMake其实还挺哲学。</p>
-<h3 id="Zephyr中CMake的具体使用"><a href="#Zephyr中CMake的具体使用" class="headerlink" title="Zephyr中CMake的具体使用"></a>Zephyr中CMake的具体使用</h3><p>​	我们不要自己去硬学CMake的语法，学了也记不住。要用的时候照葫芦画瓢或者现场查就好了。这里只介绍一下 Zephyer 中使用 CMake 的常用方式：</p>
-<p>​	Zephyr有自己的操作系统Kernel，所以应用代码是编译成<code>libapp.a</code>的。我们需要知道怎么把自己的源码编译进<code>libapp.a</code>。</p>
-<p>​	在例程的<code>CMakeList.txt</code>中，可以看到添加自己源文件的方法为：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">target_sources</span>(app PRIVATE src/main.c) <span class="comment"># 指定main.c为app这一target的源码</span></span><br></pre></td></tr></table></figure>
+<h2 id="Zephyr驱动程序"><a href="#Zephyr驱动程序" class="headerlink" title="Zephyr驱动程序"></a>Zephyr驱动程序</h2><p>Zephyr到底是怎么实现，不同的MCU平台共用同一套外设API的？</p>
+<p>其实，Zephyr的外设API，如果我们去查看其定义，其实都没做什么有意义的操作：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="keyword">inline</span> <span class="type">int</span> <span class="title function_">z_impl_uart_tx</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> device *dev, <span class="type">const</span> <span class="type">uint8_t</span> *buf,</span></span><br><span class="line"><span class="params">                 <span class="type">size_t</span> len, <span class="type">int32_t</span> timeout)</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">uart_driver_api</span> *<span class="title">api</span> =</span></span><br><span class="line">            (<span class="type">const</span> <span class="keyword">struct</span> uart_driver_api *)dev-&gt;api;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 其本质上是调用了device结构体中,api这个成员的函数</span></span><br><span class="line">    <span class="keyword">return</span> api-&gt;tx(dev, buf, len, timeout);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <blockquote>
-<ul>
-<li>PRIVATE：源文件只被包含在这个app target中，修改源文件后，此target需要重新编译</li>
-<li>PUBLIC：源文件也会被包含进所有与此app链接的其他target中，修改源文件后，所有与app链接的target都要重新编译。一般PUBLIC只用于Include路径的设置。</li>
-</ul>
+<p>device结构体的定义：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">device</span> &#123;</span></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *name;           <span class="comment">// 设备的名称</span></span><br><span class="line">    <span class="type">const</span> <span class="type">void</span> *config;         <span class="comment">// 设备的初始配置</span></span><br><span class="line">    <span class="type">const</span> <span class="type">void</span> *api;            <span class="comment">// 设备的api函数集合</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">device_state</span> *<span class="title">state</span>;</span> <span class="comment">// 设备的工作状态</span></span><br><span class="line">    <span class="type">void</span> *data;                 <span class="comment">// 设备的运行数据</span></span><br><span class="line">    <span class="comment">/* ... */</span>                   <span class="comment">// 其他参数，例如电源管理</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 </blockquote>
-<p>​	</p>
-<p>​	<strong>构建</strong>时，CMake首先处理当前项目文件夹下的<code>CMakeList.txt</code>，而这个<code>CMakeList.txt</code>又包含了NCS中<code>zephyr</code>目录下的<code>CMakeList.txt</code>，并依次包含所有的构建树中的<code>CMakeList.txt</code>。最终生成<code>Ninja</code>配置文件。</p>
-<p>​	除此之外CMake还会同时调用一些python脚本生成其他文件，用于后续的编译环节。如DeviceTree和Kconfig的处理都是在这一配置阶段进行的。</p>
-<h2 id="3-2-DeviceTree"><a href="#3-2-DeviceTree" class="headerlink" title="3.2. DeviceTree"></a>3.2. DeviceTree</h2><p>​	还记得我们打开一个例程后，创建一个新的Build时，需要选择一个Board吗？这个Board就是用DeviceTree描述的。</p>
-<p>​	设备树的好处是，把硬件的详细信息（寄存器地址、引脚分配等）写在了驱动代码之外的地方。这样Zephyr就能提供通用的驱动代码了。</p>
-<p>​	Zephyr像Linux一样使用dts（设备树源码）来描述硬件，但Zephyr并不像Linux一样把dts编译成dtb，而是直接用python脚本把dts处理成头文件，直接编译进固件。</p>
+<p>实际上，在<code>main()</code>函数运行起来之前，设备驱动的初始化程序就已经先行运行了，有以下5个阶段可以用来初始化外设驱动：</p>
+<p><img src="/jayant97.github.io/./imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20230312215847338.png" alt="image-20230312215847338"></p>
+<p>Zephyr外设驱动的整个流程：</p>
+<ol>
+<li><p>开发者在Kconfig中，使能了某个外设驱动，如<code>CONFIG_ADC=y</code></p>
+</li>
+<li><p><code>zephyr/driver/</code>下的CMakeLists.txt，根据<code>CONFIG_ADC=y</code>，把<code>zephyr/driver/adc/</code>添加到工程中</p>
+</li>
+<li><p><code>zephyr/driver/adc/</code>下有各个半导体厂商向Zephyr提交的ADC驱动代码。此目录下的CMakeLists.txt根据Nordic平台，选择添加Nordic的nrfx adc驱动代码到Zephyr系统中进行编译</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">zephyr_library_sources_ifdef(CONFIG_ADC_NRFX_ADC    adc_nrfx_adc.c)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译时，nrfx adc驱动代码中，会通过宏来搜索<code>zephyr.dts</code>中的所有ADC节点，看哪些节点的<code>status=&quot;okay&quot;</code>，就<strong>初始化那个外设</strong>，并且为这个外设定义一个<code>device</code>结构体实例，并且初始化这个实例。<code>api</code>就是这个时候赋值的。</p>
+</li>
+<li><p>在开发者的应用层代码中，先获得这个device结构体的指针。后续调用Zephyr标准外设API时，需要把这个指针作为参数传入。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"># Zephyr有一套宏，可以从device tree中的节点，获得对应的device结构体指针</span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">uart1_dev</span> =</span> DEVICE_DT_GET(DT_NODELABEL(uart1));</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Zephyr-DeviceTree和驱动模型的优劣"><a href="#Zephyr-DeviceTree和驱动模型的优劣" class="headerlink" title="Zephyr DeviceTree和驱动模型的优劣"></a>Zephyr DeviceTree和驱动模型的优劣</h2><p>优点：</p>
+<ul>
+<li>代码里调用的都是Zephyr标准API，与硬件细节无关。如果后需要更换MCU平台，几乎没有什么移植成本，只需要更换所选的board即可。</li>
+<li>通用性强，无论是普通的串口，还是USB串口，抑或是<a href>LPUART</a>，它们的应用层代码均是Zephyr标准API，只需要更换底层驱动即可。</li>
+<li>开发者无需花精力在标准、通用的基本功能上，如串口、SPI、网络、按钮等。因为这些驱动都是厂商提供的，在性能、健壮性、功能性上往往都强于开发者自己用寄存器或外设驱动库开发的代码。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li><p>上手难度稍高，需要花精力去学习语法，并且要简单了解驱动代码</p>
+</li>
+<li><p>功能不完全。Zephyr只提供最标准的用法，当用到串口、spi、i2c等协议时，就是最标准的协议。一旦有不符合标准的，或者Zephyr标准库未提供的功能，就无法在Zephyr驱动模型的框架下实现了。</p>
 <blockquote>
-<p>​	硬件信息包括CPU数量和架构、内存基地址和大小、总线和桥、外设的连接、中断使用情况、GPIO使用情况、时钟使用情况等。最开始这些内容被hard code在Linux内核源码中，但是这让kernel源码非常庞大臃肿。后来就使用DTS来描述硬件，然后在编译时将其编译为DTB，并在运行时由bootloader传递给kernel。</p>
-<p>​	但Zephyr在MCU上运行，资源受限。所以直接在编译前，构建系统使用python脚本将dts转换为<code>.h</code>头文件，并包含进项目代码。</p>
+<p>例如，nordic的芯片有PPI的功能，可以让一个外设的event触发另一个外设的task。这个功能Zephyr是没有标准驱动的。</p>
+<p>Nordic可以在提交给Zephyr的驱动代码中用PPI。例如，在串口驱动中，通过uart外设和timer外设，加上PPI，实现异步流控串口（Timer的作用是记录发送&#x2F;接收了多少字节，然后用PPI控制GPIO CTS&#x2F;RTS），<strong>Nordic提供的驱动代码，把他们整体封装成串口</strong>，也就是说，Zephyr标准驱动操作的串口，实际并不是单独对应uart这一个外设，而是UART+GPIOTE+TIMER+PPI的复合外设。</p>
+<p>如果用户想自己用PPI实现一些自定义功能，只能直接调用nrfx api。</p>
 </blockquote>
-<p>​	</p>
-<p>​	由于dts是描述硬件的，所以<strong>每块板子</strong>都可以用一个dts描述，如<code>nrf9160dk_nrf9160_ns.dts</code>。</p>
-<p>这里有两个点需要注意：</p>
-<ul>
-<li><strong>不同的板子可能有共同的部分</strong>，比如不同的板子使用相同的MCU。所以，dts是可以包含其他dts的，通常描述<strong>芯片</strong>的文件为<code>.dtsi</code>，如<code>nrf9160_common.dtsi</code>。这样不同的使用nrf9160的板子都可以复用这个<code>.dtsi</code>。</li>
-<li><strong>同一块板子可能根据项目的不同，配置成不同的功能</strong>。为了解决这个问题，可以在<strong>当前项目文件夹</strong>下，<code>boards</code>文件夹下的<code>&lt;board&gt;.overlay</code>来进行覆盖。overlay文件中只需要写一小部分要修改的配置，在编译时，如果overlay和原板的dts配置了相同的项目，则优先采用overlay中的配置。</li>
+</li>
 </ul>
-<p>​	最终的配置生成顺序如下：</p>
-<p><img src="/jayant97.github.io/imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/1366713-20201222155014422-1085261766.png" alt="img"></p>
-<p>​	通过板子本身标准的dts，以及覆盖的配置overlay，在<code>build/zephyr</code>路径下合并成完整的<code>zephyr.dts</code>。并最终转换成<code>build/zephyr/include/generated</code>目录下的<code>devicetree_unfixed.h</code>头文件。这就是最终源码中参考的头文件，里面描述了所有的硬件信息。</p>
-<p>​	<strong>通常我们只修改overlay</strong>，其余部分让python脚本自动生成。这样的好处是可以对错误的配置进行提示。</p>
-<p>nRF Connect for VS Code插件提供了查看硬件配置的图形化界面。编译完毕后，就可以查看：</p>
-<p><img src="/jayant97.github.io/imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20221128153536593.png" alt="image-20221128153536593"></p>
-<p>​	如上图，先选择工作区中想要查看的项目，然后下方就会出现板卡的硬件描述。点进每一个描述，就可以跳转到对应层级的设备树文件中（<code>dtsi</code>,<code>dts</code>或<code>overlay</code>）。</p>
-<blockquote>
-<p>安全特性：</p>
-<p>​	Nordic开发板的硬件描述（dts）有<code>xxxdk_xxx.dts</code>和<code>xxxdk_xxx_ns.dts</code>两种。对应安全（secure）和非安全（<strong>n</strong>on-<strong>s</strong>ecure）两种配置。安全配置用到了TF-M，可参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.2/tfm/introduction/index.html">Introduction — Trusted Firmware-M documentation (nordicsemi.com)</a>。</p>
-</blockquote>
-<h2 id="3-3-Kconfig"><a href="#3-3-Kconfig" class="headerlink" title="3.3. Kconfig"></a>3.3. Kconfig</h2><p>​	我们写代码时，都知道要用<code>#define</code>来定义一些宏，方便我们做配置和修改。但是，假如，我们有上万条配置怎么办？假如，我们要用一堆第三方库，它们每个都有自己的一堆配置怎么办？假如，配置之间还有依赖关系，必须启用一个才能启用另一个怎么办？</p>
-<p>​	Kconfig就给我们提供了一个很好的管理方式：</p>
+<h2 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h2><p>dts怎么写，本质上取决于驱动代码里怎么读取dts。dts的本质就是保存硬件细节相关的信息，使自己的应用代码与硬件细节解耦。</p>
+<p>要更详细地了解Device Tree，请参考<a href="https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/">《详解Zephyr设备树（DeviceTree）与驱动模型》</a>。</p>
+<h1 id="5-配置与编译过程"><a href="#5-配置与编译过程" class="headerlink" title="5. 配置与编译过程"></a>5. 配置与编译过程</h1><p>本节简要介绍整个编译过程，详细的过程可以参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/build/cmake/index.html">Zephyr官方文档</a></p>
+<ol>
+<li>合并所有来源的device tree，生成<code>build/zephyr.dts</code>；</li>
+<li>合并所有来源的Kconfig配置项，其中Kconfig是可以读取device tree的，也就是说device tree中的选项会影响到Kconfig中的某些配置，通常是隐性配置；</li>
+<li>device tree的配置最终会生成：<code>build/zephyr/include/generated/devicetree_generated.h</code><br>Kconfig的配置最终会生成：<code>build/zephyr/include/generated/autoconf.h</code></li>
+<li>CMake配置会生成ninja配置（这是一个类似于makefile的工具），然后根据ninja文件调用工具链中的gcc，把每个源文件编译并链接到一起。</li>
+</ol>
+<p>如果是简单的，单分区的工程，最终会编译成<code>build/zephyr/zephyr.hex</code>。</p>
+<p>如果是多分区的工程，例如带bootloader的工程，最终会编译成<code>build/zephyr/merged.hex</code>。</p>
+<h1 id="6-其他配置"><a href="#6-其他配置" class="headerlink" title="6. 其他配置"></a>6. 其他配置</h1><h2 id="子镜像的配置"><a href="#子镜像的配置" class="headerlink" title="子镜像的配置"></a>子镜像的配置</h2><p>子镜像有两种情况：</p>
+<ol>
+<li>一个flash上有多个分区。例如应用程序和bootloader，则bootloader是子镜像</li>
+<li>双核固件。nRF5340是双核MCU，两个核运行的是不同的固件。运行蓝牙例程时，Application core运行用户的应用程序，Network Core运行的是<code>$&#123;NCS&#125;/zephyr/samples/bluetooth/hci_rpmsg</code>。此时，<code>hci_rpmsg</code>是子镜像。</li>
+</ol>
+<p>一个工程只包含主镜像的源码，编译时会自动在<code>build/&lt;child_image_name&gt;/</code>目录下同时编译子镜像，最终合并成<code>build/zephyr/merged.hex</code>。</p>
+<p>如何在工程中<strong>修改子镜像的Kconfig或者overlay</strong>？可以新建一个<code>child_image/</code>目录，放入配置。</p>
+<p><img src="/jayant97.github.io/./imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20231028220754152.png" alt="image-20231028220754152"></p>
+<p>有两种方法：</p>
 <ul>
-<li>Kconfig以菜单的形式来设置宏定义，并且能设置每个选项的依赖关系</li>
-<li>Kconfig可以给选项设置枚举范围，让你不容易配置错</li>
-<li>每个第三方库、模块都自带Kconfig。你的项目包含它们时，你的项目的Kconfig菜单也就把这些模块的Kconfig菜单作为子菜单了，非常方便。</li>
+<li><code>child_image/&lt;name&gt;.conf</code>和<code>child_image/&lt;name&gt;.overlay</code>，分别可以覆盖子镜像的<code>prj.conf</code>和<code>app.overlay</code></li>
+<li>也可以建立<code>child_image/&lt;name&gt;/</code>文件夹，在文件夹中就像在子镜像的根目录中一样，写<code>prj.conf</code>和<code>boards/</code>文件夹</li>
 </ul>
-<p>​	</p>
-<p>​	具体来说，<strong>项目文件夹中的<code>Kconfig</code>文件定义了本项目的配置，也定义了了本项目包含了哪些模块。</strong>每个模块（如蓝牙controller、CAN总线controller等）都有自己的Kconfig选项配置，并且成为本项目的子菜单。</p>
-<p>​	Application本身的配置、库的配置、编译器的编译选项、链接器的relocation等都可以通过Kconfig来进行。此外，application也可以定义自己的配置项。这样，最终本项目的Kconfig就会组合形成一个有几千个配置项的大菜单。</p>
-<p>​	当然大多数情况下，我们只使用默认配置就行了。</p>
-<p>​	和device tree一样，Kconfig也是支持<strong>覆盖</strong>的。Kconfig中大多数都是模块自带的默认配置，要想覆盖其中的某些配置，只需修改项目文件夹下的<code>prj.conf</code>文件即可。</p>
-<p><img src="/jayant97.github.io/imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/1366713-20201222154609536-1676614851.png" alt="img"></p>
-<p>​	如上图，<code>.conf</code>是最终合并的Kconfig，位于build目录下。而<code>autoconf.h</code>位于<code>build/zephyr/include/generated</code>目录下。</p>
-<p>​	通常我们只修改<code>prj.conf</code>，其余部分让python脚本自动生成。这样的好处是可以对错误的配置进行提示。</p>
-<p>接下来，展示如何打开Kconfig的菜单，有三种方式：</p>
-<h3 id="1-nRF-Kconfig"><a href="#1-nRF-Kconfig" class="headerlink" title="(1) nRF Kconfig"></a>(1) nRF Kconfig</h3><p>​	直接在VS Code中查看，可以在VS Code的NCS Action栏中找到：</p>
-<p><img src="/jayant97.github.io/imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20221128162406563.png" alt="image-20221128162406563"></p>
-<blockquote>
-<p>右侧三个点也支持使用<code>menuconfig</code>和<code>guiconfig</code>的方式进行查看，这两种方式后面介绍。</p>
-</blockquote>
-<p>​	保存Kconfig时，有三个选择：</p>
-<img src="/jayant97.github.io/imgs/理解Zephyr项目的配置与构建系统.assets/image-20221128162604764.png" alt="image-20221128162604764" style="zoom: 80%;">
+<p>子镜像是怎么添加到工程中的？如何把默认的子镜像改成自己修改过的子镜像？请参考NCS原始文档 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/config_and_build/multi_image.html#multi-image-builds">Multi-image builds</a></p>
+<h2 id="Shield配置"><a href="#Shield配置" class="headerlink" title="Shield配置"></a>Shield配置</h2><p>很多开发板都是支持Arduino接口的，因此很多器件厂商&#x2F;分销商会制作Ardiono接口的扩展板：</p>
+<p><img src="/jayant97.github.io/./imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20231028214708544.png" alt="image-20231028214708544"></p>
+<p>Zephyr中，也会有这些扩展板的配置（包含device tree和Kconfig）。如果要在工程中启用扩展板，则需要设置CMake变量：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(SHIELD nrf21540_ek)</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>Save：临时保存到build目录下的<code>.config</code>中。如果下次修改了其他配置，重新编译，此配置就会失效。</li>
-<li>Save to file：只保存修改的部分，可以选择保存到工程目录下的<code>prj.conf</code>或<code>boards/&lt;board&gt;.conf</code>中，后者的配置比前者优先生效。<br>  这个修改是永久的，只对本项目有效，且不会影响到NCS中模块本身的默认Kconfig。</li>
-<li>Save (minimal) to new file：只保存修改的部分到一个新文件中。</li>
-</ul>
-<h3 id="2-GuiConfig"><a href="#2-GuiConfig" class="headerlink" title="(2) GuiConfig"></a>(2) GuiConfig</h3><p>通过Kconfig旁边的三个点按钮，选择gui config，会弹出一个窗口让你进行配置。</p>
-<img src="/jayant97.github.io/imgs/理解Zephyr项目的配置与构建系统.assets/image-20221205003825310.png" alt="image-20221205003825310" style="zoom:50%;">
-
-<h3 id="3-menuconfig"><a href="#3-menuconfig" class="headerlink" title="(3) menuconfig"></a>(3) menuconfig</h3><p>​	通过Kconfig旁边的三个点按钮，选择menuconfig，就是在命令行终端中进行配置。</p>
-<img src="/jayant97.github.io/imgs/理解Zephyr项目的配置与构建系统.assets/image-20221205004019331.png" alt="image-20221205004019331" style="zoom:50%;">
-
-<h3 id="Kconfig的查找"><a href="#Kconfig的查找" class="headerlink" title="Kconfig的查找"></a>Kconfig的查找</h3><p>​	一个所有初学者都会有的问题是，<code>Kconfig</code>这么多，上哪里去知道它是什么意思？最直接的方式是看代码，Kconfig的选项在代码中都会有一个<code>CONFIG_</code>开头的宏与之对应，通过看代码就知道这个配置具体是做什么的了。</p>
-<p>​	另一个方式是在NCS官方文档进行搜索：</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/kconfig/index.html">Kconfig search — Kconfig reference (nordicsemi.com)</a></p>
-<p><img src="/jayant97.github.io/imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20221205004355203.png" alt="image-20221205004355203"></p>
-<p>​	在这个页面直接输入你要查的选项，就可以查到所有Nordic和Zephyr官方库中的Kconfig的作用了。</p>
-<h1 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h1><p>​	不论Zephyr的构建系统再复杂，最终底层都是编译、链接那一套，以这个为前提去学习，会少踩很多坑。DeviceTree和Kconfig都是<strong>方便</strong>我们开发而设计的，不要有对未知的畏难情绪。不需要硬学语法，开发都是基于Nordic已有的例程进行修改即可，遇到问题了再去查即可。</p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/2a39e705bff0/">https://jayant-tang.github.io/jayant97.github.io/2022/12/2a39e705bff0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/Zephyr/">Zephyr</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/nordic/zephyr.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/jayant97.github.io/2022/12/693c6a957393/" title="最简洁清爽的ssh使用方案"><img class="cover" src="/jayant97.github.io/imgs/openssh.gif" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">最简洁清爽的ssh使用方案</div></div></a></div><div class="next-post pull-right"><a href="/jayant97.github.io/2022/12/779143a4bec8/" title="安装nRF-Connect-SDK"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-connect.png" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">安装nRF-Connect-SDK</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2023/03/4b274a50e575/" title="详解Zephyr设备树（DeviceTree）与驱动模型"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-12</div><div class="title">详解Zephyr设备树（DeviceTree）与驱动模型</div></div></a></div><div><a href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-cloud.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-01</div><div class="title">nRF9160与nRF Cloud应用示例</div></div></a></div><div><a href="/jayant97.github.io/2023/08/045cdc9c9b10/" title="在nRF7002开发板上运行MQTT例程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-14</div><div class="title">在nRF7002开发板上运行MQTT例程</div></div></a></div><div><a href="/jayant97.github.io/2022/12/779143a4bec8/" title="安装nRF-Connect-SDK"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-connect.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">安装nRF-Connect-SDK</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%89%8D%E8%A8%80"><span class="toc-text">1. 前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-ARM%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B%E7%AE%80%E4%BB%8B"><span class="toc-text">2. ARM编译过程简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-ARM%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%BC%96%E8%AF%91%E4%B8%8E%E9%93%BE%E6%8E%A5"><span class="toc-text">2.1. ARM程序的编译与链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E6%9E%84%E5%BB%BA%E8%A7%84%E5%88%99"><span class="toc-text">2.2. 构建规则</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Zephyr%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F%E6%A8%A1%E5%9D%97%E4%BB%8B%E7%BB%8D"><span class="toc-text">3. Zephyr构建系统模块介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-CMake"><span class="toc-text">3.1. CMake</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Zephyr%E4%B8%ADCMake%E7%9A%84%E5%85%B7%E4%BD%93%E4%BD%BF%E7%94%A8"><span class="toc-text">Zephyr中CMake的具体使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-DeviceTree"><span class="toc-text">3.2. DeviceTree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-Kconfig"><span class="toc-text">3.3. Kconfig</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-nRF-Kconfig"><span class="toc-text">(1) nRF Kconfig</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-GuiConfig"><span class="toc-text">(2) GuiConfig</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-menuconfig"><span class="toc-text">(3) menuconfig</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kconfig%E7%9A%84%E6%9F%A5%E6%89%BE"><span class="toc-text">Kconfig的查找</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E6%80%BB%E7%BB%93"><span class="toc-text">4. 总结</span></a></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/jayant97.github.io/imgs/nordic/zephyr.png')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
+<p>或者在编译目标的配置中添加CMake参数：</p>
+<p><img src="/jayant97.github.io/./imgs/%E7%90%86%E8%A7%A3Zephyr%E9%A1%B9%E7%9B%AE%E7%9A%84%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%9E%84%E5%BB%BA%E7%B3%BB%E7%BB%9F.assets/image-20231028215131762.png" alt="image-20231028215131762"></p>
+<p>编译时，会自动合并原始板子和扩展板的Kconfig和Devicetree。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/2a39e705bff0/">https://jayant-tang.github.io/jayant97.github.io/2022/12/2a39e705bff0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/Zephyr/">Zephyr</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/nordic/zephyr.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/jayant97.github.io/2022/12/693c6a957393/" title="最简洁清爽的ssh使用方案"><img class="cover" src="/jayant97.github.io/imgs/openssh.gif" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">最简洁清爽的ssh使用方案</div></div></a></div><div class="next-post pull-right"><a href="/jayant97.github.io/2022/12/779143a4bec8/" title="安装nRF-Connect-SDK"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-connect.png" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">安装nRF-Connect-SDK</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2023/03/4b274a50e575/" title="详解Zephyr设备树（DeviceTree）与驱动模型"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-12</div><div class="title">详解Zephyr设备树（DeviceTree）与驱动模型</div></div></a></div><div><a href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-cloud.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-01</div><div class="title">nRF9160与nRF Cloud应用示例</div></div></a></div><div><a href="/jayant97.github.io/2023/08/045cdc9c9b10/" title="在nRF7002开发板上运行MQTT例程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-14</div><div class="title">在nRF7002开发板上运行MQTT例程</div></div></a></div><div><a href="/jayant97.github.io/2022/12/779143a4bec8/" title="安装nRF-Connect-SDK"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-connect.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">安装nRF-Connect-SDK</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%89%8D%E8%A8%80"><span class="toc-text">1. 前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E9%80%9A%E8%BF%87CMake%E7%AE%A1%E7%90%86%E6%BA%90%E7%A0%81"><span class="toc-text">2. 通过CMake管理源码</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CMake%E5%9F%BA%E6%9C%AC%E5%86%99%E6%B3%95"><span class="toc-text">CMake基本写法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E6%B7%BB%E5%8A%A0%E6%BA%90%E7%A0%81"><span class="toc-text">条件添加源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E6%B7%BB%E5%8A%A0"><span class="toc-text">目录添加</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0include%E7%9B%AE%E5%BD%95"><span class="toc-text">添加include目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E5%8F%98%E9%87%8F"><span class="toc-text">设置变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E9%80%9A%E8%BF%87Kconfig%E7%AE%A1%E7%90%86%E9%85%8D%E7%BD%AE"><span class="toc-text">3. 通过Kconfig管理配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%86%E8%A7%A3Kconfig%E8%8F%9C%E5%8D%95%E5%9F%BA%E6%9C%AC%E5%86%99%E6%B3%95"><span class="toc-text">了解Kconfig菜单基本写法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kconfig%E4%BA%A4%E4%BA%92%E5%BC%8F%E8%8F%9C%E5%8D%95"><span class="toc-text">Kconfig交互式菜单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%9D%E5%AD%98Kconfig%E4%BA%A4%E4%BA%92%E5%BC%8F%E8%8F%9C%E5%8D%95%E7%9A%84%E4%BF%AE%E6%94%B9"><span class="toc-text">保存Kconfig交互式菜单的修改</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kconfig%E9%85%8D%E7%BD%AE%E9%A1%B9%E7%9A%84%E6%9D%A5%E6%BA%90"><span class="toc-text">Kconfig配置项的来源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%98%BE%E6%80%A7%E4%B8%8E%E9%9A%90%E6%80%A7%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="toc-text">显性与隐性配置项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-DeviceTree%E5%92%8CZephyr%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B"><span class="toc-text">4. DeviceTree和Zephyr驱动模型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#DTS%E6%96%87%E4%BB%B6"><span class="toc-text">DTS文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zephyr%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F"><span class="toc-text">Zephyr驱动程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zephyr-DeviceTree%E5%92%8C%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9E%8B%E7%9A%84%E4%BC%98%E5%8A%A3"><span class="toc-text">Zephyr DeviceTree和驱动模型的优劣</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E9%85%8D%E7%BD%AE%E4%B8%8E%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="toc-text">5. 配置与编译过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E5%85%B6%E4%BB%96%E9%85%8D%E7%BD%AE"><span class="toc-text">6. 其他配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%90%E9%95%9C%E5%83%8F%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="toc-text">子镜像的配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shield%E9%85%8D%E7%BD%AE"><span class="toc-text">Shield配置</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/jayant97.github.io/imgs/nordic/zephyr.png')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
   function initGitalk () {
     var gitalk = new Gitalk(Object.assign({
       clientID: 'c91ce0493b5c3e886110',
