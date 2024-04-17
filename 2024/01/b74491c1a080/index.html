@@ -1,0 +1,453 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Nordic GPIO硬件原理与NCS应用详解 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="本文主题 Nordic MCU的GPIO硬件简介、GPIOTE是什么、PPI是什么 Zephyr中GPIO的使用、与外设引脚复用的方法（pinctrl）   声明：本文在解释硬件方面会比较详细，其目的是让读者在遇到问题时方便查阅，并debug底层寄存器信号。并非是推荐开发者直接进行寄存器开发，大多数情况下直接使用Nordic提供的外设API进行开发即可，可参考本文第3、4、5章。  1. GPIO">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nordic GPIO硬件原理与NCS应用详解">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2024/01/b74491c1a080/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="本文主题 Nordic MCU的GPIO硬件简介、GPIOTE是什么、PPI是什么 Zephyr中GPIO的使用、与外设引脚复用的方法（pinctrl）   声明：本文在解释硬件方面会比较详细，其目的是让读者在遇到问题时方便查阅，并debug底层寄存器信号。并非是推荐开发者直接进行寄存器开发，大多数情况下直接使用Nordic提供的外设API进行开发即可，可参考本文第3、4、5章。  1. GPIO">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png">
+<meta property="article:published_time" content="2024-01-22T08:21:43.000Z">
+<meta property="article:modified_time" content="2024-04-17T09:03:18.756Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Zephyr">
+<meta property="article:tag" content="DeviceTree">
+<meta property="article:tag" content="GPIO">
+<meta property="article:tag" content="GPIOTE">
+<meta property="article:tag" content="PPI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2024/01/b74491c1a080/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Nordic GPIO硬件原理与NCS应用详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-04-17 17:03:18'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Nordic GPIO硬件原理与NCS应用详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-01-22T08:21:43.000Z" title="发表于 2024-01-22 16:21:43">2024-01-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-04-17T09:03:18.756Z" title="更新于 2024-04-17 17:03:18">2024-04-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/">Nordic</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="Nordic GPIO硬件原理与NCS应用详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2024/01/b74491c1a080/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h1 id="本文主题"><a href="#本文主题" class="headerlink" title="本文主题"></a>本文主题</h1><ol>
+<li>Nordic MCU的GPIO硬件简介、GPIOTE是什么、PPI是什么</li>
+<li>Zephyr中GPIO的使用、与外设引脚复用的方法（pinctrl）</li>
+</ol>
+<blockquote>
+<p>声明：本文在解释硬件方面会比较详细，其目的是让读者在遇到问题时方便查阅，并debug底层寄存器信号。并非是推荐开发者直接进行寄存器开发，大多数情况下直接使用Nordic提供的外设API进行开发即可，可参考本文第3、4、5章。</p>
+</blockquote>
+<h1 id="1-GPIO硬件介绍"><a href="#1-GPIO硬件介绍" class="headerlink" title="1. GPIO硬件介绍"></a>1. GPIO硬件介绍</h1><p>在介绍NCS中的GPIO和引脚复用（pinctrl）之前，有必要先介绍Nordic平台的GPIO相关硬件。</p>
+<h2 id="1-1-GPIO编号与分配表"><a href="#1-1-GPIO编号与分配表" class="headerlink" title="1.1. GPIO编号与分配表"></a>1.1. GPIO编号与分配表</h2><p>每个Port上最多有32个GPIO，编号为0 ～ 31。Port从0开始，根据芯片封装的不同，可能还会有Port 1。<strong>例如，在代码中，P0.12对应的引脚编号就是12，而P1.12对应的引脚编号就是32+12，也就是44。</strong></p>
+<p>在每个手册的“Hardware and layout”章节，有不同MCU封装的GPIO功能说明，我们点进去可以看到每个引脚的用途。不仅是GPIO，还有一些电源和晶振引脚也包含其中：</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240122163623759.png" alt="image-20240122163623759"></p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240122164712134.png" alt="image-20240122164712134"></p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240122164636172.png" alt="image-20240122164636172"></p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240122164939613.png" alt="image-20240122164939613"></p>
+<blockquote>
+<p>这里面值得一提的一些信息有：</p>
+<ol>
+<li><strong>模拟引脚是固定的</strong>，标有Analog input的引脚才能作为模拟输入。</li>
+<li>外设的<strong>数字引脚基本上是可以任意分配的</strong>。但有些外设会有推荐的引脚，例如上图中的QSPI。</li>
+<li>某些引脚只能配置为Standard drive，无法作为高驱动模式。因此<strong>不适合高速数据传输</strong>的外设引脚。</li>
+</ol>
+</blockquote>
+<h2 id="1-2-GPIO硬件"><a href="#1-2-GPIO硬件" class="headerlink" title="1.2. GPIO硬件"></a>1.2. GPIO硬件</h2><p>下图来自于nRF52833 Product Specification。</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240122162605569.png" alt="image-20240122162605569"></p>
+<p>从框图可以看出，GPIO可以作为模拟输入，也可以作为数字输入和输出。</p>
+<blockquote>
+<p>只有部分GPIO可以作为模拟输入，见1.2小节</p>
+</blockquote>
+<h3 id="寄存器介绍"><a href="#寄存器介绍" class="headerlink" title="寄存器介绍"></a>寄存器介绍</h3><p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8/image-20240130104903444.png" alt="image-20240130104903444"></p>
+<p>Nordic平台的GPIO，每个port最多有32个引脚。</p>
+<ul>
+<li>OUT：32bit寄存器，bit写1使对应的GPIO输出高，写0使对应的GPIO输出低</li>
+<li>OUTSET：32bit寄存器，bit写1使对应的GPIO输出高，写0不影响对应的GPIO的状态</li>
+<li>OUTCLR：32bit寄存器，bit写1使对应的GPIO输出低，写0不影响对应的GPIO的状态</li>
+<li>IN：32bit寄存器，读取每个bit即为读取每个GPIO的状态</li>
+<li>DIR：32bit寄存器，bit写1使对应的GPIO配置为输出模式，写0使对应的GPIO配置为输入模式</li>
+<li>DIRSET：32bit寄存器，bit写1使对应的GPIO配置为输出模式，写0不影响对应的GPIO的模式</li>
+<li>DIRCLR：32bit寄存器，bit写1使对应的GPIO配置为输入模式，写0不影响对应的GPIO的模式</li>
+<li>LATCH：与休眠唤醒配置有关，见下方</li>
+<li>DETECTMODE：与休眠唤醒配置有关，见下方</li>
+<li>PIN_CONF：32个32bit寄存器。单独配置每个GPIO的输入输出（可覆盖DIR寄存器），输出模式、输出驱动能力、内部上下拉。</li>
+</ul>
+<h3 id="GPIO输出状态与驱动能力配置"><a href="#GPIO输出状态与驱动能力配置" class="headerlink" title="GPIO输出状态与驱动能力配置"></a>GPIO输出状态与驱动能力配置</h3><p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/buffer.png" alt="Introduction to GPIO - General Purpose I/O - NerdyElectronics"></p>
+<p>我们知道GPIO的<strong>输出电路</strong>内部是两个MOS管作为开关，也就是说，GPIO其实有三种状态：</p>
+<ul>
+<li>输出高电平：上管导通、下管关断。通常代表逻辑1。</li>
+<li>输出低电平：上管关断，下管导通。通常代表逻辑0。</li>
+<li>输出高阻态：上下管均关断。可以代表逻辑0或逻辑1，取决于电路设计者自身的定义。</li>
+</ul>
+<p>但我们控制GPIO时，代码中只会写0和1两种状态。这就要求我们提前配置好GPIO的输出模式（推挽、漏极开路、源极开路），每一种都代表不同的高、低电平或高阻态的组合：</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240122170147234.png" alt="image-20240122170147234"></p>
+<p>以上8种状态，包含了推挽、漏极开路、源极开路的状态。此外，当GPIO输出高电平或低电平时，还有标准驱动能力（Standard）和高驱动能力（High drive）两种选择。</p>
+<p>举例来说，S0S1就是推挽（Push-Pull）输出；而S0D1就是开漏（Open-Drain）输出。我们知道开漏输出是为了做“线与”操作的，I2C协议就需要这种配置。同理，D0S1就是源极开路输出，可以实现“线或”操作。</p>
+<blockquote>
+<p>线与：相连的GPIO中只要有一个输出低电平，则整个线保持低电平，且不能出现短路；</p>
+<p>线或：相连的GPIO中只要有一个输出高电平，则整个线保持高电平，且不能出现短路。 </p>
+</blockquote>
+<p>这里除了标准驱动能力（Standard）之外，还有高驱动能力（High drive）可以选择。它相比于Standard可以输出更高的电流：</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240122171447781.png" alt="image-20240122171447781"></p>
+<p>上图中，GPIO的Electrical specification章节记录了GPIO的电气特性。可以看到标准输出和高驱输出时，拉电流与灌电流的承受范围。</p>
+<blockquote>
+<p>GPIO输出电压的变化，本质是给线上的等效电容充电或放电。因此GPIO输入输出电流的能力越强，则输出高频信号的能力越强。</p>
+</blockquote>
+<h3 id="GPIO数字输入"><a href="#GPIO数字输入" class="headerlink" title="GPIO数字输入"></a>GPIO数字输入</h3><p>关于输入，值得一提的是Nordic的输入是可以断开的（从框图中也能看出）。因此只要不使能输入和输出，GPIO内部就是断开的，不用担心漏电导致功耗问题。</p>
+<h3 id="GPIO内部上拉-x2F-下拉电阻"><a href="#GPIO内部上拉-x2F-下拉电阻" class="headerlink" title="GPIO内部上拉&#x2F;下拉电阻"></a>GPIO内部上拉&#x2F;下拉电阻</h3><p>导线高低电平的电磁学本质，是把导线和地平面之间看作一个微小的电容。输出高电平即为给电容充电，输出低电平即为给电容放电。</p>
+<p>上&#x2F;下拉电阻的作用是，当导线上的所有GPIO都处于高阻态时，通过这个上&#x2F;下拉电阻给导线充、放电，使得导线的电平处于一个确定的状态。</p>
+<p>例如I2C总线，线路上所有的IO都是开漏输出，因此需要一个上拉电阻。当所有IO都输出逻辑1（高阻态）时，能通过这个上拉电阻给导线电容充电，使的线路电平被拉高。</p>
+<p>如果PCB上没有上拉电阻，就需要MCU配置内部上拉。配置相关的寄存器如下：</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8/image-20240130111651505.png" alt="image-20240130111651505"></p>
+<p>使用内部上拉时，需要注意电阻的阻值，典型值为13千欧。线路上的RC值影响线路上电平变化的速度。当无外挂电容，只考虑线路寄生电容时，使用此内部上拉电阻，I2C总线<strong>最高只能配置为100kbps</strong>。若想要配置到400kbps，请使用外部4.7千欧或更低的上拉电阻。</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8/image-20240130111825537.png" alt="image-20240130111825537"></p>
+<blockquote>
+<p>除了有提高电平变化速度的场景，还有需要降低电平变化速度的场景。例如，一些通过边沿触发的GPIO中断、或者Reset引脚的触发等。<strong>不要认为有了上拉电阻，线路的电压就会稳定不受干扰</strong>。因为如果线路上电容值很小，微小的电荷变化就会引起巨大的电压变化。因此线路要保持稳定的电平与上拉电阻关系不太大，反而与线路上的电容关系很大。</p>
+</blockquote>
+<h2 id="1-3-GPIO复用"><a href="#1-3-GPIO复用" class="headerlink" title="1.3. GPIO复用"></a>1.3. GPIO复用</h2><p>Nordic平台的外设配置GPIO时，基本上是可以任意选择的。并且，<strong>外设的配置可以自动覆盖（Override）GPIO的输入输出方向、输出值等配置</strong>。见本文1.2.小节框图中的几个OVERRIDE信号。但是，GPIO的上下拉、输出模式等配置，还是要在GPIO的寄存器中进行配置。</p>
+<h3 id="数字复用"><a href="#数字复用" class="headerlink" title="数字复用"></a>数字复用</h3><p>要配置一个外设所使用的GPIO，只需直接在这个外设对应的寄存器中进行配置。例如，下图是PWM外设中的PSEL（Pin Select）寄存器，就是可以选择任意一个port的任意一个pin作为输出引脚。当你在PWM外设的寄存器中配置引脚之后，会自动按照本文1.2小节框图中的OVERRIDE信号来覆盖对应GPIO的。</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8/image-20240130114131417.png" alt="image-20240130114131417"></p>
+<h3 id="模拟复用"><a href="#模拟复用" class="headerlink" title="模拟复用"></a>模拟复用</h3><p>模拟复用不能选择任意的GPIO，只能选择具有Analog Input功能的GPIO。以SAADC为例，这里只能选择AINx或者内部VDD、内部VDD&#x2F;5作为输入，而不是GPIO的引脚编号。</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8/image-20240130114325318.png" alt="image-20240130114325318"></p>
+<h3 id="特殊GPIO（RESET和NFC-Tag）"><a href="#特殊GPIO（RESET和NFC-Tag）" class="headerlink" title="特殊GPIO（RESET和NFC Tag）"></a>特殊GPIO（RESET和NFC Tag）</h3><p>Nordic平台具有UICR寄存器，这是一个flash之外的掉电不丢失区域，用于存储一些用户配置，可擦写。其中具有RESET和NFC Tag引脚的配置：</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240131100105700.png" alt="image-20240131100105700"></p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240131100201965.png" alt="image-20240131100201965"></p>
+<p>对于reset引脚来说，<code>PSELRESET[0]</code>和<code>PSELREET[1]</code>的值都是PIN&#x3D;18，PORT&#x3D;0，CONNECT&#x3D;0的情况下，P0.18才会作为Reset引脚使用。否则，P0.18作为普通GPIO使用。<strong>Reset信号无法映射到其他GPIO</strong>。</p>
+<blockquote>
+<p>软件控制reset引脚作为普通GPIO使用：</p>
+<ul>
+<li><p>在nRF5 SDK中，<strong>不要</strong>设置全局宏定义<code>CONFIG_GPIO_AS_PINRESET</code></p>
+</li>
+<li><p>在NCS中：<code>CONFIG_GPIO_AS_PINRESET=n</code></p>
+</li>
+</ul>
+</blockquote>
+<p>NFC引脚是固定的两个，对于nRF52833来说是P0.09和P0.10。默认情况下这两个IO是GPIO，只有UICR中对应的bit写1之后，这两个IO才能作为NFC来工作。</p>
+<blockquote>
+<p>软件控制NFC引脚作为普通GPIO使用：</p>
+<ul>
+<li>在nRF5 SDK中，在Keil&#x2F;SES&#x2F;Makefile中设置全局宏定义<code>CONFIG_NFCT_PINS_AS_GPIOS</code></li>
+<li>在NCS中，在prj.conf或其他配置文件中，添加<code>CONFIG_NFCT_PINS_AS_GPIOS=y</code></li>
+</ul>
+<p>添加后，系统启动时会自动擦写UICR并重启。</p>
+</blockquote>
+<h2 id="1-4-GPIO的Sense机制"><a href="#1-4-GPIO的Sense机制" class="headerlink" title="1.4. GPIO的Sense机制"></a>1.4. GPIO的Sense机制</h2><p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240415155234948.png" alt="image-20240415155234948"></p>
+<p>从GPIO的框图中我们可以看出，每个GPIO在处于输入模式的情况下，有一个SENSE信号。它可以被每个引脚的PIN_CNF寄存器中对应的bit位控制。可以配置为高电平触发或低电平触发。</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240415155410982.png" alt="image-20240415155410982"></p>
+<p><strong>所有引脚的Sense信号会汇聚成一个DETECT信号。这个DETECT信号有两种作用：</strong></p>
+<ul>
+<li><strong>使系统从System Off模式中唤醒（也就是GPIO唤醒休眠）</strong></li>
+<li><strong>在GPIOTE外设中产生Port中断（后续在GPIOTE章节中介绍）</strong></li>
+</ul>
+<p>这个DETECT信号本身又有两种模式，通过DETECTMODE寄存器进行配置。</p>
+<p>第一种是单纯的把所有引脚的PINx.DETECT信号进行<strong>逻辑或运算</strong>，也就是标准的DETECT信号。</p>
+<p>另一种是在逻辑或之前加了一个锁存器（Latch），当PINx.DETECT置1时，相当于RS锁存器的Set端写1，LATCH寄存器中的对应Bit会被写1；当PINx.DETECT置0时，LATCH寄存器中的对应Bit会被锁存，不会变化。LATCH寄存器中对应的bit只有被CPU显式地写1时才会清0，相当于RS锁存器的Clear端写1。这个叫做LDETCT信号。</p>
+<h1 id="2-GPIOTE与PPI介绍"><a href="#2-GPIOTE与PPI介绍" class="headerlink" title="2. GPIOTE与PPI介绍"></a>2. GPIOTE与PPI介绍</h1><p>对于第一次接触Nordic平台的开发者，首先要明白一个概念：GPIOTE和GPIO是完全不同的外设。要理解为什么是这样，需要先理解Nordic外设接口（Peripheral interface）。</p>
+<h2 id="2-1-外设接口（Peripheral-interface）"><a href="#2-1-外设接口（Peripheral-interface）" class="headerlink" title="2.1. 外设接口（Peripheral interface）"></a>2.1. 外设接口（Peripheral interface）</h2><p>在Nordic平台中，无论是什么外设，都遵循类似的外设接口，其框图如下：</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240415161448616.png" alt="image-20240415161448616"></p>
+<p>整个框图代表外设，这个外设可以是Timer、串口、ADC等等。接下来详细解释内部框图的意思，框图中展示的都是所有外设都有的共通的部分。</p>
+<h3 id="TASK寄存器"><a href="#TASK寄存器" class="headerlink" title="TASK寄存器"></a>TASK寄存器</h3><p>TASK寄存器代表这个外设的输入。例如Timer计时的开始、结束、清零；ADC采样的开始、结束；串口的发送开始、结束等等。<strong>只要CPU给对应的TASK寄存器写1，外设就会去执行对应的动作。</strong></p>
+<h3 id="EVENT寄存器与INTEN寄存器"><a href="#EVENT寄存器与INTEN寄存器" class="headerlink" title="EVENT寄存器与INTEN寄存器"></a>EVENT寄存器与INTEN寄存器</h3><p>EVENT寄存器代表这个外设的输出。例如串口DMA缓存接收满、ADC采样完成等等。这些事件（EVENT）可以用来触发CPU中断，只需要在INTEN寄存器中使能某个EVENT对应的中断，那么这个EVENT就能触发IRQ信号到NVIC模块。</p>
+<h3 id="SHORTS寄存器"><a href="#SHORTS寄存器" class="headerlink" title="SHORTS寄存器"></a>SHORTS寄存器</h3><p>Shorts意为短路。它可以让某个外设的EVENT自动触发自己的TASK，从而实现自动循环执行，无需CPU的干预。</p>
+<p>这个短路路径是预设好的，固定的几条，不能自由搭配。以定时器为例：</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240415162841413.png" alt="image-20240415162841413"></p>
+<p>定时器最多有6个比较（Compare）通道。当定时器中的count值增长到某个通道的compare值时，触发compare事件。这里可以通过使能对应的SHORT寄存器，让这个COMPARE EVENT去触发定时器的CLEAR TASK，从而实现自动循环计数。也可以让这个COMPARE EVENT去触发定时器的STOP TASK，从而实现单次计数。</p>
+<p>这里是无法把compare event连接到start task的（虽然这种连接本身没有意义），因为SHORTS寄存器里的路径是预设好的。</p>
+<h2 id="2-2-PPI-Programmable-Peripheral-Interconnect"><a href="#2-2-PPI-Programmable-Peripheral-Interconnect" class="headerlink" title="2.2.  PPI (Programmable Peripheral Interconnect)"></a>2.2.  PPI (Programmable Peripheral Interconnect)</h2><p>在2.1章节中我们了解了外设的接口。从框图中可以看到TASK和EVENT寄存器上，还连接了PPI。这个PPI本身也是一个外设，它可以让你<strong>把一个外设的EVENT寄存器直接连接到另一个外设的TASK寄存器上，从而实现外设之间的自动联动，无需CPU参与处理</strong>。</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240415164008994.png" alt="image-20240415164008994"></p>
+<p>图中的竖线，代表PPI的通道（Channel），nRF52833共有32条通道，其中前20条可以自由配置。<strong>每个通道可以连接1个EVENT，和2个TASK。</strong>（把EVENT寄存器的地址写入到CH[n].EEP寄存器；然后把想触发的TASK写到CH[n].TEP或者FORK[n].TEP中即可）。</p>
+<blockquote>
+<p>举一个实际的例子，就是<a href="https://jayant-tang.github.io/jayant97.github.io/2023/11/4c8e1d7d162d/">《Zephyr驱动与设备树实战——串口》</a>中的提到高速异步串口：首先，Nordic的串口硬件具有DMA的功能，可以直接把数据从串口搬运到内存；然后，Nordic的串口驱动软件具有空闲计时的功能，当一定时间没有收到数据，DMA缓存还没存满的时候，就直接不等DMA中断了，直接产生串口回调函数，让CPU提前处理。</p>
+<p>这里就产生了一个问题：此时DMA缓存未满，CPU只知道首地址，如何知道数据的长度呢？毕竟串口外设本身可没有计数功能。（RXD.AMOUNT寄存器只有DMA传输完毕才能读，这种提前读取的场景是不知道有多少的）。</p>
+<p>一个纯软件的方法，就是每读到1个字节，就进入CPU中断，把一个变量+1。当传输完成时，读取这个变量，就知道一共收到了多少字节了。但是这种方法非常消耗CPU资源，且功耗高。当串口波特率达到921600时，CPU几乎无法做别的事情了。</p>
+<p>Nordic的驱动代码采用的是PPI的方法。每收到一个字节（EVENTS_RXDRDY），就通过PPI让Timer的计数器+1（TASKS_COUNT）。等到传输完毕时，直接读取Timer的计数值即可。整个传输过程中CPU都处于休眠状态，只有串口、timer、总线、内存等在工作。从而实现高性能、低功耗。</p>
+<p>同理，带有流控的串口发送也是如此。串口正在发送时，突然收到流控制停止发送的信号，这时串口DMA立即停止发送。当重新恢复发送时，如何知道该从第几个字节开始重新发？也是一样使用Timer进行计数。</p>
+</blockquote>
+<h3 id="PPI的使能与分组"><a href="#PPI的使能与分组" class="headerlink" title="PPI的使能与分组"></a>PPI的使能与分组</h3><p>PPI每个通道可以单独使能或关闭。通过CHEN寄存器写1使能，写0关闭。或者通过CHENSET和CHENCLR寄存器这种类似于SR锁存器的操作方式进行使能或关闭。</p>
+<p>nRF52833的PPI外设还有6个通道组。每个通道组有32个bit，对应32条通道。只要某个Bit置1，那么对应的通道就会被包含在这个通道组里：</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240415171821442.png" alt="image-20240415171821442"></p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240415171810227.png" alt="image-20240415171810227"></p>
+<p>通道组的作用仅仅只是让你可以同时使能或者关闭一组通道。</p>
+<h3 id="固定的PPI通道"><a href="#固定的PPI通道" class="headerlink" title="固定的PPI通道"></a>固定的PPI通道</h3><p>对于nRF52833来说，20～31号通道是不可编程的，它的连接是固定的。通常用于连接RADIO、加密、RTC等外设。Nordic提供的无线协议栈（例如SoftDevice蓝牙低功耗协议栈）内部会用到这些PPI。</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240415172000272.png" alt="image-20240415172000272"></p>
+<h3 id="分布式PPI（DPPI）"><a href="#分布式PPI（DPPI）" class="headerlink" title="分布式PPI（DPPI）"></a>分布式PPI（DPPI）</h3><p>从nRF5340、nRF9160开始，Nordic内部的PPI升级为DPPI。从而把1对2的PPI通道升级为多对多的PPI通道。</p>
+<p>每个外设的TASK寄存器会有对应的SUBSCRIBE（订阅）寄存器；EVENT寄存器会有对应的PUBLISH（发布）寄存器。通过发布-订阅不同的DPPI通道，实现了多对多的外设事件传输。</p>
+<p>具体可以参考nRF5340或nRF9160的手册。</p>
+<h3 id="NCS中的PPI代码"><a href="#NCS中的PPI代码" class="headerlink" title="NCS中的PPI代码"></a>NCS中的PPI代码</h3><p>前面都是讲解原理，比较详细。实际到NCS的代码中，PPI并不那么复杂。只需记住两个原则：</p>
+<ol>
+<li>NCS中无论是PPI还是DPPI，都被封装为gppi接口，因此开发者无需关注它们的区别；</li>
+<li>永远不要自己指定某个具体的通道号来使用。因为Nordic的很多驱动代码里都用到了PPI，如果自己指定，很有可能和驱动中已经使用的通道冲突。因此我们应该用API来自动分配PPI通道，而不是自己指定。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;helpers/nrfx_gppi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;nrfx_timer.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;nrfx_gpiote.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">    </span><br><span class="line"><span class="comment">// 分别获取两个外设的特定EVENT和TASK地址</span></span><br><span class="line"><span class="type">uint32_t</span> EVENT = nrfx_timer_compare_event_address_get(&amp;timer_inst, NRF_TIMER_CC_CHANNEL0);</span><br><span class="line"><span class="type">uint32_t</span> TASK = nrfx_gpiote_out_task_address_get(&amp;gpiote_inst, OUTPUT_PIN));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自动分配一个空闲的PPI通道</span></span><br><span class="line"><span class="type">uint8_t</span> gppi_channel;</span><br><span class="line">nrfx_gppi_channel_alloc(&amp;gppi_channel);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用此通道连接一个EVENT寄存器和一个TASK寄存器</span></span><br><span class="line">nrfx_gppi_channel_endpoints_setup(gppi_channel, EVENT, TASK);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使能通道</span></span><br><span class="line">nrfx_gppi_channels_enable(BIT(gppi_channel));</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>PPI例程位置：${NCS}&#x2F;modules&#x2F;hal&#x2F;nordic&#x2F;nrfx&#x2F;samples&#x2F;src&#x2F;nrfx_gppi</p>
+</blockquote>
+<h2 id="2-3-GPIOTE-GPIO-Tasks-amp-Events"><a href="#2-3-GPIOTE-GPIO-Tasks-amp-Events" class="headerlink" title="2.3. GPIOTE (GPIO Tasks &amp; Events)"></a>2.3. GPIOTE (GPIO Tasks &amp; Events)</h2><p><strong>GPIOTE和GPIO是不同的外设</strong>。通过第一章的介绍，我们知道GPIO作为输入输出，可以被CPU和其他外设使用。但是GPIO本身并不具有TASK和EVENT寄存器，因此无法与我们第二章介绍的PPI联动起来。</p>
+<h3 id="GPIOTE-Pin-Task-Pin-Event"><a href="#GPIOTE-Pin-Task-Pin-Event" class="headerlink" title="GPIOTE: Pin Task, Pin Event"></a>GPIOTE: Pin Task, Pin Event</h3><p>GPIOTE也有很多通道（Channels），对于nRF52833来说有8个，每一个通道可以连接1个GPIO。给这个GPIO扩展出TASK和EVENT寄存器，分别是：</p>
+<ul>
+<li>TASKS_SET：使对应的GPIO输出高电平</li>
+<li>TASKS_CLR：使对应的GPIO输出低电平</li>
+<li>TASKS_OUT：使对应的GPIO输出一个预设的行为（在GPIOTE-&gt;CONFIG寄存器的POLARITY bits中配置，这个预设的行为可以是输出高、输出低、翻转）</li>
+<li>EVENTS_IN：当对应的GPIO检测到预设的波形时，产生一个EVENT（同样在GPIOTE-&gt;CONFIG寄存器的POLARITY bits中配置。这个预设的行为可以是上升沿、下降沿、双边沿）</li>
+</ul>
+<p>你可以用这些通道连接一个具体的GPIO，这样，本来不能产生中断的GPIO就可以通过EVENT寄存器产生中断了。</p>
+<blockquote>
+<p>要查看具体的代码，同样可以查看${NCS}&#x2F;modules&#x2F;hal&#x2F;nordic&#x2F;nrfx&#x2F;samples&#x2F;src&#x2F;nrfx_gppi例程。注意到GPIOTE的通道也是一种可以分配的资源。和PPI类似，使用时，不要自己指定具体的通道号，而应该用<code>nrfx_gpiote_channel_alloc()</code>函数来申请一个空闲的通道，以免和Nordic驱动代码中已经使用的GPIOTE通道冲突。</p>
+</blockquote>
+<h3 id="GPIOTE-Port-Event"><a href="#GPIOTE-Port-Event" class="headerlink" title="GPIOTE: Port Event"></a>GPIOTE: Port Event</h3><p>GPIOTE还有一个EVENT寄存器叫做EVENTS_PORT。在第一章节讲述GPIO时，提到GPIO有一个SENSE机制，全体GPIO的SENSE信号进行或运算后，会得到DETECT信号。</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240122162605569-1713248968793-1.png" alt="image-20240122162605569"></p>
+<p>这里GPIOTE的EVENTS_PORT就是用来把这个DETECT信号变成一个Events寄存器，从而可以用来产生中断，或者连接PPI。</p>
+<blockquote>
+<p>注意，DETCT信号虽然不是一个EVENT，但是DETECT信号本身就能把CPU从System Off模式唤醒，无需GPIOTE。</p>
+</blockquote>
+<h1 id="3-在Zephyr系统中使用GPIO"><a href="#3-在Zephyr系统中使用GPIO" class="headerlink" title="3. 在Zephyr系统中使用GPIO"></a>3. 在Zephyr系统中使用GPIO</h1><p>前面两章详细介绍了GPIO、GPIOTE和PPI的硬件，目的是让开发者在遇到问题时可以知道该从哪里去Debug，该看什么寄存器。但在一开始软件开发时，不需要关心这么多细节。只需调用现成的驱动API即可。</p>
+<h2 id="3-1-在Zephyr-DeviceTree中配置GPIO"><a href="#3-1-在Zephyr-DeviceTree中配置GPIO" class="headerlink" title="3.1. 在Zephyr DeviceTree中配置GPIO"></a>3.1. 在Zephyr DeviceTree中配置GPIO</h2><p>由于Zephyr所有硬件操作都在DeviceTree中完成，故需要先配置DeviceTree。下图演示了如何在一个node中写gpio：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">n: node &#123;</span><br><span class="line">   foo-gpios = &lt;&amp;gpio0 <span class="number">1</span> GPIO_ACTIVE_LOW&gt;,</span><br><span class="line">               &lt;&amp;gpio1 <span class="number">2</span> GPIO_ACTIVE_LOW&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先，由于GPIO的配置是一个<strong>属性</strong>，因此必须写在一个节点（Node）内，例如<code>led_0</code>内。</p>
+<blockquote>
+<p>在<a href="https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/">《详解Zephyr设备树（DeviceTree）与驱动模型》</a>一文中，我们知道DeviceTree的节点不能自己随便增加，每个节点都有对应的compatible，而compatible又必须有对应的Device Binding yaml文件，以及对应的驱动文件。现在问题是，<strong>如果我只想单纯的添加一个自由的GPIO，不使用任何led或者button驱动程序，该如何做？</strong></p>
+<p>你可以把gpio放在<code>/zephyr,user</code>节点下。这是一个自由的节点，就是用来绕过Device Binding，专门放开发者一些自由的device tree属性的，想在里面些什么都可以。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">/&#123;</span><br><span class="line">    zephyr,user&#123;</span><br><span class="line">        my-gpios = &lt;&amp;gpio0 <span class="number">12</span> (GPIO_ACTIVE_HIGH|GPIO_PUSH_PULL|GPIO_PULL_DOWN)&gt;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>然后是属性的名字，<strong>属性的名称必须以<code>gpios</code>结尾</strong>，也可以只写<code>gpios</code>。这样它才能被编译系统识别。</p>
+<p>然后是属性的值，这是一个phandle-array类型的属性，可以写很多组。每个元素都是由三个部分组成：</p>
+<ul>
+<li>GPIO Controller：也就是我们俗称的port。这里可以直接引用label，例如<code>&amp;gpio0</code>。</li>
+<li>GPIO Pin Number：这个就是引脚编号。P0.12的编号就是12。</li>
+<li>GPIO配置：激活状态、输入输出、上下拉等等。可以在这里配置，也可以后续在应用代码里配置修改。</li>
+</ul>
+<blockquote>
+<p>注意，部分开发者会有误解。</p>
+<p>激活状态<code>GPIO_ACTIVE_LOW</code>的意思是“逻辑1 &#x3D; 低电平”；<code>GPIO_ACTIVE_HIGH</code>的意思是“逻辑1 &#x3D; 高电平”。<strong>这是用于配置激活状态的参数，而不是部分人误解的配置默认输出高低电平的参数。</strong></p>
+<p><code>GPIO_ACTIVE_LOW</code>常见于LED灯。因为MCU gpio灌电流能力比拉电流能力强，因此LED电路往往是电流流入GPIO，也就是“低电平 &#x3D; LED灯亮”。</p>
+</blockquote>
+<p>更多GPIO配置的参数选项，请参考文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/hardware/peripherals/gpio.html">https://docs.zephyrproject.org/latest/hardware/peripherals/gpio.html</a></p>
+<h2 id="3-2-在代码中控制GPIO"><a href="#3-2-在代码中控制GPIO" class="headerlink" title="3.2. 在代码中控制GPIO"></a>3.2. 在代码中控制GPIO</h2><p>首先，需要在conf文件中使能GPIO的驱动（大多数例程都是默认使能的）：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_GPIO=y</span><br></pre></td></tr></table></figure>
+
+<p>在代码中，首先包含头文件：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/devicetree.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/drivers/gpio.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="使用device-tree中定义的gpios来控制"><a href="#使用device-tree中定义的gpios来控制" class="headerlink" title="使用device tree中定义的gpios来控制"></a>使用device tree中定义的gpios来控制</h3><p>在main函数中创建一个<code>gpio_dt_sepc</code>结构体，这个是操作一个单独GPIO的句柄：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">gpio_dt_spec</span> <span class="title">my_gpio</span> =</span> GPIO_DT_SPEC_GET(DT_PATH(zephyr_user), my_gpios);</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>device tree中的内容都不可更改，故用cosnt变量存储最好</li>
+<li><code>GPIO_DT_SPEC_GET()</code>可以直接从device tree中读取到一个结构体的值</li>
+<li>第一个参数是node_id，由于我们放在<code>/zephyr,user</code>节点下，故可以用绝对路径来指明这个节点，<code>DT_PATH(zephyr_user)</code>。其中逗号是名称的一部分，在C语言中要变成下划线，才能当作名称的一部分。</li>
+<li>第二个参数是device tree的属性，也就是<code>my-gpios</code>。在C语言中，<code>-</code>需要变成下划线。</li>
+</ol>
+<p>然后就可以配置、读写该GPIO</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// write</span></span><br><span class="line">gpio_pin_configure_dt(&amp;my_gpio, GPIO_OUTPUT);</span><br><span class="line">gpio_pin_set_dt(&amp;my_gpio, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//read</span></span><br><span class="line">gpio_pin_configure_dt(&amp;my_gpio, GPIO_INPUT);</span><br><span class="line"><span class="type">int</span> val = gpio_pin_get_dt(&amp;my_gpio);</span><br></pre></td></tr></table></figure>
+
+<h3 id="绕过device-tree配置，直接控制GPIO"><a href="#绕过device-tree配置，直接控制GPIO" class="headerlink" title="绕过device tree配置，直接控制GPIO"></a>绕过device tree配置，直接控制GPIO</h3><p>使用port控制不需要像前面一样给单独的pin编写device tree，适合快速写一些测试用的代码。<strong>但它的缺点是，你使用的所有GPIO都不会在DeviceTree中有提示，如果有GPIO使用冲突，编译时无法帮你检查出来。</strong></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//获取GPIO Port的句柄</span></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">dev_gpio0</span> =</span> DEVICE_DT_GET(DT_NODELABEL(gpio0));</span><br><span class="line"></span><br><span class="line">gpio_pin_configure(dev_gpio0, <span class="number">12</span>, GPIO_OUTPUT);</span><br><span class="line">gpio_pin_set(dev_gpio0, <span class="number">12</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">gpio_pin_configure(dev_gpio0, <span class="number">12</span>, GPIO_INPUT);</span><br><span class="line"><span class="type">int</span> val = gpio_pin_get(dev_gpio0, <span class="number">12</span>);</span><br></pre></td></tr></table></figure>
+
+<p>更多API，请参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/hardware/peripherals/gpio.html">Zephyr GPIO文档</a>。</p>
+<h3 id="配置IO口电流驱动能力"><a href="#配置IO口电流驱动能力" class="headerlink" title="配置IO口电流驱动能力"></a>配置IO口电流驱动能力</h3><p>从第1章我们知道，Nordic MCU的IO口驱动能力是可以配置的，这个是Nordic独有的功能，与Zephyr无关，具体参数为：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** Standard drive for &#x27;0&#x27; (default, used with GPIO_OPEN_DRAIN) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_S0    (0U &lt;&lt; 8U)</span></span><br><span class="line"><span class="comment">/** High drive for &#x27;0&#x27; (used with GPIO_OPEN_DRAIN) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_H0    (1U &lt;&lt; 8U)</span></span><br><span class="line"><span class="comment">/** Standard drive for &#x27;1&#x27; (default, used with GPIO_OPEN_SOURCE) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_S1    (0U &lt;&lt; 9U)</span></span><br><span class="line"><span class="comment">/** High drive for &#x27;1&#x27; (used with GPIO_OPEN_SOURCE) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_H1    (1U &lt;&lt; 9U)</span></span><br><span class="line"><span class="comment">/** Standard drive for &#x27;0&#x27; and &#x27;1&#x27; (default) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_S0S1    (NRF_GPIO_DRIVE_S0 | NRF_GPIO_DRIVE_S1)</span></span><br><span class="line"><span class="comment">/** Standard drive for &#x27;0&#x27; and high for &#x27;1&#x27; */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_S0H1    (NRF_GPIO_DRIVE_S0 | NRF_GPIO_DRIVE_H1)</span></span><br><span class="line"><span class="comment">/** High drive for &#x27;0&#x27; and standard for &#x27;1&#x27; */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_H0S1    (NRF_GPIO_DRIVE_H0 | NRF_GPIO_DRIVE_S1)</span></span><br><span class="line"><span class="comment">/** High drive for &#x27;0&#x27; and &#x27;1&#x27; */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_H0H1    (NRF_GPIO_DRIVE_H0 | NRF_GPIO_DRIVE_H1)</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>需要包含头文件，才可以使用这些参数</strong></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/dt-bindings/gpio/nordic-nrf-gpio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">gpio_pin_configure_dt(&amp;my_gpio, GPIO_OUTPUT | GPIO_OPEN_DRAIN | NRF_GPIO_DRIVE_H0);</span><br><span class="line"><span class="comment">// 开漏输出，且低电平为高电流驱动能力</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-3-使用GPIO中断"><a href="#3-3-使用GPIO中断" class="headerlink" title="3.3. 使用GPIO中断"></a>3.3. 使用GPIO中断</h2><p>使用GPIO输入中断也很简单，参考<code>$&#123;NCS&#125;/zephyr/samples/basic/button</code>即可。具体步骤为：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">button_pressed</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> device *dev, <span class="keyword">struct</span> gpio_callback *cb,<span class="type">uint32_t</span> pins)</span></span><br><span class="line">&#123;</span><br><span class="line">    printk(<span class="string">&quot;Button pressed at %lu \n&quot;</span>, k_cycle_get_32());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">        </span><br><span class="line">    <span class="comment">// get the gpio dt specifier</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">gpio_dt_spec</span> <span class="title">button</span> =</span> GPIO_DT_SPEC_GET(DT_ALIAS(sw0), gpios);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// configure pin</span></span><br><span class="line">    gpio_pin_configure_dt(&amp;button, GPIO_INPUT);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// configure interrupt: rising edge</span></span><br><span class="line">    gpio_pin_interrupt_configure_dt(&amp;button, GPIO_INT_EDGE_TO_ACTIVE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// init and add your callbacks</span></span><br><span class="line">    <span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">gpio_callback</span> <span class="title">button_cb_data</span>;</span></span><br><span class="line">    gpio_init_callback(&amp;button_cb_data, button_pressed, BIT(button.pin));</span><br><span class="line">    gpio_add_callback(button.port, &amp;button_cb_data);</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，不要真的拿这个代码去处理按钮。因为这个是最底层的GPIO中断，并没有按键消抖功能。</p>
+</blockquote>
+<h1 id="4-在Zephyr中分配外设引脚"><a href="#4-在Zephyr中分配外设引脚" class="headerlink" title="4. 在Zephyr中分配外设引脚"></a>4. 在Zephyr中分配外设引脚</h1><p>从第一章我们知道，Nordic的引脚基本上可以任意分配给所有外设的。某些外设的驱动程序在读取device tree时，就是按照前面第3章描述的gpio的写法进行读取的，例如SPI的片选引脚。</p>
+<p>除了使用<code>gpios</code>这种属性去配置外，我们在device tree中看到更多的是使用<code>pinctrl</code>去控制。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">&amp;spi3 &#123;</span><br><span class="line">    status = <span class="string">&quot;okay&quot;</span>;</span><br><span class="line">    cs-gpios = &lt;&amp;arduino_header <span class="number">16</span> GPIO_ACTIVE_LOW&gt;; <span class="comment">/* D10 */</span></span><br><span class="line">    pinctrl<span class="number">-0</span> = &lt;&amp;spi3_default&gt;;</span><br><span class="line">    pinctrl<span class="number">-1</span> = &lt;&amp;spi3_sleep&gt;;</span><br><span class="line">    pinctrl-names = <span class="string">&quot;default&quot;</span>, <span class="string">&quot;sleep&quot;</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;pinctrl&#123;</span><br><span class="line">    spi3_default: spi3_default &#123;</span><br><span class="line">        group1 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(SPIM_SCK, <span class="number">1</span>, <span class="number">15</span>)&gt;, <span class="comment">// P1.15</span></span><br><span class="line">                &lt;NRF_PSEL(SPIM_MISO, <span class="number">1</span>, <span class="number">14</span>)&gt;,    <span class="comment">// P1.14</span></span><br><span class="line">                &lt;NRF_PSEL(SPIM_MOSI, <span class="number">1</span>, <span class="number">13</span>)&gt;;    <span class="comment">// P1.13</span></span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    spi3_sleep: spi3_sleep &#123;</span><br><span class="line">        group1 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(SPIM_SCK, <span class="number">1</span>, <span class="number">15</span>)&gt;, <span class="comment">// P1.15</span></span><br><span class="line">                &lt;NRF_PSEL(SPIM_MISO, <span class="number">1</span>, <span class="number">14</span>)&gt;,    <span class="comment">// P1.14</span></span><br><span class="line">                &lt;NRF_PSEL(SPIM_MOSI, <span class="number">1</span>, <span class="number">13</span>)&gt;;    <span class="comment">// P1.13</span></span><br><span class="line">            low-power-enable;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个其实不用太深入理解，改引脚时照葫芦画瓢即可。例如，以上代码定义了两种状态，分别叫”default”和”sleep”，两种状态的GPIO配置并不相同。那么在厂商提供的驱动代码中，只需要一行<code>pinctrl_apply_state()</code>函数，就能把所有的GPIO同时切换到另一种状态。这个是方便了驱动代码的编写。</p>
+<p>只需注意，外设的引脚也是可以配置IO口电流驱动能力、上下拉的，例如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">i2c0_default: i2c0_default &#123;</span><br><span class="line">    group1 &#123;</span><br><span class="line">        psels = &lt;NRF_PSEL(TWIM_SDA, <span class="number">0</span>, <span class="number">26</span>)&gt;,</span><br><span class="line">            &lt;NRF_PSEL(TWIM_SCL, <span class="number">0</span>, <span class="number">27</span>)&gt;;</span><br><span class="line">        nordic,drive-mode = &lt;NRF_DRIVE_S0D1&gt;; <span class="comment">// standard 0, disconnect 1</span></span><br><span class="line">        bias-pull-up;                         <span class="comment">// internal pull-up</span></span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>具体可配置的参数，大家可以Ctrl+鼠标左键，先跳转到pinctrl节点。然后再Ctrl+鼠标左键，点进”nordic,nrf-pinctrl”，查看DeviceBinding文件即可。</p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240416171800803.png" alt="image-20240416171800803"></p>
+<p><img src="/jayant97.github.io/./imgs/NCS%E4%B8%AD%E7%9A%84GPIO%E4%B8%8E%E5%BC%95%E8%84%9A%E5%A4%8D%E7%94%A8.assets/image-20240416172102262.png" alt="image-20240416172102262"></p>
+<h1 id="5-LED与Button库"><a href="#5-LED与Button库" class="headerlink" title="5. LED与Button库"></a>5. LED与Button库</h1><p>前面都是GPIO的基础用法。如果你需要的只是驱动LED或者Button，可以直接使用Nordic现成的驱动API。</p>
+<h3 id="DK-Libary"><a href="#DK-Libary" class="headerlink" title="DK Libary"></a>DK Libary</h3><p>文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html</a></p>
+<p>这是Nordic为开发板（Development Kit）提供的一个简易的库，支持<strong>4个以内的LED和Button</strong>。其中Button已经做了去抖。</p>
+<p>我们在开发板默认的Device Tree中看到的led和button节点就是为这个库服务的。许多简单的例程就是用它来控制GPIO。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">需要开启的配置</span></span><br><span class="line">CONFIG_DK_LIB=y</span><br></pre></td></tr></table></figure>
+
+<h3 id="通用应用程序框架（Common-Application-Framework-CAF）"><a href="#通用应用程序框架（Common-Application-Framework-CAF）" class="headerlink" title="通用应用程序框架（Common Application Framework, CAF）"></a>通用应用程序框架（Common Application Framework, CAF）</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/caf/index.html">CAF</a>是Nordic为商业级应用程序开发的一个框架库。里面有蓝牙、功耗管理、SMP DFU等等模组，其中当然也包含按钮和LED。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/caf/leds.html">CAF: LEDS</a>库提供了基本的GPIO LED和PWM LED功能，<strong>并且可以配置灯效</strong>。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/caf/buttons.html">CAF: Buttons</a>库除了提供基本的Button去抖功能以外，还支持低功耗（不用时把按钮disable掉），<strong>并且支持矩阵键盘</strong>。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2024/01/b74491c1a080/">https://jayant-tang.github.io/jayant97.github.io/2024/01/b74491c1a080/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/Zephyr/">Zephyr</a><a class="post-meta__tags" href="/jayant97.github.io/tags/DeviceTree/">DeviceTree</a><a class="post-meta__tags" href="/jayant97.github.io/tags/GPIO/">GPIO</a><a class="post-meta__tags" href="/jayant97.github.io/tags/GPIOTE/">GPIOTE</a><a class="post-meta__tags" href="/jayant97.github.io/tags/PPI/">PPI</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/jayant97.github.io/2023/11/1349f878e408/" title="在NCS中使用NRFX外设驱动库——以I2C为例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">在NCS中使用NRFX外设驱动库——以I2C为例</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2023/11/4c8e1d7d162d/" title="Zephyr驱动与设备树实战——串口"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-12</div><div class="title">Zephyr驱动与设备树实战——串口</div></div></a></div><div><a href="/jayant97.github.io/2023/03/4b274a50e575/" title="详解Zephyr设备树（DeviceTree）与驱动模型"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-03-12</div><div class="title">详解Zephyr设备树（DeviceTree）与驱动模型</div></div></a></div><div><a href="/jayant97.github.io/2023/11/1349f878e408/" title="在NCS中使用NRFX外设驱动库——以I2C为例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-15</div><div class="title">在NCS中使用NRFX外设驱动库——以I2C为例</div></div></a></div><div><a href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">理解Zephyr项目的配置与构建系统</div></div></a></div><div><a href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-cloud.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-01</div><div class="title">nRF9160与nRF Cloud应用示例</div></div></a></div><div><a href="/jayant97.github.io/2023/08/045cdc9c9b10/" title="在nRF7002开发板上运行MQTT例程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-14</div><div class="title">在nRF7002开发板上运行MQTT例程</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%AC%E6%96%87%E4%B8%BB%E9%A2%98"><span class="toc-text">本文主题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-GPIO%E7%A1%AC%E4%BB%B6%E4%BB%8B%E7%BB%8D"><span class="toc-text">1. GPIO硬件介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-GPIO%E7%BC%96%E5%8F%B7%E4%B8%8E%E5%88%86%E9%85%8D%E8%A1%A8"><span class="toc-text">1.1. GPIO编号与分配表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-GPIO%E7%A1%AC%E4%BB%B6"><span class="toc-text">1.2. GPIO硬件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8%E4%BB%8B%E7%BB%8D"><span class="toc-text">寄存器介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GPIO%E8%BE%93%E5%87%BA%E7%8A%B6%E6%80%81%E4%B8%8E%E9%A9%B1%E5%8A%A8%E8%83%BD%E5%8A%9B%E9%85%8D%E7%BD%AE"><span class="toc-text">GPIO输出状态与驱动能力配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GPIO%E6%95%B0%E5%AD%97%E8%BE%93%E5%85%A5"><span class="toc-text">GPIO数字输入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GPIO%E5%86%85%E9%83%A8%E4%B8%8A%E6%8B%89-x2F-%E4%B8%8B%E6%8B%89%E7%94%B5%E9%98%BB"><span class="toc-text">GPIO内部上拉&#x2F;下拉电阻</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-GPIO%E5%A4%8D%E7%94%A8"><span class="toc-text">1.3. GPIO复用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E5%AD%97%E5%A4%8D%E7%94%A8"><span class="toc-text">数字复用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%8B%9F%E5%A4%8D%E7%94%A8"><span class="toc-text">模拟复用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E6%AE%8AGPIO%EF%BC%88RESET%E5%92%8CNFC-Tag%EF%BC%89"><span class="toc-text">特殊GPIO（RESET和NFC Tag）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-GPIO%E7%9A%84Sense%E6%9C%BA%E5%88%B6"><span class="toc-text">1.4. GPIO的Sense机制</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-GPIOTE%E4%B8%8EPPI%E4%BB%8B%E7%BB%8D"><span class="toc-text">2. GPIOTE与PPI介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E5%A4%96%E8%AE%BE%E6%8E%A5%E5%8F%A3%EF%BC%88Peripheral-interface%EF%BC%89"><span class="toc-text">2.1. 外设接口（Peripheral interface）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TASK%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text">TASK寄存器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EVENT%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%8EINTEN%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text">EVENT寄存器与INTEN寄存器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SHORTS%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text">SHORTS寄存器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-PPI-Programmable-Peripheral-Interconnect"><span class="toc-text">2.2.  PPI (Programmable Peripheral Interconnect)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PPI%E7%9A%84%E4%BD%BF%E8%83%BD%E4%B8%8E%E5%88%86%E7%BB%84"><span class="toc-text">PPI的使能与分组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%BA%E5%AE%9A%E7%9A%84PPI%E9%80%9A%E9%81%93"><span class="toc-text">固定的PPI通道</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8FPPI%EF%BC%88DPPI%EF%BC%89"><span class="toc-text">分布式PPI（DPPI）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NCS%E4%B8%AD%E7%9A%84PPI%E4%BB%A3%E7%A0%81"><span class="toc-text">NCS中的PPI代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-GPIOTE-GPIO-Tasks-amp-Events"><span class="toc-text">2.3. GPIOTE (GPIO Tasks &amp; Events)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#GPIOTE-Pin-Task-Pin-Event"><span class="toc-text">GPIOTE: Pin Task, Pin Event</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GPIOTE-Port-Event"><span class="toc-text">GPIOTE: Port Event</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%9C%A8Zephyr%E7%B3%BB%E7%BB%9F%E4%B8%AD%E4%BD%BF%E7%94%A8GPIO"><span class="toc-text">3. 在Zephyr系统中使用GPIO</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E5%9C%A8Zephyr-DeviceTree%E4%B8%AD%E9%85%8D%E7%BD%AEGPIO"><span class="toc-text">3.1. 在Zephyr DeviceTree中配置GPIO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E5%9C%A8%E4%BB%A3%E7%A0%81%E4%B8%AD%E6%8E%A7%E5%88%B6GPIO"><span class="toc-text">3.2. 在代码中控制GPIO</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8device-tree%E4%B8%AD%E5%AE%9A%E4%B9%89%E7%9A%84gpios%E6%9D%A5%E6%8E%A7%E5%88%B6"><span class="toc-text">使用device tree中定义的gpios来控制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87device-tree%E9%85%8D%E7%BD%AE%EF%BC%8C%E7%9B%B4%E6%8E%A5%E6%8E%A7%E5%88%B6GPIO"><span class="toc-text">绕过device tree配置，直接控制GPIO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEIO%E5%8F%A3%E7%94%B5%E6%B5%81%E9%A9%B1%E5%8A%A8%E8%83%BD%E5%8A%9B"><span class="toc-text">配置IO口电流驱动能力</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E4%BD%BF%E7%94%A8GPIO%E4%B8%AD%E6%96%AD"><span class="toc-text">3.3. 使用GPIO中断</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E5%9C%A8Zephyr%E4%B8%AD%E5%88%86%E9%85%8D%E5%A4%96%E8%AE%BE%E5%BC%95%E8%84%9A"><span class="toc-text">4. 在Zephyr中分配外设引脚</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-LED%E4%B8%8EButton%E5%BA%93"><span class="toc-text">5. LED与Button库</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DK-Libary"><span class="toc-text">DK Libary</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E7%94%A8%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E6%A1%86%E6%9E%B6%EF%BC%88Common-Application-Framework-CAF%EF%BC%89"><span class="toc-text">通用应用程序框架（Common Application Framework, CAF）</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2024 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'c91ce0493b5c3e886110',
+      clientSecret: '7599decf69128ba1a83c1f3ef0923395a9bd8a60',
+      repo: 'jayant97.github.io',
+      owner: 'Jayant-Tang',
+      admin: ['Jayant-Tang'],
+      id: 'e5e33a35771a104088eaebb3720f1bfc',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/jayant97.github.io/js/search/local-search.js"></script></div></div></body></html>
