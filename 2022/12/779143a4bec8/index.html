@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>安装nRF-Connect-SDK | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="​	nRF Connect SDK，简称NCS，是Nordic最新的SDK平台，该平台支持Nordic所有产品线的所有技术，包括BLE，AoA，NFC，蜂窝网与GPS，Wi-Fi，2.4G，蓝牙Mesh，Zigbee，Thread，Matter, Homekit, FindMy等。 ​	NCS是跨平台的（Windows&#x2F;Linux&#x2F;OSX），其基础是Zephyr系统。Zephy">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>安装nRF-Connect-SDK | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="本文更新日期：2024.10.29    nRF Connect SDK，简称NCS，是Nordic最新的SDK平台。该平台支持Nordic所有产品线的所有技术，从射频的角度主要分为以下三个部分：  短距离2.4G MCU：BLE（含主机、从机、主从一体、多主多从、BLE MESH、AoA&#x2F;AoD蓝牙测向、LE Audio、 PAwR与ESL），OpenThread，2.4G私有协议，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="安装nRF-Connect-SDK">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/779143a4bec8/index.html">
 <meta property="og:site_name" content="一苇万顷">
-<meta property="og:description" content="​	nRF Connect SDK，简称NCS，是Nordic最新的SDK平台，该平台支持Nordic所有产品线的所有技术，包括BLE，AoA，NFC，蜂窝网与GPS，Wi-Fi，2.4G，蓝牙Mesh，Zigbee，Thread，Matter, Homekit, FindMy等。 ​	NCS是跨平台的（Windows&#x2F;Linux&#x2F;OSX），其基础是Zephyr系统。Zephy">
+<meta property="og:description" content="本文更新日期：2024.10.29    nRF Connect SDK，简称NCS，是Nordic最新的SDK平台。该平台支持Nordic所有产品线的所有技术，从射频的角度主要分为以下三个部分：  短距离2.4G MCU：BLE（含主机、从机、主从一体、多主多从、BLE MESH、AoA&#x2F;AoD蓝牙测向、LE Audio、 PAwR与ESL），OpenThread，2.4G私有协议，">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/nordic/nrf-connect.png">
 <meta property="article:published_time" content="2022-12-04T14:22:30.000Z">
-<meta property="article:modified_time" content="2024-04-17T09:17:39.276Z">
+<meta property="article:modified_time" content="2025-02-04T13:08:03.400Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="NCS">
@@ -58,7 +58,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2024-04-17 17:17:39'
+  postUpdate: '2025-02-04 21:08:03'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -162,16 +162,30 @@
       }
     }
     detectApple()
-    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/jayant97.github.io/imgs/nordic/nrf-connect.png')"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">安装nRF-Connect-SDK</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-12-04T14:22:30.000Z" title="发表于 2022-12-04 22:22:30">2022-12-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-04-17T09:17:39.276Z" title="更新于 2024-04-17 17:17:39">2024-04-17</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/">Nordic</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="安装nRF-Connect-SDK"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2022/12/779143a4bec8/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>​	nRF Connect SDK，简称NCS，是Nordic最新的SDK平台，该平台支持Nordic所有产品线的所有技术，包括BLE，AoA，NFC，蜂窝网与GPS，Wi-Fi，2.4G，蓝牙Mesh，Zigbee，Thread，Matter, Homekit, FindMy等。</p>
-<p>​	NCS是跨平台的（Windows&#x2F;Linux&#x2F;OSX），其基础是Zephyr系统。Zephyr系统是Linux基金会维护的一个项目，除了一个基本的Zephyr RTOS之外，还有很多方便的第三方软件库，像是MCUBoot、TCP&#x2F;UDP&#x2F;MQTT&#x2F;TLS等网络库等等。</p>
-<p>​	更多信息可参考：</p>
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/jayant97.github.io/imgs/nordic/nrf-connect.png')"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">安装nRF-Connect-SDK</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-12-04T14:22:30.000Z" title="发表于 2022-12-04 22:22:30">2022-12-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-02-04T13:08:03.400Z" title="更新于 2025-02-04 21:08:03">2025-02-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/">Nordic</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="安装nRF-Connect-SDK"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2022/12/779143a4bec8/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><blockquote>
+<p>本文更新日期：2024.10.29</p>
+</blockquote>
+<p>  nRF Connect SDK，简称NCS，是Nordic最新的SDK平台。该平台支持Nordic所有产品线的所有技术，从射频的角度主要分为以下三个部分：</p>
+<ol>
+<li><strong>短距离2.4G MCU</strong>：BLE（含主机、从机、主从一体、多主多从、BLE MESH、AoA&#x2F;AoD蓝牙测向、LE Audio、 PAwR与ESL），OpenThread，2.4G私有协议，Zigbee。</li>
+<li><strong>Wi-Fi收发器</strong> ：目前是RF700x系列的Wi-Fi收发器，支持低功耗双频Wi-Fi6。不含CPU，需要搭配上述2.4G MCU或者Linux主机当作主控使用，QSPI&#x2F;SPI接口。支持Wi-Fi蓝牙共存。</li>
+<li><strong>长距离蜂窝</strong>：nRF91系列，支持CAT-NB1(NB-IoT)和CAT-M1的SiP（系统级封装），全球多国运营商认证。低功耗小尺寸，内部CPU和外设开放，直接一颗完成产品开发，无需外挂MCU。</li>
+</ol>
+<p>除此之外，软件上还支持Matter，HomeKit，Apple FindMy，Google FindMy等物联网协议；硬件上还支持Nordic的2.4G无线功率放大器和电源管理芯片（PMIC）。</p>
+<p>NCS的开发环境是跨平台的（Windows&#x2F;Linux&#x2F;OSX），其运行环境是Zephyr系统。Zephyr系统是Linux基金会维护的一个开源项目，目前已经支持许多的MCU和SoC。除了Zephyr ROTS之外，还有很多中间件和库，以及现成的硬件驱动。Zephyr系统也易于扩展，可以通过CMake添加你需要的其他库和源码。</p>
+<p>NCS支持许多连接方式，除了Zephyr本身支持的（BLE, IPv6, TCP&#x2F;IP, UDP, LoRa and LoRaWAN），还有Nordic增加的（ANT, Bluetooth Mesh, Apple Find My, LTE-M&#x2F;NB-IoT&#x2F;GPS, DECT NR+, Matter, Amazon Sidewalk, Thread, Wi-Fi）。</p>
+<blockquote>
+<p>注：Nordic目前没有支持LoRa的硬件</p>
+</blockquote>
+<p>NCS中也提供了镜像分区、配置存储、文件系统、固件升级等功能。支持蓝牙、TCP&#x2F;IP、串口、USB等多种方式传输。固件为双区镜像存储，支持版本回滚。无需开发者再从底层进行DFU（Device Firmware Update）开发。</p>
+<p>NCS中也有许多例程。其中有Zephyr自带的一些基础例程，如线程、线程间通讯、TCP&#x2F;UDP；也有Nordic提供的较为复杂的例程，如BLE键鼠、蓝牙多连接、Matter例程等。在参考例程时，注意也要阅读NCS官网针对每个例程提供的文档。</p>
+<p>更多信息可参考：</p>
 <ul>
-<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/installation.html">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/installation.html</a></p>
-</li>
-<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/iini/p/14174427.html">开发你的第一个nRF Connect SDK(NCS)&#x2F;Zephyr应用程序 - iini - 博客园 (cnblogs.com)</a></p>
-</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation/install_ncs.html">NCS官网 - 安装教程</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://academy.nordicsemi.com/">Nordic学院 - 官方交互式系列课程</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/iini/p/14174427.html">开发你的第一个nRF Connect SDK(NCS)&#x2F;Zephyr应用程序 - iini - 博客园 (cnblogs.com)</a></li>
 </ul>
-<h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>​	本节将会详细介绍如何在一台<strong>Windows</strong> 11的电脑上安装NCS开发环境（Windows 10也适用），包含NCS、编译器以及其他工具。<em>如果你已经安装好NCS开发环境，可以跳过本节</em>。</p>
+<h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>​	本节将会详细介绍如何在一台<strong>Windows</strong> 11的电脑上安装NCS开发环境（Windows 10也适用），包含NCS、编译器以及其他工具。其他平台的安装也是类似的，参考好官网英文教程即可。</p>
 <p>​	需要安装的内容列表：</p>
 <table>
 <thead>
@@ -191,120 +205,69 @@
 <tr>
 <td align="center">2</td>
 <td align="center"><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-tools/nrf-command-line-tools">nRF Command Line Tools</a></td>
-<td>工具链</td>
-<td>Jlink驱动、nrfjprog等命令行烧录工具</td>
+<td>命令行工具</td>
+<td>nrfjprog命令行烧录工具</td>
 </tr>
 <tr>
 <td align="center">3</td>
-<td align="center"><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-tools/nrf-connect-for-desktop">nRF Connect for Desktop</a></td>
-<td>桌面工具</td>
-<td>桌面工具集合，含SDK安装器、功耗评估、射频抓包等工具</td>
+<td align="center"><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-tools/nRF-Util">nRF Util</a></td>
+<td>命令行工具</td>
+<td>更高级的命令行工具，类似于包管理器，可以安装各种子命令。包括烧录、管理toolchain&#x2F;SDK、DFU、BLE抓包、蜂窝ModemTrace</td>
 </tr>
 <tr>
 <td align="center">4</td>
-<td align="center"><a target="_blank" rel="external nofollow noopener noreferrer" href="https://git-scm.com/">Git</a></td>
-<td>工具链</td>
-<td>版本管理工具</td>
+<td align="center"><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-tools/nrf-connect-for-desktop">nRF Connect for Desktop</a></td>
+<td>桌面工具</td>
+<td>桌面工具集合，含SDK安装器、功耗评估、射频抓包、串口助手等工具</td>
 </tr>
 <tr>
 <td align="center">5</td>
-<td align="center"><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.python.org/downloads/release/python-3913/">Python 3.9</a></td>
-<td>工具链</td>
-<td>为编译套件的python脚本提供运行环境</td>
+<td align="center">NCS Toolchain</td>
+<td>编译工具链</td>
+<td>一个独立的工具链文件夹，含Git、CMake、Python、Ninja、GCC等工具，与你电脑上已经安装的环境不冲突</td>
 </tr>
 <tr>
 <td align="center">6</td>
-<td align="center"><a target="_blank" rel="external nofollow noopener noreferrer" href="https://ninja-build.org/">Ninja</a></td>
-<td>工具链</td>
-<td>快速构建工具（类似make）</td>
-</tr>
-<tr>
-<td align="center">7</td>
-<td align="center"><a target="_blank" rel="external nofollow noopener noreferrer" href="https://cmake.org/">CMake</a></td>
-<td>工具链</td>
-<td>工程管理器，根据配置生成.ninja或Makefile文件的工具</td>
-</tr>
-<tr>
-<td align="center">8</td>
-<td align="center"><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/3.2.0/develop/toolchains/zephyr_sdk.html">Zephyr SDK</a></td>
-<td>工具链</td>
-<td>交叉编译工具链（编译器、链接器等）</td>
-</tr>
-<tr>
-<td align="center">9</td>
 <td align="center"><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nrfconnect/sdk-nrf">NCS</a></td>
 <td>SDK源码包</td>
 <td>含nRF产品驱动包、内核、第三方库等代码和编译配置文件等</td>
 </tr>
-<tr>
-<td align="center">10</td>
-<td align="center">VS Code: nRF Connect插件包</td>
-<td>编辑器</td>
-<td>在VS Code中为NCS功能提供可视化</td>
-</tr>
 </tbody></table>
-<h1 id="2-下载安装包并进行安装"><a href="#2-下载安装包并进行安装" class="headerlink" title="2. 下载安装包并进行安装"></a>2. 下载安装包并进行安装</h1><p>​	上述列表中1~3号软件都是使用<strong>安装包</strong>的形式进行安装，点击表格中的链接进入官网，下载安装后可以直接双击安装。安装路径需要无中文、空格或“-”，“_”以外的特殊字符。</p>
-<p>​	VS Code的安装，这里不做介绍，一步一步安装即可。剩余的两个Nordic的工具，安装方式是类似的。下图仅示例nRF Connect for Desktop的下载方式：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221122214235111.png" alt="image-20221122214235111"></p>
-<img src="/jayant97.github.io/imgs/安装nRF-Connect-SDK.assets/image-20221122213145436.png" alt="image-20221122213145436" style="zoom: 67%;">
-
-<center>“开始”菜单中安装好的工具（未完全展示）</center>
-
-<h1 id="3-安装SDK和工具链"><a href="#3-安装SDK和工具链" class="headerlink" title="3. 安装SDK和工具链"></a>3. 安装SDK和工具链</h1><h2 id="3-1-自动安装与手动安装的区别"><a href="#3-1-自动安装与手动安装的区别" class="headerlink" title="3.1. 自动安装与手动安装的区别"></a>3.1. 自动安装与手动安装的区别</h2><p>​	列表中4~10号软件有2种安装方式，<strong>自动安装</strong>和<strong>手动安装</strong>。</p>
+<h1 id="2-下载安装包并进行安装"><a href="#2-下载安装包并进行安装" class="headerlink" title="2. 下载安装包并进行安装"></a>2. 下载安装包并进行安装</h1><p>​	上述列表中1~4号软件都可以自行安装，点击表格中的链接进入官网，下载安装后可以直接双击安装。安装路径需要最好无中文、空格，且文件夹层数不要太深。nrfutil需要添加到PATH环境变量。</p>
+<blockquote>
+<p>其中有些软件不是安装完就能工作，还需要连网下载其他功能。如果工作环境不能连网，有离线安装的需求，请参考:</p>
 <ul>
-<li><strong>自动安装（推荐）</strong>：自动下载SDK和工具链，所有工具链都放在一个文件夹内，编译时，只使用此文件夹内的工具链。工具链与电脑上本身安装的软件不冲突；</li>
-<li><strong>手动安装</strong>：只拉取SDK，工具链单独安装到电脑里，并添加到PATH环境变量，编译时直接用PATH环境变量。</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/p/17819404.html">nrfutil离线安装方法</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/p/17821601.html">nRF Connect for Desktop离线安装方法</a></li>
+<li>nRF Connect for VS Code插件离线安装方法（待补充）</li>
 </ul>
-<h2 id="3-1-自动安装"><a href="#3-1-自动安装" class="headerlink" title="3.1. 自动安装"></a>3.1. 自动安装</h2><p>打开刚刚安装的nRF Connect for Desktop软件，找到<strong>Toolchain Manager</strong>，Install然后Open。</p>
-<img src="/jayant97.github.io/imgs/安装nRF-Connect-SDK.assets/image-20221122214549553.png" alt="image-20221122214549553" style="zoom: 50%;">
-
-
-
-<p>打开后，先在SETTINGS中选择自己想要存放NCS和toolchains的位置：</p>
-<img src="/jayant97.github.io/imgs/安装nRF-Connect-SDK.assets/image-20221122215033170.png" alt="image-20221122215033170" style="zoom: 50%;">
-
-
-
-<p>然后，在SDK ENVIRONMENTS中选择想安装的SDK版本进行安装（如①）。<strong>由于是从Github拉取，可能会要很久</strong>。安装完毕后，可打开VS Code（如②）。也可以在对应目录下打开终端（如③④）。</p>
-<img src="/jayant97.github.io/imgs/安装nRF-Connect-SDK.assets/image-20221122215310523.png" alt="image-20221122215310523" style="zoom: 50%;">
-
-<p>点击“打开VS Code”，它会弹窗提示，帮你自动安装VS Code的nRF Connect插件包，如下图：</p>
-<img src="/jayant97.github.io/imgs/安装nRF-Connect-SDK.assets/image-20221123161445490.png" alt="image-20221123161445490" style="zoom: 50%;">
-
-<h3 id="【重要】检查安装是否完整"><a href="#【重要】检查安装是否完整" class="headerlink" title="【重要】检查安装是否完整"></a>【重要】检查安装是否完整</h3><p>由于墙的存在，即使没有任何报错，SDK很有可能安装是不完整的。不过不必担心toolchain不完整，因为toolchain不完整的时候会报错。</p>
-<p>这时，需要在SDK的目录下打开命令行。但不是直接打开，因为直接打开命令行，环境变量都是PATH。而是要从上图的“Open command prompt”来打开命令行，这时，打开的命令行中的环境变量是指向Toolchain文件夹的。</p>
-<p>打开后，输入<code>west update</code>。NCS是由多个Github上的仓库组成的，此命令会依次pull这些仓库，如果有文件缺失，就能从命令行的输出看出来。</p>
-<p>如果某些仓库pull失败，就继续不断重复执行<code>west update</code>，因为它是可以断点继续下载的。直到命令不报错为止，则说明仓库全部拉取完毕。</p>
-<p>最后执行<code>west zephyr-export</code>，此命令会让工具链中的CMake记住SDK的位置。</p>
-<h2 id="3-2-手动安装方式"><a href="#3-2-手动安装方式" class="headerlink" title="3.2. 手动安装方式"></a>3.2. 手动安装方式</h2><p>安装过程需要网络代理（注意，命令行终端也需要被代理）</p>
-<h3 id="（1）【Windows专用】安装choco"><a href="#（1）【Windows专用】安装choco" class="headerlink" title="（1）【Windows专用】安装choco"></a>（1）【Windows专用】安装choco</h3><p>​	<code>choco</code>是一个包管理工具，类似于Ubuntu中的<code>apt-get</code>，可以通过命令行安装软件工具，<strong>并自动添加到全局PATH环境变量中</strong>。</p>
-<p>​	首先右键单击开始菜单，然后打开管理员终端，输入以下命令：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置脚本执行权限</span></span><br><span class="line"><span class="built_in">Set-ExecutionPolicy</span> AllSigned</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从网络端执行安装脚本</span></span><br><span class="line"><span class="built_in">Set-ExecutionPolicy</span> Bypass <span class="literal">-Scope</span> <span class="keyword">Process</span> <span class="literal">-Force</span>; [<span class="type">System.Net.ServicePointManager</span>]::SecurityProtocol = [<span class="type">System.Net.ServicePointManager</span>]::SecurityProtocol <span class="operator">-bor</span> <span class="number">3072</span>; <span class="built_in">iex</span> ((<span class="built_in">New-Object</span> System.Net.WebClient).DownloadString(<span class="string">&#x27;https://community.chocolatey.org/install.ps1&#x27;</span>))</span><br></pre></td></tr></table></figure>
-
-<p>测试是否安装成功：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">choco</span><br><span class="line"><span class="comment"># 有版本号输出即为成功</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="（2）利用choco安装其他工具"><a href="#（2）利用choco安装其他工具" class="headerlink" title="（2）利用choco安装其他工具"></a>（2）利用choco安装其他工具</h3><p>部分工具也可自己去官网下载，并用安装包安装，<strong>注意安装时要勾选“添加到PATH环境变量”</strong>。</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置choco</span></span><br><span class="line">choco feature enable <span class="literal">-n</span> allowGlobalConfirmation</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装cmake (也可以把这步替换成从官网下载cmake安装包，注意安装时要勾选添加进PATH环境变量)</span></span><br><span class="line">choco install cmake <span class="literal">--installargs</span> <span class="string">&#x27;ADD_CMAKE_TO_PATH=System&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装git (也可以把这步替换成从官网下载git安装包，注意安装时要勾选添加到环境变量)</span></span><br><span class="line">choco install git </span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装python (建议把这步换成从官网下载python3.9安装包，并勾选添加到环境变量,通过choco安装容易出错)</span></span><br><span class="line">choco install python <span class="literal">--version</span>=<span class="number">3.9</span>.<span class="number">13</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装其他工具</span></span><br><span class="line">choco install ninja gperf dtc<span class="literal">-msys2</span> <span class="built_in">wget</span> unzip</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>Git也建议从官网安装，同时勾选安装Git bash。可以让你在windows上使用bash终端，而不是powershell。</p>
-<img src="/jayant97.github.io/imgs/安装nRF-Connect-SDK.assets/image-20221204224509512.png" alt="image-20221204224509512" style="zoom: 50%;">
 </blockquote>
-<h3 id="（3）安装GN工具（可选）"><a href="#（3）安装GN工具（可选）" class="headerlink" title="（3）安装GN工具（可选）"></a>（3）安装GN工具（可选）</h3><p>GN工具是开发<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Matter">Matter</a>所需的工具。</p>
-<p>从<a target="_blank" rel="external nofollow noopener noreferrer" href="https://gn.googlesource.com/gn/#getting-a-binary">GN网站</a>下载编译好的Windows压缩包（Getting a binary），推荐在用户目录（<code>C:\Users\&lt;用户名&gt;</code>）下解压。并且添加到PATH环境变量即可。</p>
-<blockquote>
-<p>如果你的Windows用户名是中文，那还是换个无中文的目录。</p>
-</blockquote>
-<h3 id="（4）安装west"><a href="#（4）安装west" class="headerlink" title="（4）安装west"></a>（4）安装west</h3><p>west是一个多仓库管理工具（类似Android的repo），支持添加自定义插件。在NCS中，除了可以管理NCS仓库外，也通过插件实现了板卡选择、触发编译动作、触发flash烧写的功能。</p>
-<p>利用Python的pip进行安装</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">pip3 install west</span><br><span class="line"><span class="comment"># 若python版本不对，这一步可能会报错</span></span><br></pre></td></tr></table></figure>
+<p>​	VS Code的安装这里不做介绍。VS Code的插件可以在VS Code插件市场搜索nRF Connect for VS Code Extension pack来一次性安装所有需要的插件。<br>Nordic的工具安装方式是类似的。下图仅示例nRF Connect for Desktop的下载方式：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221122214235111-1731044874926-19.webp" alt="image-20221122214235111"></p>
+<h1 id="3-Toolchain和SDK"><a href="#3-Toolchain和SDK" class="headerlink" title="3. Toolchain和SDK"></a>3. Toolchain和SDK</h1><p>Toolchain和SDK是两个独立的文件夹。其中，工具链可以直接自动下载，下载完毕后就不要去改动里面的东西了。<br>SDK也可以自动下载，SDK是由多个git仓库组成的，其中manifest是nrf仓库。因此SDK也可以手动拉取，下载完后也可以用git去升级版本。</p>
+<h2 id="3-1-自动安装工具链和SDK"><a href="#3-1-自动安装工具链和SDK" class="headerlink" title="3.1. 自动安装工具链和SDK"></a>3.1. 自动安装工具链和SDK</h2><p>下面提供两种自动安装的方式：</p>
+<details>
+    <summary>利用VS Code自动安装[点击]</summary>
 
-<h3 id="（5）安装NCS"><a href="#（5）安装NCS" class="headerlink" title="（5）安装NCS"></a>（5）安装NCS</h3><p>nRF Connect SDK前面已经介绍过，含驱动、内核以及第三方库的源码。</p>
+<h2 id="利用VS-Code自动安装"><a href="#利用VS-Code自动安装" class="headerlink" title="利用VS Code自动安装"></a>利用VS Code自动安装</h2><p>###（1）安装VS Code插件</p>
+<p>打开VS Code，在插件中心搜索nRF Connect for VS Code Extension Pack，这个插件包会自动安装其他nRF Connect 所需的VS Code插件。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231028222635341-29499848.webp" alt="image-20221122220619736"></p>
+<h3 id="（2）安装Toolchain"><a href="#（2）安装Toolchain" class="headerlink" title="（2）安装Toolchain"></a>（2）安装Toolchain</h3><p>在插件的Welcome界面，选择安装新的Toolchain</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231128115659820-1280143860.webp" alt="image"><br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231128115801378-683523362.webp" alt="image"><br>    Toolchain的版本号与你想安装的SDK的版本号保持一致即可。<br>    这种方法下载的各个版本的toolchain压缩包会放在<code>$&#123;HOME&#125;/ncs/toolchains</code>目录下（在Windows上是<code>C:\\ncs\toolchains\</code>）。<br>    然后，我们在VS Code中，可以设置默认的Toolchain：<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231128120256420-723652870.webp" alt="image"><br>    Toolchain文件夹中已经安装了我们需要的各种工具，并且这些工具<strong>不会</strong>被添加到你的电脑上PATH环境变量中。这样就可以防止工具链中的软件和你电脑上已经安装的同名软件产生冲突（如Python)。<br>    <strong>要想使用这个Toolchain中的工具，需要用单独的命令行环境。这个环境我们后面会经常用到</strong>:</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231128133901397-549206750.webp" alt="image"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231128134103385-268854596.webp" alt="image"></p>
+<blockquote>
+<p>如何确定当前终端中所用的工具是toolchains文件夹里，而不是PC里其他位置安装的？</p>
+<p>在Linux中，可以用<code>which</code>命令查看某个软件的路径：<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231128134306375-340364915.webp" alt="image"></p>
+<p>也可以用<code>echo $PATH</code>命令查看PATH环境变量。每个终端打开时，nRF Connect会自动修改当前终端的环境变量。</p>
+<p>类似地，在Windows PowerShell环境中，可以用<code>where</code>命令来查看一个软件的位置。<br>然后用<code>$env:PATH</code>查看环境变量。</p>
+</blockquote>
+<h3 id="（3）安装SDK"><a href="#（3）安装SDK" class="headerlink" title="（3）安装SDK"></a>（3）安装SDK</h3><p><strong>你可以仿照上面安装Toolchain的方式来安装SDK</strong>：在VS Code插件的Welcome界面，选择想要安装的SDK进行安装。</p>
+<p><strong>也可以手动通过命令行安装</strong>。在刚刚打开的nRF Connect命令行中，找到想要安装SDK的位置，执行以下步骤：</p>
 <ol>
 <li>在一个无中文、无空格的合适路径下打开终端（powershell或bash）：</li>
 </ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"> <span class="comment">#创建并进入文件夹</span></span><br><span class="line"><span class="built_in">mkdir</span> ncs</span><br><span class="line"><span class="built_in">cd</span> ncs</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化仓库（从github拉取）</span></span><br><span class="line">west init -m https://github.com/nrfconnect/sdk-nrf --mr v2.4.2</span><br><span class="line"><span class="comment"># 也可选择其他分支或tag，如：</span></span><br><span class="line"><span class="comment"># west init -m https://github.com/nrfconnect/sdk-nrf --mr main</span></span><br><span class="line"><span class="comment"># 但通常不建议用户使用main分支</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"> <span class="comment">#创建并进入文件夹</span></span><br><span class="line"><span class="built_in">mkdir</span> ncs</span><br><span class="line"><span class="built_in">cd</span> ncs</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化仓库（从github拉取）</span></span><br><span class="line">west init -m https://github.com/nrfconnect/sdk-nrf --mr v2.6.0</span><br><span class="line"><span class="comment"># 也可选择其他分支或tag，如：</span></span><br><span class="line"><span class="comment"># west init -m https://github.com/nrfconnect/sdk-nrf --mr main</span></span><br><span class="line"><span class="comment"># 但通常不建议用户使用main分支</span></span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <ul>
@@ -315,112 +278,104 @@
 <ol start="2">
 <li>更新仓库</li>
 </ol>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment">#更新仓库</span></span><br><span class="line">west update</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#更新仓库</span></span><br><span class="line">west update</span><br></pre></td></tr></table></figure>
 
 <blockquote>
-<p>由于国内网络原因，这一步也<strong>经常</strong>失败，但是没关系，每次<code>west update</code>都能下载一点点，如果失败了，就重复<code>west update</code>就行了。不需要像<code>west init</code>失败一样删除干净重新下载。</p>
+<p>由于国内网络原因，这一步也经常失败，但是没关系，每次<code>west update</code>都能下载一点点，如果失败了，就重复<code>west update</code>就行了。不需要像<code>west init</code>失败一样删除干净重新下载。</p>
 </blockquote>
 <ol start="3">
-<li>导出Zephyr CMake package，便于CMake自动识别SDK的路径，后续生成工程</li>
+<li>导出Zephyr CMake package，便于CMake自动识别SDK的路径<br>后续以SDK中的例程为模板建立新工程时，就是用这个来找SDK的位置。<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west zephyr-export</span><br></pre></td></tr></table></figure></li>
 </ol>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">west zephyr<span class="literal">-export</span></span><br></pre></td></tr></table></figure>
+</details>
 
+<details>
+    <summary>利用nRF Connect for Desktop自动安装[点击]</summary>
 
+<h2 id="利用nRF-Connect-for-Desktop自动安装"><a href="#利用nRF-Connect-for-Desktop自动安装" class="headerlink" title="利用nRF Connect for Desktop自动安装"></a>利用nRF Connect for Desktop自动安装</h2><p>打开刚刚安装的nRF Connect for Desktop软件，找到<strong>Toolchain Manager</strong>，Install然后Open。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231028222637540-2069079433.webp" alt="image-20221122214549553"></p>
+<p>打开后，先在SETTINGS中选择自己想要存放NCS和toolchains的位置：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231028222637130-1404457778.webp" alt="image-20221122215033170"></p>
+<p>然后，在SDK ENVIRONMENTS中选择想安装的SDK版本进行安装（如①）。<strong>由于是从Github拉取，可能会要很久</strong>。安装完毕后，可打开VS Code（如②）。也可以在对应目录下打开终端（如③④）。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231028222636640-1702482076.webp" alt="image-20221122215310523"></p>
+<p>点击“打开VS Code”，它会弹窗提示，帮你自动安装VS Code的nRF Connect插件包，如下图：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20231028222636125-730345208.webp" alt="image-20221123161445490"></p>
+<h3 id="【重要】检查安装是否完整"><a href="#【重要】检查安装是否完整" class="headerlink" title="【重要】检查安装是否完整"></a>【重要】检查安装是否完整</h3><p>由于墙的存在，即使没有任何报错，SDK很有可能安装是不完整的。不过不必担心toolchain不完整，因为toolchain不完整的时候会报错。</p>
+<p>这时，需要在SDK的目录下打开命令行。但不是直接打开，因为直接打开命令行，环境变量都是PATH。而是要从上图的“Open command prompt”来打开命令行，这时，打开的命令行中的环境变量是指向Toolchain文件夹的。</p>
+<p>打开后，输入<code>west update</code>。NCS是由多个Github上的仓库组成的，此命令会依次pull这些仓库，如果有文件缺失，就能从命令行的输出看出来。</p>
+<p>如果某些仓库pull失败，就继续不断重复执行<code>west update</code>，因为它是可以断点继续下载的。直到命令不报错为止，则说明仓库全部拉取完毕。</p>
+<p>最后执行<code>west zephyr-export</code>，此命令会让工具链中的CMake记住SDK的位置。</p>
+</details>
 
-<ol start="4">
-<li>安装额外的python依赖</li>
-</ol>
-<blockquote>
-<p>​	安装python依赖之前，还需要安装”Microsoft Visual C++ Build Tools 14.0”或更高版本：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://visualstudio.microsoft.com/visual-cpp-build-tools/">Microsoft C++ Build Tools - Visual Studio</a>，用来编译这些python工具。在上述微软链接下载，会获得一个VS安装工具。只在Workloads栏里选择 **”Desktop Development with C++”**，然后安装即可。</p>
-</blockquote>
-<p>​	安装python依赖包：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pip3 install -r zephyr/scripts/requirements.txt</span><br><span class="line">pip3 install -r nrf/scripts/requirements.txt</span><br><span class="line">pip3 install -r bootloader/mcuboot/scripts/requirements.txt</span><br></pre></td></tr></table></figure>
-
-<h3 id="（6）安装Zephyr-SDK工具链"><a href="#（6）安装Zephyr-SDK工具链" class="headerlink" title="（6）安装Zephyr SDK工具链"></a>（6）安装Zephyr SDK工具链</h3><p>​	Zephyr SDK是编译器、链接器等工具。建议放在用户目录下（同样的，如果你的用户名是中文，还是换个目录吧）。</p>
-<p>​	下方展示了通过Poweshell命令下载Zephyr SDK的方式。其中Zephyr工具链的版本是我安装时使用的版本。你需要获取最新的版本，最新版本的下载地址可从 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/3.2.0/develop/toolchains/zephyr_sdk.html#install-zephyr-sdk-on-windows">Zephyr SDK — Zephyr Project Documentation</a> 获取。</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 进入到用户目录（c:\Users\[用户名]）</span></span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$HOME</span></span><br><span class="line"><span class="comment"># 如果是你的终端是bash而非powershell，则命令为</span></span><br><span class="line"><span class="comment"># cd ~</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载（最新版本的下载地址可从上述链接获取）</span></span><br><span class="line"><span class="built_in">wget</span> https://github.com/zephyrproject<span class="literal">-rtos</span>/sdk<span class="literal">-ng</span>/releases/download/v0.<span class="number">15.1</span>/zephyr<span class="literal">-sdk-0</span>.<span class="number">15.1</span>_windows<span class="literal">-x86_64</span>.zip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">unzip zephyr<span class="literal">-sdk-0</span>.<span class="number">15.1</span>_windows<span class="literal">-x86_64</span>.zip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置</span></span><br><span class="line"><span class="built_in">cd</span> zephyr<span class="literal">-sdk-0</span>.<span class="number">15.1</span></span><br><span class="line">setup.cmd</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>注意：</p>
-<ul>
-<li><code>setup.cmd</code>只需执行一次。如果改变了安装位置，需要再次执行。</li>
-<li>Zephyr SDK安装完成后，会发现：如果在前面安装了ncs的目录下执行<code>west --help</code>会比其他目录下执行<code>west --help</code>多出一些扩展指令，如<code>build</code>,<code>board</code>等等。这是因为NCS中的<code>.west</code>文件夹的配置了Zephyer的base路径，提供了这个仓库独有的插件。这些扩展的指令就是调用了插件进行编译、调试、烧写等工作。<br>为了让其他目录下也能使用Zephyr工具，需要设置全局环境变量：<br><strong>在Windows环境变量中新建<code>ZEPHYR_BASE</code>环境变量，并把其值设置为<code>ncs</code>安装目录下的<code>zephyr</code>目录的路径即可。</strong></li>
-</ul>
-<p>（这个效果和执行一次<code>ncs</code>目录下的<code>zephyr/zephyr-env.cmd</code>脚本是一样的，但这个脚本设置环境变量只是临时生效，关闭终端再另开一个终端就不起作用了。而设置全局环境变量是永久生效。）</p>
-</blockquote>
-<h3 id="（7）安装VS-Code插件"><a href="#（7）安装VS-Code插件" class="headerlink" title="（7）安装VS Code插件"></a>（7）安装VS Code插件</h3><p>​	打开VS Code，在插件中心搜索nRF Connect for VS Code Extension Pack，这个插件包会自动安装其他nRF Connect 所需的VS Code插件。</p>
-<img src="/jayant97.github.io/imgs/安装nRF-Connect-SDK.assets/image-20221122220619736.png" alt="image-20221122220619736" style="zoom:67%;">
-
-
-
-<p>​	可以在VS Code的设置中，对插件进行单独的设置，例如可以设置使用工具链的路径。可以对<strong>全局</strong>进行设置（USER），也可以单独对某个<strong>工作区</strong>进行设置（WORKSPACE）。</p>
-<p><img src="/jayant97.github.io/imgs/安装nRF-Connect-SDK.assets/image-20221122220941604.png" alt="image-20221122220941604" style="zoom: 80%;">	由于我们是手动安装的，已经设置了<code>PATH</code>环境变量。所以把插件设置的工具链路径设为<code>PATH</code>即可。</p>
-<h2 id="3-3-SDK更新"><a href="#3-3-SDK更新" class="headerlink" title="3.3. SDK更新"></a>3.3. SDK更新</h2><p>手动安装和自动安装的SDK是一样的。如果有新版本SDK出来，想切换到新版本，都可以按照以下步骤操作：</p>
-<h3 id="确保SDK中的git仓库状态均为Clean"><a href="#确保SDK中的git仓库状态均为Clean" class="headerlink" title="确保SDK中的git仓库状态均为Clean"></a>确保SDK中的git仓库状态均为Clean</h3><p>这意味着，<strong>客户平时不要随便去改SDK中的任何代码</strong>。也不要往里添加任何内容。但是编译例程是没问题的，因为例程编译目录<code>build*</code>是被<code>.gitignore</code>忽略掉的。</p>
+<h2 id="3-2-手动拉取或者更新SDK"><a href="#3-2-手动拉取或者更新SDK" class="headerlink" title="3.2. 手动拉取或者更新SDK"></a>3.2. 手动拉取或者更新SDK</h2><p>手动安装和自动安装的SDK是一样的。如果有新版本SDK出来，想切换到新版本，都可以按照以下步骤操作：</p>
+<h3 id="1-确保SDK中的git仓库状态均为Clean"><a href="#1-确保SDK中的git仓库状态均为Clean" class="headerlink" title="(1)确保SDK中的git仓库状态均为Clean"></a>(1)确保SDK中的git仓库状态均为Clean</h3><p>这意味着，<strong>开发者平时不要随便去改SDK中的任何代码</strong>。也不要往里添加任何内容。但是编译例程是没问题的，因为例程的默认编译目录<code>build/</code>是被<code>.gitignore</code>忽略掉的。</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 此命令可查看当前git仓库的状态</span></span><br><span class="line">git status</span><br></pre></td></tr></table></figure>
 
 <p>但是NCS中的仓库很多。也可以用VS Code打开整个NCS，用git界面图形化查看是否每个仓库均为clean。</p>
-<h3 id="检查manifest有无新版本"><a href="#检查manifest有无新版本" class="headerlink" title="检查manifest有无新版本"></a>检查manifest有无新版本</h3><p>NCS中，nrf为主仓库，nrf的版本即为整个SDK的版本</p>
+<h3 id="2-检查manifest有无新版本"><a href="#2-检查manifest有无新版本" class="headerlink" title="(2)检查manifest有无新版本"></a>(2)检查manifest有无新版本</h3><p>NCS中，nrf为主仓库，nrf的版本即为整个SDK的版本</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看nfr仓库下有多少版本</span></span><br><span class="line"><span class="built_in">cd</span> nrf</span><br><span class="line">git pull</span><br><span class="line">git tag  <span class="comment"># 按键盘上下键翻阅，按q退出</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="切换到自己想要的版本"><a href="#切换到自己想要的版本" class="headerlink" title="切换到自己想要的版本"></a>切换到自己想要的版本</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 检出想要的版本</span></span><br><span class="line">git checkout v2.4.2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新整个仓库</span></span><br><span class="line">west update</span><br></pre></td></tr></table></figure>
+<h3 id="切换到自己想要的版本"><a href="#切换到自己想要的版本" class="headerlink" title="切换到自己想要的版本"></a>切换到自己想要的版本</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 检出想要的nrf版本</span></span><br><span class="line">git checkout v2.6.0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新nrf之外的整个NCS仓库</span></span><br><span class="line">west update</span><br></pre></td></tr></table></figure>
 
 <h1 id="4-打开一个例程"><a href="#4-打开一个例程" class="headerlink" title="4. 打开一个例程"></a>4. 打开一个例程</h1><p>从VS Code 的一个全新窗口，选择<strong>打开文件夹</strong>：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209103137554.png" alt="image-20221209103137554"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221209103137554-1731044874928-20.webp" alt="image-20221209103137554"></p>
 <center>或者：</center>
 
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209103240455.png" alt="image-20221209103240455"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221209103240455-1731044874929-21.webp" alt="image-20221209103240455"></p>
 <blockquote>
 <p>含有例程的目录：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">NCS </span><br><span class="line">|-- nrf                      </span><br><span class="line">|   |-- applications/      # Nordic商业级例程</span><br><span class="line">|   |-- samples/           # Nordic外设、蓝牙、LTE等例程</span><br><span class="line">|   |-- tests/             # 模块测试例程</span><br><span class="line">`-- zephyr</span><br><span class="line">    |-- samples            # Zephyr Kernel、各类板子、各类传感器芯片例程</span><br><span class="line">    `-- tests              # 模块测试例程</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">NCS </span><br><span class="line">|-- nrf                      </span><br><span class="line">|   |-- applications/      # Nordic商业级例程</span><br><span class="line">|   |-- samples/           # Nordic外设、蓝牙、LTE等例程</span><br><span class="line">|   |-- tests/             # 组件API测试例程</span><br><span class="line">`-- zephyr</span><br><span class="line">    |-- samples            # Zephyr Kernel、各类板子、各类传感器芯片例程</span><br><span class="line">    `-- tests              # 组件API测试例程</span><br></pre></td></tr></table></figure>
 
 <p><code>zephyr/samples/</code>中有RTOS的组件例程、Zephyr支持的各类厂商的板卡例程、各类传感器的例程等，其中也有蓝牙例程。</p>
 <p><code>zephyr/tests/</code>中有<strong>全部的</strong>API测试例程。</p>
 <p><code>nrf</code>仓库的目录结构仿造<code>zephyr</code>仓库，也有<code>samples/</code>和<code>tests/</code>目录。<code>samples/</code>中有Nordic提供的软件库例程、Zephyr未收录的例程（如 nRF9160的LTE）等。</p>
 </blockquote>
-<p>我们选择一个蓝牙例程，<code>nrf/samples/bluetooth/peripheral_uart</code>，并打开文件夹。这只是在VS Code 中打开，打开后，nRF Connect 插件会检测到这是一个Application文件夹，询问你是否要把它加入到nRF Connect插件的Application中，点击Yes即可：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209110542991.png" alt="image-20221209110542991"></p>
+<p>我们选择一个蓝牙例程，<code>nrf/samples/bluetooth/peripheral_uart</code>，并打开文件夹。</p>
 <p>打开后，在VS Code资源管理器中可以看到文件夹视图：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209113911545.png" alt="image-20221209113911545"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221209113911545-1731044874929-22.webp" alt="image-20221209113911545"></p>
 <p>​	另外，也可以在Application中看到这个例程：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209112255254.png" alt="image-20221209112255254"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221209112255254-1731044874929-23.webp" alt="image-20221209112255254"></p>
 <h1 id="5-以例程为模板创建新工程"><a href="#5-以例程为模板创建新工程" class="headerlink" title="5. 以例程为模板创建新工程"></a>5. 以例程为模板创建新工程</h1><p>上一节讲解了如何<strong>打开</strong>一个例程。</p>
 <p>如果我们只是打开例程，例程的文件夹还是在ncs仓库内部，受到ncs的git仓库的管理。如果想自己开发项目，并用git管理版本，就需要<strong>创建</strong>新工程。</p>
 <p>NCS支持把例程当作模板，复制到NCS外部，并创建新工程。</p>
 <h2 id="5-1-创建新工程"><a href="#5-1-创建新工程" class="headerlink" title="5.1. 创建新工程"></a>5.1. 创建新工程</h2><p>NCS支持以例程作为模板，复制并创建新的工程。这也是Nordic非常推荐的方式。</p>
 <p>首先在VS Code中打开一个新窗口</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027154653607.png" alt="image-20231027154653607"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027154653607-1731044874929-24.webp" alt="image-20231027154653607"></p>
 <p>在 VS Code中，选择左侧nRF Connect for VS Code插件，进入Welcome页面，先检查toolchain和SDK是否已经检测到。</p>
 <p>然后点击<code>Create a new application</code>创建新工程。</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027154922771.png" alt="image-20231027154922771"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027154922771-1731044874929-25.webp" alt="image-20231027154922771"></p>
 <p>选择“Copy a sample”</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027155052262.png" alt="image-20231027155052262"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027155052262-1731044874929-26.webp" alt="image-20231027155052262"></p>
 <p>选择自己想要拷贝的例程，支持文字搜索：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027155146846.png" alt="image-20231027155146846"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027155146846-1731044874929-27.webp" alt="image-20231027155146846"></p>
 <blockquote>
 <p>这里的例程列表，和第4节中提到的目录结构是一致的。同时也和SDK官网的例程说明是保持一致的，每个例程都有其对应的说明文档：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027155316876.png" alt="image-20231027155316876"></p>
-<p>Nordic商业级应用：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/applications.html">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/applications.html</a></p>
-<p>Nordic例程：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/samples.html">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/samples.html</a></p>
-<p>Zephyr例程：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/samples/index.html">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/samples/index.html</a></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027155316876-1731044874929-28.webp" alt="image-20231027155316876"></p>
+<p>Nordic商业级应用：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/applications.html">https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/applications.html</a></p>
+<p>Nordic例程：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/samples.html">https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/samples.html</a></p>
+<p>Zephyr例程：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/samples/index.html">https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/samples/index.html</a></p>
+<p>此外，还有一些隐藏例程不会出现在这个界面，但是可供参考：</p>
+<ul>
+<li><code>$&#123;NCS&#125;/modules/hal/nordic/nrfx/samples/src/</code>： NRFX外设驱动库例程。如果用户不想用、或者Zephyr没有提供某些外设的标准驱动，则可以使用NRFX驱动，其用法和老的nRF5 SDK基本一致。</li>
+<li><code>$&#123;NCS&#125;/zephyr/tests</code>：zephyr所有的API的测试用例。如果你不知道某个Zephyr API怎么用，可以从这里面找。</li>
+</ul>
 </blockquote>
 <p>选择自己新建例程的父目录（我这里是Linux电脑的路径）：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027155535431.png" alt="image-20231027155535431"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027155535431-1731044874930-30.webp" alt="image-20231027155535431"></p>
 <p>选择自己新建例程的文件夹名称：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027155623993.png" alt="image-20231027155623993"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027155623993-1731044874930-29.webp" alt="image-20231027155623993"></p>
 <p>然后就可以打开新的工程。</p>
 <h2 id="5-2-使用git跟踪你的代码修改"><a href="#5-2-使用git跟踪你的代码修改" class="headerlink" title="5.2. 使用git跟踪你的代码修改"></a>5.2. 使用git跟踪你的代码修改</h2><blockquote>
 <p>如果你从没用过git，需要先配置用户名和邮箱。这个用户名和邮箱不是登陆什么网站用的，而是一个签名，在提交代码时用于标记这段代码是谁提交的。这个配置存在你电脑的本地，并且是<strong>全局</strong>的，对所有git仓库都有效。</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;Jayant.Tang&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;jayant.tang@nordicsemi.no&quot;</span></span><br></pre></td></tr></table></figure>
 </blockquote>
 <p>新建的工程都会自动初始化git仓库，我们可以看到.gitignore文件：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027155922698.png" alt="image-20231027155922698"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027155922698-1731044874930-31.webp" alt="image-20231027155922698"></p>
 <p>你可以把<code>.vscode/</code>添加到其中</p>
 <p>如果你不熟悉Git以及Git在VS Code中的使用，强烈建议去学习一下，它极大的方便了代码的管理。</p>
 <p>例如：如果安装了git history插件，就可以查看提交历史：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221122235338251.png" alt="image-20221122235338251"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221122235338251-1731044874930-32.webp" alt="image-20221122235338251"></p>
 <p>Git History提供了很方便的视图，可以看到每次commit都改动了哪些代码和配置（左侧是旧的，右侧是新的）：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221122235416865.png" alt="image-20221122235416865"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221122235416865-1731044874930-33.webp" alt="image-20221122235416865"></p>
 <p>​	更多Git的使用，可以去网上了解其他教程。本文不再赘述。</p>
 <h1 id="6-编译工程"><a href="#6-编译工程" class="headerlink" title="6. 编译工程"></a>6. 编译工程</h1><h2 id="6-1-创建一个编译目标（Build-Target）"><a href="#6-1-创建一个编译目标（Build-Target）" class="headerlink" title="6.1. 创建一个编译目标（Build Target）"></a>6.1. 创建一个编译目标（Build Target）</h2><p>所谓编译目标就是在同一套代码下，可能有不同的配置项（Debug&#x2F;Release，不同的优化级别等等），编译出不同的可执行文件。一个项目下可以创建多个编译目标。</p>
 <h3 id="Board"><a href="#Board" class="headerlink" title="Board"></a>Board</h3><p>创建Build，需要选择自己使用的板子，Zephyr自带各个厂商的开发板配置。</p>
@@ -433,7 +388,7 @@
 <li><p>All boards：Zephyr 支持的所有开发板</p>
 </li>
 </ul>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231028172343694.png" alt="image-20231028172343694"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028172343694-1731044874930-34.webp" alt="image-20231028172343694"></p>
 <blockquote>
 <p>Nordic开发板board配置的命名规则：</p>
 <p>例如：<code>nrf52840dk_nrf52840</code>，是说这个板子的配置是为 nrf52840dk 这块开发板上的 nrf52840 这颗 MCU 创建的，会记录这个MCU的外设地址，以及此MCU连接的外部硬件的信息（如SPI Flash）。</p>
@@ -454,13 +409,14 @@
 <blockquote>
 <p>按Build旁的圆圈箭头按钮，可以全部重新编译。</p>
 </blockquote>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221123140646521.png" alt="image-20221123140646521"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221123140646521-1731044874931-35.webp" alt="image-20221123140646521"></p>
 <blockquote>
 <p>补充：命令行编译</p>
 <p>按 “ CTRL + &#96; “，可以呼出终端。点击“+”号右边的下拉箭头，选择nRF Connect：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027161338719.png" alt="image-20231027161338719"></p>
-<p>这样打开的终端，其环境变量指向前面安装的toolchain</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 利用当前已经创建的build target进行编译</span></span><br><span class="line">west build</span><br></pre></td></tr></table></figure>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027161338719-1731044874931-36.webp" alt="image-20231027161338719"></p>
+<p>这样打开的终端，其环境变量指向前面安装的toolchain。</p>
+<p>编译命令示例：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build -d build -b nrf52840dk_nrf52840 -p -- -DCONF_FILE=<span class="string">&quot;prj.conf&quot;</span></span><br><span class="line"><span class="comment"># -d 指定编译目录为./build</span></span><br><span class="line"><span class="comment"># -b 板子为nrf52840dk_nrf52840</span></span><br><span class="line"><span class="comment"># -p 表示pristine build,全部重新编译。</span></span><br><span class="line"><span class="comment"># -- 之后可以添加CMake选项。如-D表示设置CMake变量。</span></span><br><span class="line"><span class="comment">#  -DCONF_FILE等价于在CMakeLists.txt中写 set(CONF_FILE prj.conf)</span></span><br></pre></td></tr></table></figure>
 
 <p>更多用法：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build -h</span><br></pre></td></tr></table></figure>
@@ -468,33 +424,32 @@
 <p>编译时可以指定项目根目录、build目录、板子名称、配置文件、overlay文件等。你可以先用上面的图形化的方式在VS Code中进行编译，然后在VS Code终端中查看这次编译的命令是什么。</p>
 </blockquote>
 <h1 id="7-连接设备"><a href="#7-连接设备" class="headerlink" title="7. 连接设备"></a>7. 连接设备</h1><p>nrf-connect插件，底层调用的是<code>nrfjprog</code>或<code>nrfutil</code>命令来连接开发板上的JLink。因此，需要通过USB线连接到JLink口。</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209144123203.png" alt="image-20221209144123203"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221209144123203-1731044874931-37.webp" alt="image-20221209144123203"></p>
 <p>以nRF52840DK为例，中间最大的带有贴纸的芯片为JLink主控（官方称其为Interface MCU），左侧为JLink USB口，此接口可以用来给整块板供电。</p>
 <p>需确保左下角电源开关打开。左侧中间位置的开关置于VDD挡位，右上角开关置于DEFAULT挡位（如上图）。</p>
 <p>对于一些有多颗MCU的开发板，注意要使用拨码开关选择自己要调试的MCU，例如nRF9160DK可选择9160和52840：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209153801993.png" alt="image-20221209153801993"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221209153801993-1731044874931-38.webp" alt="image-20221209153801993"></p>
 <p>​	然后就可以在VS Code中识别到设备了：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209144833292.png" alt="image-20221209144833292"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221209144833292-1731044874931-39.webp" alt="image-20221209144833292"></p>
 <blockquote>
 <p>如果不能自动识别到，或者很不稳定。可能是最新的底层Python工具<code>nrfutil</code>在Windows上不太稳定。可以把它改回之前的<code>nrfjprog</code>：</p>
 <p>打开VS Code Settings:</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027162356248.png" alt="image-20231027162356248"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027162356248-1731044874934-40.webp" alt="image-20231027162356248"></p>
 <p>搜索“Device Provider”，并改为<code>nrfjprog</code>：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027162506329.png" alt="image-20231027162506329"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027162506329-1731044874934-41.webp" alt="image-20231027162506329"></p>
 </blockquote>
 <h1 id="8-烧录固件"><a href="#8-烧录固件" class="headerlink" title="8. 烧录固件"></a>8. 烧录固件</h1><p>连接并成功识别到Jlink后，可以通过ACTIONS栏中的<code>Flash</code>按钮触发烧录动作：</p>
-<img src="/jayant97.github.io/imgs/安装nRF-Connect-SDK.assets/image-20221123160139273.png" alt="image-20221123160139273" style="zoom: 80%;">
-
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221123160139273-1731044874934-42.webp" alt="image-20221123160139273"></p>
 <p>​	也可以通过命令行进行烧录:</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west flash</span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p>备注：	</p>
 <p>这样直接烧录，有一部分项目可能会烧写失败，显示：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221123160245857.png" alt="image-20221123160245857"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221123160245857-1731044874934-43.png" alt="image-20221123160245857"></p>
 <p>这是因为，Nordic的MCU中通常都有一个用于存储用户信息的寄存器（UICR），可以认为是一块特殊的flash区域，存储了客户自己的加密密钥、引脚配置等产品信息。由于信息安全的原因，是不允许在保持UICR不变的情况下烧写新的固件的。相关资料，可以参考Nordic芯片数据手册的UICR章节。</p>
 <p>这种情况下只能全片擦除然后再烧录，点击Flash右边的按钮：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221123160832598.png" alt="image-20221123160832598"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221123160832598-1731044874935-44.webp" alt="image-20221123160832598"></p>
 <p>或者使用命令行方式：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west flash --force --erase</span><br></pre></td></tr></table></figure>
 
@@ -507,52 +462,64 @@
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nrfjprog --recover --coprocessor CP_NETWORK</span><br></pre></td></tr></table></figure>
 </blockquote>
 <h1 id="9-运行并测试"><a href="#9-运行并测试" class="headerlink" title="9. 运行并测试"></a>9. 运行并测试</h1><p>连接的设备，可以看到Jlink上的主控芯片、串口以及RTT。</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231028103135931.png" alt="image-20231028103135931"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028103135931-1731044874935-45.webp" alt="image-20231028103135931"></p>
 <p>这里的串口是MCU上真实的物理串口，在开发板上通过PCB走线连接到Jlink，然后Jlink把这个串口转化为USB虚拟串口。</p>
 <blockquote>
 <p>新款开发板，板载的Jlink是拿5340做的，这种新款开发板有两个USB虚拟串口：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027164658632.png" alt="image-20231027164658632"></p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027163914699.png" alt="image-20231027163914699"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027164658632-1731044874935-46.webp" alt="image-20231027164658632"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027163914699-1731044874935-47.webp" alt="image-20231027163914699"></p>
 <p>但是对于52840DK来说，开发板上只连了一个串口，另一个是空的。具体是哪个？要试一下，因为可能USB枚举的顺序不一样。</p>
 <p>对于5340DK, 7002DK来说，两个串口分别对应Application Core和Network Core的日志输出。</p>
 </blockquote>
-<h2 id="9-2-连接串口"><a href="#9-2-连接串口" class="headerlink" title="9.2. 连接串口"></a>9.2. 连接串口</h2><p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209154745021.png" alt="image-20221209154745021"></p>
+<h2 id="9-2-连接串口"><a href="#9-2-连接串口" class="headerlink" title="9.2. 连接串口"></a>9.2. 连接串口</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221209154745021-1731044874935-48.webp" alt="image-20221209154745021"></p>
 <p>​	点击串口，选择波特率，即可打开串口。串口<strong>接收</strong>的信息在Terminal展示：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231027162835862.png" alt="image-20231027162835862"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231027162835862-1731044874935-49.webp" alt="image-20231027162835862"></p>
 <blockquote>
 <p>这个串口工具类似于Putty，按下键盘的按键就立即发送出去一个字符，不会显示自己发出了什么。便于在这个串口上运行命令行终端之类的，这也是Zephyr所支持的。</p>
 </blockquote>
 <h2 id="9-3-连接RTT"><a href="#9-3-连接RTT" class="headerlink" title="9.3. 连接RTT"></a>9.3. 连接RTT</h2><p>RTT是Segger提供的日志调试手段，全称Real Time Transmit。MCU将日志打印到内部缓存中，然后利用Jlink的高速通道，把日志打印到电脑上。这个方法不需要占用串口外设，而且速度极快，对CPU运行影响小。</p>
 <blockquote>
-<p>大多数例程的默认日志输出口是串口。但本例程是蓝牙串口透传，串口需要传输用户数据，因此日志的默认输出就是RTT。</p>
-<p>查看RTT日志输出的相关配置：</p>
-<p>打开工程根目录下的<code>.prj</code>文件：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209161912543.png" alt="image-20221209161912543"></p>
+<p><strong>大多数例程的默认日志输出是串口</strong>。但本例程是蓝牙串口透传，串口需要传输用户数据，因此在本例程中日志的默认输出就已经是RTT了，无需再配置RTT。</p>
+<p>要查看RTT日志输出的相关配置，打开工程根目录下的<code>.prj</code>文件：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221209161912543-1731044874935-50.webp" alt="image-20221209161912543"></p>
 <p>可以看到：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">CONFIG_LOG=y                 <span class="comment"># 启用日志系统</span></span><br><span class="line">CONFIG_USE_SEGGER_RTT=y      <span class="comment"># 启用RTT</span></span><br><span class="line">CONFIG_LOG_BACKEND_RTT=y     <span class="comment"># 日志后端选用RTT</span></span><br><span class="line">CONFIG_LOG_BACKEND_UART=n    <span class="comment"># 日志后端不选用串口</span></span><br><span class="line">CONFIG_LOG_PRINTK=n          <span class="comment"># 不启用PRINTK日志</span></span><br></pre></td></tr></table></figure>
 
 </blockquote>
 <p>如下图连接RTT：</p>
-<p><img src="/jayant97.github.io/imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20221209170245563.png" alt="image-20221209170245563"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20221209170245563-1731044874935-51.webp" alt="image-20221209170245563"></p>
 <h2 id="9-4-测试peripheral-uart例程"><a href="#9-4-测试peripheral-uart例程" class="headerlink" title="9.4. 测试peripheral_uart例程"></a>9.4. 测试peripheral_uart例程</h2><p>一般来说，需要两块开发板，一块烧<code>peripheral_uart</code>，一块烧<code>central_uart</code>。两块开发板上电后会自动连接。从一个开发板串口输入的数据，会从另一个开发板输出。</p>
 <p>但是这里我们只有一块开发板，那么BLE central我们就用手机。iOS应用商店可以下载<code>nRF Connect</code>，安卓可以在谷歌商店下载，或者直接去Github下载<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/NordicSemiconductor/Android-nRF-Connect/releases">APK</a>。</p>
-<h3 id="通过BLE连接设备"><a href="#通过BLE连接设备" class="headerlink" title="通过BLE连接设备"></a>通过BLE连接设备</h3><p>在nRF Connect APP中，先扫描，扫到设备后，再连接：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231028104626601.png" alt="image-20231028104626601"></p>
-<h3 id="开发板接收数据"><a href="#开发板接收数据" class="headerlink" title="开发板接收数据"></a>开发板接收数据</h3><p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231028104717740.png" alt="image-20231028104717740"></p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231028104734696.png" alt="image-20231028104734696"></p>
+<h3 id="通过BLE连接设备"><a href="#通过BLE连接设备" class="headerlink" title="通过BLE连接设备"></a>通过BLE连接设备</h3><p>在nRF Connect APP中，先scan搜索附近蓝牙。scan按钮一开始是三角形，点击开始扫描后，变成方形。<br>扫到设备后，再连接：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028104626601-1731044874935-52.webp" alt="image-20231028104626601"></p>
+<h3 id="开发板接收数据"><a href="#开发板接收数据" class="headerlink" title="开发板接收数据"></a>开发板接收数据</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028104717740-1731044874936-53.webp" alt="image-20231028104717740"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028104734696-1731044874936-54.webp" alt="image-20231028104734696"></p>
 <p>可以在串口看到数据：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231028104845188.png" alt="image-20231028104845188"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028104845188-1731044874936-55.webp" alt="image-20231028104845188"></p>
 <h3 id="开发板发送数据"><a href="#开发板发送数据" class="headerlink" title="开发板发送数据"></a>开发板发送数据</h3><p>BLE协议是Client-Server架构。BLE协议规定，从机作为Server，只能被Client读、写上面的属性。默认情况下不能主动发消息到Client。除非Client使能了Notify的功能，Server才能Nortify到Client。更多信息，大家可以搜索CCCD(Client Characteristic Configuration Descriptor)。这里，就需要点亮TX属性的CCCD：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231028105348055.png" alt="image-20231028105348055"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028105348055-1731044874936-56.webp" alt="image-20231028105348055"></p>
 <p>然后在串口中通过键盘输入内容：hello+回车。屏幕上不会显示东西，但是按键确实会发送出去。</p>
 <blockquote>
 <p>这个串口工具类似于Putty，按下键盘的按键就立即发送出去一个字符，不会在屏幕上显示自己发出了什么。</p>
 <p>这里之所以要加回车，是因为例程代码就是这么写的。在串口回调函数内，检测到回车，才会把串口数据打包从蓝牙发出。</p>
 </blockquote>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231028105643833.png" alt="image-20231028105643833"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028105643833-1731044874936-57.webp" alt="image-20231028105643833"></p>
 <p>至此，我们完成了在nRF52840DK上的<code>peripheral_uart</code>例程的编译、烧录与运行测试。</p>
-<h1 id="10-官方资料"><a href="#10-官方资料" class="headerlink" title="10. 官方资料"></a>10. 官方资料</h1><h2 id="NCS官网"><a href="#NCS官网" class="headerlink" title="NCS官网"></a>NCS官网</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/index.html">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/index.html</a></p>
-<p><img src="/jayant97.github.io/./imgs/%E5%AE%89%E8%A3%85nRF-Connect-SDK.assets/image-20231028162512499.png" alt="image-20231028162512499"></p>
+<h1 id="10-阅读代码、跳转与搜索"><a href="#10-阅读代码、跳转与搜索" class="headerlink" title="10. 阅读代码、跳转与搜索"></a>10. 阅读代码、跳转与搜索</h1><p>当一个工程编译完毕后，工程中的函数与变量、Kconfig配置、设备树都是可以ctrl+鼠标左键点击跳转到定义的。</p>
+<p>此外，有时还会有搜索代码的需求。但是，工程文件夹里的代码只是所有参与编译的代码的一小部分，大部分代码都位于SDK中，不方便搜索。<br>这时，可以考虑把SDK和当前工程文件夹添加到一起，在VS Code中形成同一个workspace：<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20241029123624601-1148048522.webp" alt="image"><br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20241029123729863-155977948.webp" alt="image"></p>
+<p>然后，就可以在nRF插件中进行浏览了：<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20241029123918141-1203491295.webp" alt="image"><br>Source File中是所有参与编译的源码。其中Application下的是当前工程中的源码；nRF Connect SDK下的是NCS中参与编译的源码（不参与编译的不会在里面）；Generated下是工具链自动生成的一些代码（中断向量表、Kconfig转换成宏等等）。</p>
+<p>由于我们前面已经把SDK放进了VS Code workspace，所以可以直接搜索代码：<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20241029124509412-1982218675.webp" alt="image"><br>点击上面的搜索按钮后，会自动跳转到VS Code搜索界面，并且已经自动填充好文件搜索范围：<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20241029124636177-436976402.webp" alt="image"></p>
+<h1 id="11-官方资料"><a href="#11-官方资料" class="headerlink" title="11. 官方资料"></a>11. 官方资料</h1><h2 id="Nordic-TechDocs资料中心"><a href="#Nordic-TechDocs资料中心" class="headerlink" title="Nordic TechDocs资料中心"></a>Nordic TechDocs资料中心</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/">https://docs.nordicsemi.com/</a></p>
+<p>目前最新的资料中心，可以通过技术或产品系列进行分类，查找想要的资料。芯片数据手册（Specification）、开发板说明都可以在这里查看。<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20240618103459443-1837528620.webp" alt="image"></p>
+<p><strong>记得进入NCS文档后，第一步先选择文档的版本与自己使用的NCS版本一致：</strong><br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20241029114423094-1941812085.webp" alt="image"></p>
+<p>从2024.6.18开始，NCS官网和Infocenter都会下线。所有开发资料都会集中在TechDocs。上图中我们可以看到，除了各个产品系列的介绍之外，下方有nRF Connect SDK和老的nRF5 SDK的资料，点击跳转进去即可。</p>
+<p>关于文档的结构，可以展开下面章节中被折叠的信息来了解。</p>
+<h2 id="NCS官网"><a href="#NCS官网" class="headerlink" title="NCS官网"></a>NCS官网</h2><p><strong>此网站已于2024.6.18被Nordic资料中心替代</strong></p>
+<details>
+    <summary>展开查看</summary>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/index.html">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/index.html</a></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028162512499-1731044874936-58.webp" alt="image-20231028162512499"></p>
 <p>进入官网，首先看到右上角可以选择文档的版本，需要与SDK的版本对应。</p>
 <p>然后可以看到中间的一排标签页：</p>
 <ul>
@@ -572,24 +539,34 @@
 </li>
 </ul>
 <p>总之，NCS官网里面有大量的技术细节，在运行一个例程之前，一定要参照网站中该例程的说明进行操作。</p>
-<h2 id="Nordic资料中心"><a href="#Nordic资料中心" class="headerlink" title="Nordic资料中心"></a>Nordic资料中心</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/">https://docs.nordicsemi.com/</a></p>
-<p>目前最新的资料中心，可以通过技术或产品系列进行分类，查找想要的资料。芯片数据手册（Specification）、开发板说明都可以在这里查看。也会导向到NCS官网。</p>
-<h2 id="Nordic旧版资料中心"><a href="#Nordic旧版资料中心" class="headerlink" title="Nordic旧版资料中心"></a>Nordic旧版资料中心</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://infocenter.nordicsemi.com/index.jsp">https://infocenter.nordicsemi.com/index.jsp</a></p>
-<p>也可以下载到芯片数据手册（Specification）、开发板说明、技术白皮书等。这里也有目前已停止维护的nRF5 SDK的文档。</p>
+</details>
+
+<h2 id="Nordic旧版资料中心-Info-Center"><a href="#Nordic旧版资料中心-Info-Center" class="headerlink" title="Nordic旧版资料中心(Info Center)"></a>Nordic旧版资料中心(Info Center)</h2><p><strong>此网站已于2024.6.18被Nordic资料中心替代</strong><br>如果要查询老的nRF5 SDK资料，看：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/sdk_nrf5_v17.1.0/page/index.html">https://docs.nordicsemi.com/bundle/sdk_nrf5_v17.1.0/page/index.html</a></p>
+<details>
+    <summary>展开查看</summary>
+https://infocenter.nordicsemi.com/index.jsp
+![](https://img2024.cnblogs.com/blog/3028998/202406/3028998-20240618103019099-1297214744.png)
+也可以下载到芯片数据手册（Specification）、开发板说明、技术白皮书等。这里也有目前已停止维护的nRF5 SDK的文档。
+</details>
+
+
+
 <h2 id="Nordic官网"><a href="#Nordic官网" class="headerlink" title="Nordic官网"></a>Nordic官网</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/">https://www.nordicsemi.com/</a></p>
 <p>一些商业新闻和产品介绍。但是最重要的是一些<strong>工具软件</strong>、<strong>开发板原理图&#x2F;PCB&#x2F;BOM</strong>之类，需要在这里下载。</p>
 <p>例如：</p>
 <p><strong>nRF52840DK开发板默认例程、Jlink固件、原理图等</strong>：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-hardware/nRF52840-DK/Download?lang=en#infotabs">https://www.nordicsemi.com/Products/Development-hardware/nRF52840-DK/Download?lang=en#infotabs</a></p>
 <h2 id="DevZone开发者论坛"><a href="#DevZone开发者论坛" class="headerlink" title="DevZone开发者论坛"></a>DevZone开发者论坛</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://devzone.nordicsemi.com/">https://devzone.nordicsemi.com/</a></p>
-<p>有问题可以在上面搜索，也可以用英文提问。每天都有原厂support team查看问题并回复。Nordic注册客户，还可以提交private ticket，解决一些与代码、板子有关的问题，也可以简单审核PCB。</p>
-<h1 id="11-其他推荐阅读"><a href="#11-其他推荐阅读" class="headerlink" title="11. 其他推荐阅读"></a>11. 其他推荐阅读</h1><ul>
-<li><a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/2a39e705bff0/">理解Zephyr编译与配置系统</a></li>
-<li>（开坑）Zephyr日志系统介绍</li>
-<li><a href="https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/">详解Zephyr设备树（DeviceTree）与驱动模型</a></li>
-<li>（开坑）Zephyr设备树与驱动应用实战——串口</li>
-<li>（开坑）不想用Zephyr DeviceTree？试试nrfx api</li>
+<p>有问题可以在上面搜索，也可以用英文提问。每天都有原厂support team查看问题并回复。Nordic注册客户，还可以提交private ticket，解决一些与代码、板子有关的问题，也可以审核PCB。</p>
+<h2 id="Nordic-DevAcademy官方课程"><a href="#Nordic-DevAcademy官方课程" class="headerlink" title="Nordic DevAcademy官方课程"></a>Nordic DevAcademy官方课程</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://academy.nordicsemi.com/">https://academy.nordicsemi.com/</a></p>
+<p>类似于慕课的网站，目前有NCS，BLE、Wi-Fi、Cellular等课程。有视频结合题目，适合英文好的读者去学习，是非常适合入门的课程。</p>
+<h1 id="12-其他推荐阅读"><a href="#12-其他推荐阅读" class="headerlink" title="12. 其他推荐阅读"></a>12. 其他推荐阅读</h1><ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17794813.html">理解Zephyr编译与配置系统</a></li>
+<li>（开坑）Zephyr日志系统</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17209392.html">详解Zephyr设备树（DeviceTree）与驱动模型</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17828907.html">Zephyr设备树与驱动应用实战——串口</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17835258.html">不想用Zephyr DeviceTree？试试nrfx API</a></li>
 </ul>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/779143a4bec8/">https://jayant-tang.github.io/jayant97.github.io/2022/12/779143a4bec8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/NCS/">NCS</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/nordic/nrf-connect.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">理解Zephyr项目的配置与构建系统</div></div></a></div><div class="next-post pull-right"><a href="/jayant97.github.io/2022/12/b42baba50896/" title="搭建自己的静态博客并自动部署"><img class="cover" src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203224217145.png" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">搭建自己的静态博客并自动部署</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2024/01/b74491c1a080/" title="Nordic GPIO硬件原理与NCS应用详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-22</div><div class="title">Nordic GPIO硬件原理与NCS应用详解</div></div></a></div><div><a href="/jayant97.github.io/2023/11/4c8e1d7d162d/" title="Zephyr驱动与设备树实战——串口"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-12</div><div class="title">Zephyr驱动与设备树实战——串口</div></div></a></div><div><a href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-cloud.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-01</div><div class="title">nRF9160与nRF Cloud应用示例</div></div></a></div><div><a href="/jayant97.github.io/2023/11/1349f878e408/" title="在NCS中使用NRFX外设驱动库——以I2C为例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-15</div><div class="title">在NCS中使用NRFX外设驱动库——以I2C为例</div></div></a></div><div><a href="/jayant97.github.io/2023/08/045cdc9c9b10/" title="在nRF7002开发板上运行MQTT例程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-14</div><div class="title">在nRF7002开发板上运行MQTT例程</div></div></a></div><div><a href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-04</div><div class="title">理解Zephyr项目的配置与构建系统</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85%E5%8C%85%E5%B9%B6%E8%BF%9B%E8%A1%8C%E5%AE%89%E8%A3%85"><span class="toc-text">2. 下载安装包并进行安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%AE%89%E8%A3%85SDK%E5%92%8C%E5%B7%A5%E5%85%B7%E9%93%BE"><span class="toc-text">3. 安装SDK和工具链</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E8%87%AA%E5%8A%A8%E5%AE%89%E8%A3%85%E4%B8%8E%E6%89%8B%E5%8A%A8%E5%AE%89%E8%A3%85%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">3.1. 自动安装与手动安装的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E8%87%AA%E5%8A%A8%E5%AE%89%E8%A3%85"><span class="toc-text">3.1. 自动安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E3%80%90%E9%87%8D%E8%A6%81%E3%80%91%E6%A3%80%E6%9F%A5%E5%AE%89%E8%A3%85%E6%98%AF%E5%90%A6%E5%AE%8C%E6%95%B4"><span class="toc-text">【重要】检查安装是否完整</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E6%89%8B%E5%8A%A8%E5%AE%89%E8%A3%85%E6%96%B9%E5%BC%8F"><span class="toc-text">3.2. 手动安装方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E3%80%90Windows%E4%B8%93%E7%94%A8%E3%80%91%E5%AE%89%E8%A3%85choco"><span class="toc-text">（1）【Windows专用】安装choco</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%88%A9%E7%94%A8choco%E5%AE%89%E8%A3%85%E5%85%B6%E4%BB%96%E5%B7%A5%E5%85%B7"><span class="toc-text">（2）利用choco安装其他工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E5%AE%89%E8%A3%85GN%E5%B7%A5%E5%85%B7%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="toc-text">（3）安装GN工具（可选）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%884%EF%BC%89%E5%AE%89%E8%A3%85west"><span class="toc-text">（4）安装west</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%885%EF%BC%89%E5%AE%89%E8%A3%85NCS"><span class="toc-text">（5）安装NCS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%886%EF%BC%89%E5%AE%89%E8%A3%85Zephyr-SDK%E5%B7%A5%E5%85%B7%E9%93%BE"><span class="toc-text">（6）安装Zephyr SDK工具链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%887%EF%BC%89%E5%AE%89%E8%A3%85VS-Code%E6%8F%92%E4%BB%B6"><span class="toc-text">（7）安装VS Code插件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-SDK%E6%9B%B4%E6%96%B0"><span class="toc-text">3.3. SDK更新</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A1%AE%E4%BF%9DSDK%E4%B8%AD%E7%9A%84git%E4%BB%93%E5%BA%93%E7%8A%B6%E6%80%81%E5%9D%87%E4%B8%BAClean"><span class="toc-text">确保SDK中的git仓库状态均为Clean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5manifest%E6%9C%89%E6%97%A0%E6%96%B0%E7%89%88%E6%9C%AC"><span class="toc-text">检查manifest有无新版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E5%88%B0%E8%87%AA%E5%B7%B1%E6%83%B3%E8%A6%81%E7%9A%84%E7%89%88%E6%9C%AC"><span class="toc-text">切换到自己想要的版本</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E6%89%93%E5%BC%80%E4%B8%80%E4%B8%AA%E4%BE%8B%E7%A8%8B"><span class="toc-text">4. 打开一个例程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E4%BB%A5%E4%BE%8B%E7%A8%8B%E4%B8%BA%E6%A8%A1%E6%9D%BF%E5%88%9B%E5%BB%BA%E6%96%B0%E5%B7%A5%E7%A8%8B"><span class="toc-text">5. 以例程为模板创建新工程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E5%88%9B%E5%BB%BA%E6%96%B0%E5%B7%A5%E7%A8%8B"><span class="toc-text">5.1. 创建新工程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-%E4%BD%BF%E7%94%A8git%E8%B7%9F%E8%B8%AA%E4%BD%A0%E7%9A%84%E4%BB%A3%E7%A0%81%E4%BF%AE%E6%94%B9"><span class="toc-text">5.2. 使用git跟踪你的代码修改</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E7%BC%96%E8%AF%91%E5%B7%A5%E7%A8%8B"><span class="toc-text">6. 编译工程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-1-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%BC%96%E8%AF%91%E7%9B%AE%E6%A0%87%EF%BC%88Build-Target%EF%BC%89"><span class="toc-text">6.1. 创建一个编译目标（Build Target）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Board"><span class="toc-text">Board</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Configuation"><span class="toc-text">Configuation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kconfig-fragments"><span class="toc-text">Kconfig fragments</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Devicetree-overlays"><span class="toc-text">Devicetree overlays</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Extra-CMake-arguments"><span class="toc-text">Extra CMake arguments</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-2-%E8%BF%9B%E8%A1%8C%E7%BC%96%E8%AF%91"><span class="toc-text">6.2. 进行编译</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E8%BF%9E%E6%8E%A5%E8%AE%BE%E5%A4%87"><span class="toc-text">7. 连接设备</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E7%83%A7%E5%BD%95%E5%9B%BA%E4%BB%B6"><span class="toc-text">8. 烧录固件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-%E8%BF%90%E8%A1%8C%E5%B9%B6%E6%B5%8B%E8%AF%95"><span class="toc-text">9. 运行并测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#9-2-%E8%BF%9E%E6%8E%A5%E4%B8%B2%E5%8F%A3"><span class="toc-text">9.2. 连接串口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-3-%E8%BF%9E%E6%8E%A5RTT"><span class="toc-text">9.3. 连接RTT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-4-%E6%B5%8B%E8%AF%95peripheral-uart%E4%BE%8B%E7%A8%8B"><span class="toc-text">9.4. 测试peripheral_uart例程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87BLE%E8%BF%9E%E6%8E%A5%E8%AE%BE%E5%A4%87"><span class="toc-text">通过BLE连接设备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E6%9D%BF%E6%8E%A5%E6%94%B6%E6%95%B0%E6%8D%AE"><span class="toc-text">开发板接收数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E6%9D%BF%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE"><span class="toc-text">开发板发送数据</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10-%E5%AE%98%E6%96%B9%E8%B5%84%E6%96%99"><span class="toc-text">10. 官方资料</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#NCS%E5%AE%98%E7%BD%91"><span class="toc-text">NCS官网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nordic%E8%B5%84%E6%96%99%E4%B8%AD%E5%BF%83"><span class="toc-text">Nordic资料中心</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nordic%E6%97%A7%E7%89%88%E8%B5%84%E6%96%99%E4%B8%AD%E5%BF%83"><span class="toc-text">Nordic旧版资料中心</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nordic%E5%AE%98%E7%BD%91"><span class="toc-text">Nordic官网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DevZone%E5%BC%80%E5%8F%91%E8%80%85%E8%AE%BA%E5%9D%9B"><span class="toc-text">DevZone开发者论坛</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#11-%E5%85%B6%E4%BB%96%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB"><span class="toc-text">11. 其他推荐阅读</span></a></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/jayant97.github.io/imgs/nordic/nrf-connect.png')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2024 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2022/12/779143a4bec8/">https://jayant-tang.github.io/jayant97.github.io/2022/12/779143a4bec8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/NCS/">NCS</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/nordic/nrf-connect.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统"><img class="cover" src="/jayant97.github.io/imgs/nordic/zephyr.png" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">理解Zephyr项目的配置与构建系统</div></div></a></div><div class="next-post pull-right"><a href="/jayant97.github.io/2022/12/b42baba50896/" title="搭建自己的静态博客并自动部署"><img class="cover" src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203224217145.png" onerror="onerror=null;src='/jayant97.github.io/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">搭建自己的静态博客并自动部署</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2025/01/5645a5cab10c/" title="NCS Matter例程详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-03</div><div class="title">NCS Matter例程详解</div></div></a></div><div><a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" title="NCS 低功耗日志打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-26</div><div class="title">NCS 低功耗日志打印</div></div></a></div><div><a href="/jayant97.github.io/2024/01/b74491c1a080/" title="Nordic GPIO硬件原理与NCS应用详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-22</div><div class="title">Nordic GPIO硬件原理与NCS应用详解</div></div></a></div><div><a href="/jayant97.github.io/2023/11/4c8e1d7d162d/" title="Zephyr驱动与设备树实战——串口"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-12</div><div class="title">Zephyr驱动与设备树实战——串口</div></div></a></div><div><a href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-cloud.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-01</div><div class="title">nRF9160与nRF Cloud应用示例</div></div></a></div><div><a href="/jayant97.github.io/2023/11/1349f878e408/" title="在NCS中使用NRFX外设驱动库——以I2C为例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-15</div><div class="title">在NCS中使用NRFX外设驱动库——以I2C为例</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85%E5%8C%85%E5%B9%B6%E8%BF%9B%E8%A1%8C%E5%AE%89%E8%A3%85"><span class="toc-text">2. 下载安装包并进行安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Toolchain%E5%92%8CSDK"><span class="toc-text">3. Toolchain和SDK</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E8%87%AA%E5%8A%A8%E5%AE%89%E8%A3%85%E5%B7%A5%E5%85%B7%E9%93%BE%E5%92%8CSDK"><span class="toc-text">3.1. 自动安装工具链和SDK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8VS-Code%E8%87%AA%E5%8A%A8%E5%AE%89%E8%A3%85"><span class="toc-text">利用VS Code自动安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E5%AE%89%E8%A3%85Toolchain"><span class="toc-text">（2）安装Toolchain</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E5%AE%89%E8%A3%85SDK"><span class="toc-text">（3）安装SDK</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8nRF-Connect-for-Desktop%E8%87%AA%E5%8A%A8%E5%AE%89%E8%A3%85"><span class="toc-text">利用nRF Connect for Desktop自动安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E3%80%90%E9%87%8D%E8%A6%81%E3%80%91%E6%A3%80%E6%9F%A5%E5%AE%89%E8%A3%85%E6%98%AF%E5%90%A6%E5%AE%8C%E6%95%B4"><span class="toc-text">【重要】检查安装是否完整</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E6%89%8B%E5%8A%A8%E6%8B%89%E5%8F%96%E6%88%96%E8%80%85%E6%9B%B4%E6%96%B0SDK"><span class="toc-text">3.2. 手动拉取或者更新SDK</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%A1%AE%E4%BF%9DSDK%E4%B8%AD%E7%9A%84git%E4%BB%93%E5%BA%93%E7%8A%B6%E6%80%81%E5%9D%87%E4%B8%BAClean"><span class="toc-text">(1)确保SDK中的git仓库状态均为Clean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%A3%80%E6%9F%A5manifest%E6%9C%89%E6%97%A0%E6%96%B0%E7%89%88%E6%9C%AC"><span class="toc-text">(2)检查manifest有无新版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2%E5%88%B0%E8%87%AA%E5%B7%B1%E6%83%B3%E8%A6%81%E7%9A%84%E7%89%88%E6%9C%AC"><span class="toc-text">切换到自己想要的版本</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E6%89%93%E5%BC%80%E4%B8%80%E4%B8%AA%E4%BE%8B%E7%A8%8B"><span class="toc-text">4. 打开一个例程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E4%BB%A5%E4%BE%8B%E7%A8%8B%E4%B8%BA%E6%A8%A1%E6%9D%BF%E5%88%9B%E5%BB%BA%E6%96%B0%E5%B7%A5%E7%A8%8B"><span class="toc-text">5. 以例程为模板创建新工程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E5%88%9B%E5%BB%BA%E6%96%B0%E5%B7%A5%E7%A8%8B"><span class="toc-text">5.1. 创建新工程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-%E4%BD%BF%E7%94%A8git%E8%B7%9F%E8%B8%AA%E4%BD%A0%E7%9A%84%E4%BB%A3%E7%A0%81%E4%BF%AE%E6%94%B9"><span class="toc-text">5.2. 使用git跟踪你的代码修改</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E7%BC%96%E8%AF%91%E5%B7%A5%E7%A8%8B"><span class="toc-text">6. 编译工程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-1-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%BC%96%E8%AF%91%E7%9B%AE%E6%A0%87%EF%BC%88Build-Target%EF%BC%89"><span class="toc-text">6.1. 创建一个编译目标（Build Target）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Board"><span class="toc-text">Board</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Configuation"><span class="toc-text">Configuation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kconfig-fragments"><span class="toc-text">Kconfig fragments</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Devicetree-overlays"><span class="toc-text">Devicetree overlays</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Extra-CMake-arguments"><span class="toc-text">Extra CMake arguments</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-2-%E8%BF%9B%E8%A1%8C%E7%BC%96%E8%AF%91"><span class="toc-text">6.2. 进行编译</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E8%BF%9E%E6%8E%A5%E8%AE%BE%E5%A4%87"><span class="toc-text">7. 连接设备</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E7%83%A7%E5%BD%95%E5%9B%BA%E4%BB%B6"><span class="toc-text">8. 烧录固件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-%E8%BF%90%E8%A1%8C%E5%B9%B6%E6%B5%8B%E8%AF%95"><span class="toc-text">9. 运行并测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#9-2-%E8%BF%9E%E6%8E%A5%E4%B8%B2%E5%8F%A3"><span class="toc-text">9.2. 连接串口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-3-%E8%BF%9E%E6%8E%A5RTT"><span class="toc-text">9.3. 连接RTT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-4-%E6%B5%8B%E8%AF%95peripheral-uart%E4%BE%8B%E7%A8%8B"><span class="toc-text">9.4. 测试peripheral_uart例程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87BLE%E8%BF%9E%E6%8E%A5%E8%AE%BE%E5%A4%87"><span class="toc-text">通过BLE连接设备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E6%9D%BF%E6%8E%A5%E6%94%B6%E6%95%B0%E6%8D%AE"><span class="toc-text">开发板接收数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%8F%91%E6%9D%BF%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE"><span class="toc-text">开发板发送数据</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10-%E9%98%85%E8%AF%BB%E4%BB%A3%E7%A0%81%E3%80%81%E8%B7%B3%E8%BD%AC%E4%B8%8E%E6%90%9C%E7%B4%A2"><span class="toc-text">10. 阅读代码、跳转与搜索</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#11-%E5%AE%98%E6%96%B9%E8%B5%84%E6%96%99"><span class="toc-text">11. 官方资料</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Nordic-TechDocs%E8%B5%84%E6%96%99%E4%B8%AD%E5%BF%83"><span class="toc-text">Nordic TechDocs资料中心</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NCS%E5%AE%98%E7%BD%91"><span class="toc-text">NCS官网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nordic%E6%97%A7%E7%89%88%E8%B5%84%E6%96%99%E4%B8%AD%E5%BF%83-Info-Center"><span class="toc-text">Nordic旧版资料中心(Info Center)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nordic%E5%AE%98%E7%BD%91"><span class="toc-text">Nordic官网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DevZone%E5%BC%80%E5%8F%91%E8%80%85%E8%AE%BA%E5%9D%9B"><span class="toc-text">DevZone开发者论坛</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nordic-DevAcademy%E5%AE%98%E6%96%B9%E8%AF%BE%E7%A8%8B"><span class="toc-text">Nordic DevAcademy官方课程</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#12-%E5%85%B6%E4%BB%96%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB"><span class="toc-text">12. 其他推荐阅读</span></a></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/jayant97.github.io/imgs/nordic/nrf-connect.png')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
   function initGitalk () {
     var gitalk = new Gitalk(Object.assign({
       clientID: 'c91ce0493b5c3e886110',

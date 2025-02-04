@@ -1,0 +1,469 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>NCS Matter例程详解 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="本文将会简单介绍Nordic Matter开发流程，然后详细分析一个Matter over Thread窗帘例程代码 1. Matter简介什么是Matter？从产品角度：  Matter是一个跨生态的智能家居标准，有众多大厂支持 消费者购买Matter产品无需考虑品牌、部署。只要支持Matter，都是开箱即用的   从技术角度：  Matter是基于IPv6的应用层协议(CHIP, Connec">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NCS Matter例程详解">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/01/5645a5cab10c/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="本文将会简单介绍Nordic Matter开发流程，然后详细分析一个Matter over Thread窗帘例程代码 1. Matter简介什么是Matter？从产品角度：  Matter是一个跨生态的智能家居标准，有众多大厂支持 消费者购买Matter产品无需考虑品牌、部署。只要支持Matter，都是开箱即用的   从技术角度：  Matter是基于IPv6的应用层协议(CHIP, Connec">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png">
+<meta property="article:published_time" content="2025-01-03T08:02:54.000Z">
+<meta property="article:modified_time" content="2025-02-04T13:08:03.396Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Matter">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2025/01/5645a5cab10c/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'NCS Matter例程详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-02-04 21:08:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">NCS Matter例程详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-01-03T08:02:54.000Z" title="发表于 2025-01-03 16:02:54">2025-01-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-02-04T13:08:03.396Z" title="更新于 2025-02-04 21:08:03">2025-02-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Matter/">Matter</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="NCS Matter例程详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2025/01/5645a5cab10c/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><p>本文将会简单介绍Nordic Matter开发流程，然后详细分析一个Matter over Thread窗帘例程代码</p>
+<h1 id="1-Matter简介"><a href="#1-Matter简介" class="headerlink" title="1. Matter简介"></a>1. Matter简介</h1><h2 id="什么是Matter？"><a href="#什么是Matter？" class="headerlink" title="什么是Matter？"></a>什么是Matter？</h2><p>从产品角度：</p>
+<ul>
+<li>Matter是一个<strong>跨生态</strong>的智能家居标准，有众多大厂支持</li>
+<li>消费者购买Matter产品无需考虑品牌、部署。只要支持Matter，都是开箱即用的</li>
+</ul>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103161208933.webp" alt="image-20250103161208933"></p>
+<p>从技术角度：</p>
+<ul>
+<li>Matter是基于IPv6的<strong>应用层</strong>协议(CHIP, Connect Home over IP)</li>
+<li>建立在成熟的网络协议之上（Wi-Fi&#x2F;Thread&#x2F;Ethernet ）</li>
+<li>Matter有一套成熟的设备发现和入网机制（UDP-SD或Bluetooth LE）</li>
+<li>Matter协议是安全的。设备必须经过认证才能加入Matter网络；入网后，设备会获得一个证书用于加密通讯。</li>
+</ul>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103161824130.webp" alt="image-20250103161824130"></p>
+<h2 id="开发Matter其实是在开发数据模型"><a href="#开发Matter其实是在开发数据模型" class="headerlink" title="开发Matter其实是在开发数据模型"></a>开发Matter其实是在开发数据模型</h2><p>Matter规定了许多<a target="_blank" rel="external nofollow noopener noreferrer" href="https://matter.cn/dev/device-type">设备类型</a>，厂商只能开发Matter已经规定的设备类型。如下图为Matter1.0发布时规定的部分设备类型：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103163009545.webp" alt="image-20250103163009545"></p>
+<p>这些不同的设备类型，其实就是不同的数据模型。在Matter协议栈中，应用层之下就是Data Model层：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103163420400.webp" alt="image-20250103163420400"></p>
+<ul>
+<li>Node：一个具有完整Matter stack的实体，具有唯一的网络地址。大多数情况下，一个设备就是一个Node。</li>
+<li>Endpoint：功能交互端点。例如一个Node可以有“锁”和“温度传感器”两个Endpoint。</li>
+<li>Cluster：每个Endpoint可能有多个具体的功能集合，就是cluster。例如锁的控制、电池电量的上报</li>
+<li>Attribute&#x2F;Events&#x2F;Commands：也就是所谓的属性&#x2F;事件&#x2F;服务，是数据实体。</li>
+</ul>
+<blockquote>
+<p>Endpoint0比较特殊，是必须的，它负责Matter基本功能的Cluster。</p>
+<p>一个具体的示例：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103164446104.webp" alt="image-20250103164446104"></p>
+<p>一个门锁设备，Endpoint0 提供基本信息、访问控制、配网等Matter基本功能的Cluster。</p>
+<p>Endpoint1提供Identify和门锁基本功能的Cluster。</p>
+<p>每个Cluster由多个Attributes组成，Attributes就是实际存储器中的变量或常量</p>
+</blockquote>
+<h2 id="Matter的网络拓扑"><a href="#Matter的网络拓扑" class="headerlink" title="Matter的网络拓扑"></a>Matter的网络拓扑</h2><p>由于Matter只是应用层协议，所以Matter的网络拓扑就是它采用的底层通讯方式的网络拓扑：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103164904210.webp" alt="image-20250103164904210"></p>
+<p>Matter网络建立后，互相之间通过前述数据模型进行交互。手机、智能音箱等可以操控所有设备。</p>
+<ul>
+<li>Wi-Fi：只要AP覆盖到的地方，设备都可以入网。AP之间通过以太网互联，在家庭中很常见。</li>
+<li>Thread：功耗更低，且Thread设备之间可以构成Mesh，只要多级跳转最终能连接到Border Router即可。一些位于中转位置的节点最好是常供电的（如Light Switch）。</li>
+<li>其他本地网络：如Zigbee，BLE Mesh等未在Matter标准中使用的协议，需要一个<strong>Matter Bridge</strong>来做中转。Matter Bridge负责向Matter网络提供数据模型，处理Matter交互，然后将其转换为其他协议。Matter并不规定Matter之外的协议如何处理，因此开发者可以让Bridge自由适配任何其他协议。</li>
+<li>互联网：Matter协议是局域网的。Matter生态商（如苹果、谷歌、亚马逊、三星）负责让你的手机可以通过外网发送到家中的控制中枢，从而控制家中的Matter设备。</li>
+</ul>
+<blockquote>
+<p>Thread网络是支持IPv6 UDP的。但Thread网络要和其他网络连接，需要边界路由器（OTBR， OpenThread Border Router）。<br>Apple Home Pod已经内置Border Router。此外iPhone 15 Pro和Pro Max已经内置Thread网卡，可以直接控制Thread设备。</p>
+</blockquote>
+<h2 id="Matter设备发现与入网"><a href="#Matter设备发现与入网" class="headerlink" title="Matter设备发现与入网"></a>Matter设备发现与入网</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103165708864.webp" alt="image-20250103165708864"></p>
+<p>BLE是目前最常见的入网方式，流程为：</p>
+<ol>
+<li>设备发出BLE广播</li>
+<li>【设备发现】手机扫描二维码后，或者输入Manual Pairing Code后，根据Paring Code信息自动连接对应的BLE广播</li>
+<li>【PASE】二者通过Out-of-band信息（二维码中的passcode）建立加密通道。确认设备经过认证，安装后续加密通讯需要的证书（NOC, Node Operational Certificate）。然后设备入网（传输Wi-Fi密钥，Thread网络Key等等），这个过程无需人工输入密码。</li>
+<li>【CASE】设备入网后，每次通讯都要建立一个新的AES加密连接。</li>
+</ol>
+<p>以上过程在SDK中都已经提供，无需再开发。</p>
+<p>其他的设备发现方式还有DNS-SD或Wi-Fi Soft-AP。</p>
+<h2 id="Matter-Controller"><a href="#Matter-Controller" class="headerlink" title="Matter Controller"></a>Matter Controller</h2><p>Matter Controller是网络中非常重要的节点，在消费者家中负责设备的远程控制和入网。如Apple HomePod.</p>
+<p>在Matter开发环境中，Matter Controller也非常重要。可以使用CHIP Tool作为Matter Controller。可以直接用命令行的方式直观地进行配网、数据模型交互。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103170010741.webp" alt="image-20250103170010741"></p>
+<p>CHIP Tool可以运行在Linux和mac OS环境中（Windows中需要Linux虚拟机）：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103171447107.webp" alt="image-20250103171447107"></p>
+<p>CHIP Tool是一个软件命令行工具，为了控制Matter设备，它所在的机器需要有BLE和IP网络。其中IP网络分为Thread, Wi-Fi和以太网。如果你是开发Matter Over Wi-Fi，则需要BLE和Wi-Fi&#x2F;以太网；如果你是开发Matter Over Thread，则需要BLE和Thread。</p>
+<ul>
+<li>Wi-Fi&#x2F;以太网：PC和树莓派自带Wi-Fi或以太网，无需额外准备。如果是Windows内的Linux虚拟机，则需要确保Linux虚拟机和宿主机在同一局域网下（Bridge模式）。</li>
+<li>Thread：PC和树莓派通常没有Thread网卡，因此需要一个Nordic开发板来充当网卡。比较推荐的是上图的nRF52840 Dongle，然后烧录Thread RCP例程(<code>nrf/samples/openthread/coprocessor</code>)</li>
+<li>BLE：PC和树莓派自带蓝牙网卡，无需额外准备。如果是Windows内的Linux虚拟机，则需要一个USB蓝牙网卡，通过USB透传进虚拟机。购买一个USB网卡也可以；使用Nordic nRF52840 Dongle也可以，烧录HCI_USB例程（<code>zephyr/samples/bluetooth/hci_usb</code>）；如果只有nRF52832（无USB），也可以烧录HCI_UART例程（<code>zephyr/samples/bluetooth/hci_uart</code>），按照例程文档说明通过命令行挂载一下蓝牙网卡即可。</li>
+</ul>
+<h1 id="2-Matter开发流程"><a href="#2-Matter开发流程" class="headerlink" title="2. Matter开发流程"></a>2. Matter开发流程</h1><p>Matter SDK是开源的，用Nordic SDK和硬件开发和评估Matter也不需要申请资质，软件全部是公开可下载的。开发前，先下载好<a target="_blank" rel="external nofollow noopener noreferrer" href="https://csa-iot.org/developer-resource/specifications-download-request/">技术文档</a>。</p>
+<p>下载对应Matter版本的3个文档：</p>
+<ul>
+<li>Matter Core Specification</li>
+<li>Matter Device Library Specification</li>
+<li>Matter Application Cluster Specification</li>
+</ul>
+<p>但最终要开发Matter产品并上市，还是要成为CSA会员并对设备进行认证。参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/nrf/protocols/matter/end_product/certification.html#ug-matter-device-certification">认证流程</a>。</p>
+<h2 id="芯片选型"><a href="#芯片选型" class="headerlink" title="芯片选型"></a>芯片选型</h2><p>主要是根据Flash RAM占用情况选用合适的芯片。Nordic有多个Matter例程，并且提供了它们在不同开发板上的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/nrf/protocols/matter/getting_started/hw_requirements.html#ram_and_flash_memory_requirements">资源占用情况</a>。最好按照Nordic提供的芯片组合来开发自己的Matter产品，这样开发量最小：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103170553365.webp" alt="image-20250103170553365"></p>
+<blockquote>
+<p>注意：NCS中，通过无线进行OTA一定需要双分区。由于Matter应用比较大，因此需要一个外部flash作为，其大小不低于内部Flash（52840为1M Bytes, 5340为1.5M Bytes）。且最好使用QSPI，并且注意使用QSPI专用的高速引脚（参考Nordic官方开发板）。</p>
+</blockquote>
+<h2 id="申请或购买Nordic开发板，直接在开发板运行Matter例程"><a href="#申请或购买Nordic开发板，直接在开发板运行Matter例程" class="headerlink" title="申请或购买Nordic开发板，直接在开发板运行Matter例程"></a>申请或购买Nordic开发板，直接在开发板运行Matter例程</h2><p>按照NCS <a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/nrf/protocols/matter/getting_started/adding_bt_services.html">Matter例程文档</a>在开发板上编译和烧录，运行例程。</p>
+<h2 id="进行项目开发"><a href="#进行项目开发" class="headerlink" title="进行项目开发"></a>进行项目开发</h2><p>搭建Matter开发环境，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/matter/getting_started/tools.html#chip_tool_for_linux_or_macos">安装CHIP Tool</a>；进行软件与硬件开发；<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/nrf/protocols/matter/getting_started/adding_clusters.html">添加自己的endpoint, cluster</a>。</p>
+<p>如有必要，还可以<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/nrf/protocols/matter/getting_started/adding_bt_services.html">添加Matter之外的蓝牙广播和蓝牙服务</a>。</p>
+<h2 id="产品优化"><a href="#产品优化" class="headerlink" title="产品优化"></a>产品优化</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/nrf/protocols/matter/getting_started/low_power_configuration.html">优化功耗</a>，主要是网络的功耗和一些外设的功耗。</p>
+<h2 id="生成Factory-Data"><a href="#生成Factory-Data" class="headerlink" title="生成Factory Data"></a>生成Factory Data</h2><p>认证通过后，进行产测工具的开发，通过证书为每台设备<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/nrf/protocols/matter/end_product/factory_provisioning.html">生成Factory Data</a></p>
+<h2 id="Matter文档与SDK"><a href="#Matter文档与SDK" class="headerlink" title="Matter文档与SDK"></a>Matter文档与SDK</h2><p>以上只是一个粗略的流程总结，具体开发步骤还是要参考Matter文档。</p>
+<p>Nordic官方文档：</p>
+<ul>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/nrf/protocols/matter/index.html">NCS - 协议简介 - Matter</a></p>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/nrf/samples/matter.html">NCS - 例程文档 - Matter</a></p>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/matter/index.html">Matter官方文档（Nordic相关）</a></p>
+<blockquote>
+<p>Matter官方文档可能出现一些NCS已经做好了，因此不必要再重复的内容（如编译Matter SDK）。为了避免混淆，最好主要参考前两个NCS中的文档。必要时，前两个文档会跳转到第三个文档中的内容。</p>
+</blockquote>
+</li>
+</ul>
+<p>NCS中已经包含了 Matter SDK （<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/project-chip/connectedhomeip%EF%BC%89%E4%BD%9C%E4%B8%BA%E5%AD%90%E4%BB%93%E5%BA%93%EF%BC%8C%E6%97%A0%E9%9C%80%E5%86%8D%E5%8D%95%E7%8B%AC%E4%B8%8B%E8%BD%BDMatter">https://github.com/project-chip/connectedhomeip）作为子仓库，无需再单独下载Matter</a> SDK。（modules&#x2F;lib&#x2F;matter）</p>
+<p>NCS中Matter例程的路径为：<code>nrf/samples/matter/</code><br>此外还有两个成熟的商业级例程：<br>         <code>nrf/applications/matter_weather_station</code><br>        <code> nrf/applications/matter_bridge</code></p>
+<h1 id="3-运行Matter窗帘例程"><a href="#3-运行Matter窗帘例程" class="headerlink" title="3. 运行Matter窗帘例程"></a>3. 运行Matter窗帘例程</h1><p>本次演示首先通过nRF Connect for VS Code中的“Copy a sample”功能，拷贝了<code>nrf/samples/matter/window_covering</code>工程。工程放在SDK外部。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103173810111-1735897091967-1.webp" alt="image-20250103173810111"></p>
+<p>并且把SDK和这个工程放在同一个VS Code workspace中，这样做是为了方便后续代码跳转阅读。</p>
+<blockquote>
+<p>注意最新的nRF Connect for VS Code插件进行了更新：要在build界面选择SDK和toolchain的版本。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103173843411.webp" alt="image-20250103173843411"></p>
+</blockquote>
+<p>编译烧录流程参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.8.0/page/nrf/samples/matter/window_covering/README.html">例程文档</a>。烧录之后就可以用CHIP Tool进行配网和控制。</p>
+<p>如果有iPhone手机和HomePod，则可以直接配置到Apple Home中。</p>
+<p>通过串口LOG的网址打开二维码，Home APP中扫描即可。由于例程用的证书都是一样的，用例程文档里的二维码也可：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103173947629.webp" alt="image-20250103173947629"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103173951338.webp" alt="image-20250103173951338"></p>
+<p>窗帘开关反映为LED的亮度。可以用Button控制窗帘，也可以在手机APP中控制。</p>
+<p>更多按钮和LED的功能，参考例程文档。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103174025955.webp" alt="image-20250103174025955"></p>
+<h1 id="4-窗帘例程代码解析"><a href="#4-窗帘例程代码解析" class="headerlink" title="4. 窗帘例程代码解析"></a>4. 窗帘例程代码解析</h1><h2 id="工程文件分析"><a href="#工程文件分析" class="headerlink" title="工程文件分析"></a>工程文件分析</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103174121007.webp" alt="image-20250103174121007"></p>
+<p>以下文件和NCS 2.6.x之前版本的作用是一样的：</p>
+<ul>
+<li>工程通用的配置文件prj.conf&#x2F; prj_release.conf</li>
+<li>boards&#x2F;下的配置文件与设备树overlay</li>
+<li>用于Flash分区的Partition Manager文件（yml）</li>
+<li>工程配置菜单文件Kconfig </li>
+<li>工程源码管理文件CMakeLists.txt</li>
+</ul>
+<p>然后是新增的内容：</p>
+<p><strong>sysbuild</strong></p>
+<p>Sysbuild代替了原来的parent-child image配置. 是为了多镜像工程服务的。</p>
+<p>每个子镜像也可以单独添加配置，和原来的child_image&#x2F;文件夹差不多。</p>
+<p>但是Sysbuild也可以添加一个High-level的配置，这些High-level的配置将应用到所有子镜像（App, Bootloader, 以及可能存在的网络核固在的网络核固件）中：</p>
+<ul>
+<li>Kconfig.sysbuild 与 sysbuild.conf</li>
+<li>sysbuild.cmake (本例程中未使用)</li>
+</ul>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103174616698.webp" alt="image-20250103174616698"></p>
+<p>此外，有一部分应用层代码并不位于本工程中，而是位于<code>nrf/samples/matter/common</code><br>这是所有Matter例程共用的一部分代码。这部分代码是CMakeLists.txt中下面这一行引入的：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Include all source files that are located in the Matter common directory.</span></span><br><span class="line"><span class="keyword">include</span>(<span class="variable">$&#123;ZEPHYR_NRF_MODULE_DIR&#125;</span>/samples/matter/common/cmake/source_common.cmake)</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><h3 id="main-cpp"><a href="#main-cpp" class="headerlink" title="main.cpp"></a>main.cpp</h3><p>首先看main.cpp</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    CHIP_ERROR err = AppTask::<span class="built_in">Instance</span>().<span class="built_in">StartApp</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">LOG_ERR</span>(<span class="string">&quot;Exited with code %&quot;</span> CHIP_ERROR_FORMAT, err.<span class="built_in">Format</span>());</span><br><span class="line">    <span class="keyword">return</span> err == CHIP_NO_ERROR ? EXIT_SUCCESS : EXIT_FAILURE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>例程代码是C++写的，但是开发者后续也可添加C代码，和其他的NCS工程开发起来没有什么区别。C代码添加自己的线程即可，和C++互相不干扰。</p>
+<p>main函数中，只是调用了AppTask这个类的启动函数，便启动了Matter协议栈。</p>
+<p>并且，正常情况下这个函数应该永远不退出。</p>
+<h3 id="AppTask-h"><a href="#AppTask-h" class="headerlink" title="AppTask.h"></a>AppTask.h</h3><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">AppTask</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">static</span> AppTask &amp;<span class="title">Instance</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="type">static</span> AppTask sAppTask;</span><br><span class="line">        <span class="keyword">return</span> sAppTask;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function">CHIP_ERROR <span class="title">StartApp</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">IdentifyStartHandler</span><span class="params">(Identify *)</span></span>;</span><br><span class="line">    <span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">IdentifyStopHandler</span><span class="params">(Identify *)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">AppTask</span>() = <span class="keyword">default</span>; <span class="comment">// 这一行是我添加的</span></span><br><span class="line"></span><br><span class="line">    <span class="function">CHIP_ERROR <span class="title">Init</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">ToggleMoveType</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">OpenHandler</span><span class="params">(<span class="type">const</span> WindowButtonAction &amp;action)</span></span>;</span><br><span class="line">    <span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">CloseHandler</span><span class="params">(<span class="type">const</span> WindowButtonAction &amp;action)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">ButtonEventHandler</span><span class="params">(Nrf::ButtonState state, Nrf::ButtonMask hasChanged)</span></span>;</span><br><span class="line"></span><br><span class="line">    OperationalState mMoveType&#123; OperationalState::MovingUpOrOpen &#125;;</span><br><span class="line">    <span class="type">bool</span> mMovementTimerActive&#123; <span class="literal">false</span> &#125;;</span><br><span class="line">    <span class="type">bool</span> mOpenButtonIsPressed&#123; <span class="literal">false</span> &#125;;</span><br><span class="line">    <span class="type">bool</span> mCloseButtonIsPressed&#123; <span class="literal">false</span> &#125;;</span><br><span class="line">    <span class="type">bool</span> mMoveTypeRecentlyChanged&#123; <span class="literal">false</span> &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>AppTask这个类，涵盖了应用层的所有任务。</p>
+<p>注意到，这个类采用了单例模式，其默认构造函数没有定义（为了安全，应该改为private，空的构造函数）。</p>
+<p>意思是，这个类只能有1个对象实例，代码的其他地方不能通过静态定义或者动态allocate这个对象。<br>要调用这个类的函数时，必须使用<code>AppTask::Instance()</code> 这个唯一的实例对象，例如：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">CHIP_ERROR err = AppTask::<span class="built_in">Instance</span>().<span class="built_in">StartApp</span>();</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这也是非常合理的，因为这个类管理的是当前设备的硬件行为。一块板子上的硬件外设本来就有唯一性，定义多个对象实例没有意义。</p>
+</blockquote>
+<h3 id="AppTask-cpp"><a href="#AppTask-cpp" class="headerlink" title="AppTask.cpp"></a>AppTask.cpp</h3><p>前面看到，在main.cpp中执行了AppTask::Instance().StartApp()这个函数。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">CHIP_ERROR <span class="title">AppTask::StartApp</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">ReturnErrorOnFailure</span>(<span class="built_in">Init</span>());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        Nrf::<span class="built_in">DispatchNextTask</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> CHIP_NO_ERROR;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>它首先初始化了Matter。然后处理事件循环。</p>
+<h4 id="Matter初始化"><a href="#Matter初始化" class="headerlink" title="Matter初始化"></a>Matter初始化</h4><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103175838230.webp" alt="image-20250103175838230"></p>
+<p><code>AppTask::Init()</code>中进行了Matter协议栈的初始化。</p>
+<p>所有<code>Nrf::</code>类中的函数，都是<code>nrf/samples/matter/common</code>提供的，不是Matter SDK原始的API。其目的是封装和简化Matter例程代码。</p>
+<p>第一部分是初始化Matter Stack</p>
+<p>第二部分是注册硬件按钮回调函数</p>
+<p>第三部分是注册Matter事件回调函数，这部分最重要。设备何时开启蓝牙广播、何时入网、断开连接，都在里面有回调.现在注册的是common里面提供的默认回调函数。你可以把这个函数拷贝出来到AppTask.cpp，并重写自己的功能，再注册回去。</p>
+<p>第四部分是开启Matter协议栈。</p>
+<h4 id="AppTask事件循环"><a href="#AppTask事件循环" class="headerlink" title="AppTask事件循环"></a>AppTask事件循环</h4><p>这个事件循环，其实和Zephyr Work Queue (k_work)的功能差不多。在各种Matter或者硬件中断的回调函数中，我们希望能够快速退出回调，防止卡中断或者协议栈，因此可以把一些耗时的任务提交到Workqueue中去运行（Workqueue有单独的线程）。</p>
+<p>使用Zephyr Work Queue 当然是可以的，但是比较麻烦的是每次都要自己定义一个k_work结构体，还要初始化这个work，注册k_work的回调，重复性的代码比较多。</p>
+<p>Matter例程是C++编写的，因此利用了C++的Lambda表达式可以作为匿名函数的功能：<br>简单理解，Lambda表达式就是：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">[args...] &#123; </span><br><span class="line">      ... <span class="comment">// your code</span></span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>这是个匿名函数。直接把它整体丢进队列，事件循环中就可以从队列中取出这个函数，然后执行了。省去了定义函数名和函数指针的麻烦，例如：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Matter Identify事件回调，要求设备LED闪烁，以辨识设备</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppTask::IdentifyStartHandler</span><span class="params">(Identify *)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 此函数的参数，就是一个完整的lambda表达式，整体作为匿名函数传参</span></span><br><span class="line">    Nrf::<span class="built_in">PostTask</span>([] &#123;</span><br><span class="line">        WindowCovering::<span class="built_in">Instance</span>().<span class="built_in">GetLiftIndicator</span>().<span class="built_in">SuppressOutput</span>();</span><br><span class="line">        Nrf::<span class="built_in">GetBoard</span>().<span class="built_in">GetLED</span>(Nrf::DeviceLeds::LED2).<span class="built_in">Blink</span>(Nrf::LedConsts::kIdentifyBlinkRate_ms);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此外，[]中的内容叫作捕获组，可以把当前函数的局部变量捕获到lambada表达式中，当作参数传递使用，非常方便。例如：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 硬件按钮事件回调，需要调用比较耗时的开启或关闭窗帘函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppTask::ButtonEventHandler</span><span class="params">(Nrf::ButtonState state, Nrf::ButtonMask hasChanged)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (OPEN_BUTTON_MASK &amp; hasChanged) &#123;</span><br><span class="line">        WindowButtonAction action =</span><br><span class="line">            (OPEN_BUTTON_MASK &amp; state) ? WindowButtonAction::Pressed : WindowButtonAction::Released;</span><br><span class="line">        Nrf::<span class="built_in">PostTask</span>([action] &#123; <span class="built_in">OpenHandler</span>(action); &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (CLOSE_BUTTON_MASK &amp; hasChanged) &#123;</span><br><span class="line">        WindowButtonAction action =</span><br><span class="line">            (CLOSE_BUTTON_MASK &amp; state) ? WindowButtonAction::Pressed : WindowButtonAction::Released;</span><br><span class="line">        Nrf::<span class="built_in">PostTask</span>([action] &#123; <span class="built_in">CloseHandler</span>(action); &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="zcl-callbacks-cpp"><a href="#zcl-callbacks-cpp" class="headerlink" title="zcl_callbacks.cpp"></a>zcl_callbacks.cpp</h3><p>前面Matter协议栈初始化后，BLE和Thread就全部被Matter接管并初始化好了，无需开发者再关注。<br>包括配网的功能已经全部被SDK实现。</p>
+<p>Matter要开发的，其实就是如何处理数据交互（Endpoint, Cluster, Attributes）。</p>
+<p>Matter的数据模型都是通过ZAP Tool进行图形化编辑的，编辑后自动生成代码。<br>但是自动生成的代码是空的，应用层需要实现这个代码。</p>
+<p>例如，zcl_callbacks.cpp中，就实现了当自己Attributes被网络中的其他设备修改时，要执行的回调函数。<br>每个Attribute都有自己的ID，通过ID来判断是哪个Attribute被修改了。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103180220665.webp" alt="image-20250103180220665"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103180230824.webp" alt="image-20250103180230824"></p>
+<h3 id="WindowCovering-cpp"><a href="#WindowCovering-cpp" class="headerlink" title="WindowCovering.cpp"></a>WindowCovering.cpp</h3><p>WindowCovering类，提供的就是“真正”的窗帘控制代码了。前面ZCL的回调之中调用的就是WindowCovering类的代码。</p>
+<p>但是实际上这里是用LED的亮度变化来模拟窗帘的打开程度。这个class的代码不重要，开发者完全可以把它删了改成自己的。只需要能够完美处理zcl_callback.cpp中的回调事件即可。</p>
+<p>而且由于同时支持竖向窗帘和横向窗帘，这个类的代码写的比较复杂。</p>
+<p>这里简单分为两类：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103180439164.webp" alt="image-20250103180439164"></p>
+<ul>
+<li>窗帘目标位置发生改变：执行StartMove函数。注意这里并没有传递参数，告知具体的目标位置是什么。因为Attribute是随时可读的，可以在后续具体执行运动时，再去Get这个Attribute值。</li>
+<li>窗帘实际位置发生改变：更新LED状态。同理，也不需要传参。</li>
+</ul>
+<p>这里直接跳到以下函数：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103180531498.webp" alt="image-20250103180531498"></p>
+<p>从前面的<code>StartMove(….LIFT)</code>，调用到上面展示的<code>DriveCurrentLiftPosition()</code>函数，中间跳转了很多层。本质上就是为了模拟窗帘的运动。</p>
+<p><code>DriveCurrentLiftPosition()</code>是一个软定时器的回调函数。每200ms把当前位置向目标位置挪动一步，一步是初始差值的5%，用来模拟窗帘慢慢移动到窗帘的实际位置。这里细节我们不必过于深究，只需要知道Matter API如何调用：</p>
+<ul>
+<li>要Get Attribute值，需要调用<code>Attributes::属性名::Get(Endpoint(), xxx)</code></li>
+<li>要Set Attribute值，需要调用<code>Attributes::属性名::Set(Endpoint(), xxx)</code></li>
+</ul>
+<p>这里的参数Endpoint()其实就是个整数。因为WindowCovering这个类，也是一个单例模式的类。它对应的就是Endpoint1：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// WindowCovering.h中class的定义</span></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="keyword">constexpr</span> chip::EndpointId <span class="title">Endpoint</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="number">1</span>; &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>此外，注意上述Attribute操作的API是在窗帘Cluster的name space调用的，如果开发其他产品，要换成其他的namespace：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> chip::app::Clusters::WindowCovering;</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>AppTask这个类负责应用层的杂项业务代码，有自己的事件循环（占用main线程）。也负责Matter协议栈的初始化。</p>
+<p>default_zap&#x2F;zap_generated下的代码是zap tool根据Matter数据模型自动生成的。用户可以用zap tool来修改当前工程的Matter数据模型。自动生成的代码只有定义，没有实现。开发者需要实现这些应用层代码。</p>
+<p>WindowCovering这个类，是Nordic提供的应用层示例代码，用LED的灯光亮度来模拟窗帘的运动。开发者完全可以实现自己的类，而不必继续使用这个类。只需学习它的Attribute的操作方法，以及各种Matter API的使用即可。</p>
+<h1 id="5-实战-增加电量显示"><a href="#5-实战-增加电量显示" class="headerlink" title="5. 实战-增加电量显示"></a>5. 实战-增加电量显示</h1><h2 id="参考Matter标准文档"><a href="#参考Matter标准文档" class="headerlink" title="参考Matter标准文档"></a>参考Matter标准文档</h2><p>在添加新的Cluster前，首先要参考Matter的标准文档。</p>
+<p>电池电量不属于application cluster，而是在核心规范中定义。我们直接参考matter-1-3-core-specification.pdf</p>
+<p>电源相关的cluster定义在11.7 Power Source Cluster。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103181214254.webp" alt="image-20250103181214254"></p>
+<h2 id="使用ZAP-Tool修改数据模型"><a href="#使用ZAP-Tool修改数据模型" class="headerlink" title="使用ZAP Tool修改数据模型"></a>使用ZAP Tool修改数据模型</h2><p>为自己的当前build打开一个nRF Connect命令行：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103181417476.webp" alt="image-20250103181417476"></p>
+<blockquote>
+<p>现在也可以从这里打开：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103181337558.webp" alt="image-20250103181337558"></p>
+</blockquote>
+<p>输入以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west zap-gui</span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment"># 可添加参数：</span></span><br><span class="line"><span class="comment"># -z zap配置文件位置. 也就是$(pwd)/src/default_zap/window-app.zap</span></span><br><span class="line"><span class="comment"># -j zcl.json模板位置</span></span><br><span class="line"><span class="comment"># -m Matter SDK安装位置</span></span><br><span class="line"><span class="comment">##</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>现在直接执行上述命令，会自动连网安装zap tool，不需要自己手动下载。也不需要添加参数设置位置。会按照SDK的zap tool的相对路径来查找。</p>
+</blockquote>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103181539141.webp" alt="image-20250103181539141"></p>
+<p>在Endpoint 1中，因为PowerSource不属于application cluster，而是Matter的Cluster，所以在CHIP（Connect Home over IP）分类下寻找。</p>
+<p>选中Power Source Cluster，并开启Server。Server的含义是存储Attribute的地方，可以被Client读取或修改。</p>
+<p>再点击右侧齿轮进行进一步修改。</p>
+<blockquote>
+<p>可以先什么都不改，直接用<code>west zap-generate</code>生成代码，相当于进行了一次代码格式化。代码格式化后commit一次。后续改了zap，再生成代码，就方便通过git看自动生成了哪些callback。</p>
+</blockquote>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103181648145.webp" alt="image-20250103181648145"></p>
+<p>每个Cluster会有很多Feature。例如核心规范中规定，有4个Feature。电源线供电，电池供电，可充电电池，可更换电池。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103181736638.webp" alt="image-20250103181736638"></p>
+<p>其中，Conformance字段表示某种依赖性。方括号[]的意思是依赖，如果想要使能RECHG或者REPLC，就必须要使能BAT。</p>
+<p>由于我们要显示电池电量，电池电量这个Attribute肯定是属于BAT这个Feature的，因此Feature Map的Bit 1就要置1。也就是把FeatureMap置为0x02：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103181807061.webp" alt="image-20250103181807061"></p>
+<p>(这里显示out of range是ZAP Tool的显示bug，实际是正确的)</p>
+<p>继续阅读文档，发现BatPercentRemaining这个Attribute就是我们需要的电池电量。取值范围是0-200。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103181844938.webp" alt="image-20250103181844938"></p>
+<p>并且其依赖[BAT]这个Feature，这个我们前面已经设置好了。</p>
+<p>但是，后面还有三个Attribute，他们的Conformance是不带方括号的BAT。</p>
+<p>不带方括号的意思是，当使能了BAT，就必须要开启这三项attribute:</p>
+<ul>
+<li>BatChargeLevel：枚举（正常、电量低、状态危险）</li>
+<li>BatReplacementNeeded：bool，电池是否需要更换</li>
+<li>BatReplaceability：枚举（未定义、不可更换、用户可更换、返厂可更换）</li>
+</ul>
+<p>总共要开启4项：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103181925963.webp" alt="image-20250103181925963"></p>
+<p>点击File-&gt;Save保存。保存后，通过git会发现window-app.zap数据模型文件已经新增了Power Source cluster。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103182137910.webp" alt="image-20250103182137910"></p>
+<h2 id="自动生成数据模型对应的代码"><a href="#自动生成数据模型对应的代码" class="headerlink" title="自动生成数据模型对应的代码"></a>自动生成数据模型对应的代码</h2><p>使用<code>west zap-generate</code>自动按照默认路径生成代码.</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west zap-generate </span><br><span class="line"><span class="comment">## </span></span><br><span class="line"><span class="comment"># 可添加参数：</span></span><br><span class="line"><span class="comment"># -z zap配置文件位置. 也就是$(pwd)/src/default_zap/window-app.zap</span></span><br><span class="line"><span class="comment"># -o 自动生成代码的位置。不能用相对路径。</span></span><br><span class="line"><span class="comment"># -m Matter SDK安装位置</span></span><br><span class="line"><span class="comment">##</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>现在不需要添加参数设置位置。会按照SDK的zap tool的相对路径来查找。</p>
+</blockquote>
+<p>通过git查看新增的代码：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103182244065.webp" alt="image-20250103182244065"></p>
+<p>自动生成代码后，会发现只增加了一个InitCallback.</p>
+<p>因为电池电量不可能被其他设备写，只能被读，所以不会新增一个像窗帘那样的AttributeChangedCallback.</p>
+<h2 id="添加回调"><a href="#添加回调" class="headerlink" title="添加回调"></a>添加回调</h2><p>在zcl_callbacks.cpp中实现上述新增的callback</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">emberAfPowerSourceClusterInitCallback</span><span class="params">(EndpointId endpoint)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Protocols::InteractionModel::Status status;</span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> featureMap;</span><br><span class="line">    ::chip::app::Clusters::PowerSource::Attributes::FeatureMap::<span class="built_in">Get</span>(endpoint, &amp;featureMap);</span><br><span class="line">    <span class="built_in">ChipLogProgress</span>(Zcl, <span class="string">&quot;PowerSource::Attributes::FeatureMap = 0x%x&quot;</span>, featureMap);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 要确保在zap-gui中已经配置feature支持电池电量</span></span><br><span class="line">    __ASSERT((featureMap &amp; <span class="number">0x02</span>) != <span class="number">0</span>, <span class="string">&quot;PowerSource::Attributes::FeatureMap does not support battery!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    app::DataModel::Nullable&lt;<span class="type">uint8_t</span>&gt; BatPercentRemaing;</span><br><span class="line">    status = ::chip::app::Clusters::PowerSource::Attributes::BatPercentRemaining::<span class="built_in">Get</span>(endpoint, BatPercentRemaing);</span><br><span class="line">    <span class="keyword">if</span> (BatPercentRemaing.<span class="built_in">IsNull</span>()) &#123;</span><br><span class="line">        BatPercentRemaing.<span class="built_in">SetNonNull</span>(<span class="number">100</span>);</span><br><span class="line">        status = ::chip::app::Clusters::PowerSource::Attributes::BatPercentRemaining::<span class="built_in">Set</span>(endpoint, <span class="number">100</span>);</span><br><span class="line">        <span class="keyword">if</span> (status != Protocols::InteractionModel::Status::Success) &#123;</span><br><span class="line">            <span class="built_in">ChipLogError</span>(Zcl, <span class="string">&quot;Failed to set PowerSource %s: %x&quot;</span>, <span class="string">&quot;BatPercentRemaining&quot;</span>, <span class="built_in">to_underlying</span>(status));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个多出来的回调并没有那么严格，上面是一个示例，只是打印一些log而已。</p>
+<p>只需要学会电池电量的attribute如何设置即可。后续在业务代码中直接调用相关函数，进行设置。注意把代码放到事件循环中执行。</p>
+<h2 id="验证效果"><a href="#验证效果" class="headerlink" title="验证效果"></a>验证效果</h2><p>在设备详情页面多了电量显示。但是一直是0，因为只在InitCallback中设置电量是不够的，要在程序运行起来后去设置。</p>
+<p>注意电量范围是0-200，因此要设置200才是100%电量</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250103182535706.webp" alt="image-20250103182535706"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2025/01/5645a5cab10c/">https://jayant-tang.github.io/jayant97.github.io/2025/01/5645a5cab10c/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/Matter/">Matter</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" title="NCS 低功耗日志打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">NCS 低功耗日志打印</div></div></a></div><div class="next-post pull-right"><a href="/jayant97.github.io/2024/01/b74491c1a080/" title="Nordic GPIO硬件原理与NCS应用详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Nordic GPIO硬件原理与NCS应用详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" title="NCS 低功耗日志打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-26</div><div class="title">NCS 低功耗日志打印</div></div></a></div><div><a href="/jayant97.github.io/2024/01/b74491c1a080/" title="Nordic GPIO硬件原理与NCS应用详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-22</div><div class="title">Nordic GPIO硬件原理与NCS应用详解</div></div></a></div><div><a href="/jayant97.github.io/2023/11/4c8e1d7d162d/" title="Zephyr驱动与设备树实战——串口"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-12</div><div class="title">Zephyr驱动与设备树实战——串口</div></div></a></div><div><a href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-cloud.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-01</div><div class="title">nRF9160与nRF Cloud应用示例</div></div></a></div><div><a href="/jayant97.github.io/2023/11/1349f878e408/" title="在NCS中使用NRFX外设驱动库——以I2C为例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-15</div><div class="title">在NCS中使用NRFX外设驱动库——以I2C为例</div></div></a></div><div><a href="/jayant97.github.io/2023/08/045cdc9c9b10/" title="在nRF7002开发板上运行MQTT例程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-14</div><div class="title">在nRF7002开发板上运行MQTT例程</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Matter%E7%AE%80%E4%BB%8B"><span class="toc-text">1. Matter简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFMatter%EF%BC%9F"><span class="toc-text">什么是Matter？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%8F%91Matter%E5%85%B6%E5%AE%9E%E6%98%AF%E5%9C%A8%E5%BC%80%E5%8F%91%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B"><span class="toc-text">开发Matter其实是在开发数据模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Matter%E7%9A%84%E7%BD%91%E7%BB%9C%E6%8B%93%E6%89%91"><span class="toc-text">Matter的网络拓扑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Matter%E8%AE%BE%E5%A4%87%E5%8F%91%E7%8E%B0%E4%B8%8E%E5%85%A5%E7%BD%91"><span class="toc-text">Matter设备发现与入网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Matter-Controller"><span class="toc-text">Matter Controller</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Matter%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B"><span class="toc-text">2. Matter开发流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8A%AF%E7%89%87%E9%80%89%E5%9E%8B"><span class="toc-text">芯片选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%B3%E8%AF%B7%E6%88%96%E8%B4%AD%E4%B9%B0Nordic%E5%BC%80%E5%8F%91%E6%9D%BF%EF%BC%8C%E7%9B%B4%E6%8E%A5%E5%9C%A8%E5%BC%80%E5%8F%91%E6%9D%BF%E8%BF%90%E8%A1%8CMatter%E4%BE%8B%E7%A8%8B"><span class="toc-text">申请或购买Nordic开发板，直接在开发板运行Matter例程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E8%A1%8C%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91"><span class="toc-text">进行项目开发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%A7%E5%93%81%E4%BC%98%E5%8C%96"><span class="toc-text">产品优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E6%88%90Factory-Data"><span class="toc-text">生成Factory Data</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Matter%E6%96%87%E6%A1%A3%E4%B8%8ESDK"><span class="toc-text">Matter文档与SDK</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E8%BF%90%E8%A1%8CMatter%E7%AA%97%E5%B8%98%E4%BE%8B%E7%A8%8B"><span class="toc-text">3. 运行Matter窗帘例程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E7%AA%97%E5%B8%98%E4%BE%8B%E7%A8%8B%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="toc-text">4. 窗帘例程代码解析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E7%A8%8B%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90"><span class="toc-text">工程文件分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#main-cpp"><span class="toc-text">main.cpp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AppTask-h"><span class="toc-text">AppTask.h</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AppTask-cpp"><span class="toc-text">AppTask.cpp</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Matter%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">Matter初始化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#AppTask%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF"><span class="toc-text">AppTask事件循环</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#zcl-callbacks-cpp"><span class="toc-text">zcl_callbacks.cpp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WindowCovering-cpp"><span class="toc-text">WindowCovering.cpp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E5%AE%9E%E6%88%98-%E5%A2%9E%E5%8A%A0%E7%94%B5%E9%87%8F%E6%98%BE%E7%A4%BA"><span class="toc-text">5. 实战-增加电量显示</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83Matter%E6%A0%87%E5%87%86%E6%96%87%E6%A1%A3"><span class="toc-text">参考Matter标准文档</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8ZAP-Tool%E4%BF%AE%E6%94%B9%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B"><span class="toc-text">使用ZAP Tool修改数据模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B%E5%AF%B9%E5%BA%94%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="toc-text">自动生成数据模型对应的代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E5%9B%9E%E8%B0%83"><span class="toc-text">添加回调</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81%E6%95%88%E6%9E%9C"><span class="toc-text">验证效果</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'c91ce0493b5c3e886110',
+      clientSecret: '7599decf69128ba1a83c1f3ef0923395a9bd8a60',
+      repo: 'jayant97.github.io',
+      owner: 'Jayant-Tang',
+      admin: ['Jayant-Tang'],
+      id: '48c3863acc9cfc4431752bd90e55d5bb',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/jayant97.github.io/js/search/local-search.js"></script></div></div></body></html>
