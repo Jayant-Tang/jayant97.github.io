@@ -1,0 +1,298 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>树莓派串口终端与网口直连终端 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 概览 本文满足以下树莓派使用场景：  无显示器，无键盘鼠标，无小型路由器。 有Wi-Fi网络，但无Wi-Fi网络管理员权限（校园网&#x2F;企业网），树莓派需要连接到互联网。 有USB转TTL串口模块。电脑通过串口登陆树莓派终端。 有一根网线。电脑可以通过网口直连树莓派。 整套设备携带到没有网络的地方也可用。 不影响笔记本网口正常功能。  2. 配置串口终端 硬件：树莓派5 系统：Rasp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="树莓派串口终端与网口直连终端">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/03/dd490e6182dc/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 概览 本文满足以下树莓派使用场景：  无显示器，无键盘鼠标，无小型路由器。 有Wi-Fi网络，但无Wi-Fi网络管理员权限（校园网&#x2F;企业网），树莓派需要连接到互联网。 有USB转TTL串口模块。电脑通过串口登陆树莓派终端。 有一根网线。电脑可以通过网口直连树莓派。 整套设备携带到没有网络的地方也可用。 不影响笔记本网口正常功能。  2. 配置串口终端 硬件：树莓派5 系统：Rasp">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png">
+<meta property="article:published_time" content="2025-03-31T05:21:27.000Z">
+<meta property="article:modified_time" content="2025-05-05T04:51:15.728Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="嵌入式,Nordic,BLE,LTE,Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2025/03/dd490e6182dc/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '树莓派串口终端与网口直连终端',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-05-05 12:51:15'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">17</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">树莓派串口终端与网口直连终端</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-31T05:21:27.000Z" title="发表于 2025-03-31 13:21:27">2025-03-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-05T04:51:15.728Z" title="更新于 2025-05-05 12:51:15">2025-05-05</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="树莓派串口终端与网口直连终端"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2025/03/dd490e6182dc/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h1 id="1-概览"><a href="#1-概览" class="headerlink" title="1. 概览"></a>1. 概览</h1><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250331132936987.webp" alt="image-20250331132936987"></p>
+<p>本文满足以下树莓派使用场景：</p>
+<ol>
+<li>无显示器，无键盘鼠标，无小型路由器。</li>
+<li>有Wi-Fi网络，但无Wi-Fi网络管理员权限（校园网&#x2F;企业网），树莓派需要连接到互联网。</li>
+<li>有USB转TTL串口模块。电脑通过串口登陆树莓派终端。</li>
+<li>有一根网线。电脑可以通过网口直连树莓派。</li>
+<li>整套设备携带到没有网络的地方也可用。</li>
+<li>不影响笔记本网口正常功能。</li>
+</ol>
+<h1 id="2-配置串口终端"><a href="#2-配置串口终端" class="headerlink" title="2. 配置串口终端"></a>2. 配置串口终端</h1><ul>
+<li>硬件：树莓派5</li>
+<li>系统：Raspbian或Ubuntu Server 24.04</li>
+</ul>
+<p>使用树莓派的Imager软件烧录完SD卡后，打开SD卡，boot盘，找到<code>config.txt</code>文件，在尾部添加:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">enable_uart=1</span><br><span class="line">dtoverlay=uart0</span><br><span class="line">dtparam=uart0_console</span><br></pre></td></tr></table></figure>
+
+<p>前两行开启串口Shell终端，可以登录控制台。第三行开启串口内核日志。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/7_5_5c4a976d-c917-4049-ba8f-85bb33d52568_1024x1024.webp" alt="img"></p>
+<p>引脚为上图中的 GPIO14, GPIO15，电平为3.3V。接好USB转串口（TXD接RXD，RXD接TXD，GND接GND），插入SD卡。上电，等待一段时间就可以从串口看到内核启动日志。并且可以输入用户名、密码登录终端。</p>
+<h1 id="3-配置网线直连终端"><a href="#3-配置网线直连终端" class="headerlink" title="3. 配置网线直连终端"></a>3. 配置网线直连终端</h1><p>网上有很多教程是在电脑上把Wi-Fi网络共享给网口，这样电脑就变成一个路由器，树莓派网口接到电脑上就可以访问互联网。</p>
+<p>但是本文将采用相反的方案。不修改电脑的网口配置，而是在树莓派的网口启动一个DHCP server，把树莓派变成路由器。</p>
+<h2 id="1-给树莓派网口配置静态IP"><a href="#1-给树莓派网口配置静态IP" class="headerlink" title="(1) 给树莓派网口配置静态IP"></a>(1) 给树莓派网口配置静态IP</h2><p>不同操作系统的配置不同。例如Ubuntu桌面版有Network Manager，而Server版没有。这里只展示Ubuntu Server版的配置。Ubuntu Server 24.04通过<code>netplan</code>配置网口。</p>
+<p>首先查看网口名称：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ip a</span><br></pre></td></tr></table></figure>
+
+<p>以太网口名通常为<code>eth0</code></p>
+<p>检查现有的Netplan配置</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo cat /etc/netplan/*.yaml</span><br></pre></td></tr></table></figure>
+
+<p>我这里的文件名是<code>50-cloud-init.yaml</code></p>
+<p>给网口配置静态ip：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo nano /etc/netplan/50-cloud-init.yaml</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">network:</span><br><span class="line">  version: 2</span><br><span class="line">  wifis:</span><br><span class="line">    wlan0:</span><br><span class="line">      optional: true</span><br><span class="line">      dhcp4: true</span><br><span class="line">      access-points:</span><br><span class="line">        &quot;Wi-Fi SSID&quot;:</span><br><span class="line">          auth:</span><br><span class="line">            key-management: &quot;psk&quot;</span><br><span class="line">            password: &quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;</span><br><span class="line">  </span><br><span class="line">  ethernets:</span><br><span class="line">    eth0:</span><br><span class="line">      addresses: [192.168.10.1/24]</span><br><span class="line">      routes:</span><br><span class="line">       - to: 192.168.10.0/24</span><br><span class="line">         via: 192.168.10.1</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>wifis</code>的部分可能在SD卡烧录完毕，配置镜像的时候就已经输入好密码了，这部分不用动。</p>
+<p>增加一个和<code>wifis</code>同级别的<code>ethernets</code>部分。配置静态IP地址为<code>192.168.10.1/24</code>，<strong>注意不要和你的校园网&#x2F;企业网的网段冲突</strong>。如果冲突可以换成其他网段。</p>
+<p>应用配置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo netplan apply</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-在树莓派网口启动DHCP服务器"><a href="#2-在树莓派网口启动DHCP服务器" class="headerlink" title="(2) 在树莓派网口启动DHCP服务器"></a>(2) 在树莓派网口启动DHCP服务器</h2><p>安装dnsmasq</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt install dnsmasq</span><br></pre></td></tr></table></figure>
+
+<p>配置dnsmasq</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo <span class="built_in">mv</span> /etc/dnsmasq.conf /etc/dnsmasq.conf.bak</span><br><span class="line"></span><br><span class="line">sudo nano /etc/dnsmasq.conf</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">port=0                  # 禁用 DNS 服务</span><br><span class="line">interface=eth0          # 仅监听 eth0</span><br><span class="line">dhcp-range=192.168.10.100,192.168.10.200,255.255.255.0,24h</span><br><span class="line">dhcp-option=option:router,192.168.10.1</span><br><span class="line">dhcp-option=option:dns-server,114.114.114.114  # 指定外部 DNS</span><br></pre></td></tr></table></figure>
+
+<p>这里我们只希望dnsmasq启动DHCP server，而不需要它帮我们代理DNS。因此这里需要<code>port=0</code>。</p>
+<p>重启dnsmasq</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo systemctl restart dnsmasq</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-通过网口ssh直连"><a href="#3-通过网口ssh直连" class="headerlink" title="(3) 通过网口ssh直连"></a>(3) 通过网口ssh直连</h2><p>重启树莓派</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo reboot</span><br></pre></td></tr></table></figure>
+
+<p>重启后，用电脑的网口应该就可以访问树莓派了：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 优先通过密码来登录</span></span><br><span class="line">ssh -o PreferredAuthentications=password pi@192.168.10.1</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-笔记本电脑网络接口优先级"><a href="#4-笔记本电脑网络接口优先级" class="headerlink" title="4. 笔记本电脑网络接口优先级"></a>4. 笔记本电脑网络接口优先级</h1><p>以上配置完成后，可能有些笔记本连上网口后会无法连接互联网。这是因为以太网口的默认路由优先级比Wi-Fi网卡高，访问互联网的请求都走到树莓派去了。</p>
+<p>我们可以修改笔记本的路由表，使得流量优先路由到Wi-Fi网卡。最终效果：</p>
+<ol>
+<li><strong>网线</strong> → 树莓派（<code>eth0</code>，IP: <code>192.168.10.1</code>），用于 SSH。</li>
+<li><strong>Wi-Fi</strong> → 路由器（互联网），用于上网。</li>
+<li>不连接树莓派时，网口仍然保持正常的功能。</li>
+</ol>
+<p>这里只展示Ubuntu笔记本电脑的配置方式：</p>
+<h2 id="1-查看当前路由"><a href="#1-查看当前路由" class="headerlink" title="(1) 查看当前路由"></a>(1) 查看当前路由</h2><p>以下内容在Ubuntu笔记本电脑，本地执行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ip route</span><br></pre></td></tr></table></figure>
+
+<p>可能会看到以下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">default via 192.168.10.1 dev enp0s31f6 proto dhcp metric 20500 </span><br><span class="line">default via 192.168.2.1 dev wlp0s20f3 proto dhcp metric 20600 </span><br><span class="line">169.254.0.0/16 dev enp0s31f6 scope link metric 1000 </span><br><span class="line">172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown</span><br></pre></td></tr></table></figure>
+
+<p>其中Wi-Fi网卡是<code>wlp0s20f3</code>，以太网口是<code>enp0s31f6</code>。Wi-Fi网口优先级比以太网口低。</p>
+<h2 id="2-修改默认路由"><a href="#2-修改默认路由" class="headerlink" title="(2) 修改默认路由"></a>(2) 修改默认路由</h2><p>Ubuntu桌面版有Network Manager，可以比较方便修改优先级。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ip a               <span class="comment"># 确认接口名称（如 wlan0、eth0）</span></span><br><span class="line">ip route           <span class="comment"># 查看当前路由表（注意默认路由的 metric）</span></span><br></pre></td></tr></table></figure>
+
+<p>检查Network Manager连接名称：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nmcli connection show</span><br></pre></td></tr></table></figure>
+
+<p><strong>降低 Wi-Fi 的 metric（数值越小优先级越高）</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo nmcli connection modify <span class="string">&quot;MyWiFi&quot;</span> ipv4.route-metric 100   <span class="comment"># Wi-Fi 优先级更高</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>提高有线连接的 metric（数值越大优先级越低）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo nmcli connection modify <span class="string">&quot;有线连接名称&quot;</span> ipv4.route-metric 200</span><br></pre></td></tr></table></figure>
+
+<p>重新激活连接：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo nmcli connection up <span class="string">&quot;MyWiFi&quot;</span></span><br><span class="line">sudo nmcli connection up <span class="string">&quot;有线连接名称&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>验证优先级</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ ip route</span><br><span class="line">default via 192.168.2.1 dev wlp0s20f3 proto dhcp metric 20100 </span><br><span class="line">default via 192.168.10.1 dev enp0s31f6 proto dhcp metric 20200 </span><br><span class="line">169.254.0.0/16 dev enp0s31f6 scope link metric 1000 </span><br><span class="line">172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown </span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>关键点</strong>：Wi-Fi 的 <code>metric</code>（20100）比有线（20200）更小，因此优先级更高。</li>
+</ul>
+<p>如此便可实现网线ssh直连树莓派，同时笔记本通过Wi-Fi访问互联网不受影响。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2025/03/dd490e6182dc/">https://jayant-tang.github.io/jayant97.github.io/2025/03/dd490e6182dc/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/jayant97.github.io/2025/04/f1f289c546d9/" title="nRF9151蜂窝模组简介与定位例程解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">nRF9151蜂窝模组简介与定位例程解析</div></div></a></div><div class="next-post pull-right"><a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" title="NCS 低功耗日志打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">NCS 低功耗日志打印</div></div></a></div></nav><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E6%A6%82%E8%A7%88"><span class="toc-text">1. 概览</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AE%E4%B8%B2%E5%8F%A3%E7%BB%88%E7%AB%AF"><span class="toc-text">2. 配置串口终端</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AE%E7%BD%91%E7%BA%BF%E7%9B%B4%E8%BF%9E%E7%BB%88%E7%AB%AF"><span class="toc-text">3. 配置网线直连终端</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%BB%99%E6%A0%91%E8%8E%93%E6%B4%BE%E7%BD%91%E5%8F%A3%E9%85%8D%E7%BD%AE%E9%9D%99%E6%80%81IP"><span class="toc-text">(1) 给树莓派网口配置静态IP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%9C%A8%E6%A0%91%E8%8E%93%E6%B4%BE%E7%BD%91%E5%8F%A3%E5%90%AF%E5%8A%A8DHCP%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-text">(2) 在树莓派网口启动DHCP服务器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E9%80%9A%E8%BF%87%E7%BD%91%E5%8F%A3ssh%E7%9B%B4%E8%BF%9E"><span class="toc-text">(3) 通过网口ssh直连</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E7%AC%94%E8%AE%B0%E6%9C%AC%E7%94%B5%E8%84%91%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3%E4%BC%98%E5%85%88%E7%BA%A7"><span class="toc-text">4. 笔记本电脑网络接口优先级</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8D%E8%B7%AF%E7%94%B1"><span class="toc-text">(1) 查看当前路由</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4%E8%B7%AF%E7%94%B1"><span class="toc-text">(2) 修改默认路由</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'c91ce0493b5c3e886110',
+      clientSecret: '7599decf69128ba1a83c1f3ef0923395a9bd8a60',
+      repo: 'jayant97.github.io',
+      owner: 'Jayant-Tang',
+      admin: ['Jayant-Tang'],
+      id: '8965fdb4d1325d1aba04dbcecf76b135',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/jayant97.github.io/js/search/local-search.js"></script></div></div></body></html>
