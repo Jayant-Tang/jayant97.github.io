@@ -1,0 +1,413 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>在WSL2中搭建Matter CHIP Tool环境 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 简介本文介绍如何在Windows的WSL（Windows Subsystem for Linux）环境中搭建Matter CHIP Tool环境，无需开发者准备树莓派或原生Linux电脑。然后列举如何简单使用CHIP Tool对一台Matter设备进行测试。 阅读本文前，确保你掌握基本的Linux命令、网络、Docker知识。  目前仅测试了Matter Over Thread. 未测试Ma">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在WSL2中搭建Matter CHIP Tool环境">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/09/6376457096fe/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 简介本文介绍如何在Windows的WSL（Windows Subsystem for Linux）环境中搭建Matter CHIP Tool环境，无需开发者准备树莓派或原生Linux电脑。然后列举如何简单使用CHIP Tool对一台Matter设备进行测试。 阅读本文前，确保你掌握基本的Linux命令、网络、Docker知识。  目前仅测试了Matter Over Thread. 未测试Ma">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png">
+<meta property="article:published_time" content="2025-09-24T08:02:54.000Z">
+<meta property="article:modified_time" content="2025-09-24T16:24:18.222Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Matter">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2025/09/6376457096fe/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '在WSL2中搭建Matter CHIP Tool环境',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-09-25 00:24:18'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">在WSL2中搭建Matter CHIP Tool环境</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-09-24T08:02:54.000Z" title="发表于 2025-09-24 16:02:54">2025-09-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-09-24T16:24:18.222Z" title="更新于 2025-09-25 00:24:18">2025-09-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Matter/">Matter</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="在WSL2中搭建Matter CHIP Tool环境"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2025/09/6376457096fe/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>本文介绍如何在Windows的WSL（Windows Subsystem for Linux）环境中搭建Matter CHIP Tool环境，无需开发者准备树莓派或原生Linux电脑。然后列举如何简单使用CHIP Tool对一台Matter设备进行测试。</p>
+<p>阅读本文前，确保你掌握基本的Linux命令、网络、Docker知识。</p>
+<blockquote>
+<p>目前仅测试了Matter Over Thread. 未测试Matter over Wi-Fi</p>
+</blockquote>
+<p>如果你追求快速稳定搭建CHIP Tool，不在乎搭建树莓派或Linux PC的成本，请直接参考官方文档：</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/thread/tools.html#thread_border_router">用树莓派或Docker搭建OTBR</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/matter/getting_started/tools.html#chip_tool_for_linux_or_macos">安装或编译CHIP Tool</a></li>
+</ul>
+<h1 id="2-前期准备"><a href="#2-前期准备" class="headerlink" title="2. 前期准备"></a>2. 前期准备</h1><ul>
+<li><p>一台Windows电脑，已安装WSL2 Ubuntu 24.04</p>
+<ul>
+<li>已经安装好<a target="_blank" rel="external nofollow noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/wsl/connect-usb">USBIPD</a>，可以把Windows的USB设备Attach到WSL中</li>
+<li>安装USBIPD的图形界面<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nickbeth/wsl-usb-manager/releases">wsl-usb-manager</a>，方便操作</li>
+</ul>
+</li>
+<li><p>2个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-hardware/nRF52840-Dongle">Nordic nRF52840 Dongle</a></p>
+</li>
+<li><p>一台用于测试的Matter设备，可以用烧录好Matter例程的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Technologies/Matter/Development-Hardware?lang=en#infotabs">开发板</a>代替</p>
+</li>
+<li><p>网络可访问DockerHub</p>
+</li>
+</ul>
+<blockquote>
+<p>注意：</p>
+<ol>
+<li><p>如果你之前没装过WSL2，记得安装时考虑磁盘容量</p>
+</li>
+<li><p>Windows家庭版默认不包含Hyper-V，需要自行搜索方式安装Hyper-V和WSL2</p>
+</li>
+<li><p>网络代理工具推荐开启Tun模式，这样才能代理WSL2内的网络</p>
+</li>
+<li><p>较老的WSL2 linux内核（5.x版本）可能并不包含bluetooth驱动，这里给出我的内核版本：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">uname</span> -r</span><br><span class="line">6.6.87.2-microsoft-standard-WSL2</span><br></pre></td></tr></table></figure>
+
+<p>如果你需要升级内核，在Windows中使用管理员权限运行Power Shell，执行：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">wsl <span class="literal">--update</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</blockquote>
+<h1 id="3-准备USB-Dongle"><a href="#3-准备USB-Dongle" class="headerlink" title="3. 准备USB Dongle"></a>3. 准备USB Dongle</h1><h2 id="烧录固件"><a href="#烧录固件" class="headerlink" title="烧录固件"></a>烧录固件</h2><h3 id="准备Blutooth-USB-dongle固件"><a href="#准备Blutooth-USB-dongle固件" class="headerlink" title="准备Blutooth USB dongle固件"></a>准备Blutooth USB dongle固件</h3><p>你可以自己编译：</p>
+<blockquote>
+<p>编译<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/samples/bluetooth/hci_usb/README.html#bluetooth_hci_usb">HCI USB</a>固件：<code>v3.1.0\zephyr\samples\bluetooth\hci_usb</code>，板子选择<code>nrf52840dongle/nrf52840</code></p>
+<p>编译得到的app固件路径：<code>build\hci_usb\zephyr\zephyr.hex</code></p>
+</blockquote>
+<p>也可以用我编译好的：</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/hci_usb_52840dongle_app_v3.1.0.hex">hci_usb_52840dongle_app_v3.1.0.hex</a></p>
+<h3 id="准备Thread-RCP固件"><a href="#准备Thread-RCP固件" class="headerlink" title="准备Thread RCP固件"></a>准备Thread RCP固件</h3><p>你可以自己编译：</p>
+<blockquote>
+<p>编译<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/samples/openthread/coprocessor/README.html">Thread: Co-processor</a>固件：<code>v3.1.0\nrf\samples\openthread\coprocessor</code></p>
+<p>编译得到的app固件路径：<code>build\hci_usb\zephyr\zephyr.hex</code></p>
+</blockquote>
+<p>也可以用我编译好的：</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/thread_rcp_52840dongle_app_v3.1.0.hex">thread_rcp_52840dongle_app_v3.1.0.hex</a></p>
+<h3 id="给2个52840dongle烧录固件"><a href="#给2个52840dongle烧录固件" class="headerlink" title="给2个52840dongle烧录固件"></a>给2个52840dongle烧录固件</h3><p>按住reset按钮的同时，插入USB到电脑：</p>
+<p><img src="https://www.nordicsemi.com/-/media/Images/Zephyr/nRF52840_dongle_press_reset.svg" alt="img"></p>
+<p>观察到红色呼吸灯，说明在bootloader模式。</p>
+<p>在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-Desktop/Download">nRF Connect for Desktop</a>的Programmer工具中，分别给2个dongle烧录前面的2个固件：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/78f3021670ed1f78a44a1ba3e5479d62.png" alt="image-20250924221212147"></p>
+<h2 id="把2个USB-Dongle附着到WSL2"><a href="#把2个USB-Dongle附着到WSL2" class="headerlink" title="把2个USB Dongle附着到WSL2"></a>把2个USB Dongle附着到WSL2</h2><p>先在WSL2中安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt install bluez bluez-tools bluetooth usbutils</span><br></pre></td></tr></table></figure>
+
+<p>安装Nordic USB规则：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt install libusb-1.0-0</span><br><span class="line"></span><br><span class="line"><span class="comment"># download from https://github.com/NordicSemiconductor/nrf-udev/releases</span></span><br><span class="line">sudo dpkg -i nrf-udev_1.0.1-all.deb</span><br></pre></td></tr></table></figure>
+
+<p>检查内核是否已经有开启蓝牙驱动，如果没有就加载这个内核模块：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">lsmod | grep btusb</span><br><span class="line"></span><br><span class="line">sudo modprobe btusb</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>目前的内核版本（6.6.87.2-microsoft-standard-WSL2）应该默认就已经开启了蓝牙驱动。</p>
+</blockquote>
+<p>在Windows的WSL USB Manager中查看多出来的两个USB设备，右键点击，先bind，再Attach：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/a8cde52b539008b837a88ce344b544d9.png" alt="image-20250924221745107"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8cb8b417ebc6be2405d5fa4a225712c6.png" alt="image-20250924221849053"></p>
+<p>在WSL中检查：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ lsusb</span><br><span class="line">Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub</span><br><span class="line">Bus 001 Device 002: ID 1915:0000 Nordic Semiconductor ASA Thread Co-Processor</span><br><span class="line">Bus 001 Device 003: ID 2fe3:000b NordicSemiconductor USB-DEV</span><br><span class="line">Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub</span><br></pre></td></tr></table></figure>
+
+<p>检查Thread串口tty是否出现：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">ls</span> /dev/ttyACM*</span><br><span class="line">/dev/ttyACM0</span><br></pre></td></tr></table></figure>
+
+<p>然后检查蓝牙，你可以在<code>bluetoothctl</code>交互式命令中使用<code>power on</code>, <code>list</code>, <code>scan on</code>等进行测试，用<code>exit</code>退出：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hciconfig</span><br><span class="line">hci0:   Type: Primary  Bus: USB</span><br><span class="line">        BD Address: 00:00:00:00:00:00  ACL MTU: 27:3  SCO MTU: 0:0</span><br><span class="line">        UP RUNNING</span><br><span class="line">        RX bytes:702 acl:0 sco:0 events:62 errors:0</span><br><span class="line">        TX bytes:381 acl:0 sco:0 commands:62 errors:0</span><br><span class="line">       </span><br><span class="line">$ bluetoothctl </span><br><span class="line">Waiting to connect to bluetoothd...[bluetooth]<span class="comment"># hci0 new_settings: powered bondable le secure-conn static-addr</span></span><br><span class="line">[bluetooth]<span class="comment"># Agent registered</span></span><br><span class="line">[bluetooth]<span class="comment"># [CHG] Controller C1:A2:0D:11:AE:6E Pairable: yes</span></span><br><span class="line">[bluetooth]<span class="comment"># list</span></span><br><span class="line">Controller C1:A2:0D:11:AE:6E DESKTOP-KLNH3ME [default]</span><br><span class="line">[bluetooth]<span class="comment"># power on</span></span><br><span class="line">[bluetooth]<span class="comment"># Changing power on succeeded</span></span><br><span class="line">[bluetooth]<span class="comment"># scan on</span></span><br><span class="line">[bluetooth]<span class="comment"># SetDiscoveryFilter success</span></span><br><span class="line">[bluetooth]<span class="comment"># Discovery started</span></span><br><span class="line">[bluetooth]<span class="comment"># [CHG] Controller C1:A2:0D:11:AE:6E Discovering: yes</span></span><br><span class="line">[bluetooth]<span class="comment"># [NEW] Device 6C:EC:A5:98:63:AD 6C-EC-A5-98-63-AD</span></span><br><span class="line">[bluetooth]<span class="comment"># [NEW] Device D5:B7:10:B1:20:21 HB7930785605</span></span><br><span class="line">[bluetooth]<span class="comment"># [NEW] Device 7A:10:6A:1A:36:14 7A-10-6A-1A-36-14</span></span><br><span class="line">[bluetooth]<span class="comment"># [NEW] Device 68:D0:F4:5C:F6:F9 68-D0-F4-5C-F6-F9</span></span><br><span class="line">[bluetooth]<span class="comment"># [NEW] Device 24:F1:50:56:37:10 24-F1-50-56-37-10</span></span><br><span class="line">[bluetooth]<span class="comment"># [NEW] Device 26:F1:C5:BB:E7:3D 26-F1-C5-BB-E7-3D</span></span><br><span class="line">[bluetooth]<span class="comment"># [NEW] Device 44:48:FF:76:DA:F3 U-BACDAF2</span></span><br><span class="line">[bluetooth]<span class="comment"># [NEW] Device A0:99:21:05:6A:D5 midea</span></span><br><span class="line">......</span><br><span class="line">......</span><br><span class="line">[bluetooth]<span class="comment"># exit</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="4-准备CHIP-Tool可执行文件"><a href="#4-准备CHIP-Tool可执行文件" class="headerlink" title="4. 准备CHIP Tool可执行文件"></a>4. 准备CHIP Tool可执行文件</h1><p>推荐直接下载Nordic编译好的可执行文件：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nrfconnect/sdk-connectedhomeip/releases">Releases · nrfconnect&#x2F;sdk-connectedhomeip</a></p>
+<blockquote>
+<p>如果你想自己编译，参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/matter/getting_started/tools.html#chip_tool_for_linux_or_macos">CHIP Tool for Linux or macOS</a></p>
+</blockquote>
+<p>下载好可执行文件chip-tool_x64，重命名为chip-tool，添加到<code>PATH</code>环境变量，并用<code>chmod a+x chip-tool</code>增加可执行权限。</p>
+<p>确保你可以执行<code>chip-tool</code>即可。</p>
+<h1 id="5-安装OTBR-Docker"><a href="#5-安装OTBR-Docker" class="headerlink" title="5. 安装OTBR Docker"></a>5. 安装OTBR Docker</h1><p>官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/thread/tools.html#running_otbr_using_docker"><strong>Running OTBR using Docker</strong></a></p>
+<h2 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt install avahi-daemon avahi-utils docker.io</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：avahi-daemon和avahi-utils是官方文档没有提到，并且WSL2中缺少的。它负责mDNS功能。</p>
+</blockquote>
+<h2 id="拉取镜像"><a href="#拉取镜像" class="headerlink" title="拉取镜像"></a>拉取镜像</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Start the Docker daemon</span></span><br><span class="line">sudo systemctl start docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create an IPv6 network for the OpenThread Border Router container in Docker</span></span><br><span class="line">sudo docker network create --ipv6 --subnet fd11:db8:1::/64 -o com.docker.network.bridge.name=otbr0 otbr</span><br><span class="line"></span><br><span class="line"><span class="comment"># Download the compatible version of the OpenThread Border Router docker image</span></span><br><span class="line">docker pull nrfconnect/otbr:fbde28a</span><br></pre></td></tr></table></figure>
+
+<p>检查拉取的镜像：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker image <span class="built_in">ls</span></span><br><span class="line">REPOSITORY        TAG       IMAGE ID       CREATED         SIZE</span><br><span class="line">nrfconnect/otbr   fbde28a   62c4237aa6f4   11 months ago   1.49GB</span><br></pre></td></tr></table></figure>
+
+<h2 id="运行容器"><a href="#运行容器" class="headerlink" title="运行容器"></a>运行容器</h2><p>在运行之前，确保内核加载了ipv6功能：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo modprobe ip6table_filter</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里只是一次性加载，每次重启WSL后都要执行重新加载</p>
+</blockquote>
+<p>运行容器：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo docker run -it --<span class="built_in">rm</span> --privileged --name otbr --network otbr -p 8080:80 \</span><br><span class="line">--sysctl <span class="string">&quot;net.ipv6.conf.all.disable_ipv6=0 net.ipv4.conf.all.forwarding=1 net.ipv6.conf.all.forwarding=1&quot;</span> \</span><br><span class="line">--volume <span class="string">&quot;/dev/ttyACM0:/dev/radio&quot;</span> nrfconnect/otbr:fbde28a --radio-url <span class="string">&quot;spinel+hdlc+uart:///dev/radio?uart-baudrate=1000000&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>这个容器名称是otbr，使用的网络名称也叫otbr，是前面创建的</li>
+<li>命令中的<code>/dev/ttyACM0</code>就是附着到WSL2中的Thread RCP。如果你的串口号不一样记得修改。</li>
+<li>相比于官方文档，这里部分参数我加了引号<code>&quot;</code>，这样才能让zsh等shell正常执行。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>容器运行时会占用shell终端，可以先按Ctrl+P，松开，再按Ctrl+Q，让容器去后台运行。你也可以再开一个shell终端。</p>
+<p>这里介绍一些docker快捷键：</p>
+<table>
+<thead>
+<tr>
+<th align="left">快捷键</th>
+<th align="left">作用</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>Ctrl+P, Ctrl+Q</code></td>
+<td align="left">脱离容器但不停止</td>
+<td align="left"><strong>最常用</strong></td>
+</tr>
+<tr>
+<td align="left"><code>Ctrl+C</code></td>
+<td align="left">停止容器</td>
+<td align="left">发送 SIGTERM 信号</td>
+</tr>
+<tr>
+<td align="left"><code>Ctrl+Z</code></td>
+<td align="left">暂停容器</td>
+<td align="left">发送 SIGTSTP 信号</td>
+</tr>
+<tr>
+<td align="left"><code>Ctrl+D</code></td>
+<td align="left">退出容器</td>
+<td align="left">如果使用 <code>docker exec</code> 进入</td>
+</tr>
+</tbody></table>
+</blockquote>
+<h2 id="设置Thread网络"><a href="#设置Thread网络" class="headerlink" title="设置Thread网络"></a>设置Thread网络</h2><p>OTBR容器会开启一个网页服务器，用浏览器访问 <a target="_blank" rel="external nofollow noopener noreferrer" href="http://localhost:8080/">http://localhost:8080/</a> </p>
+<p>在Form页面，记下<code>On-Mesh Prefix</code>，然后点击<code>FORM</code>开启网络：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/250c23524c4e8142ca271a5dba97e75a.png" alt="image-20250924234615593"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/44dff1cf0df15e4244ff8d9f7163b60f.png" alt="image-20250924234632166"></p>
+<p>检查Thread网络状态：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo service otbr-agent status&quot;</span></span><br><span class="line"> * otbr-agent is running</span><br><span class="line"></span><br><span class="line">$ sudo docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo ot-ctl state&quot;</span></span><br><span class="line">leader</span><br><span class="line">Done</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加路由规则"><a href="#添加路由规则" class="headerlink" title="添加路由规则"></a>添加路由规则</h2><p>我们希望让chip-tool向Thread网络内的地址发出的IPv6 UDP包能被正确路由。</p>
+<p>这里要用到上一步记住的<code>On-Mesh Prefix</code>，假设是<code>fd11:22::/64</code>，添加路由：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo ip -6 route add fd11:22::/64 dev otbr0 via fd11:db8:1::2</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这是一次性添加，每次重启WSL后要重新执行</p>
+</blockquote>
+<p>检查路由表是否成功添加：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ ip -6 route</span><br><span class="line">fd11:22::/64 via fd11:db8:1::2 dev otbr0 metric 1024 pref medium</span><br><span class="line">fd11:db8:1::/64 dev otbr0 proto kernel metric 256 pref medium</span><br><span class="line">fe80::/64 dev eth0 proto kernel metric 256 pref medium</span><br><span class="line">fe80::/64 dev veth2f60c62 proto kernel metric 256 pref medium</span><br><span class="line">fe80::/64 dev otbr0 proto kernel metric 256 pref medium</span><br></pre></td></tr></table></figure>
+
+<p>可以看到第一行的路由规则，所有发往<code>fd11:22::/64</code>的数据包，都将被路由到<code>otbr0</code>网卡。如果你发现重启后这一条没了，就再次执行前面的命令。</p>
+<h1 id="6-CHIP-Tool运行测试"><a href="#6-CHIP-Tool运行测试" class="headerlink" title="6. CHIP Tool运行测试"></a>6. CHIP Tool运行测试</h1><blockquote>
+<p>本节只介绍通过ble配网Matter over Thread设备。更多方式请参考官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/matter/chip_tool_guide.html#using_chip_tool_for_matter_device_testing">Using CHIP Tool for Matter device testing</a></p>
+</blockquote>
+<p>找一个开发板，编译并烧录<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-3.1.0/page/nrf/samples/matter/light_bulb/README.html">Matter: Light bulb</a>例程（<code>nrf\samples\matter\light_bulb</code>），运行，查看串口日志：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">...</span><br><span class="line">I: 238 [DL]Device Configuration:</span><br><span class="line">I: 241 [DL]  Serial Number: 11223344556677889900</span><br><span class="line">I: 245 [DL]  Vendor Id: 65521 (0xFFF1)</span><br><span class="line">I: 249 [DL]  Product Id: 32773 (0x8005)</span><br><span class="line">I: 252 [DL]  Product Name: not-specified</span><br><span class="line">I: 256 [DL]  Hardware Version: 0</span><br><span class="line">I: 259 [DL]  Setup Pin Code (0 for UNKNOWN/ERROR): 20202021</span><br><span class="line">I: 264 [DL]  Setup Discriminator (0xFFFF for UNKNOWN/ERROR): 3840 (0xF00)</span><br><span class="line">I: 271 [DL]  Manufacturing Date: 2022-01-01</span><br><span class="line">I: 275 [DL]  Device Type: 65535 (0xFFFF)</span><br><span class="line">I: 278 [SVR]SetupQRCode: [MT:6FCJ142C00KA0648G00]</span><br><span class="line">I: 283 [SVR]Copy/paste the below URL in a browser to see the QR Code:</span><br><span class="line">I: 289 [SVR]https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3A6FCJ142C00KA0648G00</span><br><span class="line">I: 298 [SVR]Manual pairing code: [34970112332]</span><br><span class="line">E: 302 [DL]Long dispatch time: 258 ms, for event type 2</span><br><span class="line">I: 309 [DL]CHIPoBLE advertising started</span><br><span class="line">I: 313 [DL]NFC Tag emulation started</span><br></pre></td></tr></table></figure>
+
+<p>灯泡这个例程是开机自动开启配网广播的，不需要操作。</p>
+<p>记录下<code>Pin Code: 20202021</code>和<code>Discriminator: 3840</code>。</p>
+<h3 id="获取当前Thread网络密钥"><a href="#获取当前Thread网络密钥" class="headerlink" title="获取当前Thread网络密钥"></a>获取当前Thread网络密钥</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo ot-ctl dataset active -x&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo ot-ctl dataset active -x&quot;</span></span><br><span class="line">0e0800000000000100004a0300001435060004001fffe00708fdc22a566b13a4e10c0402a0f7f8051000112233445566778899aabbccddeeff030e4f70656e54687265616444656d6f0410445f2b5ca6f2a93a55ce570a70efeecb000300000f0208111111112222222201021234</span><br><span class="line">Done</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意每次重启Docker容器，密钥都会发生微小的变化。记得重新获取。</p>
+</blockquote>
+<h3 id="设备入网"><a href="#设备入网" class="headerlink" title="设备入网"></a>设备入网</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ chip-tool pairing ble-thread &lt;node_id&gt; hex:&lt;operational_dataset&gt; &lt;pin_code&gt; &lt;discriminator&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>node_id</code>：用户自定义的一个正数id，代表当前要绑定的设备</li>
+<li><code>hex:&lt;operational_dataset&gt;</code>：Thread网络密钥</li>
+<li><code>&lt;pin_code&gt;</code>：设备的pin code</li>
+<li><code>&lt;discriminator&gt;</code>：设备的discriminator</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool pairing ble-thread 0x101 hex:0e0800000000000100004a0300001435060004001fffe00708fdc22a566b13a4e10c0402a0f7f8051000112233445566778899aabbccddeeff030e4f70656e54687265616444656d6f0410445f2b5ca6f2a93a55ce570a70efeecb000300000f0208111111112222222201021234 20202021 3840 --bypass-attestation-verifier <span class="literal">true</span> </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：这里使用<code>--bypass-attestation-verifier true </code>跳过了证书验证。各种测试证书、生产的正式证书设置不在本文讨论范围。</p>
+</blockquote>
+<p>最终没有错误日志输出，即可说明配网成功：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">......</span><br><span class="line">[1758729999.505] [6784:6786] [CTL] Successfully finished commissioning step <span class="string">&#x27;SendComplete&#x27;</span></span><br><span class="line">[1758729999.505] [6784:6786] [CTL] Commissioning stage next step: <span class="string">&#x27;SendComplete&#x27;</span> -&gt; <span class="string">&#x27;Cleanup&#x27;</span></span><br><span class="line">[1758729999.505] [6784:6786] [CTL] Performing next commissioning step <span class="string">&#x27;Cleanup&#x27;</span></span><br><span class="line">[1758729999.505] [6784:6786] [CTL] Successfully finished commissioning step <span class="string">&#x27;Cleanup&#x27;</span></span><br><span class="line">[1758729999.505] [6784:6786] [DIS] Closing all BLE connections</span><br><span class="line">[1758729999.505] [6784:6786] [IN] Clearing BLE pending packets.</span><br><span class="line">[1758729999.505] [6784:6786] [BLE] Auto-closing end point<span class="string">&#x27;s BLE connection.</span></span><br><span class="line"><span class="string">[1758729999.505] [6784:6786] [DL] Closing BLE GATT connection (con 0x74aa1c024530)</span></span><br><span class="line"><span class="string">[1758729999.505] [6784:6785] [DL] Close BLE connection: peer=DE:4A:50:3D:16:29</span></span><br><span class="line"><span class="string">[1758729999.661] [6784:6786] [IN] SecureSession[0x74aa140054c0]: MarkForEviction Type:1 LSID:14320</span></span><br><span class="line"><span class="string">[1758729999.661] [6784:6786] [SC] SecureSession[0x74aa140054c0, LSID:14320]: State change &#x27;</span>kActive<span class="string">&#x27; --&gt; &#x27;</span>kPendingEviction<span class="string">&#x27;</span></span><br><span class="line"><span class="string">[1758729999.661] [6784:6786] [IN] SecureSession[0x74aa140054c0]: Released - Type:1 LSID:14320</span></span><br><span class="line"><span class="string">[1758729999.661] [6784:6786] [CTL] Commissioning complete for node ID 0x0000000000000101: success</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [TOO] Device commissioning completed with success</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6785] [DL] BLE connection closed: conn=0x74aa1c024530</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [DMG] ICR moving to [AwaitingDe]</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [EM] &lt;&lt;&lt; [E:35636i S:14321 M:191290806 (Ack:148794768)] (S) Msg TX from 000000000001B669 to 1:0000000000000101 [5CA5] [UDP:[fd11:22::ae46:4779:ebf3:9b3b]:5540] --- Type 0000:10 (SecureChannel:StandaloneAck) (B:34)</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [EM] Flushed pending ack for MessageCounter:148794768 on exchange 35636i</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [DL] HandlePlatformSpecificBLEEvent 16390</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [BLE] No endpoint for unsubscribe complete</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [BLE] No endpoint for connection error</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [CTL] Shutting down the commissioner</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [PAF] WiFiPAF: Closing all WiFiPAF sessions to shutdown</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [CTL] Shutting down the controller</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [IN] Expiring all sessions for fabric 0x1!!</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [IN] SecureSession[0x74aa1400e6f0]: MarkForEviction Type:2 LSID:14321</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [SC] SecureSession[0x74aa1400e6f0, LSID:14321]: State change &#x27;</span>kActive<span class="string">&#x27; --&gt; &#x27;</span>kPendingEviction<span class="string">&#x27;</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [IN] SecureSession[0x74aa1400e6f0]: Released - Type:2 LSID:14321</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [FP] Forgetting fabric 0x1</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Pending Last Known Good Time: 2023-10-14T01:16:48</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Previous Last Known Good Time: 2023-10-14T01:16:48</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Reverted Last Known Good Time to previous value</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [CTL] Shutting down the commissioner</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [PAF] WiFiPAF: Closing all WiFiPAF sessions to shutdown</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [CTL] Shutting down the controller</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [CTL] Shutting down the System State, this will teardown the CHIP Stack</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [DMG] All ReadHandler-s are clean, clear GlobalDirtySet</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [FP] Shutting down FabricTable</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Pending Last Known Good Time: 2023-10-14T01:16:48</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Previous Last Known Good Time: 2023-10-14T01:16:48</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Reverted Last Known Good Time to previous value</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] Wrote settings to /tmp/chip_counters.ini</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] NVS set: chip-counters/total-operational-hours = 0 (0x0)</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] Inet Layer shutdown</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] BLE Layer shutdown</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] WiFi-PAF Layer shutdown</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [PAF] WiFiPAF: Closing all WiFiPAF sessions to shutdown</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] System Layer shutdown</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="控制设备测试"><a href="#控制设备测试" class="headerlink" title="控制设备测试"></a>控制设备测试</h3><p>比如控制led亮灭：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool onoff toggle &lt;node_id&gt; &lt;endpoint_id&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>node_id</code>：前面配网时，用户自己分配的一个正数ID</li>
+<li><code>endpoint_id</code>：onoff这个功能所在的endpoint。这个取决于设备端的Matter Cluster配置（使用zap-tool配置）</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool onoff toggle 0x101 1</span><br></pre></td></tr></table></figure>
+
+<p>反复执行此命令，能观察到开发板上led亮灭。</p>
+<p>至此，chip-tool搭建成功。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2025/09/6376457096fe/">https://jayant-tang.github.io/jayant97.github.io/2025/09/6376457096fe/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/Matter/">Matter</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/jayant97.github.io/2025/04/f1f289c546d9/" title="nRF9151蜂窝模组简介与定位例程解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">nRF9151蜂窝模组简介与定位例程解析</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2025/01/5645a5cab10c/" title="NCS Matter例程详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-03</div><div class="title">NCS Matter例程详解</div></div></a></div><div><a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" title="NCS 低功耗日志打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-26</div><div class="title">NCS 低功耗日志打印</div></div></a></div><div><a href="/jayant97.github.io/2024/01/b74491c1a080/" title="Nordic GPIO硬件原理与NCS应用详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-22</div><div class="title">Nordic GPIO硬件原理与NCS应用详解</div></div></a></div><div><a href="/jayant97.github.io/2023/11/4c8e1d7d162d/" title="Zephyr驱动与设备树实战——串口"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-12</div><div class="title">Zephyr驱动与设备树实战——串口</div></div></a></div><div><a href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例"><img class="cover" src="/jayant97.github.io/imgs/nordic/nrf-cloud.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-01</div><div class="title">nRF9160与nRF Cloud应用示例</div></div></a></div><div><a href="/jayant97.github.io/2023/11/1349f878e408/" title="在NCS中使用NRFX外设驱动库——以I2C为例"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-15</div><div class="title">在NCS中使用NRFX外设驱动库——以I2C为例</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87"><span class="toc-text">2. 前期准备</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%87%86%E5%A4%87USB-Dongle"><span class="toc-text">3. 准备USB Dongle</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%83%A7%E5%BD%95%E5%9B%BA%E4%BB%B6"><span class="toc-text">烧录固件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%86%E5%A4%87Blutooth-USB-dongle%E5%9B%BA%E4%BB%B6"><span class="toc-text">准备Blutooth USB dongle固件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%86%E5%A4%87Thread-RCP%E5%9B%BA%E4%BB%B6"><span class="toc-text">准备Thread RCP固件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%992%E4%B8%AA52840dongle%E7%83%A7%E5%BD%95%E5%9B%BA%E4%BB%B6"><span class="toc-text">给2个52840dongle烧录固件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%8A2%E4%B8%AAUSB-Dongle%E9%99%84%E7%9D%80%E5%88%B0WSL2"><span class="toc-text">把2个USB Dongle附着到WSL2</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E5%87%86%E5%A4%87CHIP-Tool%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6"><span class="toc-text">4. 准备CHIP Tool可执行文件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E5%AE%89%E8%A3%85OTBR-Docker"><span class="toc-text">5. 安装OTBR Docker</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="toc-text">安装依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%89%E5%8F%96%E9%95%9C%E5%83%8F"><span class="toc-text">拉取镜像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E5%AE%B9%E5%99%A8"><span class="toc-text">运行容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AEThread%E7%BD%91%E7%BB%9C"><span class="toc-text">设置Thread网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99"><span class="toc-text">添加路由规则</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-CHIP-Tool%E8%BF%90%E8%A1%8C%E6%B5%8B%E8%AF%95"><span class="toc-text">6. CHIP Tool运行测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8DThread%E7%BD%91%E7%BB%9C%E5%AF%86%E9%92%A5"><span class="toc-text">获取当前Thread网络密钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%85%A5%E7%BD%91"><span class="toc-text">设备入网</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E8%AE%BE%E5%A4%87%E6%B5%8B%E8%AF%95"><span class="toc-text">控制设备测试</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'c91ce0493b5c3e886110',
+      clientSecret: '7599decf69128ba1a83c1f3ef0923395a9bd8a60',
+      repo: 'jayant97.github.io',
+      owner: 'Jayant-Tang',
+      admin: ['Jayant-Tang'],
+      id: 'd4a5a74a38cb8ee0663829453b9f17ae',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/jayant97.github.io/js/search/local-search.js"></script></div></div></body></html>
