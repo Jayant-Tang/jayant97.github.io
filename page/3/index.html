@@ -1,0 +1,274 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="好记性不如烂笔头，目标是写出优质技术博客">
+<meta property="og:type" content="website">
+<meta property="og:title" content="一苇万顷">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/page/3/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="好记性不如烂笔头，目标是写出优质技术博客">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="嵌入式,Nordic,BLE,LTE,Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/page/3/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '一苇万顷',
+  isPost: false,
+  isHome: true,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-10-28 16:39:13'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header" style="background-image: url('/jayant97.github.io/imgs/index_top_img.jpg')"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="site-info"><h1 id="site-title">一苇万顷</h1><div id="site-subtitle"><span id="subtitle"></span></div><div id="site_social_icons"><a class="social-icon" href="https://github.com/Jayant-Tang" target="_blank" title="Github" rel="external nofollow noopener noreferrer"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:jayant.tang@nordicsemi.no" target="_blank" title="Email" rel="external nofollow noopener noreferrer"><i class="fas fa-envelope"></i></a></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts" id="recent-posts"><div class="recent-post-item"><div class="post_cover left"><a href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统"><img class="post-bg" src="/jayant97.github.io/imgs/nordic/zephyr.png" onerror="this.onerror=null;this.src='/jayant97.github.io/img/404.jpg'" alt="理解Zephyr项目的配置与构建系统"></a></div><div class="recent-post-info"><a class="article-title" href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统">理解Zephyr项目的配置与构建系统</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time datetime="2025-10-28T08:39:07.367Z" title="更新于 2025-10-28 16:39:07">2025-10-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/jayant97.github.io/categories/RTOS/">RTOS</a><i class="fas fa-angle-right article-meta-link"></i><a class="article-meta__categories" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><span class="article-meta-link">•</span><a class="article-meta__tags" href="/jayant97.github.io/tags/Zephyr/">Zephyr</a></span></div><div class="content">
+本文更新于2025.01.06，增加了对NCS2.7.0新引入的Sysbuild的介绍。补充了一些说明，使本文更详尽。
+
+1. 前言Zephyr Project是Linux基金会推出的一个Apache2.0开源项目，版权非常友好，适合用于商业项目开发。包含RTOS、编译系统、各类第三方库。NCS中的例程基本都跑在Zephyr RTOS上。
+对于之前只接触过IDE+外设驱动库这种开发方式的开发者来说，Zephyr的配置和编译系统可能比较令人费解，但是一旦你能掌握，就会发现它的方便之处。
+本文重点介绍了NCS中的配置和编译工具。其中包含一些其他开发环境中常见的CMake，Kconfig，DeviceTree等的简单介绍，和Zephyr中特有的Sysbuild、Boards，以及Nordic提供的Partition Manager存储器分区等介绍。
+2. 通过CMake管理源码本节只简要介绍NCS中常见的CMake使用方法，篇幅有限不可能完整的介绍CMake。希望完整学习CMake的话可以参考CMake官方文档.
+CMake基本写法通过zephyr/samples/hello_world例 ...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/jayant97.github.io/2022/12/779143a4bec8/" title="安装nRF-Connect-SDK"><img class="post-bg" src="/jayant97.github.io/imgs/nordic/nrf-connect.png" onerror="this.onerror=null;this.src='/jayant97.github.io/img/404.jpg'" alt="安装nRF-Connect-SDK"></a></div><div class="recent-post-info"><a class="article-title" href="/jayant97.github.io/2022/12/779143a4bec8/" title="安装nRF-Connect-SDK">安装nRF-Connect-SDK</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time datetime="2025-10-28T08:39:07.366Z" title="更新于 2025-10-28 16:39:07">2025-10-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/jayant97.github.io/categories/Nordic/">Nordic</a><i class="fas fa-angle-right article-meta-link"></i><a class="article-meta__categories" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><span class="article-meta-link">•</span><a class="article-meta__tags" href="/jayant97.github.io/tags/NCS/">NCS</a></span></div><div class="content">
+2025.10.14更新：
+
+增加了NCS v3.1.0和v3.1.1在中文Windows系统上编码问题的解决方案
+增加了说明，nrfutil sdk-manager v1.8.0 已经解决了SDK在Windows系统上git状态错误的问题
+
+2025.7.27更新：
+
+增加了nRF Connect详细安装说明，和国内软件源
+增加了nrfutil详细安装说明，以及命令行自动补全
+新增了强制用国内服务器加速安装NCS的方法
+
+2025.5.12更新：
+
+NCS v3.0.0支持打包下载，无需科学的上网从GitHub拉取
+新增workspace插件清理内容，解决VS Code弹窗问题
+新增对Windows目录名长度限制的提醒
+
+
+nRF Connect SDK，简称NCS，是Nordic最新的SDK平台。该平台支持Nordic的四大产品线：
+
+短距离 2.4G MCU：
+Bluetooth LE（主机、从机、主从一体、多主多从、BLE MESH、AoA&#x2F;AoD蓝牙测向、LE Audio、 PAwR、Channel Sounding）
+基于802.15.4的OpenThread和 ...</div></div></div><div class="recent-post-item"><div class="post_cover left"><a href="/jayant97.github.io/2022/12/b42baba50896/" title="搭建自己的静态博客并自动部署"><img class="post-bg" src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203224217145.png" onerror="this.onerror=null;this.src='/jayant97.github.io/img/404.jpg'" alt="搭建自己的静态博客并自动部署"></a></div><div class="recent-post-info"><a class="article-title" href="/jayant97.github.io/2022/12/b42baba50896/" title="搭建自己的静态博客并自动部署">搭建自己的静态博客并自动部署</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time datetime="2025-10-28T08:39:07.366Z" title="更新于 2025-10-28 16:39:07">2025-10-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/jayant97.github.io/tags/hexo/">hexo</a><span class="article-meta-link">•</span><a class="article-meta__tags" href="/jayant97.github.io/tags/GitHub-Pages/">GitHub Pages</a><span class="article-meta-link">•</span><a class="article-meta__tags" href="/jayant97.github.io/tags/GitHub-Actions/">GitHub Actions</a><span class="article-meta-link">•</span><a class="article-meta__tags" href="/jayant97.github.io/tags/Typora/">Typora</a><span class="article-meta-link">•</span><a class="article-meta__tags" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">博客搭建</a></span></div><div class="content">1. 概述本文讲解本博客的搭建方式
+
+
+
+部件
+作用
+
+
+
+Hexo
+把.md文章转换为页面，并且快速部署到平台
+
+
+GitHub Pages
+提供从GitHub仓库创建网站的服务
+
+
+GitHub Actions
+GitHub提供的免费持续集成服务
+
+
+Hexo + Github Pages先从简单的讲起，看图：
+
+
+简而言之：
+
+Hexo是一个博客框架，存放在你的电脑上，能把你的markdown文章转换成网站源码，并存入一个git仓库
+Github Pages是GitHub提供的免费静态网站服务，能让你展示文档。你只需要把网站源码存入一个repository，并且启用这个服务，GitHub就会帮你建一个静态网站，分配一个网址。别人从这个网址就能看到你的博客了。
+Hexo能一键把本地的网站源码推送到GitHub，让GitHub自动将其部署为Pages
+
+GitHub Actions​    前面的方法，网站所有的资源都存在本地，除了markdown文章和图片这种资源文件以外，网站的美化主题、配置等也存在本地。
+​    这会产生几个问题：
+
+数据容易丢失，一旦硬盘损坏，你的博客就灰飞 ...</div></div></div><div class="recent-post-item"><div class="post_cover right"><a href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例"><img class="post-bg" src="/jayant97.github.io/imgs/nordic/nrf-cloud.png" onerror="this.onerror=null;this.src='/jayant97.github.io/img/404.jpg'" alt="nRF9160与nRF Cloud应用示例"></a></div><div class="recent-post-info"><a class="article-title" href="/jayant97.github.io/2022/12/175d0fa05ecc/" title="nRF9160与nRF Cloud应用示例">nRF9160与nRF Cloud应用示例</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="fas fa-history"></i><span class="article-meta-label">更新于</span><time datetime="2025-10-28T08:39:07.364Z" title="更新于 2025-10-28 16:39:07">2025-10-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/jayant97.github.io/categories/Nordic/">Nordic</a><i class="fas fa-angle-right article-meta-link"></i><a class="article-meta__categories" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></span><span class="article-meta tags"><span class="article-meta-separator">|</span><i class="fas fa-tag"></i><a class="article-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><span class="article-meta-link">•</span><a class="article-meta__tags" href="/jayant97.github.io/tags/nRF91/">nRF91</a><span class="article-meta-link">•</span><a class="article-meta__tags" href="/jayant97.github.io/tags/nRF-Cloud/">nRF_Cloud</a></span></div><div class="content">1. 产品简介1.1. nRF Cloud
+
+​	nRF Cloud是Nordic Semiconducotr公司在AWS上搭建的IoT平台，提供设备注册（Cloud Provisioning）、OTA升级、数据存储、位置服务等业务，所有这些功能都可通过Web界面进行管理。此外还有账号权限控制功能，客户可以为不同的团队配置不同级别的账户管理权限。本文会介绍上述功能的具体使用方法。
+
+​	除了设备注册、OTA、消息存储等物联网云平台常见的功能外，nRF Cloud的重要卖点是位置服务（Location Service）：
+
+AGPS&#x2F;PGPS：设备根据附近的基站信息，从Location Service获取当前地区GPS卫星的信息，从而缩小搜星范围，把搜星的几十秒缩短到几秒，极大的节省功耗
+基站定位：根据上传附近的基站id，从云端获取获取当前定位，支持单基站和多基定位
+WiFi定位：根据附近的WiFi SSID获取定位
+
+
+​	nRF Cloud为Nordic nRF91系列产品提供了方便快速的上云方式，通过NCS的例程可以很方便的连入nRF Cloud。当然，非Nordic产品 ...</div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/jayant97.github.io/page/2/#content-inner"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/jayant97.github.io/">1</a><a class="page-number" href="/jayant97.github.io/page/2/#content-inner">2</a><span class="page-number current">3</span></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/jayant97.github.io/imgs/head.png" onerror="this.onerror=null;this.src='/jayant97.github.io/img/friend_404.gif'" alt="avatar"></div><div class="author-info__name">Jayant Tang</div><div class="author-info__description">好记性不如烂笔头，目标是写出优质技术博客</div></div><div class="card-info-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/Jayant-Tang"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/Jayant-Tang" target="_blank" title="Github" rel="external nofollow noopener noreferrer"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:jayant.tang@nordicsemi.no" target="_blank" title="Email" rel="external nofollow noopener noreferrer"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">博客施工中</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/jayant97.github.io/2025/10/1b3f41652d5d/" title="在Matter中添加自己的蓝牙广播与服务">在Matter中添加自己的蓝牙广播与服务</a><time datetime="2025-10-21T07:50:54.000Z" title="发表于 2025-10-21 15:50:54">2025-10-21</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/jayant97.github.io/2025/10/a6cc85dce7a1/" title="Matter OTA固件升级">Matter OTA固件升级</a><time datetime="2025-10-20T08:02:54.000Z" title="发表于 2025-10-20 16:02:54">2025-10-20</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            <a class="card-more-btn" href="/jayant97.github.io/categories/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a>
+            </div>
+            <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/jayant97.github.io/categories/BLE/"><span class="card-category-list-name">BLE</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/jayant97.github.io/categories/Linux/"><span class="card-category-list-name">Linux</span><span class="card-category-list-count">1</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/jayant97.github.io/categories/Linux/ssh/"><span class="card-category-list-name">ssh</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/jayant97.github.io/categories/Matter/"><span class="card-category-list-name">Matter</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/jayant97.github.io/categories/Nordic/"><span class="card-category-list-name">Nordic</span><span class="card-category-list-count">4</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/"><span class="card-category-list-name">LTE</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/"><span class="card-category-list-name">NCS</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/"><span class="card-category-list-name">Wi-Fi</span><span class="card-category-list-count">1</span></a></li></ul></li>
+            </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/jayant97.github.io/tags/Matter/" style="font-size: 1.34em; color: #99a3b0">Matter</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 1.18em; color: #999ca1">nRF_Cloud</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 1.5em; color: #99a9bf">Nordic</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 1.1em; color: #999">NRFX</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 1.1em; color: #999">hexo</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 1.18em; color: #999ca1">Linux</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 1.1em; color: #999">GitHub Actions</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 1.1em; color: #999">Bluetooth</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 1.1em; color: #999">PPI</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 1.18em; color: #999ca1">WiFi</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 1.1em; color: #999">BLE</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 1.1em; color: #999">nRF91</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 1.1em; color: #999">ssh</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 1.1em; color: #999">Typora</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 1.1em; color: #999">GitHub Pages</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 1.1em; color: #999">博客搭建</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 1.42em; color: #99a6b7">Zephyr</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 1.1em; color: #999">GPIOTE</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 1.26em; color: #999fa8">DeviceTree</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 1.1em; color: #999">NCS</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 1.26em; color: #999fa8">Wireshark</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 1.1em; color: #999">nRF70</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 1.1em; color: #999">OpenWrt</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 1.1em; color: #999">GPIO</a></div></div><div class="card-widget card-archives"><div class="item-headline"><i class="fas fa-archive"></i><span>归档</span><a class="card-more-btn" href="/jayant97.github.io/archives/" title="查看更多">
+    <i class="fas fa-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/jayant97.github.io/archives/2025/10/"><span class="card-archive-list-date">十月 2025</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/jayant97.github.io/archives/2025/09/"><span class="card-archive-list-date">九月 2025</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/jayant97.github.io/archives/2025/04/"><span class="card-archive-list-date">四月 2025</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/jayant97.github.io/archives/2025/03/"><span class="card-archive-list-date">三月 2025</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/jayant97.github.io/archives/2025/01/"><span class="card-archive-list-date">一月 2025</span><span class="card-archive-list-count">3</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/jayant97.github.io/archives/2024/01/"><span class="card-archive-list-date">一月 2024</span><span class="card-archive-list-count">1</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/jayant97.github.io/archives/2023/11/"><span class="card-archive-list-date">十一月 2023</span><span class="card-archive-list-count">2</span></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/jayant97.github.io/archives/2023/08/"><span class="card-archive-list-date">八月 2023</span><span class="card-archive-list-count">1</span></a></li></ul></div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站资讯</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">22</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总访问量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastpushdate="2025-10-28T08:39:13.600Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/jayant97.github.io/imgs/index_top_img.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>window.typedJSFn = {
+  init: (str) => {
+    window.typed = new Typed('#subtitle', Object.assign({
+      strings: str,
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50,
+    }, null))
+  },
+  run: (subtitleType) => {
+    if (true) {
+      if (typeof Typed === 'function') {
+        subtitleType()
+      } else {
+        getScript('https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js').then(subtitleType)
+      }
+    } else {
+      subtitleType()
+    }
+  }
+}
+</script><script>function subtitleType () {
+  if (true) {
+    typedJSFn.init(["逝者如斯，而未尝往也","盈虚者如彼，而卒莫消长也","盖将自其变者而观之，则天地曾不能以一瞬","自其不变者而观之，则物与我皆无尽也，而又何羡乎","且夫天地之间，物各有主，苟非吾之所有，虽一毫而莫取","惟江上之清风，与山间之明月","耳得之而为声，目遇之而成色","取之无禁，用之不竭","是造物者之无尽藏也，而吾与子之所共适"])
+  } else {
+    document.getElementById("subtitle").innerHTML = '逝者如斯，而未尝往也'
+  }
+}
+typedJSFn.run(subtitleType)</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/jayant97.github.io/js/search/local-search.js"></script></div></div></body></html>

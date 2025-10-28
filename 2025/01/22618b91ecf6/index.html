@@ -1,0 +1,411 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>NCS(Zephyr)中的蓝牙地址 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="本文中的分析基于NCS v3.0.2  1. 蓝牙设备地址（Bluetooth Device Address）蓝牙设备地址（Device Address， 俗称MAC地址）分为两大类：  公共地址（Public Address） 随机地址（Random Address）  在蓝牙空口包的结构中，这两种地址的是由PDU Header中的TxAdd和RxAdd来区分的。0表示公共地址，1表示随机地">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NCS(Zephyr)中的蓝牙地址">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/01/22618b91ecf6/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="本文中的分析基于NCS v3.0.2  1. 蓝牙设备地址（Bluetooth Device Address）蓝牙设备地址（Device Address， 俗称MAC地址）分为两大类：  公共地址（Public Address） 随机地址（Random Address）  在蓝牙空口包的结构中，这两种地址的是由PDU Header中的TxAdd和RxAdd来区分的。0表示公共地址，1表示随机地">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png">
+<meta property="article:published_time" content="2025-01-26T08:02:54.000Z">
+<meta property="article:modified_time" content="2025-10-28T08:39:07.361Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Bluetooth">
+<meta property="article:tag" content="BLE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2025/01/22618b91ecf6/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'NCS(Zephyr)中的蓝牙地址',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-10-28 16:39:07'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">NCS(Zephyr)中的蓝牙地址</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-01-26T08:02:54.000Z" title="发表于 2025-01-26 16:02:54">2025-01-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-10-28T08:39:07.361Z" title="更新于 2025-10-28 16:39:07">2025-10-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/BLE/">BLE</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="NCS(Zephyr)中的蓝牙地址"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2025/01/22618b91ecf6/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><blockquote>
+<p> 本文中的分析基于NCS v3.0.2</p>
+</blockquote>
+<h1 id="1-蓝牙设备地址（Bluetooth-Device-Address）"><a href="#1-蓝牙设备地址（Bluetooth-Device-Address）" class="headerlink" title="1. 蓝牙设备地址（Bluetooth Device Address）"></a>1. 蓝牙设备地址（Bluetooth Device Address）</h1><p>蓝牙设备地址（Device Address， 俗称MAC地址）分为两大类：</p>
+<ul>
+<li><strong>公共地址（Public Address）</strong></li>
+<li><strong>随机地址（Random Address）</strong></li>
+</ul>
+<p>在蓝牙空口包的结构中，这两种地址的是由PDU Header中的<code>TxAdd</code>和<code>RxAdd</code>来区分的。0表示公共地址，1表示随机地址。</p>
+<p>例如下图是蓝牙广播包的结构：PDU Header中的<code>TxAdd</code>决定地址类型；PDU Payload的开头是广播者的地址。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc91c7dd15b504c86d0bf25503ab6155e.png" alt="image-20251026020018730"></p>
+<p><strong>所有在广播阶段发生交互的包都包含蓝牙地址</strong>，不论是广播、扫描请求、连接请求，都包含蓝牙地址：</p>
+<ul>
+<li>广播包（<code>ADV_IND</code>, <code>ADV_DIRECT_IND</code>, <code>ADV_NONCONN_IND</code>, <code>ADV_SCAN_IND</code>）：包含<strong>广播者地址</strong></li>
+<li>扫描请求（<code>SCAN_REQ</code>）：包含<strong>扫描者地址</strong> 和 <strong>广播者地址</strong></li>
+<li>扫描响应（<code>SCAN_RSP</code>）：包含<strong>广播者地址</strong></li>
+<li>连接请求（<code>CONNECT_REQ</code> ,  <code>AUX_CONNECT_REQ</code>）：包含<strong>发起者地址</strong> 和 <strong>广播者地址</strong></li>
+</ul>
+<blockquote>
+<p>连接建立后，连接包中就不含蓝牙地址了</p>
+</blockquote>
+<h2 id="蓝牙设备地址分类"><a href="#蓝牙设备地址分类" class="headerlink" title="蓝牙设备地址分类"></a>蓝牙设备地址分类</h2><p>随机地址又分为静态随机（Random Static）和私有随机（Private Static）地址。私有随机地址又分为可解析的（Resolvable）和不可解析的（Non-resolvable）。它们之间有特定比特的区别。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7643529836a9f71e1a97b50e54651023.png" alt="img"></p>
+<p>最终有四类地址：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede73ddd6b3c544b0102a9a7501e943d3e.png" alt="image-20251026022752575"></p>
+<h2 id="公共地址"><a href="#公共地址" class="headerlink" title="公共地址"></a>公共地址</h2><p>需要向IEEE购买的MAC地址段，以确保自己的设备地址全球唯一，并且别人通过地址就能知道设备是哪家公司的产品。公共地址在整个设备生命周期不可以更改。</p>
+<p>购买后，IEEE会分配Company ID。剩余的24bit由购买该地址段的公司自己分配。</p>
+<blockquote>
+<p>由于公共地址全球唯一，也可以当作序列号使用。但是蓝牙地址本身的全球唯一其实并不必要。只要蓝牙能扫到的几十米范围内设备没有重复的地址就可以了。</p>
+</blockquote>
+<h2 id="随机地址"><a href="#随机地址" class="headerlink" title="随机地址"></a>随机地址</h2><p>任何人都可以使用的随机数作为地址。由最高2个bit决定更具体的地址类型。</p>
+<h3 id="1-随机静态地址"><a href="#1-随机静态地址" class="headerlink" title="(1) 随机静态地址"></a>(1) 随机静态地址</h3><p>这个是最常用的地址，可以给每个设备分配一个固定的随机数作为地址；或者每次上电重新生成一个也可以。使用起来最方便。</p>
+<h3 id="2-随机私有地址"><a href="#2-随机私有地址" class="headerlink" title="(2) 随机私有地址"></a>(2) 随机私有地址</h3><p>私有地址会在运行时动态改变，防止被追踪。</p>
+<h4 id="不可解析私有地址"><a href="#不可解析私有地址" class="headerlink" title="不可解析私有地址"></a>不可解析私有地址</h4><p>没有任何规律的随机变化地址。适合一些仅需要广播的场景，例如Beacon推送。</p>
+<p>由于地址一直在变化，游客的手机只能收到Beacon的广播内容。手机无法根据Beacon的地址映射Beacon的物理位置，因此无法实现对手机用户的定位追踪。</p>
+<blockquote>
+<p>反过来，如果需要做蓝牙定位应用，就不能用不可解析私有地址。</p>
+</blockquote>
+<h4 id="可解析私有地址（RPA）"><a href="#可解析私有地址（RPA）" class="headerlink" title="可解析私有地址（RPA）"></a>可解析私有地址（RPA）</h4><p>最复杂的地址类型，常用于个人随身设备。核心思路是“对所有人隐藏，对自己人可见”。例如一对绑定的手机和手表：</p>
+<ol>
+<li>手表并不是一直与手机连接，而是只在需要的时候才发起广播，让手机来连接</li>
+<li>为了不让此广播被跟踪，手表的广播地址需要实时随机变化</li>
+<li>为了让手机知道这个实时变化的地址是自己绑定的手表，这个地址具有特殊的结构prand + hash。</li>
+<li>prand是手表生成的随机数，一直变化；hash是用prand和IRK进行哈希计算生成的（IRK是手机和手表配对后存储的，与配对绑定的IRK是同一个）</li>
+<li>只有手机能够通过prand计算出hash，从而知道这个手表是与自己配对的</li>
+</ol>
+<blockquote>
+<p>常见应用：</p>
+<ul>
+<li>Apple Findmy网络：只有自己的iPhone能知道这个AirTag是自己的；其他人的iPhone只能把这个广播携带的信息作为匿名信息上传到Findmy网络</li>
+<li>智能家居与可穿戴设备：例如，智能门锁状态变化时，在RPA广播中改变状态。只有自己的手机或者智能家具中枢能识别到这个RPA广播对应的是哪个具体的门锁，进而主动连接然后读取更详细的状态。</li>
+</ul>
+</blockquote>
+<p>由此我们可以得知：一台设备要想使用RPA广播，需要先使用Random Static Address或者Public Address，让手机进行正常的连接配对之后，两边才有IRK。这时再切换成RPA广播即可。</p>
+<h1 id="2-Zephyr中的蓝牙身份"><a href="#2-Zephyr中的蓝牙身份" class="headerlink" title="2. Zephyr中的蓝牙身份"></a>2. Zephyr中的蓝牙身份</h1><p>在Zephyr中，蓝牙设备地址由如下结构体描述：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_PUBLIC       0x00</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_RANDOM       0x01</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_PUBLIC_ID    0x02</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_RANDOM_ID    0x03</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_UNRESOLVED   0xFE <span class="comment">/* Resolvable Private Address</span></span></span><br><span class="line"><span class="comment"><span class="meta">                      * (Controller unable to resolve)</span></span></span><br><span class="line"><span class="comment"><span class="meta">                      */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_ANONYMOUS    0xFF <span class="comment">/* No address provided</span></span></span><br><span class="line"><span class="comment"><span class="meta">                      * (anonymous advertisement)</span></span></span><br><span class="line"><span class="comment"><span class="meta">                      */</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** Length in bytes of a standard Bluetooth address */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_SIZE 6</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** Bluetooth Device Address */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">uint8_t</span>  val[BT_ADDR_SIZE];</span><br><span class="line">&#125; <span class="type">bt_addr_t</span>;</span><br><span class="line"><span class="comment">/**/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** Bluetooth LE Device Address */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">uint8_t</span>      type;</span><br><span class="line">    <span class="type">bt_addr_t</span> a;</span><br><span class="line">&#125; <span class="type">bt_addr_le_t</span>;</span><br></pre></td></tr></table></figure>
+
+<p>一个蓝牙低功耗地址结构体<code>bt_addr_le_t</code>包含蓝牙地址<code>bt_addr_t</code>和它的类型。</p>
+<p>其中的<strong>地址类型</strong>，我们在设置自己的地址的时候，只需要用到<code>BT_ADDR_LE_PUBLIC</code>和<code>BT_ADDR_LE_RANDOM</code>。</p>
+<p>Zephyr本身支持多蓝牙地址，在Zephyr中它被称为<strong>蓝牙身份（Bluetooth Identity）</strong>。</p>
+<p>在<code>zephyr\subsys\bluetooth\host\hci_core.h</code>中，有如下定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct bt_dev &#123;</span><br><span class="line">    /* Local Identity Address(es) */</span><br><span class="line">    bt_addr_le_t            id_addr[CONFIG_BT_ID_MAX];</span><br><span class="line">    uint8_t                 id_count;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可见最大的蓝牙身份数量由<code>CONFIG_BT_ID_MAX</code>决定，默认是1。</p>
+<h2 id="如何选择蓝牙身份"><a href="#如何选择蓝牙身份" class="headerlink" title="如何选择蓝牙身份"></a>如何选择蓝牙身份</h2><p>如果有多个蓝牙身份，需要在广播时选择自己用哪个身份进行广播。</p>
+<p>不论是普通广播还是扩展广播，在开启广播时都要使用<code>bt_le_adv_param</code>作为广播相关的配置参数。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** LE Advertising Parameters. */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bt_le_adv_param</span> &#123;</span></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * @brief Local identity.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">uint8_t</span>  id;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结构体的第一个参数就是<code>id</code>。大多数例程的广播参数<code>id</code>都是0。</p>
+<p>可以通过在开启广播的时候，设置广播参数中的<code>id</code>来选择自己用哪个蓝牙地址。</p>
+<blockquote>
+<p>不过，在开发蓝牙主机时，无法选择蓝牙身份。蓝牙主机只能用<code>id=0</code>的身份。</p>
+</blockquote>
+<h2 id="Zephyr蓝牙地址常用API"><a href="#Zephyr蓝牙地址常用API" class="headerlink" title="Zephyr蓝牙地址常用API"></a>Zephyr蓝牙地址常用API</h2><blockquote>
+<p> 实际开发中，需要先创建<strong>蓝牙地址</strong>结构体变量，再填充进<strong>蓝牙身份</strong>数组。</p>
+</blockquote>
+<p><code>#include &lt;zephyr/bluetooth/addr.h&gt;</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** </span></span><br><span class="line"><span class="comment">  * 检查随机地址的类型</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="comment">/** Check if a Bluetooth LE random address is resolvable private address. */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_IS_RPA(a)     (((a)-&gt;val[5] &amp; 0xc0) == 0x40)</span></span><br><span class="line"><span class="comment">/** Check if a Bluetooth LE random address is a non-resolvable private address.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_IS_NRPA(a)    (((a)-&gt;val[5] &amp; 0xc0) == 0x00)</span></span><br><span class="line"><span class="comment">/** Check if a Bluetooth LE random address is a static address. */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_IS_STATIC(a)  (((a)-&gt;val[5] &amp; 0xc0) == 0xc0)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** </span></span><br><span class="line"><span class="comment">  * 强制修改随机地址的类型</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="comment">/** Set a Bluetooth LE random address as a resolvable private address. */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_SET_RPA(a)    ((a)-&gt;val[5] = (((a)-&gt;val[5] &amp; 0x3f) | 0x40))</span></span><br><span class="line"><span class="comment">/** Set a Bluetooth LE random address as a non-resolvable private address. */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_SET_NRPA(a)   ((a)-&gt;val[5] &amp;= 0x3f)</span></span><br><span class="line"><span class="comment">/** Set a Bluetooth LE random address as a static address. */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_SET_STATIC(a) ((a)-&gt;val[5] |= 0xc0)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 用随机数创建地址</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="comment">/** @brief Create a Bluetooth LE random non-resolvable private address. */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_addr_le_create_nrpa</span><span class="params">(<span class="type">bt_addr_le_t</span> *addr)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** @brief Create a Bluetooth LE random static address. */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_addr_le_create_static</span><span class="params">(<span class="type">bt_addr_le_t</span> *addr)</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 用字符串创建地址，如&quot;AA:BB:CC:DD:EE:FF&quot;</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** @brief Create a Bluetooth LE random static address. */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_addr_from_str</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *str, <span class="type">bt_addr_t</span> *addr)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_addr_le_from_str</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *str, <span class="type">const</span> <span class="type">char</span> *type, <span class="type">bt_addr_le_t</span> *addr)</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Zephyr蓝牙身份常用API"><a href="#Zephyr蓝牙身份常用API" class="headerlink" title="Zephyr蓝牙身份常用API"></a>Zephyr蓝牙身份常用API</h2><blockquote>
+<p>把蓝牙地址填充到蓝牙身份，才能在广播时使用</p>
+</blockquote>
+<p><code>#include &lt;zephyr/bluetooth/bluetooth.h&gt;</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 读取蓝牙身份列表</span></span><br><span class="line"><span class="comment"> *  1. 传入数组首地址和数组长度进行读取。用于读取的数组本身的长度不能低于CONFIG_BT_ID_MAX</span></span><br><span class="line"><span class="comment"> *  2. addrs为NULL时，只读取蓝牙身份个数</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">bt_id_get</span><span class="params">(<span class="type">bt_addr_le_t</span> *addrs, <span class="type">size_t</span> *count)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 新建蓝牙身份</span></span><br><span class="line"><span class="comment"> *  1. 如果蓝牙身份数量小于 CONFIG_BT_ID_MAX，则创建一个身份到 bt_dev.id_addr[bt_dev.id_count]，然后bt_dev.id_count++</span></span><br><span class="line"><span class="comment"> *  2. 在Nordic平台上只能用于创建随机地址，不能用于创建公共地址</span></span><br><span class="line"><span class="comment"> *  3. 不用私有地址时（CONFIG_BT_PRIVACY=n），irk必须为NULL。也就是说静态随机地址设置为NULL即可</span></span><br><span class="line"><span class="comment"> *  4. 允许在bt_enable()前调用，这时可以创建id=0的身份</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_id_create</span><span class="params">(<span class="type">bt_addr_le_t</span> *addr, <span class="type">uint8_t</span> *irk)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 重置指定的蓝牙身份</span></span><br><span class="line"><span class="comment"> *  1. 指定一个具体的id，修改其蓝牙地址</span></span><br><span class="line"><span class="comment"> *  2. id == BT_ID_DEFAULT时，不能重置</span></span><br><span class="line"><span class="comment"> *  3. 重置时，所有与此id相关的连接都会被断开，所有绑定的密钥都会被删除</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_id_reset</span><span class="params">(<span class="type">uint8_t</span> id, <span class="type">bt_addr_le_t</span> *addr, <span class="type">uint8_t</span> *irk)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 删除蓝牙身份</span></span><br><span class="line"><span class="comment"> *  1. id == BT_ID_DEFAULT 不能删除</span></span><br><span class="line"><span class="comment"> *  3. 重置时，所有与此id相关的连接都会被断开，所有绑定的密钥都会被删除</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_id_delete</span><span class="params">(<span class="type">uint8_t</span> id)</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="公共地址（Public-Address）设置API"><a href="#公共地址（Public-Address）设置API" class="headerlink" title="公共地址（Public Address）设置API"></a>公共地址（Public Address）设置API</h2><p>Zephyr中只能设置1个公共地址，且只能放到<code>id=0</code>的位置。</p>
+<blockquote>
+<p>在Nordic平台上，公共地址的设置逻辑比较特殊：</p>
+<p>BLE协议栈分为Host层和Controller层。NCS的Host层使用开源的Zephyr Host，而Controller层默认使用闭源的SoftDevice。</p>
+<p><strong>公共地址需要先设置到蓝牙Controller层，再让Host层读出并创建第一个（id&#x3D;0）蓝牙身份。因此需要单独提前设置。</strong></p>
+</blockquote>
+<p>Nordic平台上设置公共地址有2种方案：</p>
+<h3 id="方法一：Controller层直接设置"><a href="#方法一：Controller层直接设置" class="headerlink" title="方法一：Controller层直接设置"></a>方法一：Controller层直接设置</h3><p><code>#include &lt;zephyr/bluetooth/controller.h&gt;</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Controller 层直接设置公共地址，参数是6字节数组</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">bt_ctlr_set_public_addr</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *addr)</span>;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>需要在<code>bt_enable()</code>之前调用</strong>，一定没问题。</p>
+<p>对于单核SoC，直接调用即可。</p>
+<p>对于多核SoC，且Controller层单独位于网络核的情况（如nRF5340，nRF54H20）。需要单独修改网络核固件，在网络核程序开始时调用。在应用核调用无效。</p>
+</blockquote>
+<p>例如：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined2c117f3711ea646e63b21f2d1cc0359f.png" alt="image-20251026035904822"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede101f163b6e1a2dee42d8ccff3a62523.png" alt="image-20251026035843421"></p>
+<h3 id="方法二：Host层通过HCI命令设置"><a href="#方法二：Host层通过HCI命令设置" class="headerlink" title="方法二：Host层通过HCI命令设置"></a>方法二：Host层通过HCI命令设置</h3><p><code>#include &lt;zephyr/bluetooth/hci_vs.h&gt;</code></p>
+<p>这是一组厂商自定义HCI命令，复制以下函数到你的工程中：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">hci_set_public_addr</span><span class="params">(<span class="type">uint8_t</span> addr[<span class="number">6</span>])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> err = <span class="number">0</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">net_buf</span> *<span class="title">buf</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">net_buf</span> *<span class="title">rsp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bt_hci_cp_vs_write_bd_addr</span> *<span class="title">cmd_params</span>;</span></span><br><span class="line"></span><br><span class="line">    buf = bt_hci_cmd_create(BT_HCI_OP_VS_WRITE_BD_ADDR, <span class="keyword">sizeof</span>(*cmd_params));</span><br><span class="line">    <span class="keyword">if</span> (!buf) &#123;</span><br><span class="line">        printk(<span class="string">&quot;Could not allocate command buffer\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cmd_params = (<span class="keyword">struct</span> bt_hci_cp_vs_write_bd_addr *)net_buf_add(buf, <span class="keyword">sizeof</span>(*cmd_params));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memcpy</span>(cmd_params-&gt;bdaddr.val, addr, <span class="number">6</span>);</span><br><span class="line"></span><br><span class="line">    err = bt_hci_cmd_send_sync(BT_HCI_OP_VS_WRITE_BD_ADDR, buf, &amp;rsp);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        printk(<span class="string">&quot;Failed to send HCI command to set public address (err %d)\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    net_buf_unref(rsp);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>必须开启厂商自定义（Vendor-Specific）HCI命令：<code>CONFIG_BT_HCI_VS=y</code>。</p>
+<p><strong>必须在<code>bt_enable()</code>之后，<code>settings_load()</code>之前调用。</strong></p>
+<p>单核SoC和多核SoC都可以使用，在应用核调用即可。</p>
+<p>如果<code>CONFIG_BT_SETTINGS=y</code>未被开启，<strong>此方法无法使用</strong>。因为<code>bt_enable()</code>之前，HCI没初始化用不了；而不开启Setting时，<code>bt_enable()</code>过程中就会创建id&#x3D;0的地址，因此那之后HCI命令就不能再创建一个id&#x3D;0的公共地址了。</p>
+</blockquote>
+<p>例如：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1622aec49af726e9b6f4aa0d90edefb7.png" alt="image-20251026042305502"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined81271df5d84b52a08238b6e9196fd767.png" alt="image-20251026042329656"></p>
+<h1 id="3-NCS蓝牙协议栈默认地址设置逻辑"><a href="#3-NCS蓝牙协议栈默认地址设置逻辑" class="headerlink" title="3. NCS蓝牙协议栈默认地址设置逻辑"></a>3. NCS蓝牙协议栈默认地址设置逻辑</h1><p><strong>如果你没有在<code>bt_enable()</code>之前用<code>bt_id_create()</code>创建蓝牙身份</strong>。那么，在NCS蓝牙协议栈启动过程中，协议栈会尝试自动创建<code>id=0</code>的蓝牙身份：</p>
+<ol>
+<li>优先从Controller层读取公共地址，并设置为<code>id=0</code>的蓝牙身份</li>
+<li>公共地址没有的情况下，设置随机静态地址作为<code>id=0</code>的蓝牙身份</li>
+</ol>
+<p>一个图解释，没有蓝牙身份时，不同配置下蓝牙协议栈初始化过程如何创建地址：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined86b8b9ca799cb01ab4a214a9ced19086.png" alt="image-20251027131513228"></p>
+<h3 id="Settings的影响"><a href="#Settings的影响" class="headerlink" title="Settings的影响"></a>Settings的影响</h3><blockquote>
+<p>Settings是Zephyr中的一个存储中间件，提供键值对存储接口。其中键是用”&#x2F;“分割的字符串，就像PC中的文件系统目录一样。</p>
+<p>Settings给应用层提供的前端API是基于回调函数的。当load时，把数据从持久化存储读到内存中；save时，把数据从内存保存到持久化存储中。</p>
+<p>SDK每个不同的软件子系统（Subsys）都可以各自在自己的“存储路径”（也就是字符串形式的键）内存储或者加载自己的配置。比如蓝牙系统可以存储自己的地址，绑定密钥等等。</p>
+<p>当应用层调用全局的<code>settings_load()</code>或者<code>settings_save()</code>时，每个软件模块自己的settings相关回调函数就会执行：</p>
+<ul>
+<li>调用 <code>settings_load()</code> 会遍历所有注册的 settings handler，通过 handler 的 <code>h_set</code> 回调将数据加载到内存，最后调用 <code>h_commit</code> 通知应用层设置已加载完成</li>
+<li>调用<code>settings_save()</code>会遍历所有注册的 settings handler，通过 handler 的 <code>h_export</code> 回调导出数据，然后通过后端写入存储。</li>
+</ul>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined67bd9c973f7eb4d6ca45c6615d2a3dd5.png" alt="image-20251024120532681"></p>
+<p>Settings的后端是NVS或者ZMS，也是键值对存储库，有磨损均衡、掉电安全、垃圾回收等功能。但是ZMS&#x2F;NVS的键是整数。</p>
+<ul>
+<li>NVS：在Flash的基础上提供存储服务</li>
+<li>ZMS：在RRAM&#x2F;MRAM的基础上提供存储服务，充分利用先进硬件的特性，支持无擦除覆盖写入</li>
+</ul>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8f4ff5af55ca04cd4b225fee0ebbbf53.png" alt="image-20251024120101359"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc289d111ae808adac4bdbb656cfd0b40.png" alt="image-20251024120118402"></p>
+<p>绝大多数情况下，工程都是会用到Settings系统的</p>
+</blockquote>
+<p><code>CONFIG_BT_SETTINGS=y</code>是依赖<code>CONFIG_SETTINGS=y</code>的。</p>
+<p>在多数蓝牙例程中，不要单独开关<code>CONFIG_BT_SETTINGS</code>或者<code>CONFIG_SETTINGS</code>。</p>
+<p>例如，在<code>peripheral_lbs</code>例程中，<code>CONFIG_BT_SETTINGS</code>和<code>CONFIG_SETTINGS</code>是由LBS的安全特性开启的：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb52d305fdc9bf063e2efb1e901a96178.png" alt="image-20251026045902003"></p>
+<p>因此，在这个例程中，我们需要进行以下配置才能把settings关掉：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">CONFIG_BT_LBS_SECURITY_ENABLED=n</span><br></pre></td></tr></table></figure>
+
+<p>如果是其他例程，自行搜索有没有其他Kconfig配置项用<code>select</code>开启Settings的情况。</p>
+<p>接下来讨论两种情况的初始化过程：</p>
+<h4 id="1-CONFIG-BT-SETTINGS-y"><a href="#1-CONFIG-BT-SETTINGS-y" class="headerlink" title="1. CONFIG_BT_SETTINGS=y"></a>1. <code>CONFIG_BT_SETTINGS=y</code></h4><p>当<code>CONFIG_BT_SETTINGS=y</code>的情况下，整个<code>bt_enable()</code>过程都不会创建蓝牙地址。还会打印日志提示你，后面一定要自己调用<code>settings_load()</code>。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (IS_ENABLED(CONFIG_BT_SETTINGS)) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!bt_dev.id_count) &#123;</span><br><span class="line">        LOG_INF(<span class="string">&quot;No ID address. App must call settings_load()&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    atomic_set_bit(bt_dev.flags, BT_DEV_PRESET_ID);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedf9c29619e7d572f75aa713b6a145346c.png" alt="image-20251026044626675"></p>
+<p>这是因为要考虑到之前保存过蓝牙地址的情况。要把之前的蓝牙地址加载到内存。同时，对于新的芯片刚烧录完，settings里面没有存地址的情况，也必须要兜底。</p>
+<p>当应用层<code>settings_load()</code>时，会有以下逻辑：位于<code>zephyr\subsys\bluetooth\host\settings.c</code></p>
+<ol>
+<li>Settings系统会通过<code>set_settings()</code>回调函数遍历所有已保存的蓝牙数据，并加载到内存中。其中就包括把蓝牙地址加载到<code>bt_dev.id_addr[]</code>数组中。</li>
+<li>所有<code>.h_set()</code>回调函数遍历执行完毕后，执行一次<code> commit_settings(void)</code>，通知应用层设置已加载完成</li>
+<li>在蓝牙的<code>commit_settings(void)</code>回调中有兜底：如果前面在持久化数据中没有读到地址，就创建一个公共地址或者随机地址</li>
+</ol>
+<h4 id="2-CONFIG-BT-SETTINGS-n"><a href="#2-CONFIG-BT-SETTINGS-n" class="headerlink" title="2. CONFIG_BT_SETTINGS=n"></a>2. <code>CONFIG_BT_SETTINGS=n</code></h4><p>当<code>CONFIG_BT_SETTINGS=n</code>的情况下，<code>bt_enable()</code>中就会自己创建地址了。调用的函数跟前面<code>commit_settings(void)</code>里面兜底的函数是一样的。</p>
+<h3 id="公共地址身份设置"><a href="#公共地址身份设置" class="headerlink" title="公共地址身份设置"></a>公共地址身份设置</h3><p>不论是否开启Settings，在设置<code>id=0</code>的身份时，都会先尝试从Controller层读取Public地址：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">bt_setup_public_id_addr();</span><br></pre></td></tr></table></figure>
+
+<p><strong>前面介绍的“公共地址设置API”，只是把公共地址设置到蓝牙Controller层，并没有创建蓝牙身份。</strong></p>
+<p>公共地址蓝牙身份的创建仅仅存在于<code>bt_setup_public_id_addr()</code>函数中。</p>
+<p>这也是为什么我们前面介绍公共地址API时，一定要保证：</p>
+<ul>
+<li>对于单核的SoC，最好在<code>bt_enable()</code>之前，直接用蓝牙Controller层的API，给Controller层设置公共地址</li>
+<li>对于双核的SoC，最好开启Settings，然后必须在<code>bt_enable()</code>之后，且<code>settings_load()</code>之前给Controller层设置公共地址<ul>
+<li>要求在<code>bt_enable()</code>之后，是因为蓝牙协议栈初始化之后才能用HCI命令</li>
+<li>要求在<code>settings_load()</code>之前，是因为要在Settings设置<code>id=0</code>的身份之前，提前把地址设置到Controler层</li>
+</ul>
+</li>
+</ul>
+<h3 id="随机静态地址身份设置"><a href="#随机静态地址身份设置" class="headerlink" title="随机静态地址身份设置"></a>随机静态地址身份设置</h3><p>前面公共地址设置失败时，继续尝试设置随机静态地址。</p>
+<p>在<code>bt_setup_random_id_addr()</code>中：</p>
+<p>如果开启了<code>CONFIG_BT_HCI_VS=y</code>，则会通过厂商自定义（Vendor-Specific）HCI命令，从Controller读取Random地址。Nordic SoftDevice会读取芯片的FICR寄存器中的设备地址来使用。因此<strong>每次上电它都是固定的</strong>：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedfea0f2f25923b4de95e8054da50b8261.png" alt="image-20251026050229779"></p>
+<p>如果设置了<code>CONFIG_BT_HCI_VS=n</code>，最后就会用<code>bt_id_create(NULL, NULL)</code>来生成。这个最终得到的是随机数，<strong>每次上电地址都不一样</strong>：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined145580f60557b10d8c05d67fcf0da21b.png" alt="image-20251026050346392"></p>
+<blockquote>
+<p>【注意】</p>
+<p>这里只是解释一下<code>CONFIG_BT_HCI_VS=n</code>的情况会变成每次上电都变化的随机静态地址，而不是推荐你关闭<code>CONFIG_BT_HCI_VS</code>。</p>
+<p>如果你的需求是“每次上电都变化的随机静态地址”，那么直接在<code>bt_enbale()</code>之前先用真随机数生成器生成一个地址，再用<code>bt_id_create()</code>设置即可。</p>
+</blockquote>
+<h1 id="4-蓝牙地址烧录"><a href="#4-蓝牙地址烧录" class="headerlink" title="4. 蓝牙地址烧录"></a>4. 蓝牙地址烧录</h1><p>通过前面的介绍，我们知道蓝牙地址都是通过函数从RAM里设置的。</p>
+<p>如果想要实现产品出厂地址烧录，可以烧录到芯片的指定区域，比如UICR中。然后代码启动时读出对应区域的地址，再用前面介绍的API设置。</p>
+<p>对于nRF52系列可以烧录到<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ps_nrf52840/page/uicr.html#ariaid-title32">UICR的Customer区域</a>；对于nRF53, nRF54系列，可以烧录到<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/uicr.html#ariaid-title21">UCIR的OTP区域</a>。其实是一样的，换了个名字而已。</p>
+<p>以nRF54L15为例，先用J-link指定区域烧录地址：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nrfutil device recover</span><br><span class="line">nrfutil device write --address 0x00FFD500 --value 0xCCDDEEFF</span><br><span class="line">nrfutil device write --address 0x00FFD504 --value 0x0000AABB</span><br><span class="line">nrfutil device <span class="built_in">read</span> --address 0x00FFD500 --bytes 8</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意不同芯片UICR地址不一样，用户可写的位置也不一样，要看芯片手册</p>
+</blockquote>
+<p>然后，由于是ROM，在代码中读出对应地址即可。</p>
+<p>可以直接读取地址，也可以用相关API，例如flash的API和RRAM的API。此外，有TF-M的情况下，需要用的API不同。</p>
+<p>最后用前面介绍的API设置地址即可。</p>
+<h1 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h1><ol>
+<li>地址有2大类，<strong>公共地址</strong>和<strong>随机地址</strong>。它们之间的区别在于广播包的TxAdd和RxAdd字段；</li>
+<li>随机地址又分为随机静态地址和随机私有地址；随机私有地址又分为<strong>不可解析的</strong>和<strong>可解析的（RPA）</strong></li>
+<li>在Zephyr中，蓝牙地址是结构体数据对象，可以随意创建。但是使用时，需要把地址保存到蓝牙身份（bt_id）中</li>
+<li>广播时，在广播参数结构体中，可以选择要使用的蓝牙身份，从而实现蓝牙地址切换</li>
+<li>要想使用公共地址，需要先用API把公共地址提前设置给Controller层，再等待Host层<code>bt_enable()</code>或者<code>settings_load()</code>自动读出</li>
+<li>NCS自动生成静态随机地址时，根据<code>CONFIG_BT_HCI_VS</code>的配置，从Controller层读出或者生成随机值。</li>
+<li>烧录地址需要先烧到UICR，再用前面介绍的API进行设置</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2025/01/22618b91ecf6/">https://jayant-tang.github.io/jayant97.github.io/2025/01/22618b91ecf6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/Bluetooth/">Bluetooth</a><a class="post-meta__tags" href="/jayant97.github.io/tags/BLE/">BLE</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" title="NCS 低功耗日志打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">NCS 低功耗日志打印</div></div></a></div><div class="next-post pull-right"><a href="/jayant97.github.io/2025/01/5645a5cab10c/" title="NCS Matter例程详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">NCS Matter例程详解</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2025/10/a6cc85dce7a1/" title="Matter OTA固件升级"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-20</div><div class="title">Matter OTA固件升级</div></div></a></div><div><a href="/jayant97.github.io/2025/09/daaf6f53cdc2/" title="Matter证书体系与量产设备证书烧录"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-26</div><div class="title">Matter证书体系与量产设备证书烧录</div></div></a></div><div><a href="/jayant97.github.io/2025/01/5645a5cab10c/" title="NCS Matter例程详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-03</div><div class="title">NCS Matter例程详解</div></div></a></div><div><a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" title="NCS 低功耗日志打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-26</div><div class="title">NCS 低功耗日志打印</div></div></a></div><div><a href="/jayant97.github.io/2024/01/b74491c1a080/" title="Nordic GPIO硬件原理与NCS应用详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-22</div><div class="title">Nordic GPIO硬件原理与NCS应用详解</div></div></a></div><div><a href="/jayant97.github.io/2023/11/4c8e1d7d162d/" title="Zephyr驱动与设备树实战——串口"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-12</div><div class="title">Zephyr驱动与设备树实战——串口</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87%E5%9C%B0%E5%9D%80%EF%BC%88Bluetooth-Device-Address%EF%BC%89"><span class="toc-text">1. 蓝牙设备地址（Bluetooth Device Address）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87%E5%9C%B0%E5%9D%80%E5%88%86%E7%B1%BB"><span class="toc-text">蓝牙设备地址分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AC%E5%85%B1%E5%9C%B0%E5%9D%80"><span class="toc-text">公共地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E5%9C%B0%E5%9D%80"><span class="toc-text">随机地址</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%9A%8F%E6%9C%BA%E9%9D%99%E6%80%81%E5%9C%B0%E5%9D%80"><span class="toc-text">(1) 随机静态地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%9A%8F%E6%9C%BA%E7%A7%81%E6%9C%89%E5%9C%B0%E5%9D%80"><span class="toc-text">(2) 随机私有地址</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E5%8F%AF%E8%A7%A3%E6%9E%90%E7%A7%81%E6%9C%89%E5%9C%B0%E5%9D%80"><span class="toc-text">不可解析私有地址</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E8%A7%A3%E6%9E%90%E7%A7%81%E6%9C%89%E5%9C%B0%E5%9D%80%EF%BC%88RPA%EF%BC%89"><span class="toc-text">可解析私有地址（RPA）</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Zephyr%E4%B8%AD%E7%9A%84%E8%93%9D%E7%89%99%E8%BA%AB%E4%BB%BD"><span class="toc-text">2. Zephyr中的蓝牙身份</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%E8%93%9D%E7%89%99%E8%BA%AB%E4%BB%BD"><span class="toc-text">如何选择蓝牙身份</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zephyr%E8%93%9D%E7%89%99%E5%9C%B0%E5%9D%80%E5%B8%B8%E7%94%A8API"><span class="toc-text">Zephyr蓝牙地址常用API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Zephyr%E8%93%9D%E7%89%99%E8%BA%AB%E4%BB%BD%E5%B8%B8%E7%94%A8API"><span class="toc-text">Zephyr蓝牙身份常用API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AC%E5%85%B1%E5%9C%B0%E5%9D%80%EF%BC%88Public-Address%EF%BC%89%E8%AE%BE%E7%BD%AEAPI"><span class="toc-text">公共地址（Public Address）设置API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9AController%E5%B1%82%E7%9B%B4%E6%8E%A5%E8%AE%BE%E7%BD%AE"><span class="toc-text">方法一：Controller层直接设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9AHost%E5%B1%82%E9%80%9A%E8%BF%87HCI%E5%91%BD%E4%BB%A4%E8%AE%BE%E7%BD%AE"><span class="toc-text">方法二：Host层通过HCI命令设置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-NCS%E8%93%9D%E7%89%99%E5%8D%8F%E8%AE%AE%E6%A0%88%E9%BB%98%E8%AE%A4%E5%9C%B0%E5%9D%80%E8%AE%BE%E7%BD%AE%E9%80%BB%E8%BE%91"><span class="toc-text">3. NCS蓝牙协议栈默认地址设置逻辑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Settings%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="toc-text">Settings的影响</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-CONFIG-BT-SETTINGS-y"><span class="toc-text">1. CONFIG_BT_SETTINGS&#x3D;y</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-CONFIG-BT-SETTINGS-n"><span class="toc-text">2. CONFIG_BT_SETTINGS&#x3D;n</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AC%E5%85%B1%E5%9C%B0%E5%9D%80%E8%BA%AB%E4%BB%BD%E8%AE%BE%E7%BD%AE"><span class="toc-text">公共地址身份设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E9%9D%99%E6%80%81%E5%9C%B0%E5%9D%80%E8%BA%AB%E4%BB%BD%E8%AE%BE%E7%BD%AE"><span class="toc-text">随机静态地址身份设置</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E8%93%9D%E7%89%99%E5%9C%B0%E5%9D%80%E7%83%A7%E5%BD%95"><span class="toc-text">4. 蓝牙地址烧录</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E6%80%BB%E7%BB%93"><span class="toc-text">5. 总结</span></a></li></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'c91ce0493b5c3e886110',
+      clientSecret: '7599decf69128ba1a83c1f3ef0923395a9bd8a60',
+      repo: 'jayant97.github.io',
+      owner: 'Jayant-Tang',
+      admin: ['Jayant-Tang'],
+      id: 'cef86d033430f33af14ab729caa32956',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/jayant97.github.io/js/search/local-search.js"></script></div></div></body></html>

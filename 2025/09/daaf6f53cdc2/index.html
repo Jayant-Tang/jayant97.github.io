@@ -1,0 +1,840 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Matter证书体系与量产设备证书烧录 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 简介本文会详细介绍Matter的证书体系，以及如何在Nordic平台下量产最终设备时烧录factory data。 2. Matter证书体系阅读这部分前，确保你了解数字签名、对称与非对称加密、数字证书、证书链、CA等相关概念。 Matter证书体系是为了确保消费者买到的设备确实是经过Matter认证的供应商生产的，并且经过了各项测试，从而满足兼容性和安全性的要求。 在设备入网阶段有一个过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Matter证书体系与量产设备证书烧录">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/09/daaf6f53cdc2/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 简介本文会详细介绍Matter的证书体系，以及如何在Nordic平台下量产最终设备时烧录factory data。 2. Matter证书体系阅读这部分前，确保你了解数字签名、对称与非对称加密、数字证书、证书链、CA等相关概念。 Matter证书体系是为了确保消费者买到的设备确实是经过Matter认证的供应商生产的，并且经过了各项测试，从而满足兼容性和安全性的要求。 在设备入网阶段有一个过程">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png">
+<meta property="article:published_time" content="2025-09-26T08:02:54.000Z">
+<meta property="article:modified_time" content="2025-10-28T08:39:07.360Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Matter">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2025/09/daaf6f53cdc2/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Matter证书体系与量产设备证书烧录',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-10-28 16:39:07'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Matter证书体系与量产设备证书烧录</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-09-26T08:02:54.000Z" title="发表于 2025-09-26 16:02:54">2025-09-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-10-28T08:39:07.360Z" title="更新于 2025-10-28 16:39:07">2025-10-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Matter/">Matter</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="Matter证书体系与量产设备证书烧录"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2025/09/daaf6f53cdc2/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>本文会详细介绍Matter的证书体系，以及如何在Nordic平台下量产最终设备时烧录factory data。</p>
+<h1 id="2-Matter证书体系"><a href="#2-Matter证书体系" class="headerlink" title="2. Matter证书体系"></a>2. Matter证书体系</h1><p>阅读这部分前，确保你了解数字签名、对称与非对称加密、数字证书、证书链、CA等相关概念。</p>
+<p>Matter证书体系是为了确保消费者买到的设备确实是经过Matter认证的供应商生产的，并且经过了各项测试，从而满足兼容性和安全性的要求。</p>
+<p>在设备入网阶段有一个过程叫做<strong>设备认证（Device Attestation）</strong>，就是Commissioner（如Apple HomePod音箱）来验证Commissionee（如Matter智能灯泡）是否经过认证的过程。</p>
+<h2 id="证书链"><a href="#证书链" class="headerlink" title="证书链"></a>证书链</h2><p>Matter<strong>设备认证（Device Attestation）</strong>中涉及到三个证书，它们是：</p>
+<ul>
+<li>PAA Certificate</li>
+<li>PAI Certificate</li>
+<li>DAC</li>
+</ul>
+<p>机构与证书之间的关系：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined42991b1f069e13231af0d66ea7a6a7aa.svg" alt="Device Attestation certification authorities"></p>
+<h3 id="PAA-Certificate"><a href="#PAA-Certificate" class="headerlink" title="PAA Certificate"></a>PAA Certificate</h3><p>PAA（Product Attestation Authority，产品认证授权机构）是经过CSA审核授权的CA机构，它们往往是大型公司或组织，它们拥有PAA根证书。</p>
+<blockquote>
+<p>PAA是指机构，但是有时也用PAA代指PAA证书。</p>
+</blockquote>
+<p>PAA有两种机构：</p>
+<ul>
+<li><p>Vendor Scoped PAA：大型Matter设备制造商。它们自己制造Matter设备，如Apple, Google, Amazon, Samsung</p>
+</li>
+<li><p>Non-VID Scoped PAA：如模块与方案商，大型芯片公司，专业数字证书服务提供商。它们自己不生产Matter设备，而是给自己的制造商客户提供证书服务（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://csa-iot.org/certification/paa/">CSA官方PAA名单</a>）。</p>
+</li>
+</ul>
+<p>Non-VID Scoped PAA的存在极大的降低了Matter的准入门槛，让中小型企业无需投入巨资和精力复杂审核去申请PAA，加快产品认证和上市流程。</p>
+<p>PAA证书的私钥被以最高安全规格（通常使用HSM硬件安全模块）保管在其安全设施中。而PAA的<strong>公钥证书</strong>则是公开的，分发到所有Matter控制器的信任库中。你的手机、智能音箱等控制器在出厂时就内置了这些PAA的根证书。</p>
+<h3 id="PAI-Certificate"><a href="#PAI-Certificate" class="headerlink" title="PAI Certificate"></a>PAI Certificate</h3><p>PAI Certificarte（Product Attestation Intermediate Certificarte，产品认证中间证书），简称PAI。是一个中间证书，通常来说一个系列的产品对应一个或多个PAI。</p>
+<p>PAI需要放置在Matter产品的出厂烧录工具中使用，为每一台出厂的Matter设备签发唯一的DAC。</p>
+<p>PAI的持有者是设备制造商。对于自己就是PAA的制造商，他们可以给自己签发PAI。对于中小型制造商，他们可以向PAA购买PAI。</p>
+<p>设备制造商可以拥有多个PAI，来给不同产品系列签发证书。</p>
+<h3 id="DAC"><a href="#DAC" class="headerlink" title="DAC"></a>DAC</h3><p>DAC（Device Attestation Certificates，设备认证证书），是烧录在每一台Matter中的唯一证书。包含了产品的特定信息（序列号、固件版本等）。</p>
+<p>在设备入网阶段，Matter Comissioner（负责管理设备入网，如Apple Homepod）会检查Comissionee（待入网设备）的DAC，确认它的证书链是来源于某个PAA的，就可以证明这确实是CSA成员公司制造的正品。</p>
+<blockquote>
+<p>注意，DAC只能证明设备身份。单靠DAC不能说明设备通过了Matter合规性认证。</p>
+</blockquote>
+<h3 id="PKI"><a href="#PKI" class="headerlink" title="PKI"></a>PKI</h3><p>以上的证书链构成了Matter世界中的<strong>PKI（Public Key Infrastructure，公钥基础设施）</strong>。对于任何一个设备的证书，都可以检查它的证书链（DAC-PAI-PAA），如果整个证书链的签名都是有效的，并且PAA是可信的，就可以认为这台Matter设备是可信的。<strong>PKI是一个概念，表示这一整套建立数字信任的规则和系统</strong>。</p>
+<h3 id="DCL"><a href="#DCL" class="headerlink" title="DCL"></a>DCL</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedbbfe5a8c17c982a849f14c67a2239fac.svg" alt="Device Attestation certification authorities with PKI and DCL"></p>
+<p>DCL（Distributed Compliance Ledger，分布式合规账本）是CSA维护的一个全球数据库服务器，里面存储了PAA证书公钥，各个制造商的认证信息等。</p>
+<p>DCL的特殊之处在于，它是用区块链技术搭建的，有多个服务器分布在全球。因此它是去中心化的、不可被篡改的。他是Matter全局信任的基石。</p>
+<p>各大生态系统（iOS，Android）定期从DCL同步数据，更新设备内部的PAA信任库。最终手机就可以验证Matter设备是否经过认证。</p>
+<h3 id="Matter-SDK中的证书文件"><a href="#Matter-SDK中的证书文件" class="headerlink" title="Matter SDK中的证书文件"></a>Matter SDK中的证书文件</h3><blockquote>
+<p>【注意】</p>
+<p>在阅读NCS文档或Matter官方文档时，以下两个git仓库名称：</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nrfconnect/sdk-connectedhomeip">${NCS}&#x2F;modules&#x2F;lib&#x2F;matter</a>：</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/project-chip/connectedhomeip">connectedhomeip</a></li>
+</ul>
+<p>指的是同一个仓库，也就是Matter SDK。只不过NCS已经fork并包含了此仓库，直接进入<code>$&#123;NCS&#125;/modules/lib/matter</code>即可</p>
+</blockquote>
+<p>在Matter SDK中，<code>credentials</code>路径下有很多证书文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">credentials/</span><br><span class="line">├── development/</span><br><span class="line">│   ├── attestation/</span><br><span class="line">│   ├── cd-certs/</span><br><span class="line">│   └── paa-root-certs/</span><br><span class="line">├── production/</span><br><span class="line">│   └── paa-root-certs/</span><br><span class="line">└── test/</span><br><span class="line">    ├── attestation/</span><br><span class="line">    ├── certification-declaration/</span><br><span class="line">    ├── operational-certificates/</span><br><span class="line">    └── operational-certificates-error-cases/</span><br></pre></td></tr></table></figure>
+
+<p>这些证书（Cert）和私钥（Key）基本都有两种格式：二进制的<code>.der</code>和文本的<code>.pem</code></p>
+<ul>
+<li><p><code>development/</code>下是研发过程中可以随意使用的测试证书，包括PAA，PAI，DAC，且都包含证书和私钥。此外还有一些测试用的CD。</p>
+</li>
+<li><p><code>production/</code>下是各大PAA的根证书。只有证书，没有私钥。用户可以用它们来验证某个DAC证书的证书链是否来源于某个PAA</p>
+</li>
+<li><p><code>test/</code>下的证书是官方合规性认证的用途，厂商可以不管</p>
+</li>
+</ul>
+<p>这里，<code>development/</code>下开发测试用的证书，还很贴心的提供了VID和PID。</p>
+<p>比如PAI证书，就提供了VID（0xFFF3）：<code>credentials/development/attestation/Matter-Development-PAI-FFF3-noPID-Cert.pem</code></p>
+<p>而DAC证书，就同时提供了VID（0xFFF3）和PID（0x8018）：<code>credentials/development/attestation/Matter-Development-DAC-FFF3-8018-Cert.pem</code></p>
+<p>这样我们后续生成CD和Factory Data进行测试时，就方便填入VID和PID参数了。</p>
+<h1 id="3-Matter认证声明（CD）"><a href="#3-Matter认证声明（CD）" class="headerlink" title="3. Matter认证声明（CD）"></a>3. Matter认证声明（CD）</h1><p>PKI证书链（PAA-&gt;PAI-&gt;DAC）认证和Matter合规性认证是两个相对独立的过程。PKI的目的只是证明设备是合规的Matter制造商生产的。只要制造商拿到PAI就能随意生成DAC，不论设备是否已经通过Matter认证。</p>
+<p>因此，还需要CD（Certification Declaration，认证声明）文件。</p>
+<p>CD是一个加密文档，当设备通过了Matter合规性认证后，制造商就可以获得CSA签发的CD文件。一系列产品使用相同的CD。</p>
+<p>把CD和PAI，DAC都烧录到产品中，这个产品就是Matter合规产品了。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede3cad0edf1ba3b5434470d83c8f988cc.svg" alt="Simplified view of Device Attestation information from manufacturer"></p>
+<p>注意PAI和DAC在factory data中，是一个独立于固件的分区，而CD在固件内。因此，一台设备可以先携带测试用CD去做认证，认证通过后，通过OTA DFU的方式升级新的固件，并携带新的CD。</p>
+<blockquote>
+<ul>
+<li>VID：Vendor ID。标识制造商的唯一16位数字。当制造商成为CSA成员时，可以从CSA获得此ID。</li>
+<li>PID：Product ID。表示产品系列的唯一16位数字。制造商自己分配。同一个产品系列的所有设备PID都相同。</li>
+</ul>
+<p>Matter Comissioner会验证Comissionee的DAC和CD，查看两者的VID和PID是否一致。</p>
+</blockquote>
+<h2 id="总框图"><a href="#总框图" class="headerlink" title="总框图"></a>总框图</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb0f83932c27d65b3446794667e8139c0.svg" alt="Device Attestation procedure overview"></p>
+<h2 id="CD固化"><a href="#CD固化" class="headerlink" title="CD固化"></a>CD固化</h2><p>完成 Matter 认证流程，认证通过后，CSA 会为你的产品生成并颁发正式的 CD 文件。每次产品固件升级并重新认证后，都需要申请新的 CD 并替换设备上的旧 CD。</p>
+<p>要把CD存储到产品中，有两种方式：</p>
+<ol>
+<li>把CD转换成数组直接编译在固件中</li>
+<li>把CD存储在Zephyr存储系统中，从而允许先烧录固件再存储CD</li>
+</ol>
+<h3 id="方式1：CD直接写入到固件中"><a href="#方式1：CD直接写入到固件中" class="headerlink" title="方式1：CD直接写入到固件中"></a>方式1：CD直接写入到固件中</h3><p>这种方法最简单省事，因为一个系列产品的同一个固件版本的CD都是一样的，因此直接写到固件中即可。</p>
+<p>用Linux命令<code>xxd</code>把CD证书文件转换成十六进制数组：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cat</span> CD.der | xxd -i</span><br></pre></td></tr></table></figure>
+
+<p>然后在<code>chip_project_config.h</code>中添加<code>CHIP_DEVICE_CONFIG_CERTIFICATION_DECLARATION</code>宏定义，加上大括号{}。我这里用测试CD来展示格式：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// test CD</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CHIP_DEVICE_CONFIG_CERTIFICATION_DECLARATION                                                                               \</span></span><br><span class="line"><span class="meta">    &#123;                                                                                                                              \</span></span><br><span class="line"><span class="meta">        0x30, 0x82, 0x02, 0x19, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x07, 0x02, 0xa0, 0x82, 0x02, 0x0a, 0x30,    \</span></span><br><span class="line"><span class="meta">            0x82, 0x02, 0x06, 0x02, 0x01, 0x03, 0x31, 0x0d, 0x30, 0x0b, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,      \</span></span><br><span class="line"><span class="meta">            0x02, 0x01, 0x30, 0x82, 0x01, 0x71, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x07, 0x01, 0xa0, 0x82,      \</span></span><br><span class="line"><span class="meta">            0x01, 0x62, 0x04, 0x82, 0x01, 0x5e, 0x15, 0x24, 0x00, 0x01, 0x25, 0x01, 0xf1, 0xff, 0x36, 0x02, 0x05, 0x00, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x01, 0x80, 0x05, 0x02, 0x80, 0x05, 0x03, 0x80, 0x05, 0x04, 0x80, 0x05, 0x05, 0x80, 0x05, 0x06, 0x80, 0x05,      \</span></span><br><span class="line"><span class="meta">            0x07, 0x80, 0x05, 0x08, 0x80, 0x05, 0x09, 0x80, 0x05, 0x0a, 0x80, 0x05, 0x0b, 0x80, 0x05, 0x0c, 0x80, 0x05, 0x0d,      \</span></span><br><span class="line"><span class="meta">            0x80, 0x05, 0x0e, 0x80, 0x05, 0x0f, 0x80, 0x05, 0x10, 0x80, 0x05, 0x11, 0x80, 0x05, 0x12, 0x80, 0x05, 0x13, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x14, 0x80, 0x05, 0x15, 0x80, 0x05, 0x16, 0x80, 0x05, 0x17, 0x80, 0x05, 0x18, 0x80, 0x05, 0x19, 0x80, 0x05,      \</span></span><br><span class="line"><span class="meta">            0x1a, 0x80, 0x05, 0x1b, 0x80, 0x05, 0x1c, 0x80, 0x05, 0x1d, 0x80, 0x05, 0x1e, 0x80, 0x05, 0x1f, 0x80, 0x05, 0x20,      \</span></span><br><span class="line"><span class="meta">            0x80, 0x05, 0x21, 0x80, 0x05, 0x22, 0x80, 0x05, 0x23, 0x80, 0x05, 0x24, 0x80, 0x05, 0x25, 0x80, 0x05, 0x26, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x27, 0x80, 0x05, 0x28, 0x80, 0x05, 0x29, 0x80, 0x05, 0x2a, 0x80, 0x05, 0x2b, 0x80, 0x05, 0x2c, 0x80, 0x05,      \</span></span><br><span class="line"><span class="meta">            0x2d, 0x80, 0x05, 0x2e, 0x80, 0x05, 0x2f, 0x80, 0x05, 0x30, 0x80, 0x05, 0x31, 0x80, 0x05, 0x32, 0x80, 0x05, 0x33,      \</span></span><br><span class="line"><span class="meta">            0x80, 0x05, 0x34, 0x80, 0x05, 0x35, 0x80, 0x05, 0x36, 0x80, 0x05, 0x37, 0x80, 0x05, 0x38, 0x80, 0x05, 0x39, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x3a, 0x80, 0x05, 0x3b, 0x80, 0x05, 0x3c, 0x80, 0x05, 0x3d, 0x80, 0x05, 0x3e, 0x80, 0x05, 0x3f, 0x80, 0x05,      \</span></span><br><span class="line"><span class="meta">            0x40, 0x80, 0x05, 0x41, 0x80, 0x05, 0x42, 0x80, 0x05, 0x43, 0x80, 0x05, 0x44, 0x80, 0x05, 0x45, 0x80, 0x05, 0x46,      \</span></span><br><span class="line"><span class="meta">            0x80, 0x05, 0x47, 0x80, 0x05, 0x48, 0x80, 0x05, 0x49, 0x80, 0x05, 0x4a, 0x80, 0x05, 0x4b, 0x80, 0x05, 0x4c, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x4d, 0x80, 0x05, 0x4e, 0x80, 0x05, 0x4f, 0x80, 0x05, 0x50, 0x80, 0x05, 0x51, 0x80, 0x05, 0x52, 0x80, 0x05,      \</span></span><br><span class="line"><span class="meta">            0x53, 0x80, 0x05, 0x54, 0x80, 0x05, 0x55, 0x80, 0x05, 0x56, 0x80, 0x05, 0x57, 0x80, 0x05, 0x58, 0x80, 0x05, 0x59,      \</span></span><br><span class="line"><span class="meta">            0x80, 0x05, 0x5a, 0x80, 0x05, 0x5b, 0x80, 0x05, 0x5c, 0x80, 0x05, 0x5d, 0x80, 0x05, 0x5e, 0x80, 0x05, 0x5f, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x60, 0x80, 0x05, 0x61, 0x80, 0x05, 0x62, 0x80, 0x05, 0x63, 0x80, 0x18, 0x24, 0x03, 0x16, 0x2c, 0x04, 0x13,      \</span></span><br><span class="line"><span class="meta">            0x5a, 0x49, 0x47, 0x32, 0x30, 0x31, 0x34, 0x32, 0x5a, 0x42, 0x33, 0x33, 0x30, 0x30, 0x30, 0x33, 0x2d, 0x32, 0x34,      \</span></span><br><span class="line"><span class="meta">            0x24, 0x05, 0x00, 0x24, 0x06, 0x00, 0x25, 0x07, 0x94, 0x26, 0x24, 0x08, 0x00, 0x18, 0x31, 0x7d, 0x30, 0x7b, 0x02,      \</span></span><br><span class="line"><span class="meta">            0x01, 0x03, 0x80, 0x14, 0x62, 0xfa, 0x82, 0x33, 0x59, 0xac, 0xfa, 0xa9, 0x96, 0x3e, 0x1c, 0xfa, 0x14, 0x0a, 0xdd,      \</span></span><br><span class="line"><span class="meta">            0xf5, 0x04, 0xf3, 0x71, 0x60, 0x30, 0x0b, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x30,      \</span></span><br><span class="line"><span class="meta">            0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x04, 0x03, 0x02, 0x04, 0x47, 0x30, 0x45, 0x02, 0x20, 0x24, 0xe5,      \</span></span><br><span class="line"><span class="meta">            0xd1, 0xf4, 0x7a, 0x7d, 0x7b, 0x0d, 0x20, 0x6a, 0x26, 0xef, 0x69, 0x9b, 0x7c, 0x97, 0x57, 0xb7, 0x2d, 0x46, 0x90,      \</span></span><br><span class="line"><span class="meta">            0x89, 0xde, 0x31, 0x92, 0xe6, 0x78, 0xc7, 0x45, 0xe7, 0xf6, 0x0c, 0x02, 0x21, 0x00, 0xf8, 0xaa, 0x2f, 0xa7, 0x11,      \</span></span><br><span class="line"><span class="meta">            0xfc, 0xb7, 0x9b, 0x97, 0xe3, 0x97, 0xce, 0xda, 0x66, 0x7b, 0xae, 0x46, 0x4e, 0x2b, 0xd3, 0xff, 0xdf, 0xc3, 0xcc,      \</span></span><br><span class="line"><span class="meta">            0xed, 0x7a, 0xa8, 0xca, 0x5f, 0x4c, 0x1a, 0x7c                                                                         \</span></span><br><span class="line"><span class="meta">    &#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li><p>宏定义数组记得加换行符<code>\</code>，且同一行的<code>\</code>之后不能有任何字符（包括空格），才能确保所有行都在同一个宏定义中</p>
+</li>
+<li><p><code>chip_project_config.h</code>的默认路径是<code>&quot;src/chip_project_config.h&quot;</code>，在<code>prj.conf</code>中可以设置：</p>
+  <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">CONFIG_CHIP_PROJECT_CONFIG=<span class="string">&quot;src/chip_project_config.h&quot;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</blockquote>
+<h3 id="方式2：CD写入Zephyr存储系统"><a href="#方式2：CD写入Zephyr存储系统" class="headerlink" title="方式2：CD写入Zephyr存储系统"></a>方式2：CD写入Zephyr存储系统</h3><p>此方法需要开启<code>CONFIG_CHIP_CERTIFICATION_DECLARATION_STORAGE=y</code></p>
+<p>这种方法比较复杂，一般没必要。厂商需要在自己的产测工具中开发把CD传入设备的功能（串口、USB、蓝牙等），然后设备中需要把数据存入Settings对应的Key的位置。这部分没有文档，需要阅读源码：</p>
+<p><code>v3.0.2/modules/lib/matter/src/platform/nrfconnect/FactoryDataProvider.cpp</code>，</p>
+<p>在此源码中，<code>GetCertificationDeclaration</code> 方法会优先尝试从 Zephyr 的配置存储（settings）读取 CD 数据：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (Internal::ZephyrConfig::<span class="built_in">ReadConfigValueBin</span>(Internal::ZephyrConfig::kConfigKey_CertificationDeclaration,</span><br><span class="line">                                               <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uint8_t</span> *&gt;(outBuffer.<span class="built_in">data</span>()), outBuffer.<span class="built_in">size</span>(),</span><br><span class="line">                                               cdLen) == CHIP_NO_ERROR)</span><br><span class="line">&#123;</span><br><span class="line">    outBuffer.<span class="built_in">reduce_size</span>(cdLen);</span><br><span class="line">    <span class="keyword">return</span> CHIP_NO_ERROR;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>只有在存储中没有找到时，才会返回默认的 CD 数据（<code>CHIP_DEVICE_CONFIG_CERTIFICATION_DECLARATION</code>）。</p>
+<p>这段代码是用固定的Key来从文件系统中读取的：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> ZephyrConfig::Key ZephyrConfig::kConfigKey_CertificationDeclaration = <span class="built_in">CONFIG_KEY</span>(NAMESPACE_FACTORY <span class="string">&quot;cert-declaration&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>因此，开发者需要用自己的方式把CD传入，然后调用Zephyr Settings相关函数，把CD存储到这个Key的位置。</p>
+<blockquote>
+<p>其实NCS里实现了一种传入CD的方式，相关代码位于<code>v3.0.2/modules/lib/matter/src/platform/nrfconnect/OTAImageProcessorImpl.cpp</code>。可以参考。</p>
+<p>在这里，注册了一个<code>dfu_image_writer</code>，它包含一组DFU回调函数，它们是用lambda表达式编写的匿名函数：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_CHIP_CERTIFICATION_DECLARATION_STORAGE</span></span><br><span class="line">    dfu_image_writer cdWriter;</span><br><span class="line">    cdWriter.image_id = CONFIG_CHIP_CERTIFiCATION_DECLARATION_OTA_IMAGE_ID;</span><br><span class="line">    cdWriter.open     = [](<span class="type">int</span> id, <span class="type">size_t</span> size) &#123; <span class="keyword">return</span> size &lt;= <span class="built_in">sizeof</span>(sCdBuf) ? <span class="number">0</span> : -EFBIG; &#125;;</span><br><span class="line">    cdWriter.write    = [](<span class="type">const</span> <span class="type">uint8_t</span> * chunk, <span class="type">size_t</span> chunk_size) &#123;</span><br><span class="line">        <span class="built_in">memcpy</span>(&amp;sCdBuf[sCdSavedBytes], chunk, chunk_size);</span><br><span class="line">        sCdSavedBytes += chunk_size;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">    cdWriter.close = [](<span class="type">bool</span> success) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">settings_save_one</span>(Internal::ZephyrConfig::kConfigKey_CertificationDeclaration, sCdBuf, sCdSavedBytes);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">ReturnErrorOnFailure</span>(System::<span class="built_in">MapErrorZephyr</span>(<span class="built_in">dfu_multi_image_register_writer</span>(&amp;cdWriter)));</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>在OTA过程结束时，在<code>close</code>回调函数里执行了<code>settings_save_one()</code>，把CD存储到Settings子系统中。</p>
+<p>这一套代码的上层是Matter OTA流程（并非MCUMgr DFU）：</p>
+<p>OTA 开始 → PrepareDownload() → SystemLayer().ScheduleLambda() → PrepareDownloadImpl()</p>
+<p>而这里的底层实现是Nordic的DFU Multi Image库，可以参考官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/libraries/dfu/dfu_multi_image.html">DFU multi-image</a>。</p>
+</blockquote>
+<h1 id="4-生成DAC"><a href="#4-生成DAC" class="headerlink" title="4. 生成DAC"></a>4. 生成DAC</h1><p>量产时，每台设备都需要被烧录唯一的DAC。</p>
+<h2 id="安装chip-cert"><a href="#安装chip-cert" class="headerlink" title="安装chip-cert"></a>安装chip-cert</h2><p>对于Linux和MacOS环境（包括树莓派的ARM64架构），推荐下载 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nrfconnect/sdk-connectedhomeip/releases">Nordic预编译可执行文件</a>，下载对应的架构，改名为<code>chip-cert</code>并赋予可执行权限，再添加到PATH环境变量即可。</p>
+<blockquote>
+<p>Windows下目前暂无原生的chip-tool。研发阶段可以在WSL或者虚拟机中使用Linux。</p>
+<p>如果是量产工具是Windows环境，则可以考虑预先在Linux环境用chip-cert批量生成大量DAC文件，拷贝到Windows生产环境中使用。Nordic提供的factory data生成脚本是支持windows的。</p>
+</blockquote>
+<h2 id="用PAI签发DAC"><a href="#用PAI签发DAC" class="headerlink" title="用PAI签发DAC"></a>用PAI签发DAC</h2><p>官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://project-chip.github.io/connectedhomeip-doc/src/tools/chip-cert/README.html#gen-att-cert">Matter&#x2F;CHIP Certificate Tool — gen-att-cert</a></p>
+<p>先查看自己要使用的PAI的内容：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ openssl x509 -<span class="keyword">in</span> credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem  -text -noout </span><br><span class="line"></span><br><span class="line">Certificate:</span><br><span class="line">    Data:</span><br><span class="line">        Version: 3 (0x2)</span><br><span class="line">        Serial Number: 6245791343685426020 (0x56ad8222ad945b64)</span><br><span class="line">        Signature Algorithm: ecdsa-with-SHA256</span><br><span class="line">        Issuer: CN = Matter Test PAA, 1.3.6.1.4.1.37244.2.1 = FFF1</span><br><span class="line">        Validity</span><br><span class="line">            Not Before: Feb  5 00:00:00 2022 GMT</span><br><span class="line">            Not After : Dec 31 23:59:59 9999 GMT</span><br><span class="line">        Subject: CN = Matter Dev PAI 0xFFF1 no PID, 1.3.6.1.4.1.37244.2.1 = FFF1</span><br><span class="line">        Subject Public Key Info:</span><br><span class="line">            Public Key Algorithm: id-ecPublicKey</span><br><span class="line">                Public-Key: (256 bit)</span><br><span class="line">                pub:</span><br><span class="line">                    04:41:9a:93:15:c2:17:3e:0c:8c:87:6d:03:cc:<span class="built_in">fc</span>:</span><br><span class="line">                    94:48:52:64:7f:7f:ec:5e:50:82:f4:05:99:28:ec:</span><br><span class="line">                    a8:94:c5:94:15:13:09:ac:63:1e:4c:b0:33:92:af:</span><br><span class="line">                    68:4b:0b:af:b7:e6:5b:3b:81:62:c2:f5:2b:f9:31:</span><br><span class="line">                    b8:e7:7a:aa:82</span><br><span class="line">                ASN1 OID: prime256v1</span><br><span class="line">                NIST CURVE: P-256</span><br><span class="line">        X509v3 extensions:</span><br><span class="line">            X509v3 Basic Constraints: critical</span><br><span class="line">                CA:TRUE, pathlen:0</span><br><span class="line">            X509v3 Key Usage: critical</span><br><span class="line">                Certificate Sign, CRL Sign</span><br><span class="line">            X509v3 Subject Key Identifier: </span><br><span class="line">                63:54:0E:47:F6:4B:1C:38:D1:38:84:A4:62:D1:6C:19:5D:8F:FB:3C</span><br><span class="line">            X509v3 Authority Key Identifier: </span><br><span class="line">                6A:FD:22:77:1F:51:1F:EC:BF:16:41:97:67:10:DC:DC:31:A1:71:7E</span><br><span class="line">    Signature Algorithm: ecdsa-with-SHA256</span><br><span class="line">    Signature Value:</span><br><span class="line">        30:45:02:21:00:b2:ef:27:f4:9a:e9:b5:0f:b9:1e:ea:c9:4c:</span><br><span class="line">        4d:0b:db:b8:d7:92:9c:6c:b8:8f:ac:e5:29:36:8d:12:05:4c:</span><br><span class="line">        0c:02:20:65:5d:c9:2b:86:bd:90:98:82:a6:c6:21:77:b8:25:</span><br><span class="line">        d7:d0:5e:db:e7:c2:2f:9f:ea:71:22:0e:7e:a7:03:f8:91</span><br></pre></td></tr></table></figure>
+
+<p>注意<code>Validity</code>对应的证书有效时间，这个是UTC时间，不是本地时间。</p>
+<p>使用PAI来签发DAC：</p>
+<p>测试路径<code>$&#123;NCS&#125;/modules/lib/matter/</code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-cert gen-att-cert --<span class="built_in">type</span> d \</span><br><span class="line">--subject-cn <span class="string">&quot;Matter Development DAC 01&quot;</span> \</span><br><span class="line">--subject-vid FFF1 \</span><br><span class="line">--subject-pid 0123 \</span><br><span class="line">--valid-from <span class="string">&quot;2025-09-29 9:03:43&quot;</span> \</span><br><span class="line">--lifetime 7305 \</span><br><span class="line">--ca-key credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Key.pem \</span><br><span class="line">--ca-cert credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem \</span><br><span class="line">--out-key Matter-Development-PAI-FFF1-0123-Key.pem \</span><br><span class="line">--out Matter-Development-PAI-FFF1-0123-Cert.pem</span><br><span class="line"><span class="comment"># 文件将生成在当前目录下</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>--subject-vid</code>与<code>--subject-pid</code>：如果你是自己的产品，VID和PID正常填写。如果你是用开发测试证书，会看到PAI证书上已经标明了VID，因此我们输入的VID要与其保持一致。</p>
+</li>
+<li><p><code>--valid-from</code>：证书有效开始时间。首先，必须处于PAI的起始时间和结束时间之间；其次，不能是未来的时间，例如现在是上海时区17:08 (UTC+8)，那么在生成证书时，不能超过09:08 (UTC+0)。</p>
+</li>
+<li><p><code>--lifetime</code>：DAC证书的有效时间，单位为天。7305约为20年。</p>
+<p>你可以设置一个特殊值<code>4294967295</code>来表示证书没有明确定义有效时间。</p>
+<p>当证书到期后，设备将无法再被配网。已经入网的设备不受影响，因为已经入网的设备靠入网时安装的NOC证书来通信。</p>
+<p>因此考虑设置尽可能长的时间，或者能够OTA这个设备。<br>（NCS默认的factory data实现方式具有写保护，因此Factory data分区无法OTA 。需要自己实现factory data provider来实现OTA功能。）</p>
+</li>
+</ul>
+<h2 id="验证DAC的证书链"><a href="#验证DAC的证书链" class="headerlink" title="验证DAC的证书链"></a>验证DAC的证书链</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 执行无报错就是验证成功</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 用自己生成的DAC验证</span></span><br><span class="line">chip-cert validate-att-cert \</span><br><span class="line">--dac Matter-Development-PAI-FFF1-0123-Cert.pem \</span><br><span class="line">--pai credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem \</span><br><span class="line">--paa credentials/development/paa-root-certs/Chip-Test-PAA-FFF1-Cert.pem</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用SDK自带的DAC验证</span></span><br><span class="line">chip-cert validate-att-cert \</span><br><span class="line">--dac credentials/development/attestation/Matter-Development-DAC-FFF1-8000-Cert.pem \</span><br><span class="line">--pai credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem \</span><br><span class="line">--paa credentials/development/paa-root-certs/Chip-Test-PAA-FFF1-Cert.pem</span><br></pre></td></tr></table></figure>
+
+<p>常见错误：</p>
+<ul>
+<li><code>Attestation Certificates Validation Failed with Error Code: 300</code>：DAC的起始时间（UTC）时间在未来。注意中国时区的时间减去8小时才是UTC时间。</li>
+<li><code>Attestation Certificates Validation Failed with Error Code: 301</code>：校验失败。一般是DAC的起始时间比PAI的起始时间还要早导致。</li>
+</ul>
+<h2 id="DAC格式转换"><a href="#DAC格式转换" class="headerlink" title="DAC格式转换"></a>DAC格式转换</h2><p><code>.pem</code>证书转换为二进制<code>.der</code>证书：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./chip-cert convert-cert &lt;in-file&gt; &lt;out-file&gt; -d</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="5-Matter工厂数据配置"><a href="#5-Matter工厂数据配置" class="headerlink" title="5. Matter工厂数据配置"></a>5. Matter工厂数据配置</h1><p>Matter工厂数据（Factory Data）是要烧录到设备中的二进制数据，包含PAI，DAC等等信息，不包括CD。</p>
+<h2 id="固件配置"><a href="#固件配置" class="headerlink" title="固件配置"></a>固件配置</h2><p>默认情况下，Matter例程会自动生成测试版工厂数据，并把它和app, mcuboot固件编译在一起。</p>
+<p>要想烧录自己的工厂数据，需要修改配置：</p>
+<p><code>prj.conf</code>或<code>prj_release.conf</code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用Nordic Factory Data Provider来存储和解析factory data</span></span><br><span class="line">CONFIG_CHIP_FACTORY_DATA=y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译时不要自动生成测试factory data</span></span><br><span class="line">CONFIG_CHIP_FACTORY_DATA_BUILD=n</span><br><span class="line"></span><br><span class="line"><span class="comment"># 过认证时打开，量产时关闭</span></span><br><span class="line">CONFIG_NCS_SAMPLE_MATTER_TEST_EVENT_TRIGGERS_REGISTER_DEFAULTS=n</span><br><span class="line">CONFIG_NCS_SAMPLE_MATTER_TEST_EVENT_TRIGGERS=n</span><br></pre></td></tr></table></figure>
+
+<p><code>sysbuild.conf</code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SB_CONFIG_MATTER_FACTORY_DATA_GENERATE=n</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="工厂数据存储位置"><a href="#工厂数据存储位置" class="headerlink" title="工厂数据存储位置"></a>工厂数据存储位置</h2><p>NCS通过 Partition Manager 来配置MCU的非易失存储器分区，见<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17794813.html#7-%E5%AD%98%E5%82%A8%E5%99%A8%E5%88%86%E5%8C%BA%E6%96%87%E4%BB%B6partition-manager">《理解Zephyr编译与配置系统 - 存储器分区文件》</a>。</p>
+<p>你可以参考Matter例程的存储器分区文件，不同的MCU在例程里给的存储位置不同，例如：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">factory_data:</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0xf7000</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0x1000</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">flash_primary</span></span><br></pre></td></tr></table></figure>
+
+<p>这里的存储位置就是0xf7000，长度4096Bytes。</p>
+<p>factory_data很小，不超过4kB，但是在分区时要占用存储器的一个完整的page。</p>
+<h3 id="工厂数据地址对齐"><a href="#工厂数据地址对齐" class="headerlink" title="工厂数据地址对齐"></a>工厂数据地址对齐</h3><p>在对Flash进行分区时，注意要与Nordic<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/libraries/security/bootloader/fprotect.html#fprotect-readme">硬件Flash写保护功能</a>对齐。</p>
+<p>它是一个上层的统一API，不同SoC的安全硬件可能不一样。它可以设置任意的几个起始地址和长度，从而使得这些区域在运行时不会被意外覆写。并且只要程序不reset，这种保护就不会被取消。当然，这里的起始地址和长度都要对齐MCU的page大小。</p>
+<p>在Matter工程中，开启<code>CONFIG_CHIP_FACTORY_DATA_WRITE_PROTECT=y</code>和<code>CONFIG_FPROTECT=y</code>，程序就会从分区中读出Factory Data的首尾地址，并开启这段区域的写保护。（见<code>v3.0.2/modules/lib/matter/src/platform/nrfconnect/FactoryDataProvider.h</code>）。</p>
+<p><strong>写保护的BLOCK长度，取决于MCU上的硬件保护单元，和Flash的Page大小不一定相同</strong>。</p>
+<p>它的大小是<code>CONFIG_FPROTECT_BLOCK_SIZE</code>，它的值不能设置，因为它是一个隐性配置项，只取决于硬件：</p>
+<p><code>v3.0.2/nrf/lib/fprotect/Kconfig</code></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">config FPROTECT_BLOCK_SIZE</span><br><span class="line">    hex</span><br><span class="line">    default NRF_SPU_FLASH_REGION_SIZE if CPU_HAS_NRF_IDAU</span><br><span class="line">    default NRF_MPU_FLASH_REGION_SIZE if HAS_HW_NRF_MPU</span><br><span class="line">    default NRF_BPROT_FLASH_REGION_SIZE if HAS_HW_NRF_BPROT</span><br><span class="line">    default NRF_ACL_FLASH_REGION_SIZE if HAS_HW_NRF_ACL</span><br><span class="line">    default NRF_RRAM_REGION_SIZE_UNIT if SOC_SERIES_NRF54LX &amp;&amp; FLASH</span><br><span class="line">    default $(dt_node_int_prop_hex,$(DT_CHOSEN_ZEPHYR_FLASH),erase-block-size)</span><br></pre></td></tr></table></figure>
+
+<p>可以通过<code>build/&lt;application_name&gt;/zephyr/.config</code>查看具体值，这里给出一个表格：</p>
+<table>
+<thead>
+<tr>
+<th>硬件保护单元</th>
+<th>芯片系列</th>
+<th>说明</th>
+<th>CONFIG_FPROTECT_BLOCK_SIZE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IDAU（SPU）</td>
+<td>nRF53, nRF91</td>
+<td>Arm TrustZone安全架构用于区分安全、非安全区域。需要Arm v8，如Cortex-M33</td>
+<td>53系列为16kB（0x4000）；<br>91系列为32kB（0x8000）</td>
+</tr>
+<tr>
+<td>MPU</td>
+<td>nRF51822</td>
+<td>设备树带有<code>compatible = &quot;nordic,nrf-mpu&quot;;</code>的SoC</td>
+<td>4kB（0x1000），与flash page一致</td>
+</tr>
+<tr>
+<td>BPROT</td>
+<td>nRF52832, nRF52811, nRF52810, nRF52805</td>
+<td>设备树带有<code>compatible = &quot;nordic,nrf-bprot&quot;;</code>的SoC</td>
+<td>从<code>/chosen/zephyr,flash</code>节点下的<code>erase-block-size</code>属性读取，与flash page大小一致</td>
+</tr>
+<tr>
+<td>ACL</td>
+<td>nRF53, nRF52840, nRF52833, nRF52820</td>
+<td>设备树带有<code>compatible = &quot;nordic,nrf-acl&quot;;</code>的SoC</td>
+<td>从<code>/chosen/zephyr,flash</code>节点下的<code>erase-block-size</code>属性读取，与flash page大小一致</td>
+</tr>
+<tr>
+<td>RRAMC</td>
+<td>nRF54L</td>
+<td>54L使用RRAM技术，而非Flash技术</td>
+<td>此config为4kB（0x1000），但实际硬件（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/rramc.html#ariaid-title37">REGION.CONFIG</a>）支持1kB（0x400）</td>
+</tr>
+</tbody></table>
+<p>因此，在定义存储器分区时：使用nRF52840和54L15开发，注意flash分区要和4kB对齐；使用nRF5340开发时，flash分区要和16kB对齐。</p>
+<blockquote>
+<p>Kconfig的default值匹配是采用第一个匹配上的值。这里nRF5340匹配上的是IDAU的16kB，因此就不再采用ACL的4kB。</p>
+</blockquote>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede2ac0d4819036f689c75e2395730a388.svg" alt="Factory data partition implementation criteria for fprotect"></p>
+<p>一般来说factory_data在app固件的后面，而settings_storage在factory_data的后面。而factory_data和app开启写保护是没问题的；而settings存储器分区不能开启写保护。<strong>因此注意不要把factory_data和settings放到同一个FPROTECT Block里。</strong></p>
+<blockquote>
+<p>NCS中其他使用到FPROTECT的位置：</p>
+<ul>
+<li>mcuboot：如果在mcuboot中（工程的<code>sysbuild/mcuboot/prj.conf</code>）启动<code>CONFIG_FPROTECT=y</code>，mcuboot会对自己的flash区域开启写保护：</li>
+<li>b0：5340 network core使用的bootloader也可以对自己的分区开启写保护。</li>
+<li>hw_unique_key：硬件唯一ID的库可以把自己存储key的区域进行写保护</li>
+</ul>
+</blockquote>
+<h2 id="工厂数据内容表"><a href="#工厂数据内容表" class="headerlink" title="工厂数据内容表"></a>工厂数据内容表</h2><table>
+<thead>
+<tr>
+<th>Key name</th>
+<th>Full name</th>
+<th>Length</th>
+<th>Format</th>
+<th>合规要求</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>version</code></td>
+<td>factory data 版本</td>
+<td>2 B</td>
+<td>uint16</td>
+<td><strong>必选</strong></td>
+<td>当前的factory data集版本. 必须与设备上的Factory Data Provider版本一致. 用户不可更改</td>
+</tr>
+<tr>
+<td><code>sn</code></td>
+<td>产品序列号</td>
+<td>&lt;1, 32&gt; B</td>
+<td>ASCII string</td>
+<td><strong>必选</strong></td>
+<td>每台设备的唯一序列号，最长32字符</td>
+</tr>
+<tr>
+<td><code>vendor_id</code></td>
+<td>vendor ID</td>
+<td>2 B</td>
+<td>uint16</td>
+<td><strong>必选</strong></td>
+<td>CSA分配的制造商ID</td>
+</tr>
+<tr>
+<td><code>product_id</code></td>
+<td>product ID</td>
+<td>2 B</td>
+<td>uint16</td>
+<td><strong>必选</strong></td>
+<td>制造商自己分配的产品型号ID，同一系列产品都用这个ID</td>
+</tr>
+<tr>
+<td><code>vendor_name</code></td>
+<td>vendor name</td>
+<td>&lt;1, 32&gt; B</td>
+<td>ASCII string</td>
+<td><strong>必选</strong></td>
+<td>用户可读的制造商名称字符串，最长32字符</td>
+</tr>
+<tr>
+<td><code>product_name</code></td>
+<td>product name</td>
+<td>&lt;1, 32&gt; B</td>
+<td>ASCII string</td>
+<td><strong>必选</strong></td>
+<td>用户可读的产品名称字符串，最长32字符</td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>manufacturing date</td>
+<td>10 B</td>
+<td>ISO 8601</td>
+<td><strong>必选</strong></td>
+<td>生产日期。格式必须符合ISO 8601, 如： <code>YYYY-MM-DD</code>.</td>
+</tr>
+<tr>
+<td><code>hw_ver</code></td>
+<td>hardware version</td>
+<td>2 B</td>
+<td>uint16</td>
+<td><strong>必选</strong></td>
+<td>制造商自定义的硬件版本号（16bit）</td>
+</tr>
+<tr>
+<td><code>hw_ver_str</code></td>
+<td>hardware version string</td>
+<td>&lt;1, 64&gt; B</td>
+<td>uint16</td>
+<td><strong>必选</strong></td>
+<td>用户可读的制造商自定义的硬件版本号字符串</td>
+</tr>
+<tr>
+<td><code>dac_cert</code></td>
+<td>Device Attestation Certificate (DAC)</td>
+<td>&lt;1, 602&gt; B</td>
+<td>byte string</td>
+<td><strong>必选</strong></td>
+<td>DAC证书文件。格式为DER编码的X.509v3-compliant证书，于RFC 5280中定义.</td>
+</tr>
+<tr>
+<td><code>dac_key</code></td>
+<td>DAC private key</td>
+<td>68 B</td>
+<td>byte string</td>
+<td><strong>必选</strong></td>
+<td>DAC私钥。烧写过程中注意保密，不要泄露。也可以把DAC存放在加密存储后端而不是factory_data中，见： <a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/matter/end_product/security.html#matter-platforms-security-dac-priv-key">Storing Device Attestation Certificate private key</a></td>
+</tr>
+<tr>
+<td><code>pai_cert</code></td>
+<td>Product Attestation Intermediate</td>
+<td>&lt;1, 602&gt; B</td>
+<td>byte string</td>
+<td><strong>必选</strong></td>
+<td>PAI证书文件。格式为DER编码的X.509v3-compliant证书，于RFC 5280中定义.</td>
+</tr>
+<tr>
+<td><code>spake2_it</code></td>
+<td>SPAKE2+ iteration counter</td>
+<td>4 B</td>
+<td>uint32</td>
+<td><strong>必选</strong></td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://datatracker.ietf.org/doc/rfc9383/">SPAKE2+</a> 是用于生成共享密钥的算法。用于设备配网期间的共享密钥生成。SPAKE2迭代计数器介于1000和100000之间，数值越大生成的密钥越强，但也越花时间。默认值1000.</td>
+</tr>
+<tr>
+<td><code>spake2_salt</code></td>
+<td>SPAKE2+ salt</td>
+<td>&lt;16, 32&gt; B</td>
+<td>byte string</td>
+<td><strong>必选</strong></td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://datatracker.ietf.org/doc/rfc9383/">SPAKE2+</a> 是用于生成共享密钥的算法。用于设备配网期间的共享密钥生成。SPAKE2+ 盐是一串随机base64字符串，16 至32 字节。密码会加上盐再进行哈希计算，再生成共享密钥，防止攻击者使用彩虹表（提前制作常用密码的哈希值）来快速破解密钥。盐的作用是提高随机性，增加破解难度。</td>
+</tr>
+<tr>
+<td><code>spake2_verifier</code></td>
+<td>SPAKE2+ verifier</td>
+<td>97 B</td>
+<td>byte string</td>
+<td><strong>必选</strong></td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://datatracker.ietf.org/doc/rfc9383/">SPAKE2+</a> 是用于生成共享密钥的算法。用于设备配网期间的共享密钥生成。SPAKE2+ verifier是由spake2_it，spake2_salt, passcode共同生成。</td>
+</tr>
+<tr>
+<td><code>discriminator</code></td>
+<td>Discriminator</td>
+<td>2 B</td>
+<td>uint16</td>
+<td><strong>必选</strong></td>
+<td>discriminator是一个12-bit值。用于在配网前区分设备的广播，例如同时有多台设备等待配网，手机扫描二维码或NFC后获得discriminator，就知道要连接哪个广播了。由于不需要全局唯一，因此生产时可以滚动分配。<br>如果不用二维码，而是用适合人阅读的手动配对码（Manual Pairing Code），手动配对码是Discriminator的最高4位</td>
+</tr>
+<tr>
+<td><code>passcode</code></td>
+<td>SPAKE2+ passcode</td>
+<td>4 B</td>
+<td>uint32</td>
+<td><em>可选</em></td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://datatracker.ietf.org/doc/rfc9383/">SPAKE2+</a> 是用于生成共享密钥的算法。用于设备配网期间的共享密钥生成。 passcode是在共享密钥生成之前，Comisioner和Comissionee之间的临时加密会话所使用的简单密钥。 范围1到99999998（并且以下数值不可以使用：<code>11111111</code>,<code>22222222</code>,<code>33333333</code>,<code>44444444</code>,<code>55555555</code>,<code>66666666</code>,<code>77777777</code>,<code>88888888</code>,<code>99999999</code>）默认值为20202021.。这个值最好随机生成且与产品序列号、生产日期等公开信息无关。<br>Passcode在设备中的存储应当与 SPAKE2+ verifier隔离，并且任何Matter命令都不能读到这个值。 因此在Factory Data中包含passcode不是必选的，一般只有debug log打印配网信息，或者NFC配网才需要把passcode放在factory data。反而包含passcode会导致违反“Passcode应当与SPAKE2+ verifier隔离”的规则。</td>
+</tr>
+<tr>
+<td><code>product_appearance</code></td>
+<td>Product visible appearance</td>
+<td>2 B</td>
+<td>CBOR map</td>
+<td><em>可选</em></td>
+<td>产品外观枚举值。分为2部分，见下表。</td>
+</tr>
+<tr>
+<td><code>rd_uid</code></td>
+<td>rotating device ID unique ID</td>
+<td>&lt;16, 32&gt; B</td>
+<td>byte string</td>
+<td><em>可选</em></td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/matter/getting_started/advanced_kconfigs.html#ug-matter-configuring-ffs">Amazon Frustration-Free Setup support</a> 所需的ID. 如果factory data带这个参数，固件里的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/samples/matter/common/config_matter_stack.html#config-chip-factory-data-rotating-device-uid-max-len">CONFIG_CHIP_FACTORY_DATA_ROTATING_DEVICE_UID_MAX_LEN</a> 也必须设置成这个参数的长度。</td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td>User data</td>
+<td>variable, max 1024 B</td>
+<td>CBOR map</td>
+<td><em>可选</em></td>
+<td>厂商自定义数据，可以在设备的程序中读出。</td>
+</tr>
+</tbody></table>
+<p>外观枚举（<code>product_appearance</code>）：</p>
+<ol>
+<li><p>外饰面材质（<code>finish</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>含义</th>
+<th>Enum value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>matte</code></td>
+<td>哑光</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>satin</code></td>
+<td>绸缎材质</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>polished</code></td>
+<td>抛光</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>rugged</code></td>
+<td>凹凸不平</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>fabric</code></td>
+<td>编织材质</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>other</code></td>
+<td></td>
+<td>255</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>颜色（<code>color</code>）：字符串</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Color name</th>
+<th>含义</th>
+<th>RGB value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>black</code></td>
+<td>黑色</td>
+<td><code>#000000</code></td>
+</tr>
+<tr>
+<td><code>navy</code></td>
+<td>藏青色</td>
+<td><code>#000080</code></td>
+</tr>
+<tr>
+<td><code>green</code></td>
+<td>绿色</td>
+<td><code>#008000</code></td>
+</tr>
+<tr>
+<td><code>teal</code></td>
+<td>鸭绿</td>
+<td><code>#008080</code></td>
+</tr>
+<tr>
+<td><code>maroon</code></td>
+<td>栗红</td>
+<td><code>#800080</code></td>
+</tr>
+<tr>
+<td><code>purple</code></td>
+<td>紫色</td>
+<td><code>#800080</code></td>
+</tr>
+<tr>
+<td><code>olive</code></td>
+<td>橄榄绿</td>
+<td><code>#808000</code></td>
+</tr>
+<tr>
+<td><code>gray</code></td>
+<td>灰色</td>
+<td><code>#808080</code></td>
+</tr>
+<tr>
+<td><code>blue</code></td>
+<td>蓝色</td>
+<td><code>#0000FF</code></td>
+</tr>
+<tr>
+<td><code>lime</code></td>
+<td>苹果绿</td>
+<td><code>#00FF00</code></td>
+</tr>
+<tr>
+<td><code>aqua</code></td>
+<td>水蓝色</td>
+<td><code>#00FFFF</code></td>
+</tr>
+<tr>
+<td><code>red</code></td>
+<td>红色</td>
+<td><code>#FF0000</code></td>
+</tr>
+<tr>
+<td><code>fuchsia</code></td>
+<td>品红</td>
+<td><code>#FF00FF</code></td>
+</tr>
+<tr>
+<td><code>yellow</code></td>
+<td>黄色</td>
+<td><code>#FFFF00</code></td>
+</tr>
+<tr>
+<td><code>white</code></td>
+<td>白色</td>
+<td><code>#FFFFFF</code></td>
+</tr>
+<tr>
+<td><code>nickel</code></td>
+<td>镍灰色</td>
+<td><code>#727472</code></td>
+</tr>
+<tr>
+<td><code>chrome</code></td>
+<td>铬灰色</td>
+<td><code>#a8a9ad</code></td>
+</tr>
+<tr>
+<td><code>brass</code></td>
+<td>黄铜色</td>
+<td><code>#E1C16E</code></td>
+</tr>
+<tr>
+<td><code>copper</code></td>
+<td>铜色</td>
+<td><code>#B87333</code></td>
+</tr>
+<tr>
+<td><code>silver</code></td>
+<td>银色</td>
+<td><code>#C0C0C0</code></td>
+</tr>
+<tr>
+<td><code>gold</code></td>
+<td>金色</td>
+<td><code>#FFD700</code></td>
+</tr>
+</tbody></table>
+<h2 id="工厂数据生成"><a href="#工厂数据生成" class="headerlink" title="工厂数据生成"></a>工厂数据生成</h2><p>官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/matter/end_product/factory_provisioning.html">Factory provisioning in Matter</a></p>
+<h3 id="生成工厂数据json和hex"><a href="#生成工厂数据json和hex" class="headerlink" title="生成工厂数据json和hex"></a>生成工厂数据json和hex</h3><p>打开nrfconnect命令行，进入<code>modules/lib/matter</code>:</p>
+<p>查看帮助：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python scripts/tools/nrfconnect/generate_nrfconnect_chip_factory_data.py -h</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<p>Linux 版本：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装生成二维码图片的依赖</span></span><br><span class="line">python -m pip install -r ./scripts/setup/requirements.nrfconnect.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建输出目录</span></span><br><span class="line"><span class="built_in">mkdir</span> build_fd</span><br><span class="line"></span><br><span class="line">python scripts/tools/nrfconnect/generate_nrfconnect_chip_factory_data.py \</span><br><span class="line">--sn <span class="string">&quot;11223344556677889900&quot;</span> \</span><br><span class="line">--vendor_id 65521 \</span><br><span class="line">--product_id 32774 \</span><br><span class="line">--vendor_name <span class="string">&quot;Nordic Semiconductor ASA&quot;</span> \</span><br><span class="line">--product_name <span class="string">&quot;not-specified&quot;</span> \</span><br><span class="line">--<span class="built_in">date</span> <span class="string">&quot;2022-02-02&quot;</span> \</span><br><span class="line">--hw_ver 1 \</span><br><span class="line">--hw_ver_str <span class="string">&quot;prerelase&quot;</span> \</span><br><span class="line">--dac_cert <span class="string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Cert.der&quot;</span> \</span><br><span class="line">--dac_key <span class="string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Key.der&quot;</span> \</span><br><span class="line">--pai_cert <span class="string">&quot;credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.der&quot;</span> \</span><br><span class="line">--spake2_it 1000 \</span><br><span class="line">--spake2_salt <span class="string">&quot;U1BBS0UyUCBLZXkgU2FsdA==&quot;</span> \</span><br><span class="line">--discriminator 0xF00 \</span><br><span class="line">--generate_rd_uid \</span><br><span class="line">--passcode 20202021 \</span><br><span class="line">--product_finish <span class="string">&quot;matte&quot;</span> \</span><br><span class="line">--product_color <span class="string">&quot;black&quot;</span> \</span><br><span class="line">--out <span class="string">&quot;build_fd/my_fd&quot;</span> \</span><br><span class="line">--schema <span class="string">&quot;scripts/tools/nrfconnect/nrfconnect_factory_data.schema&quot;</span> \</span><br><span class="line">--offset 0xf7000 \</span><br><span class="line">--size 0x1000 \</span><br><span class="line">--generate_onboarding \</span><br><span class="line">--overwrite</span><br></pre></td></tr></table></figure>
+
+<p>Windows Powershell版本：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">python scripts/tools/nrfconnect/generate_nrfconnect_chip_factory_data.py `</span><br><span class="line"><span class="literal">--sn</span> <span class="string">&quot;11223344556677889900&quot;</span> `</span><br><span class="line"><span class="literal">--vendor_id</span> <span class="number">65521</span> `</span><br><span class="line"><span class="literal">--product_id</span> <span class="number">32774</span> `</span><br><span class="line"><span class="literal">--vendor_name</span> <span class="string">&quot;Nordic Semiconductor ASA&quot;</span> `</span><br><span class="line"><span class="literal">--product_name</span> <span class="string">&quot;not-specified&quot;</span> `</span><br><span class="line"><span class="literal">--date</span> <span class="string">&quot;2022-02-02&quot;</span> `</span><br><span class="line"><span class="literal">--hw_ver</span> <span class="number">1</span> `</span><br><span class="line"><span class="literal">--hw_ver_str</span> <span class="string">&quot;prerelase&quot;</span> `</span><br><span class="line"><span class="literal">--dac_cert</span> <span class="string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Cert.der&quot;</span> `</span><br><span class="line"><span class="literal">--dac_key</span> <span class="string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Key.der&quot;</span> `</span><br><span class="line"><span class="literal">--pai_cert</span> <span class="string">&quot;credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.der&quot;</span> `</span><br><span class="line"><span class="literal">--spake2_it</span> <span class="number">1000</span> `</span><br><span class="line"><span class="literal">--spake2_salt</span> <span class="string">&quot;U1BBS0UyUCBLZXkgU2FsdA==&quot;</span> `</span><br><span class="line"><span class="literal">--discriminator</span> <span class="number">0</span>xF00 `</span><br><span class="line"><span class="literal">--generate_rd_uid</span> `</span><br><span class="line"><span class="literal">--passcode</span> <span class="number">20202021</span> `</span><br><span class="line"><span class="literal">--product_finish</span> <span class="string">&quot;matte&quot;</span> `</span><br><span class="line"><span class="literal">--product_color</span> <span class="string">&quot;black&quot;</span> `</span><br><span class="line"><span class="literal">--out</span> <span class="string">&quot;build_fd/my_fd&quot;</span> `</span><br><span class="line"><span class="literal">--schema</span> <span class="string">&quot;scripts/tools/nrfconnect/nrfconnect_factory_data.schema&quot;</span> `</span><br><span class="line"><span class="literal">--offset</span> <span class="number">0</span>xf7000 `</span><br><span class="line"><span class="literal">--size</span> <span class="number">0</span>x1000 `</span><br><span class="line"><span class="literal">--generate_onboarding</span> `</span><br><span class="line"><span class="literal">--overwrite</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，示例中使用的是测试PAI和DAC证书，证书名包含了VID（0xFFF1, 65521）和PID（0x8006, 32774）.</p>
+<p>因此，填写<code>--vendor_id</code>和<code>--product_id</code>的时候，需和证书保持一致</p>
+</blockquote>
+<p>填写步骤：</p>
+<ol>
+<li><p>填写必选项：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--sn --vendor_id, --product_id, --vendor_name, --product_name, --<span class="built_in">date</span>, --hw_ver, --hw_ver_str, --spake2_it, --spake2_salt, --discriminator</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>填写factory data在存储器分区中分配的地址和分区大小：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--offset &lt;offset&gt;</span><br><span class="line">--size &lt;size&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>填写输出路径与文件名前缀：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-o &lt;path_to_output_file&gt;</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">--out &lt;path_to_output_file&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 记得确保路径是存在的，例如：</span></span><br><span class="line">--out <span class="string">&quot;build_fd/my_fd&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 则需要先存在该路径</span></span><br><span class="line"><span class="built_in">mkdir</span> build_fd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 最终将生成build_fd/my_fd.json, build_fd/my_fd.hex等等</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>填写pascode或者SPAKE2 verifier</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 二选一</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.（推荐）直接填写passcode，脚本自动算出verifier</span></span><br><span class="line"><span class="comment">#   这里只是用passcode计算spake2_verifier，并不是把passcode包含到factory_data</span></span><br><span class="line">--passcode &lt;pass_code&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 用外部工具来计算出verifier，见 https://project-chip.github.io/connectedhomeip-doc/scripts/tools/spake2p/README.html</span></span><br><span class="line">--spake2_verifier &lt;verifier&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>填写DAC证书</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 二选一</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.（推荐）直接传入DAC证书，DAC私钥，PAI证书</span></span><br><span class="line"><span class="comment">#   每台设备的DAC都要确保不同，重新生成</span></span><br><span class="line">--dac_cert &lt;path to DAC certificate&gt;.der --dac_key &lt;path to DAC key&gt;.der --pai_cert &lt;path to PAI certificate&gt;.der</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. （仅测试用）用外部chip-cert工具自动生成DAC，这里用的是测试PAA自动生成PAI和PAA</span></span><br><span class="line">--chip_cert_path &lt;path to chip-cert executable&gt; --gen_certs</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>（可选）同时生成二维码图片和手动配对码</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--generate_onboarding</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，这个功能需要安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python -m pip install -r ./scripts/setup/requirements.nrfconnect.txt</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>（可选）为Amazon Frustration-Free Setup设置rotate-id</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 二选一</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.提供一个已有id</span></span><br><span class="line">--rd_uid &lt;rotating device ID unique ID&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2.生成一个id，生成时在日志中打印</span></span><br><span class="line">--generate_rd_uid </span><br></pre></td></tr></table></figure>
+</li>
+<li><p>（可选）用于验证json格式的schema路径：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--schema &lt;path to JSON Schema file&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>（可选）把passcode包含在facory_data中:<br>只有debug log打印配网二维码，或者NFC配网才需要</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--include_passcode</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>（可选）是否要覆盖上次脚本的输出</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--overwrite</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>（可选）产品外观材质与颜色</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--product_finish &lt;finish&gt; </span><br><span class="line">--product_color &lt;color&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>（可选）（仅测试用）生成factory data时，用外部chip-cert工具自动生成一个测试用CD</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--chip_cert_path &lt;path to chip-cert executable&gt; --gen_cd</span><br></pre></td></tr></table></figure></li>
+</ol>
+<blockquote>
+<p>注意CD不属于factory data</p>
+</blockquote>
+<p>生成完毕后，可以在设置的<code>--out</code>路径中找到对应的文件：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">build_fd</span><br><span class="line">├── my_fd.bin</span><br><span class="line">├── my_fd.hex</span><br><span class="line">├── my_fd.json</span><br><span class="line">├── my_fd.png <span class="comment"># 配对二维码，可印刷在包装盒上</span></span><br><span class="line">└── my_fd.txt <span class="comment"># 手动配对码和二维码的payload</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="工厂数据烧写"><a href="#工厂数据烧写" class="headerlink" title="工厂数据烧写"></a>工厂数据烧写</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 烧录完matter固件后，再烧录factory data</span></span><br><span class="line">nrfutil device program --firmware my_fd.hex</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2025/09/daaf6f53cdc2/">https://jayant-tang.github.io/jayant97.github.io/2025/09/daaf6f53cdc2/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/Matter/">Matter</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/jayant97.github.io/2025/10/a6cc85dce7a1/" title="Matter OTA固件升级"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Matter OTA固件升级</div></div></a></div><div class="next-post pull-right"><a href="/jayant97.github.io/2025/09/6376457096fe/" title="在WSL2中搭建Matter CHIP Tool环境"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">在WSL2中搭建Matter CHIP Tool环境</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2025/10/a6cc85dce7a1/" title="Matter OTA固件升级"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-20</div><div class="title">Matter OTA固件升级</div></div></a></div><div><a href="/jayant97.github.io/2025/01/5645a5cab10c/" title="NCS Matter例程详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-03</div><div class="title">NCS Matter例程详解</div></div></a></div><div><a href="/jayant97.github.io/2025/10/1b3f41652d5d/" title="在Matter中添加自己的蓝牙广播与服务"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-21</div><div class="title">在Matter中添加自己的蓝牙广播与服务</div></div></a></div><div><a href="/jayant97.github.io/2025/09/6376457096fe/" title="在WSL2中搭建Matter CHIP Tool环境"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-24</div><div class="title">在WSL2中搭建Matter CHIP Tool环境</div></div></a></div><div><a href="/jayant97.github.io/2025/01/22618b91ecf6/" title="NCS(Zephyr)中的蓝牙地址"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-26</div><div class="title">NCS(Zephyr)中的蓝牙地址</div></div></a></div><div><a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" title="NCS 低功耗日志打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-26</div><div class="title">NCS 低功耗日志打印</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Matter%E8%AF%81%E4%B9%A6%E4%BD%93%E7%B3%BB"><span class="toc-text">2. Matter证书体系</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%81%E4%B9%A6%E9%93%BE"><span class="toc-text">证书链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PAA-Certificate"><span class="toc-text">PAA Certificate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PAI-Certificate"><span class="toc-text">PAI Certificate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DAC"><span class="toc-text">DAC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PKI"><span class="toc-text">PKI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DCL"><span class="toc-text">DCL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Matter-SDK%E4%B8%AD%E7%9A%84%E8%AF%81%E4%B9%A6%E6%96%87%E4%BB%B6"><span class="toc-text">Matter SDK中的证书文件</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Matter%E8%AE%A4%E8%AF%81%E5%A3%B0%E6%98%8E%EF%BC%88CD%EF%BC%89"><span class="toc-text">3. Matter认证声明（CD）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E6%A1%86%E5%9B%BE"><span class="toc-text">总框图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CD%E5%9B%BA%E5%8C%96"><span class="toc-text">CD固化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F1%EF%BC%9ACD%E7%9B%B4%E6%8E%A5%E5%86%99%E5%85%A5%E5%88%B0%E5%9B%BA%E4%BB%B6%E4%B8%AD"><span class="toc-text">方式1：CD直接写入到固件中</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E5%BC%8F2%EF%BC%9ACD%E5%86%99%E5%85%A5Zephyr%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F"><span class="toc-text">方式2：CD写入Zephyr存储系统</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E7%94%9F%E6%88%90DAC"><span class="toc-text">4. 生成DAC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85chip-cert"><span class="toc-text">安装chip-cert</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%A8PAI%E7%AD%BE%E5%8F%91DAC"><span class="toc-text">用PAI签发DAC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81DAC%E7%9A%84%E8%AF%81%E4%B9%A6%E9%93%BE"><span class="toc-text">验证DAC的证书链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DAC%E6%A0%BC%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="toc-text">DAC格式转换</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Matter%E5%B7%A5%E5%8E%82%E6%95%B0%E6%8D%AE%E9%85%8D%E7%BD%AE"><span class="toc-text">5. Matter工厂数据配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%BA%E4%BB%B6%E9%85%8D%E7%BD%AE"><span class="toc-text">固件配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E5%8E%82%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E4%BD%8D%E7%BD%AE"><span class="toc-text">工厂数据存储位置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%8E%82%E6%95%B0%E6%8D%AE%E5%9C%B0%E5%9D%80%E5%AF%B9%E9%BD%90"><span class="toc-text">工厂数据地址对齐</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E5%8E%82%E6%95%B0%E6%8D%AE%E5%86%85%E5%AE%B9%E8%A1%A8"><span class="toc-text">工厂数据内容表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E5%8E%82%E6%95%B0%E6%8D%AE%E7%94%9F%E6%88%90"><span class="toc-text">工厂数据生成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E5%B7%A5%E5%8E%82%E6%95%B0%E6%8D%AEjson%E5%92%8Chex"><span class="toc-text">生成工厂数据json和hex</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E5%8E%82%E6%95%B0%E6%8D%AE%E7%83%A7%E5%86%99"><span class="toc-text">工厂数据烧写</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'c91ce0493b5c3e886110',
+      clientSecret: '7599decf69128ba1a83c1f3ef0923395a9bd8a60',
+      repo: 'jayant97.github.io',
+      owner: 'Jayant-Tang',
+      admin: ['Jayant-Tang'],
+      id: '55b1c6d9de26bfe8b87a9c1840c3b918',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/jayant97.github.io/js/search/local-search.js"></script></div></div></body></html>

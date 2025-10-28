@@ -1,0 +1,347 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Matter OTA固件升级 | 一苇万顷</title><meta name="author" content="Jayant Tang,jayant.tang@nordicsemi.no"><meta name="copyright" content="Jayant Tang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 简介本文介绍的是通用的Matter OTA操作，使用 chip-tool 和 chip-ota-provider-app 命令行工具进行测试，在Nordic nRF Connect SDK和Nordic开发板上实现。   Nordic也在Matter例程上支持普通的蓝牙或者串口DFU，使用的是MCUMgr和SMP，本文不涉及那部分。感兴趣参考《官方文档》。 只有一个建议：官方文档中使用的命令">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Matter OTA固件升级">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/10/a6cc85dce7a1/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 简介本文介绍的是通用的Matter OTA操作，使用 chip-tool 和 chip-ota-provider-app 命令行工具进行测试，在Nordic nRF Connect SDK和Nordic开发板上实现。   Nordic也在Matter例程上支持普通的蓝牙或者串口DFU，使用的是MCUMgr和SMP，本文不涉及那部分。感兴趣参考《官方文档》。 只有一个建议：官方文档中使用的命令">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png">
+<meta property="article:published_time" content="2025-10-20T08:02:54.000Z">
+<meta property="article:modified_time" content="2025-10-28T08:39:07.360Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Matter">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/head.png"><link rel="shortcut icon" href="/jayant97.github.io/img/favicon.png"><link rel="canonical" href="https://jayant-tang.github.io/jayant97.github.io/2025/10/a6cc85dce7a1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"><link rel="preconnect" href="//busuanzi.ibruce.info"><link rel="stylesheet" href="/jayant97.github.io/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/jayant97.github.io/',
+  algolia: undefined,
+  localSearch: {"path":"/jayant97.github.io/search.json","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Matter OTA固件升级',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-10-28 16:39:07'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/jayant97.github.io/imgs/head.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"></div><div class="sidebar-site-data site-data is-center"><a href="/jayant97.github.io/archives/"><div class="headline">文章</div><div class="length-num">22</div></a><a href="/jayant97.github.io/tags/"><div class="headline">标签</div><div class="length-num">24</div></a><a href="/jayant97.github.io/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/jayant97.github.io/" title="一苇万顷"><span class="site-name">一苇万顷</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/jayant97.github.io/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/jayant97.github.io/link/"><i class="fa-fw fas fa-link"></i><span> 相关链接</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Matter OTA固件升级</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-10-20T08:02:54.000Z" title="发表于 2025-10-20 16:02:54">2025-10-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-10-28T08:39:07.360Z" title="更新于 2025-10-28 16:39:07">2025-10-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/jayant97.github.io/categories/Matter/">Matter</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id data-flag-title="Matter OTA固件升级"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/jayant97.github.io/2025/10/a6cc85dce7a1/#post-comment"><span class="gitalk-comment-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div><article class="post-content" id="article-container"><h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>本文介绍的是通用的Matter OTA操作，使用 <code>chip-tool</code> 和 <code>chip-ota-provider-app</code> 命令行工具进行测试，在Nordic nRF Connect SDK和Nordic开发板上实现。</p>
+<blockquote>
+<p> Nordic也在Matter例程上支持普通的蓝牙或者串口DFU，使用的是MCUMgr和SMP，本文不涉及那部分。感兴趣参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/matter/nrfconnect_examples_software_update.html#device_firmware_upgrade_over_bluetooth_le_using_a_smartphone">《官方文档》</a>。</p>
+<p>只有一个建议：官方文档中使用的命令行串口DFU工具<a href>mcumgr</a>写的不好，每次发包间隔sleep了20ms，传输很慢，还要装Go环境。建议换成这个Rust写的命令行工具<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/vouch-opensource/mcumgr-client/">mcumgr-client</a>，直接是可执行文件不用装环境，且速度很快。</p>
+</blockquote>
+<p>Matter的OTA分为两个角色：</p>
+<ul>
+<li>OTA Requester：一般就是Matter设备（accessories）。</li>
+<li>OTA Provider：用来提供Matter升级固件的设备，比如苹果的HomePod音箱。</li>
+</ul>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined64b9744dc4754608c1aa9b547fcf1a25.svg" alt="Matter OTA roles"></p>
+<p>OTA Requester 可以定期从同一个Matter网络（Fabric）的OTA Provider查询是否有新固件升级。</p>
+<p>OTA Provider可以从<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/19122916#dcl">DCL</a>获取新固件的URL链接，然后在本地缓存固件。当OTA Requester请求新固件时，就通过Matter网络（指IPv6）传输给它。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined4d6f79b9311af24499501a487320f7de.svg" alt="Parties to the Matter OTA process"></p>
+<blockquote>
+<p>注意这里DCL是不存储固件的，而是只存储固件的URL。因此厂商还需要有一个公开的服务器来存放升级固件。厂商还要负责把固件URL发布到DCL，可以参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developers.home.google.com/matter/ota/release?hl=zh-cn#release_an_ota_image_using_the_dcl">Google Developer的Matter文档</a>。</p>
+</blockquote>
+<p>此外，OTA Provider和Matter Controller不一定是同一台设备。只要它们在同一Matter网络即可。</p>
+<h2 id="Matter-OTA流程图"><a href="#Matter-OTA流程图" class="headerlink" title="Matter OTA流程图"></a>Matter OTA流程图</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede21e0f457c50eeeab49a24b9481de75d.png" alt="Matter OTA流程图"></p>
+<h1 id="2-本地OTA测试"><a href="#2-本地OTA测试" class="headerlink" title="2. 本地OTA测试"></a>2. 本地OTA测试</h1><h2 id="2-1-准备环境"><a href="#2-1-准备环境" class="headerlink" title="2.1. 准备环境"></a>2.1. 准备环境</h2><p><strong>方案一：</strong></p>
+<ul>
+<li>x64 Linux环境：同时运行<code>chip-tool</code>和<code>chip-ota-provier</code>，并且自带OTBR</li>
+<li>运行Matter例程的Nordic开发板1块</li>
+</ul>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1bd6293fe6390b9730f1151a4fa46d24.png" alt="image-20251020172415027"></p>
+<p><strong>方案二（暂未验证）：</strong></p>
+<ul>
+<li>树莓派：运行OTBR和<code>chip-tool</code></li>
+<li>x64 Linux环境，必须和树莓派位于同一网段，互通IPv6和mDNS。无需OTBR，只运行<code>chip-ota-provier</code></li>
+<li>运行Matter例程的Nordic开发板1块</li>
+</ul>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined844643f2e355990873ea23dc5afdc272.png" alt="image-20251020185835648"></p>
+<p>为了简单，本文会按照<strong>方案一</strong>来进行搭建。直接在Windows11电脑里的WSL2环境中进行测试。环境搭建方案参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/19110357">《在WSL2中搭建Matter CHIP Tool环境》</a></p>
+<blockquote>
+<p>其实<strong>方案一</strong>也可以全部在树莓派中实现。但是Nordic没有提供编译好的aarch64版本<code>chip-ota-provier</code>。如果你需要在树莓派中实现，需要在树莓派上自己编译<code>chip-ota-provier</code>。</p>
+</blockquote>
+<h2 id="2-2-准备Matter设备和升级固件"><a href="#2-2-准备Matter设备和升级固件" class="headerlink" title="2.2. 准备Matter设备和升级固件"></a>2.2. 准备Matter设备和升级固件</h2><h3 id="烧录固件"><a href="#烧录固件" class="headerlink" title="烧录固件"></a>烧录固件</h3><p>在nRF Connect SDK中编译完一个Matter例程后，烧录到开发板中作为Matter设备。</p>
+<p>可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/18650736">《Nordic Matter开发与例程详解》</a></p>
+<h3 id="修改固件版本号"><a href="#修改固件版本号" class="headerlink" title="修改固件版本号"></a>修改固件版本号</h3><p>有2种版本号需要修改。必须版本号不同才能升级，其中Matter的版本号必须增大才能升级。</p>
+<h4 id="（1）Zephyr固件版本号"><a href="#（1）Zephyr固件版本号" class="headerlink" title="（1）Zephyr固件版本号"></a>（1）Zephyr固件版本号</h4><p>Zephyr中进行OTA时需要用到的版本号。有两种方式设置：</p>
+<ol>
+<li><p>工程根目录有一个<code>VERSION</code>文件，其内容就是版本号：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">VERSION_MAJOR = 2</span><br><span class="line">VERSION_MINOR = 5</span><br><span class="line">PATCHLEVEL = 99</span><br><span class="line">VERSION_TWEAK = 0</span><br><span class="line">EXTRAVERSION = dev</span><br></pre></td></tr></table></figure>
+
+<p>分别为：主版本号、次版本号、补丁号和可选的 TWEAK 字段。</p>
+<ul>
+<li><p>如果<code>EXTRAVERSION</code>不为空，版本号就是：<code>2.5.99-dev+0</code></p>
+</li>
+<li><p>如果<code>EXTRAVERSION</code>为空，版本号就是：<code>2.5.99+0</code></p>
+</li>
+</ul>
+</li>
+<li><p>也可以在prj.conf中配置版本号，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION=&quot;2.5.99+0&quot;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>这个版本号是Zephyr和MCUBoot进行DFU的时候需要检查的版本号。其中<code>VERSION</code>文件的配置方式优先级更高，如果<code>VERSION</code>文件和<code>CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION</code>配置同时存在，会采用VERSION文件的版本号。</p>
+<h4 id="（2）Matter版本号"><a href="#（2）Matter版本号" class="headerlink" title="（2）Matter版本号"></a>（2）Matter版本号</h4><p>Matter版本号是一个32bit的数字和一个字符串。其中字符串是给人阅读的。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_CHIP_DEVICE_SOFTWARE_VERSION=33921280</span><br><span class="line">CONFIG_CHIP_DEVICE_SOFTWARE_VERSION_STRING=&quot;2.5.99+0&quot;</span><br></pre></td></tr></table></figure>
+
+<p>这两个版本号会展示在Matter的Basic Information Cluster中。</p>
+<p>数字版本<code>33921280</code>的含义是<code>0x02059900</code>，对应<code>2.5.99+0</code>。但是实际上，没有任何强制要求。不论是Zephyr固件版本，还是Matter数字版本，还是Matter字符串版本。它们之间都没有任何强制的联系。</p>
+<p>只要开发者明白这三个版本号表达的是同一个版本就行了，因此为了方便，可以像上面这样定义版本。</p>
+<blockquote>
+<p>【注意】</p>
+<p>在进行Matter OTA时，只能升级，不能降级。因此<code>CONFIG_CHIP_DEVICE_SOFTWARE_VERSION</code>要变大，最大为<code>4294967295</code>（ 2^32 - 1）</p>
+</blockquote>
+<p>我们在工程中把这些版本号改大，重新编译一下即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_CHIP_DEVICE_SOFTWARE_VERSION=50397441</span><br><span class="line">CONFIG_CHIP_DEVICE_SOFTWARE_VERSION_STRING=&quot;3.1.1+1&quot;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">VERSION_MAJOR = 3</span><br><span class="line">VERSION_MINOR = 1</span><br><span class="line">PATCHLEVEL = 1</span><br><span class="line">VERSION_TWEAK = 1</span><br><span class="line">EXTRAVERSION = </span><br></pre></td></tr></table></figure>
+
+<h3 id="获得升级后的固件"><a href="#获得升级后的固件" class="headerlink" title="获得升级后的固件"></a>获得升级后的固件</h3><p>升级后的固件在build目录下：</p>
+<ul>
+<li><p><code>merged.hex</code>：用于J-link烧录的，合并bootloader和application的完整固件</p>
+</li>
+<li><p><code>merged_CPUNET.hex</code>：双核SoC（例如nRF5340）才有的网络核合并固件，J-link烧录用</p>
+</li>
+<li><p><code>dfu_application.zip</code>：进行MCUMgr SMP DFU时需要的升级包</p>
+</li>
+<li><p><code>matter.ota</code>：Matter OTA用的镜像</p>
+</li>
+</ul>
+<p>我们这里只需要<code>matter.ota</code></p>
+<h1 id="3-进行升级"><a href="#3-进行升级" class="headerlink" title="3. 进行升级"></a>3. 进行升级</h1><p>首先确保chip-tool环境已经启动，见<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/19110357">《在WSL2中搭建Matter CHIP Tool环境》</a></p>
+<h2 id="启动chip-ota-provider-app"><a href="#启动chip-ota-provider-app" class="headerlink" title="启动chip-ota-provider-app"></a>启动chip-ota-provider-app</h2><p>下载Nordic编译好的<code>chip-ota-provider-app_x64</code>工具：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nrfconnect/sdk-connectedhomeip/releases">Releases · nrfconnect&#x2F;sdk-connectedhomeip</a>，重命名为<code>chip-ota-provider-app</code>，并添加到path环境变量，然后追加可执行权限：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">chmod a+x ./chip-ota-provider-app</span><br></pre></td></tr></table></figure>
+
+<p>准备好前面的升级固件<code>matter.ota</code>，</p>
+<p>在Linux环境中启动<code>chip-ota-provider-app</code>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-ota-provider-app -f matter.ota</span><br></pre></td></tr></table></figure>
+
+<h2 id="配网chip-ota-provider-app"><a href="#配网chip-ota-provider-app" class="headerlink" title="配网chip-ota-provider-app"></a>配网chip-ota-provider-app</h2><p>然后另开一个命令行窗口，运行<code>chip-tool</code>，把<code>chip-ota-provider-app</code>添加进Matter网络：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool pairing onnetwork 1 20202021</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里的Node id是<code>1</code>，也就是说配网成功后，后面是用这个Node id当作句柄来使用chip-tool控制它。</p>
+<p>后面配网其他Matter设备时，不能用重复的Node id。</p>
+</blockquote>
+<p>进程会占用当前终端一直打印。</p>
+<h2 id="配网Matter设备"><a href="#配网Matter设备" class="headerlink" title="配网Matter设备"></a>配网Matter设备</h2><p>另起一个终端。</p>
+<p>我这里是配网一个Matter over Thread设备：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool pairing ble-thread 2 hex:0e08000000000001000000030000144a0300000e35060004001fffe002089058d9507229551e0708fd3f0a8f0d5b72650510f84ccfaf2bc84fa9e54860e035b6b940030f4f70656e5468726561642d31386138010218a80410288ad8a6ab55aacf7583788fde4c2ef60c0402a0f7f8 20202021 3840 --bypass-attestation-verifier <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>注意设备端要开启Matter配网广播。某些例程上电就会开启，某些要按一下button1 (54系开发板是Button0)。</li>
+<li>注意node id不要再用相同的，我这里用<code>2</code></li>
+<li><code>--bypass-attestation-verifier true</code>可以跳过验证DAC证书，我这里只是测试</li>
+</ul>
+</blockquote>
+<h2 id="给Matter设备配置OTA-Provider"><a href="#给Matter设备配置OTA-Provider" class="headerlink" title="给Matter设备配置OTA Provider"></a>给Matter设备配置OTA Provider</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool otasoftwareupdaterequestor write default-otaproviders <span class="string">&#x27;[&#123;&quot;fabricIndex&quot;: 1, &quot;providerNodeID&quot;: 1, &quot;endpoint&quot;: 0&#125;]&#x27;</span> 2 0</span><br></pre></td></tr></table></figure>
+
+<p>这里的<code>2</code>就是我们要操作的Matter设备，对应上一步配网的设备</p>
+<h2 id="给OTA-Provider配置ACL"><a href="#给OTA-Provider配置ACL" class="headerlink" title="给OTA Provider配置ACL"></a>给OTA Provider配置ACL</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool accesscontrol write acl <span class="string">&#x27;[&#123;&quot;fabricIndex&quot;: 1, &quot;privilege&quot;: 5, &quot;authMode&quot;: 2, &quot;subjects&quot;: [112233], &quot;targets&quot;: null&#125;, &#123;&quot;fabricIndex&quot;: 1, &quot;privilege&quot;: 3, &quot;authMode&quot;: 2, &quot;subjects&quot;: null, &quot;targets&quot;: null&#125;]&#x27;</span> 1 0</span><br></pre></td></tr></table></figure>
+
+<p>这里的<code>1</code>就对应我们要操作的<code>chip-ota-provider-app</code>进程。</p>
+<blockquote>
+<p>在 Matter OTA（设备固件升级）过程中，配置 ACL（Access Control List，访问控制列表）是为了确保只有被授权的节点能够对 OTA Provider（固件提供者）发送命令和进行操作。ACL 是一种安全机制，用于管理和强制执行对节点Endpoint及其相关Cluster实例的访问权限规则。</p>
+</blockquote>
+<h2 id="执行OTA"><a href="#执行OTA" class="headerlink" title="执行OTA"></a>执行OTA</h2><p>两种方式。如果固件编译时携带了<code>CONFIG_CHIP_LIB_SHELL=y</code>，则可以用设备的串口终端命令操作设备来请求ota:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">uart:~$ matter ota query</span><br></pre></td></tr></table></figure>
+
+<p>如果没有携带，则可以用<code>chip-tool</code>来发起OTA</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool otasoftwareupdaterequestor announce-otaprovider 1 0 0 0 2 0</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参数：</p>
+<ul>
+<li>Provider Node ID：配网<code>chip-ota-provider-app</code>时输入的<code>1</code></li>
+<li>Provider Vendor ID：测试时直接输入0</li>
+<li>Announcement Reason：测试时直接输入0</li>
+<li>Provider Endpoint ID：通常在Endpoint 0</li>
+<li>Requestor Node ID：配网Matter设备时输入的<code>2</code></li>
+<li>Requestor Endpoint ID：通常在Endpoint 0</li>
+</ul>
+</blockquote>
+<p>然后就可以看到<code>chip-ota-provider-app</code>进程和Matter设备之间在传输固件了：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedf51c12f5740b2797075c75afe14ca14e.png" alt="image-20251020185143174"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined94625394df759ca243dc503b70190b40.png" alt="image-20251020185121673"></p>
+<p>这里网络通道走的是Thread，而不是BLE。过程非常久接近一个小时，比SMP DFU慢很多，尤其是Thread SSED（Synchronized Sleepy End Device）和ICD（Intermittently Connected Device）模式时，消息交换速度会显著变慢。</p>
+<p>但是好在实际场景下不需要用户手机靠近设备亮屏等待升级。</p>
+<p>升级完毕后，会打印日志：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedef1d4c7f61315b5db4068ebc6dcf57bd.png" alt="image-20251020193749063"></p>
+<blockquote>
+<p>注意，在NCS中，Matter升级完毕后会自动调用<code>boot_write_img_confirmed()</code>，因此无需再次调用这个函数来让mcuboot确认升级成功。</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io">Jayant Tang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jayant-tang.github.io/jayant97.github.io/2025/10/a6cc85dce7a1/">https://jayant-tang.github.io/jayant97.github.io/2025/10/a6cc85dce7a1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="external nofollow noopener noreferrer">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jayant-tang.github.io/jayant97.github.io" target="_blank">一苇万顷</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/jayant97.github.io/tags/Nordic/">Nordic</a><a class="post-meta__tags" href="/jayant97.github.io/tags/Matter/">Matter</a></div><div class="post_share"><div class="social-share" data-image="/jayant97.github.io/imgs/head.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/jayant97.github.io/2025/10/1b3f41652d5d/" title="在Matter中添加自己的蓝牙广播与服务"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">在Matter中添加自己的蓝牙广播与服务</div></div></a></div><div class="next-post pull-right"><a href="/jayant97.github.io/2025/09/daaf6f53cdc2/" title="Matter证书体系与量产设备证书烧录"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Matter证书体系与量产设备证书烧录</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/jayant97.github.io/2025/09/daaf6f53cdc2/" title="Matter证书体系与量产设备证书烧录"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-26</div><div class="title">Matter证书体系与量产设备证书烧录</div></div></a></div><div><a href="/jayant97.github.io/2025/01/5645a5cab10c/" title="NCS Matter例程详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-03</div><div class="title">NCS Matter例程详解</div></div></a></div><div><a href="/jayant97.github.io/2025/10/1b3f41652d5d/" title="在Matter中添加自己的蓝牙广播与服务"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-10-21</div><div class="title">在Matter中添加自己的蓝牙广播与服务</div></div></a></div><div><a href="/jayant97.github.io/2025/09/6376457096fe/" title="在WSL2中搭建Matter CHIP Tool环境"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-24</div><div class="title">在WSL2中搭建Matter CHIP Tool环境</div></div></a></div><div><a href="/jayant97.github.io/2025/01/22618b91ecf6/" title="NCS(Zephyr)中的蓝牙地址"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-26</div><div class="title">NCS(Zephyr)中的蓝牙地址</div></div></a></div><div><a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" title="NCS 低功耗日志打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-26</div><div class="title">NCS 低功耗日志打印</div></div></a></div></div></div><hr><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E7%AE%80%E4%BB%8B"><span class="toc-text">1. 简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Matter-OTA%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="toc-text">Matter OTA流程图</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%9C%AC%E5%9C%B0OTA%E6%B5%8B%E8%AF%95"><span class="toc-text">2. 本地OTA测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E5%87%86%E5%A4%87%E7%8E%AF%E5%A2%83"><span class="toc-text">2.1. 准备环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E5%87%86%E5%A4%87Matter%E8%AE%BE%E5%A4%87%E5%92%8C%E5%8D%87%E7%BA%A7%E5%9B%BA%E4%BB%B6"><span class="toc-text">2.2. 准备Matter设备和升级固件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%83%A7%E5%BD%95%E5%9B%BA%E4%BB%B6"><span class="toc-text">烧录固件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E5%9B%BA%E4%BB%B6%E7%89%88%E6%9C%AC%E5%8F%B7"><span class="toc-text">修改固件版本号</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%881%EF%BC%89Zephyr%E5%9B%BA%E4%BB%B6%E7%89%88%E6%9C%AC%E5%8F%B7"><span class="toc-text">（1）Zephyr固件版本号</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EF%BC%882%EF%BC%89Matter%E7%89%88%E6%9C%AC%E5%8F%B7"><span class="toc-text">（2）Matter版本号</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%BE%97%E5%8D%87%E7%BA%A7%E5%90%8E%E7%9A%84%E5%9B%BA%E4%BB%B6"><span class="toc-text">获得升级后的固件</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E8%BF%9B%E8%A1%8C%E5%8D%87%E7%BA%A7"><span class="toc-text">3. 进行升级</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8chip-ota-provider-app"><span class="toc-text">启动chip-ota-provider-app</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%91chip-ota-provider-app"><span class="toc-text">配网chip-ota-provider-app</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%91Matter%E8%AE%BE%E5%A4%87"><span class="toc-text">配网Matter设备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%99Matter%E8%AE%BE%E5%A4%87%E9%85%8D%E7%BD%AEOTA-Provider"><span class="toc-text">给Matter设备配置OTA Provider</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%99OTA-Provider%E9%85%8D%E7%BD%AEACL"><span class="toc-text">给OTA Provider配置ACL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A7%E8%A1%8COTA"><span class="toc-text">执行OTA</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By Jayant Tang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/jayant97.github.io/js/utils.js"></script><script src="/jayant97.github.io/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'c91ce0493b5c3e886110',
+      clientSecret: '7599decf69128ba1a83c1f3ef0923395a9bd8a60',
+      repo: 'jayant97.github.io',
+      owner: 'Jayant-Tang',
+      admin: ['Jayant-Tang'],
+      id: '9374cce0feb393dd68776e0f3d9deb02',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    getCSS('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css')
+    getScript('https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"></div></div><hr><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/jayant97.github.io/js/search/local-search.js"></script></div></div></body></html>
