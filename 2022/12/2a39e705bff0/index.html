@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>理解Zephyr项目的配置与构建系统 | 一苇万顷</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="本文更新于2025.01.06，增加了对NCS2.7.0新引入的Sysbuild的介绍。补充了一些说明，使本文更详尽。  1. 前言Zephyr Project是Linux基金会推出的一个Apache2.0开源项目，版权非常友好，适合用于商业项目开发。包含RTOS、编译系统、各类第三方库。NCS中的例程基本都跑在Zephyr RTOS上。 对于之前只接触过IDE+外设驱动库这种开发方式的开发者来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解Zephyr项目的配置与构建系统">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/2a39e705bff0/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="本文更新于2025.01.06，增加了对NCS2.7.0新引入的Sysbuild的介绍。补充了一些说明，使本文更详尽。  1. 前言Zephyr Project是Linux基金会推出的一个Apache2.0开源项目，版权非常友好，适合用于商业项目开发。包含RTOS、编译系统、各类第三方库。NCS中的例程基本都跑在Zephyr RTOS上。 对于之前只接触过IDE+外设驱动库这种开发方式的开发者来">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250106223923162.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028214708544.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028215131762.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedimage-20250818130428707.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028192036882.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028192059493.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028192424706.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250106233645472.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20230312215847338.webp">
+<meta property="og:image" content="https://docs-be.nordicsemi.com/bundle/ncs-latest/page/zephyr/_images/board-terminology.svg?_LANG=enus">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145312936.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145418793.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145508177.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145532264.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145557369.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145720987.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108145721828.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108145954333.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108154144637.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108154101849.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108163305341.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108163523995.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108163945669.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108181200141.webp">
+<meta property="og:image" content="https://docs-be.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/_images/ncs-toolchain.svg?_LANG=enus">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107033534650.webp">
+<meta property="article:published_time" content="2022-12-04T15:26:26.000Z">
+<meta property="article:modified_time" content="2026-06-22T03:18:34.254Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Zephyr">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250106223923162.webp">
+  
+    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-理解Zephyr项目的配置与构建系统" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/jayant97.github.io/2022/12/2a39e705bff0/" class="article-date">
+  <time class="dt-published" datetime="2022-12-04T15:26:26.000Z" itemprop="datePublished">2022-12-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a>►<a class="article-category-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      理解Zephyr项目的配置与构建系统
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>本文更新于2025.01.06，增加了对NCS2.7.0新引入的Sysbuild的介绍。补充了一些说明，使本文更详尽。</p>
+</blockquote>
+<h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>Zephyr Project是Linux基金会推出的一个Apache2.0开源项目，版权非常友好，适合用于商业项目开发。包含RTOS、编译系统、各类第三方库。NCS中的例程基本都跑在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/kernel/index.html">Zephyr RTOS</a>上。</p>
+<p>对于之前只接触过IDE+外设驱动库这种开发方式的开发者来说，Zephyr的配置和编译系统可能比较令人费解，但是一旦你能掌握，就会发现它的方便之处。</p>
+<p>本文重点介绍了NCS中的配置和编译工具。其中包含一些其他开发环境中常见的CMake，Kconfig，DeviceTree等的简单介绍，和Zephyr中特有的<strong>Sysbuild</strong>、<strong>Boards</strong>，以及Nordic提供的<strong>Partition Manager存储器分区</strong>等介绍。</p>
+<h1 id="2-通过CMake管理源码"><a href="#2-通过CMake管理源码" class="headerlink" title="2. 通过CMake管理源码"></a>2. 通过CMake管理源码</h1><p>本节只简要介绍NCS中常见的CMake使用方法，篇幅有限不可能完整的介绍CMake。希望完整学习CMake的话可以参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://cmake.org/cmake/help/latest/guide/tutorial/index.html#guide:CMake%20Tutorial">CMake官方文档</a>.</p>
+<h2 id="CMake基本写法"><a href="#CMake基本写法" class="headerlink" title="CMake基本写法"></a>CMake基本写法</h2><p>通过<code>zephyr/samples/hello_world</code>例程的<code>CMakeLists.txt</code>，我们可以看到：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定CMake版本</span></span><br><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>.<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从系统环境变量$&#123;ZEPHYR_BASE&#125;找到NCS中的Zephyr安装目录</span></span><br><span class="line"><span class="comment"># 并把整个Zephyr系统当作包来导入</span></span><br><span class="line"><span class="keyword">find_package</span>(Zephyr REQUIRED HINTS $ENV&#123;ZEPHYR_BASE&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设定项目名称</span></span><br><span class="line"><span class="keyword">project</span>(hello_world)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把main.c添加为app目标的源码</span></span><br><span class="line"><span class="keyword">target_sources</span>(app PRIVATE src/main.c)</span><br></pre></td></tr></table></figure>
+
+<p>这里的编译目标是<code>app</code>，最终会编译为<code>libapp.a</code>，也就是把用户自己的应用层代码编译成库的形式。最后再链接进Zephyr系统。</p>
+<p>这里的<code>PRIVATE</code>控制的是编译的行为：</p>
+<ul>
+<li><code>PRIVATE</code>：main.c修改后，只会重新编译app目标</li>
+<li><code>PUBLIC</code>：main.c修改后，app目标要重新编译，且所有与APP目标链接的其他目标也要重新编译</li>
+</ul>
+<h2 id="条件添加源码"><a href="#条件添加源码" class="headerlink" title="条件添加源码"></a>条件添加源码</h2><p>条件添加也很好理解，就是某个CMake变量值为true时，才把源码添加到目标中去。例如：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Include UART ASYNC API adapter</span></span><br><span class="line">target_sources_ifdef(CONFIG_BT_NUS_UART_ASYNC_ADAPTER app PRIVATE</span><br><span class="line">  src/uart_async_adapter.c</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这里就是<code>CONFIG_BT_NUS_UART_ASYNC_ADAPTER</code>为<code>y</code>时，才添加<code>src/uart_async_adapter.c</code>到源码中。</p>
+<h2 id="把整个目录添加源码"><a href="#把整个目录添加源码" class="headerlink" title="把整个目录添加源码"></a>把整个目录添加源码</h2><p>有时目录层级很多，我们没必要在一个CMakeLists.txt里把所有源码都添加完。</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">|-CMakeLists.txt</span><br><span class="line">|-aaa</span><br><span class="line">|  |-CMakeLists.txt</span><br><span class="line">|  `-main.c</span><br><span class="line">`-bbb</span><br><span class="line">   |-CMakeLists.txt</span><br><span class="line">   `-hello.c</span><br></pre></td></tr></table></figure>
+
+<p>这时，就可以在项目根目录的CMakeLists.txt中写：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">add_subdirectory</span>(aaa)</span><br><span class="line"><span class="keyword">add_subdirectory</span>(bbb)</span><br></pre></td></tr></table></figure>
+
+<p>然后在两个子目录的CMakeLists.txt中添加对应的源码。</p>
+<p>当然，目录也是可以条件添加的，最典型的就是在<code>$&#123;NCS&#125;/zephyr/driver/CMakeLists.txt</code>中：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">add_subdirectory_ifdef(CONFIG_ADC adc)</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，只有启用了<code>CONFIG_ADC=y</code>，Zephyr才会去编译<code>$&#123;NCS&#125;/zephyr/driver/adc/</code>目录下的驱动。</p>
+<p>此外，如果再去看<code>$&#123;NCS&#125;/zephyr/driver/adc/CMakeLists.txt</code>：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">zephyr_library_sources_ifdef(CONFIG_ADC_MCUX_LPADC    adc_mcux_lpadc.c)</span><br><span class="line">zephyr_library_sources_ifdef(CONFIG_ADC_SAM_AFEC    adc_sam_afec.c)</span><br><span class="line">zephyr_library_sources_ifdef(CONFIG_ADC_NRFX_ADC    adc_nrfx_adc.c)</span><br><span class="line">zephyr_library_sources_ifdef(CONFIG_ADC_NRFX_SAADC    adc_nrfx_saadc.c)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>就可以看到，这里又根据不同的MCU平台，来添加对应的adc驱动代码。</p>
+<h2 id="添加include目录"><a href="#添加include目录" class="headerlink" title="添加include目录"></a>添加include目录</h2><p>也就是存放头文件的目录，如：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 添加CMakeLists.txt所在目录下的inc/目录到app目标</span></span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE inc)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 也是可以条件添加的</span></span><br><span class="line">zephyr_include_directories_ifdef(CONFIG_MEMFAULT configuration/memfault)</span><br></pre></td></tr></table></figure>
+
+<h2 id="设置变量"><a href="#设置变量" class="headerlink" title="设置变量"></a>设置变量</h2><p>和宏定义类似，把A定义成B。主要是用来定义一些编译系统会用到的东西，例如：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 指定自己项目的device tree overlay文件</span></span><br><span class="line"><span class="keyword">set</span>(DTC_OVERLAY_FILE app.oerlay)</span><br></pre></td></tr></table></figure>
+
+<p>除了上述直接把变量定义写在CMakeLists.txt内，还可以在命令行编译时，通过<code>-D</code>选项传入的参数：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build -b nrf52840dk/nrf52840 -d build --sysbuild -- -D DTC_OVERLAY_FILE app.overlay</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，CMake参数的传递在<code>--</code>之后，再用多个<code>-D</code>分别传入。</p>
+</blockquote>
+<p>上述通过编译命令添加的CMake变量，也可以在nRF Connect for VS Code的界面中编译时输入：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250106223923162.webp" alt="image-20250106223923162"></p>
+<p>在CMakeLists.txt中用<code>set()</code>函数，或者在命令行编译时用<code>-D</code>参数，都可以设置你<strong>自定义</strong>的变量。但是更多时候，还是用来设置Zephyr编译系统的一些选项，这里给出一个表格，方便查找：</p>
+<h3 id="通过CMake直接修改Kconfig配置项"><a href="#通过CMake直接修改Kconfig配置项" class="headerlink" title="通过CMake直接修改Kconfig配置项"></a>通过CMake直接修改Kconfig配置项</h3><p>直接在CMake中指定某个Kconfig选项的值。</p>
+<p>命令行参数：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-D&lt;name_of_Kconfig_option&gt;=&lt;value&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>以下为常见的配置项</p>
+<h3 id="CONF-FILE"><a href="#CONF-FILE" class="headerlink" title="CONF_FILE"></a>CONF_FILE</h3><p>设置当前工程的Kconfig基本配置文件。通常是prj.conf。</p>
+<p>命令行参数：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置默认的配置文件</span></span><br><span class="line">-DCONF_FILE=&lt;file_name&gt;.conf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置特定Build Type下的配置文件</span></span><br><span class="line">-DCONF_FILE=prj_&lt;build_type_name&gt;.conf`</span><br></pre></td></tr></table></figure>
+
+<h3 id="SHIELD"><a href="#SHIELD" class="headerlink" title="SHIELD"></a>SHIELD</h3><p>很多开发板都是支持Arduino接口的，因此很多器件厂商&#x2F;分销商会制作Ardiono接口的扩展板：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028214708544.webp" alt="image-20231028214708544"></p>
+<p>Zephyr中，也会有这些扩展板的配置（包含device tree和Kconfig）。如果要在工程中启用扩展板，则需要设置CMake变量：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(SHIELD nrf21540_ek)</span><br></pre></td></tr></table></figure>
+
+<p>或者在编译目标的配置中添加CMake参数：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028215131762.webp" alt="image-20231028215131762"></p>
+<p>编译时，会自动合并原始板子和扩展板的Kconfig和Devicetree。</p>
+<h3 id="更多CMake配置项，请参考Providing-CMake-Options"><a href="#更多CMake配置项，请参考Providing-CMake-Options" class="headerlink" title="更多CMake配置项，请参考Providing CMake Options"></a>更多CMake配置项，请参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/app_dev/config_and_build/cmake/index.html#providing_cmake_options"><u>Providing CMake Options</u></a></h3><h2 id="打包链接库"><a href="#打包链接库" class="headerlink" title="打包链接库"></a>打包链接库</h2><p>CMake支持将部分源码编译为子库：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">link_lib_sample/</span><br><span class="line">    │  CMakeLists.txt</span><br><span class="line">    │  prj.conf</span><br><span class="line">    │</span><br><span class="line">    └─src/</span><br><span class="line">        │  main.c</span><br><span class="line">        │</span><br><span class="line">        └─my_lib/</span><br><span class="line">                CMakeLists.txt</span><br><span class="line">                lib_src.c</span><br><span class="line">                my_lib.h</span><br></pre></td></tr></table></figure>
+
+<p><code>./src/my_lib/CMakeLists.txt</code></p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建独立的静态库文件 my_static_lib</span></span><br><span class="line"><span class="keyword">add_library</span>(my_static_lib STATIC</span><br><span class="line">    lib_src.c</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置库的包含目录</span></span><br><span class="line"><span class="keyword">target_include_directories</span>(my_static_lib PUBLIC</span><br><span class="line">    <span class="variable">$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关键：链接zephyr_interface以获取Zephyr的头文件和配置</span></span><br><span class="line"><span class="keyword">target_link_libraries</span>(my_static_lib PRIVATE zephyr_interface)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接静态库到主应用程序</span></span><br><span class="line"><span class="keyword">target_link_libraries</span>(app PRIVATE my_static_lib)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>独立的链接库，没有<code>find_package()</code>到Zephyr。所以必须要单独链接<code>zephyr_interface</code>这个库，才能在代码中获取到Zephyr的API，CONFIG值，配置的设备树等信息。</p>
+</blockquote>
+<p>在主应用中连接子库：</p>
+<p><code>./CMakeLists.txt</code></p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>.<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">find_package</span>(Zephyr REQUIRED HINTS $ENV&#123;ZEPHYR_BASE&#125;)</span><br><span class="line"><span class="keyword">project</span>(link_lib_sample)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_sources</span>(app PRIVATE src/main.c)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_subdirectory</span>(src/my_lib)</span><br></pre></td></tr></table></figure>
+
+<p>最终输出位置：</p>
+<p><code>build/&lt;project_name&gt;/&lt;path_to_lib_cmake&gt;/lib&lt;name&gt;.a</code></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedimage-20250818130428707.webp" alt="image-20250818130428707"></p>
+<blockquote>
+<p>编译后的库文件名会在库名称前加<code>lib</code>，并带有<code>.a</code>后缀。</p>
+</blockquote>
+<h2 id="链接静态库"><a href="#链接静态库" class="headerlink" title="链接静态库"></a>链接静态库</h2><p>要连接已经编译好的静态库，可以把<code>.a</code>静态库拷贝到工程中，然后进行添加：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入库文件</span></span><br><span class="line"><span class="keyword">add_library</span>(my_static_lib STATIC IMPORTED GLOBAL)</span><br><span class="line"><span class="keyword">set_target_properties</span>(my_static_lib PROPERTIES</span><br><span class="line">    IMPORTED_LOCATION <span class="string">&quot;$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;/libmy_static_lib.a&quot;</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">set_target_properties</span>(my_static_lib PROPERTIES</span><br><span class="line">    INTERFACE_INCLUDE_DIRECTORIES <span class="string">&quot;$&#123;CMAKE_CURRENT_SOURCE_DIR&#125;&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将静态库链接到应用程序</span></span><br><span class="line"><span class="keyword">target_link_libraries</span>(app PUBLIC my_static_lib)</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>项目通过CMake管理源码和include目录。项目本身会把应用代码编译成<code>build/app/libapp.a</code>，最后和Zephyr系统一起链接成可执行文件。</p>
+<p>Zephyr系统本身的内核、库、驱动等源码也都是用CMake来管理的。</p>
+<h1 id="3-通过Kconfig管理配置"><a href="#3-通过Kconfig管理配置" class="headerlink" title="3. 通过Kconfig管理配置"></a>3. 通过Kconfig管理配置</h1><p>一个编译系统中，肯定有很多配置项的需求，如：</p>
+<ul>
+<li>布尔类型：开关某些功能，决定一些库和内核功能代码是否参与编译</li>
+<li>枚举类型：配置某些预设好的功能，比如日志打印级别(ERR&#x2F;WRN&#x2F;INF&#x2F;OFF)等</li>
+<li>数值类型：设置具体参数，如线程栈大小、蓝牙MTU Size大小等</li>
+</ul>
+<p>以上功能当然可以通过宏定义来实现。但是宏的作用比较有限，且所有的宏都是平等的，无法结构化地管理。</p>
+<p>Kconfig就是用来结构化地管理整个项目以及SDK中所有的配置项的。</p>
+<p>在Zephyr系统中，RTOS内核、各个功能模块都会有自己的配置项；并且，开发者自己的项目也会有很多配置项。这些配置项之间可能还有依赖关系。</p>
+<p>Kconfig就是把一个模块的<strong>所有配置项组成一个菜单</strong>。所有模块的菜单，通过层级关系拼接在一起，形成一个大菜单。菜单有默认配置项，开发者可以随意修改配置项。只需把自己和默认配置项有差异的部分写到一个<em><em>配置文件（</em>.conf）</em>*中，就可以方便地进行配置项的管理了。</p>
+<p>在管理配置项时，Kconfig相比于宏定义有许多优势：</p>
+<ol>
+<li>Kconfig不止适用于源码。编译系统（CMake）也可以用到其中的配置来决定源码是否参与编译。</li>
+<li>Kconfig是结构化的，可以规定配置项之间的依赖关系；支持提前枚举好允许的配置范围。</li>
+<li>Kconfig菜单方便互相引用。一个功能库在提供源码和API之外，还会提供一个Kconfig菜单，方便开发者使用。</li>
+<li>配置项可以保存到配置文件中。多个配置文件可以合并、覆盖。</li>
+</ol>
+<h2 id="Kconfig交互式菜单"><a href="#Kconfig交互式菜单" class="headerlink" title="Kconfig交互式菜单"></a>Kconfig交互式菜单</h2><p>我们知道，Kconfig实际上是定义了一个菜单，在哪里能看到这个菜单呢？</p>
+<p>我们可以在VS Code中点击nRF Kconfig GUI:</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028192036882.webp" alt="image-20231028192036882"></p>
+<p>也可以把鼠标悬浮在这个按钮上，点右边的三个点，然后用Guiconfig（弹窗）或Menuconfig（命令行）的方式进行配置。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028192059493.webp" alt="image-20231028192059493"></p>
+<p>这里就只介绍nRF Kconfig GUI：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20231028192424706.webp" alt="image-20231028192424706"></p>
+<h2 id="修改并保存配置项"><a href="#修改并保存配置项" class="headerlink" title="修改并保存配置项"></a>修改并保存配置项</h2><p>如果我们只是单纯点击界面右上角的”Apply”，那么这些配置是保存在<code>.config</code>中的。这是编译过程中生成的一个<strong>临时文件</strong>，是把各种配置项来源整合到一起，得到的最终配置文件。</p>
+<p>如果我们进行pristine build，那么<code>.config</code>文件就会重新生成，我们之前的修改就消失了。</p>
+<p><strong>要想永久保存，应该点击“save to file”。然后保存到配置文件（如<code>prj.conf</code>）中。</strong></p>
+<p>当你熟练后，就不需要再去这个菜单中找选项了，直接修改配置文件（如<code>prj.conf</code>）即可。</p>
+<h2 id="构建时配置项的合并"><a href="#构建时配置项的合并" class="headerlink" title="构建时配置项的合并"></a>构建时配置项的合并</h2><p>配置项有许多来源。在构建可执行文件时，会在configure阶段，compile之前，对所有来源的配置项按顺序进行合并，合并后的文件就是前面说的临时配置文件<code>.config</code>，路径为：</p>
+<p><code>&lt;build_dir&gt;/&lt;application_name&gt;/zephyr/.config</code></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250106233645472.webp" alt="image-20250106233645472"></p>
+<blockquote>
+<p>注：在NCS v2.7.0之前，未采用Sysbuild。不使用Sysbuild时，合并后的配置文件位于<code>build/zephyr/.config</code></p>
+</blockquote>
+<p>那么，配置项总共有哪些来源呢？</p>
+<ol>
+<li>Kconfig菜单中的默认值</li>
+<li>选择板子后，板子自带的一些config。可以在<code>zephyr/boards</code>或者<code>nrf/boards</code>中查看。</li>
+<li>CMake变量<code>CONF_FILE</code>指定的配置文件内的配置项，<strong>这也是最常用的</strong>。默认情况下是以下两个文件：<ul>
+<li>项目的<code>prj.conf</code>，它可以覆盖默认值；</li>
+<li>项目的<code>boards/&lt;board_name&gt;.conf</code>，当编译目标中选择的板子和这里的board_name一致时，可以覆盖默认值。此配置和前一项会合并。</li>
+</ul>
+</li>
+<li>CMake变量<code>EXTRA_CONF_FILE</code>指定的额外配置文件，也就是在VS Code中创建新的build target时，可以选择的”Extra Kconfig fragments”</li>
+</ol>
+<h2 id="了解Kconfig菜单基本写法"><a href="#了解Kconfig菜单基本写法" class="headerlink" title="了解Kconfig菜单基本写法"></a>了解Kconfig菜单基本写法</h2><p>可以先从一个简单的例子<code>$&#123;NCS&#125;/nrf/samples/bluetooth/peripheral_uart</code>来参考：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 引用Zephyr的Kconfig菜单</span><br><span class="line">source &quot;Kconfig.zephyr&quot;</span><br><span class="line"></span><br><span class="line"># 自定义本项目的菜单</span><br><span class="line">menu &quot;Nordic UART BLE GATT service sample&quot;</span><br><span class="line">   ... 此处省略...</span><br><span class="line">endmenu</span><br></pre></td></tr></table></figure>
+
+<p>菜单中的选项，可以配置它的类型、说明，和<strong>默认值</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 此选项用来设置Nordic UART Service线程的栈大小</span><br><span class="line"># 并且具有默认值</span><br><span class="line">config BT_NUS_THREAD_STACK_SIZE</span><br><span class="line">    int &quot;Thread stack size&quot;</span><br><span class="line">    default 1024</span><br><span class="line">    help</span><br><span class="line">      Stack size used in each of the two threads</span><br></pre></td></tr></table></figure>
+
+<p>菜单中的选项可以<strong>连锁使能</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 当本选项被设置成y时，通过select，同时把CONFIG_BT_SMP的值设置成y</span><br><span class="line">config BT_NUS_SECURITY_ENABLED</span><br><span class="line">    bool &quot;Enable security&quot;</span><br><span class="line">    default y</span><br><span class="line">    select BT_SMP</span><br><span class="line">    help</span><br><span class="line">      &quot;Enable BLE security for the UART service&quot;</span><br></pre></td></tr></table></figure>
+
+<p>此外，一个选项也可以指定一个<strong>依赖项</strong>。如果本选项被启用，但依赖项未被启用，则编译前的配置过程就会报错：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 配置是否在系统启动时，自动初始化USB ACM设备 （用于输出日志）</span><br><span class="line"># 此配置依赖于CONFIG_USB_CDC_ACM=y，也就是说，起码要把USB_CDC_ACM的代码编译进来</span><br><span class="line">config USB_DEVICE_INITIALIZE_AT_BOOT</span><br><span class="line">    bool &quot;Initialize USB device support at boot&quot;</span><br><span class="line">    depends on USB_CDC_ACM</span><br><span class="line">    help</span><br><span class="line">      Use CDC ACM UART as backend for console, shell, or logging.</span><br></pre></td></tr></table></figure>
+
+<p>当然，Kconfig也不是说要写的非常大，把整个项目的配置都写进去。你也可以每个子文件夹下单独写Kconfig，然后在项目的Kconfig中进行包含：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 通过绝对路径进行包含</span><br><span class="line">source &quot;xxx.Kconfig&quot;</span><br><span class="line"></span><br><span class="line"># 通过相对路径进行包含</span><br><span class="line">rsource &quot;src/xxx.Kconfig&quot;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>某些简单例程，例如<code>zephyr/samples/hello_world</code>，没有什么配置项，所以是可以没有自己的Kconfig的。这种情况下，相当于直接用了Zephyr的Kconfig菜单，也就是相当于：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt;source &quot;Kconfig.zephyr&quot;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="显性与隐性配置项"><a href="#显性与隐性配置项" class="headerlink" title="显性与隐性配置项"></a>显性与隐性配置项</h2><p>在Kconfig中定义菜单选项时，我们会发现，大多数选项，在变量类型后面会有一个**说明字符串(prompt)**。</p>
+<p>如<code>bool</code>后面的<code>&quot;Support floating point operations&quot;</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">config FPU</span><br><span class="line">   bool &quot;Support floating point operations&quot;</span><br><span class="line">   depends on HAS_FPU</span><br></pre></td></tr></table></figure>
+
+<p>这意味着，这个配置项会出现在Kconfig交互式菜单中，我们可以在交互式菜单中修改它的值：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[ ] Support floating point operations</span><br></pre></td></tr></table></figure>
+
+<p>也可以用<code>prj.conf</code>之类的配置文件来直接改它的值：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_FPU=y</span><br></pre></td></tr></table></figure>
+
+<p>但是，也有一些<strong>隐性配置项</strong>，它们的变量类型后面不带说明字符串，我们无法直接修改它的值：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">config CPU_HAS_FPU</span><br><span class="line">   bool</span><br><span class="line">   help</span><br><span class="line">     This symbol is y if the CPU has a hardware floating point unit.</span><br></pre></td></tr></table></figure>
+
+<p>一个CPU到底带不带FPU，肯定不由开发者的配置决定，因此不能直接修改是很合理的。</p>
+<p>这种配置，通常是通过<strong>连锁使能select</strong>的方式，被其他配置项使能的，例如<code>zephyr/soc/arm/nordic_nrf/nrf52/Kconfig.soc</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 隐性配置项</span><br><span class="line">config SOC_NRF52840</span><br><span class="line">    bool</span><br><span class="line">    select CPU_CORTEX_M_HAS_DWT</span><br><span class="line">    select CPU_HAS_FPU</span><br><span class="line">    </span><br><span class="line"> ... </span><br><span class="line"> </span><br><span class="line"> # 显性配置项</span><br><span class="line"> config SOC_NRF52840_QIAA</span><br><span class="line">    bool &quot;NRF52840_QIAA&quot;</span><br><span class="line">    select SOC_NRF52840</span><br></pre></td></tr></table></figure>
+
+<p>而这个<code>SOC_NRF52840_QIAA</code>，是我们选择板子时，52840DK的板子自带的默认配置，来自于<code>zephyr/samples/application_development/out_of_tree_board/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840_defconfig</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_SOC_NRF52840_QIAA=y</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>Zephyr的配置系统是Kconfig定义的菜单。可以用<code>prj.conf</code>之类的文件来修改配置项的值。</p>
+<p>Kconfig中的配置项，可以影响CMake中的条件，选择是否添加哪些源码，从而剪裁内核。</p>
+<p>Kconfig中的配置项，最终会生成到<code>build/&lt;project_name&gt;/zephyr/include/generated/autoconf.h</code>中，成为源代码中也可以用到的宏。</p>
+<p>不要去尝试修改隐性的Kconfig配置项。</p>
+<h1 id="4-DeviceTree和Zephyr驱动模型"><a href="#4-DeviceTree和Zephyr驱动模型" class="headerlink" title="4. DeviceTree和Zephyr驱动模型"></a>4. DeviceTree和Zephyr驱动模型</h1><p>device tree比较复杂，具体的语法、使用方法可以参考我的另一篇文章：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17209392.html">《详解Zephyr设备树（DeviceTree）与驱动模型》</a>。</p>
+<p>本文中尽量简洁地说明device tree的用途。</p>
+<h2 id="设备树文件"><a href="#设备树文件" class="headerlink" title="设备树文件"></a>设备树文件</h2><p>device tree的文件是Device Tree Source (DTS)。这里用最简洁的语言描述一下dts文件的产生：</p>
+<ol>
+<li>芯片级的dts文件，定义了芯片上的各种外设资源及其地址；</li>
+<li>板级的dts文件，可以包含芯片级的dts文件。除了芯片之外，也会包含板子上的资源，如按键、LED、i2c等总线上挂的外设等等；</li>
+<li>在工程中选板子时，实际上就是选择了板级的dts文件。在工程中，如果想修改默认的dts，是通过<code>*.overlay</code>文件进行覆盖；例如开发板默认的dts（SDK中的文件）默认没有打开串口1，那么就可以在Overlay文件（你的工程中的文件）中打开串口1；</li>
+<li>build target时，所有这些dts会在编译目录下合并成<code>zephyr.dts</code>。这就是最终的dts。</li>
+</ol>
+<blockquote>
+<h4 id="合并dts的位置"><a href="#合并dts的位置" class="headerlink" title="合并dts的位置"></a>合并dts的位置</h4><p>NCS v2.7.0引入了sysbuild，zephyr.dts的路径为<code>build/&lt;application_name&gt;/zephyr/zephyr.dts</code>;</p>
+<p>在NCS v2.6.x之前，zephyr.dts的路径为：<code>build/zephyr/zephyr.dts</code>;</p>
+<h4 id="overlay文件"><a href="#overlay文件" class="headerlink" title="overlay文件"></a>overlay文件</h4><p>如果说<code>*.conf</code>文件是你当前工程的软件配置，那么<code>*.overlay</code>文件就是你的当前工程的<strong>硬件配置</strong>。</p>
+<ul>
+<li><code>app.overlay</code>是整个项目的overlay，如果CMake不设置<code>DTC_OVERLAY_FILE</code>,则默认使用app.overlay</li>
+<li><code>boards/&lt;board_name&gt;.overlay</code>是板子对应的overlay</li>
+</ul>
+</blockquote>
+<p>外设的使能与关闭，引脚的分配等与硬件相关的内容，都在dts overlay文件中编写。修改时，注意不要修改SDK里的dts，因为这会影响其他的工程。只在自己的工程内用Overlay修改就好。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 例如，在overlay中使能串口1. uart1是label，可以直接引用</span><br><span class="line">&amp;uart1 &#123;</span><br><span class="line">    compatible = &quot;nordic,nrf-uarte&quot;;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 另一种写法，不用label，而用绝对路径</span><br><span class="line">/&#123;</span><br><span class="line">    soc&#123;</span><br><span class="line">        uart@40028000&#123;</span><br><span class="line">            compatible = &quot;nordic,nrf-uarte&quot;;</span><br><span class="line">            status = &quot;okay&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Zephyr驱动程序"><a href="#Zephyr驱动程序" class="headerlink" title="Zephyr驱动程序"></a>Zephyr驱动程序</h2><p>在<code>main()</code>函数运行起来之前，zephyr设备驱动的初始化程序就已经先运行了。设备的驱动程序根据device tree中的配置，自动把外设进行相应的初始化，配置寄存器。然后driver还会提供一个<code>struct device</code>结构体，方便应用层操作这个外设。</p>
+<p>程序的application层起来之后，开发者就可以用driver初始化好的device结构体，用标准的Zephyr API进行操作。</p>
+<p>有以下5个阶段可以用来初始化外设驱动：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20230312215847338.webp" alt="image-20230312215847338"></p>
+<p>Zephyr外设驱动的整个流程：</p>
+<p>【编译阶段】</p>
+<ol>
+<li><p>开发者在Kconfig中，使能了某个外设驱动，如<code>CONFIG_SERIAL=y</code></p>
+</li>
+<li><p><code>zephyr/driver/</code>下的CMakeLists.txt，根据<code>CONFIG_SERIAL=y</code>，把<code>zephyr/driver/serial/</code>添加到工程中</p>
+</li>
+<li><p><code>zephyr/driver/serial/</code>下有各个半导体厂商向Zephyr提交的串口驱动代码。此目录下的CMakeLists.txt根据你的当前Kconfig配置，来选择哪个驱动文件编译进来：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">zephyr_library_sources_ifdef(CONFIG_UART_NRFX_UART uart_nrfx_uart.c)</span><br><span class="line"><span class="keyword">if</span> (CONFIG_UART_NRFX_UARTE)</span><br><span class="line">  <span class="keyword">if</span> (CONFIG_UART_NRFX_UARTE_LEGACY_SHIM)</span><br><span class="line">    zephyr_library_sources(uart_nrfx_uarte.c)</span><br><span class="line">  <span class="keyword">else</span>()</span><br><span class="line">    zephyr_library_sources(uart_nrfx_uarte2.c)</span><br><span class="line">  <span class="keyword">endif</span>()</span><br><span class="line"><span class="keyword">endif</span>()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>驱动代码中，会通过宏来匹配<code>zephyr.dts</code>中的所有串口节点，也就是匹配哪些节点的<code>compatible</code>与当前驱动是一致的。然后，再匹配这些节点的<code>status=&quot;okay&quot;</code>，就说明这个外设被使能了，于时就定义一个<code>device</code>结构体实例。</p>
+</li>
+</ol>
+<blockquote>
+<p>device结构体的定义：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">device</span> &#123;</span></span><br><span class="line"> <span class="type">const</span> <span class="type">char</span> *name;           <span class="comment">// 设备的名称</span></span><br><span class="line"> <span class="type">const</span> <span class="type">void</span> *config;         <span class="comment">// 设备的初始配置</span></span><br><span class="line"> <span class="type">const</span> <span class="type">void</span> *api;            <span class="comment">// 设备的api函数集合</span></span><br><span class="line"> <span class="class"><span class="keyword">struct</span> <span class="title">device_state</span> *<span class="title">state</span>;</span> <span class="comment">// 设备的工作状态</span></span><br><span class="line"> <span class="type">void</span> *data;                 <span class="comment">// 设备的运行数据</span></span><br><span class="line"> <span class="comment">/* ... */</span>                   <span class="comment">// 其他参数，例如电源管理</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>【运行阶段】</p>
+<ol>
+<li>系统启动后，在设备驱动程序预设好的阶段（上图5个阶段之一），进行外设的初始化和配置。配置的值就来自于dts overlay中节点的配置。<br>如果是外挂芯片的驱动，则会在这个阶段完成外挂芯片的配置（如SPI总线的液晶屏、I2C总线的RTC时钟等）。<br>以上只是两个示例，具体的行为，要看根据驱动程序的代码。</li>
+<li>程序进入到应用层之后，所有需要的外设就已经被初始化好了。在应用层代码中，开发者只需先获得这个device结构体的指针，后续调用Zephyr标准外设API时，把这个指针作为参数传入即可。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 例如，获取串口1的device结构体指针</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">uart1_dev</span> =</span> DEVICE_DT_GET(DT_NODELABEL(uart1));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用串口1发送数据</span></span><br><span class="line">uart_tx(uart1_dev, buf, len, timeout);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Zephyr驱动模型的优劣"><a href="#Zephyr驱动模型的优劣" class="headerlink" title="Zephyr驱动模型的优劣"></a>Zephyr驱动模型的优劣</h2><p>优点：</p>
+<ul>
+<li>代码里调用的都是Zephyr标准API，与硬件细节无关。如果后需要更换MCU平台，几乎没有什么移植成本，只需要更换所选的board即可。</li>
+<li>通用性强，无论是普通的串口，还是USB串口，抑或是<a href>LPUART</a>，它们的应用层代码均是Zephyr标准API，只需要更换底层驱动即可。</li>
+<li>开发者无需花精力在标准、通用的基本功能上，如串口、SPI、网络、按钮等。因为这些驱动都是厂商提供的，在性能、健壮性、功能性上往往都强于开发者自己用寄存器或外设驱动库开发的代码。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li><p>上手难度稍高，需要花精力去学习语法，并且要简单了解驱动代码</p>
+</li>
+<li><p>功能不完全。Zephyr只提供最标准的用法，当用到串口、spi、i2c等协议时，就是最标准的协议。一旦有不符合标准的，或者Zephyr标准库未提供的功能，就无法在Zephyr驱动模型的框架下实现了。</p>
+<blockquote>
+<p>例如，nordic的芯片有PPI的功能，可以让一个外设的event触发另一个外设的task。这个功能Zephyr是没有标准驱动的。</p>
+<p>Nordic可以在提交给Zephyr的驱动代码中用PPI。例如，在串口驱动中，通过uart外设和timer外设，加上PPI，实现异步流控串口（Timer的作用是记录发送&#x2F;接收了多少字节，然后用PPI控制GPIO CTS&#x2F;RTS），<strong>Nordic提供的驱动代码，把他们整体封装成串口</strong>，也就是说，Zephyr标准驱动操作的串口，实际并不是单独对应uart这一个外设，而是UART+GPIOTE+TIMER+PPI的复合外设。</p>
+<p>如果用户想自己用PPI实现一些自定义功能，只能直接调用nrfx api。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Nordic-NRFX外设驱动库"><a href="#Nordic-NRFX外设驱动库" class="headerlink" title="Nordic NRFX外设驱动库"></a>Nordic NRFX外设驱动库</h2><p>如果你的需求比较特殊，想要绕过Zephyr驱动层，直接在底层驱动甚至寄存器和中断的级别来进行开发，NCS也是支持的。</p>
+<p>请参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17835258.html">《在NCS中使用NRFX外设驱动库》</a>。</p>
+<h2 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h2><p>dts怎么写，本质上取决于驱动代码里怎么读取dts。dts的本质就是保存硬件细节相关的信息，使自己的应用代码与硬件细节解耦。</p>
+<p>要更详细地了解Device Tree，请参考<a href="https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/">《详解Zephyr设备树（DeviceTree）与驱动模型》</a>。</p>
+<h1 id="5-Sysbuild-System-build"><a href="#5-Sysbuild-System-build" class="headerlink" title="5. Sysbuild (System build)"></a>5. Sysbuild (System build)</h1><p>前面介绍的CMake, Kconfig, DeviceTree都是其他领域（如Linux内核）已经在广泛使用的配置工具。但是Sysbuild是Zephyr的新引入的构建机制，它是一个High-Level的配置工具，解决的是MCU多镜像编译的问题。</p>
+<p>前面介绍的那些工具，都是为了1个镜像编译时用的。当我们要编译一个多镜像的固件时，这些不同的镜像之间可能会有一些配置项的差别。</p>
+<p>例如，我希望我的串口用于打印日志，但是在bootloader镜像中，同一个串口用于固件升级。</p>
+<p>又比如，我选型了一款QSPI外挂Flash，与Nordic官方开发板上的Flash不同，于时我修改了我的工程中的overlay文件。但是，我也需要在某个地方修改bootloader工程的overlay文件，从而让bootloader也识别我的flash。</p>
+<p>以上说的是运行在同一个CPU上，不同镜像之间的<strong>差异配置</strong>。除此之外，还有运行在不同CPU上，不同镜像之间的<strong>相同配置</strong>，例如双核MCU上的App Core和Net Core，我希望同时配置为debug模式或release模式，而不是单独去调。</p>
+<h2 id="Sysbuild的开关"><a href="#Sysbuild的开关" class="headerlink" title="Sysbuild的开关"></a>Sysbuild的开关</h2><p>编译时可以决定是否使用Sysbuild</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build --sysbuild</span><br><span class="line"></span><br><span class="line">west build --no-sysbuild</span><br></pre></td></tr></table></figure>
+
+<p>在NCS v2.7.0之后，<code>west build</code>命令默认就是开启<code>--sysbuild</code>的。在NCS v2.6.x之前，则默认不开启。</p>
+<h2 id="命名空间（Namespace）"><a href="#命名空间（Namespace）" class="headerlink" title="命名空间（Namespace）"></a>命名空间（Namespace）</h2><p>在多镜像编译的场景下，我们用<code>west build</code>进行命令行编译时，如果要添加一些配置项，则可能需要指定，这个配置项是属于哪个子工程的，或者是属于整体的（Sysbuild）。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 带有Namespace的Kconfig</span></span><br><span class="line">-D&lt;namespace&gt;_CONFIG_&lt;var&gt;=&lt;value&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 带有Namespace的CMake选项</span></span><br><span class="line">-D&lt;namespace&gt;_&lt;var&gt;=&lt;value&gt;</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build -b reel_board --sysbuild samples/hello_world \</span><br><span class="line">    -- \</span><br><span class="line">        -DSB_CONFIG_BOOTLOADER_MCUBOOT=y \</span><br><span class="line">        -DCONFIG_DEBUG_OPTIMIZATIONS=y \</span><br><span class="line">        -Dmcuboot_CONFIG_DEBUG_OPTIMIZATIONS=y</span><br><span class="line"><span class="comment"># 给Sysbuild（全局）传递CONFIG_BOOTLOADER_MCUBOOT=y，表示使用bootloader作为MCUBOOT，命名空间为SB</span></span><br><span class="line"><span class="comment"># 给当前默认Application工程传递CONFIG_DEBUG_OPTIMIZATIONS=y，命名空间为空</span></span><br><span class="line"><span class="comment"># 给mcuboot工程传递CONFIG_DEBUG_OPTIMIZATIONS=y，命名空间为mcuboot，也就是子工程的名称</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Sysbuild配置文件"><a href="#Sysbuild配置文件" class="headerlink" title="Sysbuild配置文件"></a>Sysbuild配置文件</h2><p>除了上述在编译时传递编译选项的方法，也可以保存Sysbuild级别的配置文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">application/</span><br><span class="line">├── ...</span><br><span class="line">├── CMakeLists.txt <span class="comment"># application的CMake</span></span><br><span class="line">├── prj.conf       <span class="comment"># application的配置项</span></span><br><span class="line">├── ...</span><br><span class="line">├── Kconfig.sysbuild <span class="comment"># Sysbuild全局级别的Kconfig菜单定义。可以不定义，不定义时使用SDK内的默认菜单</span></span><br><span class="line">├── sysbuild.conf    <span class="comment"># Sysbuild全局配置项</span></span><br><span class="line">├── ...</span><br><span class="line">├── sysbuild.cmake   <span class="comment"># Sysbuild全局级别的CMake。可以用来管理有哪些工程镜像参与总镜像的编译</span></span><br><span class="line">├── ...</span><br><span class="line">└── sysbuild/         <span class="comment"># Sysbuild目录下，可以分别给每个子工程单独进行配置</span></span><br><span class="line">    └── mcuboot           </span><br><span class="line">        ├── prj.conf</span><br><span class="line">        ├── app.overlay</span><br><span class="line">        └── boards</span><br><span class="line">            ├── &lt;board_A&gt;.conf</span><br><span class="line">            ├── &lt;board_A&gt;.overlay</span><br><span class="line">            ├── &lt;board_B&gt;.conf</span><br><span class="line">            └── &lt;board_B&gt;.overlay</span><br></pre></td></tr></table></figure>
+
+<p>关于sysbuild的例程，可以参考<code>zephyr/samples/sysbuild/</code>下的几个例程。</p>
+<h2 id="给Sysbuild添加子工程"><a href="#给Sysbuild添加子工程" class="headerlink" title="给Sysbuild添加子工程"></a>给Sysbuild添加子工程</h2><p>参考<code>zephyr/samples/sysbuild/hello_world</code>，这个工程是给双核MCU运行使用的。App核运行一个Hello World，然后同时再添加一个Hello World工程给另一个核使用。最后编译出双镜像固件。</p>
+<p>要给当前工程添加子工程，其实就是修改<code>sysbuild.cmake</code>。</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">ExternalZephyrProject_Add(</span><br><span class="line">  APPLICATION my_sample                 <span class="comment"># 要添加的工程名</span></span><br><span class="line">  SOURCE_DIR &lt;path-to&gt;/my_sample        <span class="comment"># 要添加的工程路径</span></span><br><span class="line">  BOARD mps2_an521_remote               <span class="comment"># 如有必要，单独指定要添加的工程使用的board</span></span><br><span class="line">  BUILD_ONLY <span class="keyword">TRUE</span>                       <span class="comment"># 如有必要，可以只编译不烧录</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 要先编译my_sample,再编译当前默认application工程</span></span><br><span class="line">sysbuild_add_dependencies(CONFIGURE <span class="variable">$&#123;DEFAULT_IMAGE&#125;</span> my_sample)</span><br><span class="line"><span class="comment"># 等价于以下CMake标准函数</span></span><br><span class="line"><span class="keyword">add_dependencies</span>(<span class="variable">$&#123;DEFAULT_IMAGE&#125;</span> my_sample)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 要先烧录my_sample,再烧录当前application工程</span></span><br><span class="line">sysbuild_add_dependencies(FLASH <span class="variable">$&#123;DEFAULT_IMAGE&#125;</span> my_sample)</span><br><span class="line"><span class="comment"># 如果my_sample配置为BUILD_ONLY=TRUE，则会报错</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>特别地，如果要添加的工程就是MCUBOOT，则只需在<code>sysbuid.conf</code>中添加下列配置即可：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SB_CONFIG_BOOTLOADER_MCUBOOT=y</span><br></pre></td></tr></table></figure>
+
+<p>因为SDK中已经把MCUBOOT相关的sysbuild写好了，这里直接使能即可。</p>
+</blockquote>
+<h1 id="6-【已弃用】parent-child-image"><a href="#6-【已弃用】parent-child-image" class="headerlink" title="6. 【已弃用】parent-child image"></a>6. 【已弃用】parent-child image</h1><details>
+    <summary>[点击展开]</summary>
+
+<p>在NCS v2.6.x及之前的版本中，多镜像的管理靠的是parent-child image。这个工具不是Zephyr的，而是Nordic的。它也能在一个子文件夹里分别管理子镜像的配置。但它和Sysbuild的区别在于：它没有单独的High-Level的全局配置。这导致一些实际上应该属于全局的配置，直接放在了Application层的配置中（例如选择哪个Bootloader），因此偶尔会产生混淆。</p>
+<p>如使用老版本的NCS，建议参考老版本NCS关于这方面的文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/config_and_build/multi_image.html">https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/config_and_build/multi_image.html</a></p>
+</details>
+
+<h1 id="7-存储器分区文件（Partition-Manager）"><a href="#7-存储器分区文件（Partition-Manager）" class="headerlink" title="7. 存储器分区文件（Partition Manager）"></a>7. 存储器分区文件（Partition Manager）</h1><p>管理一个MCU的存储器分区是很常见的需求。不仅在多镜像、OTA的场景下要管理，在内部和外部flash上挂载文件系统、用单独的分区存储生产信息等等场景下都要管理。</p>
+<p>存储器分区文件，尤其是带有外部flash的，可以参考Matter例程，例如<code>nrf/samples/matter/lock</code>。你可以看到很多<code>pm_static_xxx.yml</code>:</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mcuboot:</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0x0</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0x7000</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">flash_primary</span></span><br><span class="line"><span class="attr">mcuboot_pad:</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0x7000</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0x200</span></span><br><span class="line"><span class="attr">app:</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0x7200</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0xefe00</span></span><br><span class="line"><span class="attr">mcuboot_primary:</span></span><br><span class="line">  <span class="attr">orig_span:</span> <span class="meta">&amp;id001</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">mcuboot_pad</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">app</span></span><br><span class="line">  <span class="attr">span:</span> <span class="meta">*id001</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0x7000</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0xf0000</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">flash_primary</span></span><br><span class="line"><span class="attr">mcuboot_primary_app:</span></span><br><span class="line">  <span class="attr">orig_span:</span> <span class="meta">&amp;id002</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">app</span></span><br><span class="line">  <span class="attr">span:</span> <span class="meta">*id002</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0x7200</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0xefe00</span></span><br><span class="line"><span class="attr">factory_data:</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0xf7000</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0x1000</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">flash_primary</span></span><br><span class="line"><span class="attr">settings_storage:</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0xf8000</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0x8000</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">flash_primary</span></span><br><span class="line"><span class="attr">mcuboot_secondary:</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0x0</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0xf0000</span></span><br><span class="line">  <span class="attr">device:</span> <span class="string">MX25R64</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">external_flash</span></span><br><span class="line"><span class="attr">external_flash:</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0xf0000</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0x710000</span></span><br><span class="line">  <span class="attr">device:</span> <span class="string">MX25R64</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">external_flash</span></span><br></pre></td></tr></table></figure>
+
+<p>详细的语法无需在意，不同工程基本都是大同小异的。</p>
+<blockquote>
+<p>【注意】配置Partition Manager时，一定要注意对齐Flash的Page！！！</p>
+</blockquote>
+<h2 id="静态分区文件说明"><a href="#静态分区文件说明" class="headerlink" title="静态分区文件说明"></a>静态分区文件说明</h2><h3 id="mcuboot相关"><a href="#mcuboot相关" class="headerlink" title="mcuboot相关"></a>mcuboot相关</h3><p>mcuboot相关照抄即可，只需修改地址和大小。</p>
+<ul>
+<li><code>mcuboot</code>，也就是mcuboot的固件大小。Matter的MCUBOOT配置是SDK中专门优化过的，因此只需要0x7000字节。一般来说自己添加一个需要0xc000的空间</li>
+<li><code>mcuboot_pad</code>：DFU期间，存储一些固件升级情况的标志位和校验信息</li>
+<li><code>mcuboot_primary</code>：也就是app所在的slot，同时也有mcuboot_pad。</li>
+<li><code>mcuboot_secondary</code>：也就是升级时新固件存放的slot。通常app负责接收新固件，然后跳转到mcuboot，mcuboot进行分区固件交换后，升级完成。secondary slot也可以放到外部flash</li>
+</ul>
+<h3 id="app相关"><a href="#app相关" class="headerlink" title="app相关"></a>app相关</h3><p>app相关照抄即可，只需修改地址和大小。</p>
+<ul>
+<li><code>app</code>与<code>mcuboot_primary_app</code>：都是app分区</li>
+</ul>
+<h3 id="settings-storage"><a href="#settings-storage" class="headerlink" title="settings_storage"></a>settings_storage</h3><p>settings_storage是Zephyr系统中一个存储配置项的分区，是一个简易的文件系统。可以用“字符串”（通常是文件路径，例如<code>id/serial</code>）作为句柄来存取数据（提供首地址、长度）。</p>
+<p>Zephyr中许多的Librarys都依赖Settings来存储持久化数据，例如蓝牙的绑定密钥。因此这个分区非常常见。考虑到用到Settings的组件非常多，最好不要把Settings放到外部flash，不然做外部flash低功耗时，如果外部flash休眠了，而某个组件要用到Settings，就会报错，非常麻烦。</p>
+<p>由于Settings是文件系统，因此它不是把数据单一的存在一个地址，而是像硬盘一样一直向后写，直到分区flash写满了，才把前面的page全部擦掉做垃圾回收。因此最好给settings_storage准备至少2个page的flash空间（上面的例子是0x8000，为两个4kB的page）。如果在特定极端峰值情况下，flash读写非常快且数量多，则需要3个page或以上。例如HomeKit认证时的循环蓝牙绑定16次测试，需要3个page。</p>
+<h3 id="其他分区"><a href="#其他分区" class="headerlink" title="其他分区"></a>其他分区</h3><p>其他分区没有什么特别的，就是用一个label定义一个分区名称。</p>
+<ul>
+<li><code>factory_data</code>：在Matter工程中，用于存储证书等数据的分区。</li>
+<li><code>external_flash</code>：外部flash空余的位置，随意进行了一个命名。</li>
+</ul>
+<p>其实Partition Manager只是一套脚本，最终还是要落实到C代码。在代码中，可以通过label来访问这些分区。例如Matter的SDK中就会通过<code>factory_data</code>来访问认证证书等数据。</p>
+<p>你也可以充分利用这个未使用的分区。用<code>nrf/include/flash_map_pm.h</code>中定义的宏函数，来吧这些label转化成Zephyr可以使用的Flash Device句柄和分区句柄。例如把这个<code>external_flash</code>分区拿来建立NVS文件系统。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/storage/flash_map.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NVS_PARTITION        external_storage</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NVS_PARTITION_DEVICE    FIXED_PARTITION_DEVICE(NVS_PARTITION)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NVS_PARTITION_OFFSET    FIXED_PARTITION_OFFSET(NVS_PARTITION)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/fs/nvs.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">nvs_fs</span> <span class="title">fs</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">app_nvs_entry</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> rc = <span class="number">0</span>;</span><br><span class="line">    <span class="type">char</span> buf[<span class="number">16</span>];</span><br><span class="line">    <span class="type">uint8_t</span> key[<span class="number">8</span>], longarray[<span class="number">128</span>];</span><br><span class="line">    <span class="type">uint32_t</span> reboot_counter = <span class="number">0U</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">flash_pages_info</span> <span class="title">info</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* define the nvs file system by settings with:</span></span><br><span class="line"><span class="comment">     *	sector_size equal to the pagesize,</span></span><br><span class="line"><span class="comment">     *	3 sectors</span></span><br><span class="line"><span class="comment">     *	starting at NVS_PARTITION_OFFSET</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    fs.flash_device = NVS_PARTITION_DEVICE;</span><br><span class="line">    <span class="keyword">if</span> (!device_is_ready(fs.flash_device)) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;Flash device %s is not ready&quot;</span>, fs.flash_device-&gt;name);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    fs.offset = NVS_PARTITION_OFFSET;</span><br><span class="line">    rc = flash_get_page_info_by_offs(fs.flash_device, fs.offset, &amp;info);</span><br><span class="line">    <span class="keyword">if</span> (rc) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;Unable to get page info&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fs.sector_size = info.size;</span><br><span class="line">    fs.sector_count = PAGE_COUNT;</span><br><span class="line"></span><br><span class="line">    LOG_INF(<span class="string">&quot;NVS sector size: %d, sector count: %d&quot;</span>, fs.sector_size, fs.sector_count);</span><br><span class="line"></span><br><span class="line">    rc = nvs_mount(&amp;fs);</span><br><span class="line">    <span class="keyword">if</span> (rc) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;Flash Init failed&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>值的一提的是，根据<code>nrf/include/flash_map_pm.h</code>中的定义，当使用以下三种文件系统时，最好就使用那个名字作为label</p>
+<ul>
+<li><code>settings_storage</code></li>
+<li><code>littlefs_storage</code></li>
+<li><code>nvs_storage</code></li>
+</ul>
+</blockquote>
+<h2 id="外部Flash分区"><a href="#外部Flash分区" class="headerlink" title="外部Flash分区"></a>外部Flash分区</h2><p>当某个分区位于外部Flash时，这个分区需要配置：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">region:</span> <span class="string">external_flash</span></span><br><span class="line"><span class="attr">device:</span> <span class="string">MX25R64</span></span><br></pre></td></tr></table></figure>
+
+<p>其中device是需要在设备树中配置的，要让partition manager知道外部flash是哪个设备，比如这里是<code>mx25r64</code>这个节点：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/ &#123;</span><br><span class="line">    chosen &#123;</span><br><span class="line">        nordic,pm-ext-flash = &amp;mx25r64;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>如果Bootloader也需要访问外部flash，不要忘记在mcuboot中也添加以上配置。</p>
+<blockquote>
+<p>除此之外，还要注意。如果不得已要把文件系统放在外部flash，一定要使能对应的配置，例如：</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/kconfig/index.html#CONFIG_PM_PARTITION_REGION_LITTLEFS_EXTERNAL"><code>CONFIG_PM_PARTITION_REGION_LITTLEFS_EXTERNAL</code></a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/kconfig/index.html#CONFIG_PM_PARTITION_REGION_SETTINGS_STORAGE_EXTERNAL"><code>CONFIG_PM_PARTITION_REGION_SETTINGS_STORAGE_EXTERNAL</code></a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/kconfig/index.html#CONFIG_PM_PARTITION_REGION_NVS_STORAGE_EXTERNAL"><code>CONFIG_PM_PARTITION_REGION_NVS_STORAGE_EXTERNAL</code></a></li>
+</ul>
+<p>并且这些配置是，只有当你用Nordic的QSPI Flash驱动时（<code>compatible = &quot;nordic,qspi-nor&quot;</code>）才有作用的。</p>
+</blockquote>
+<p>更多使用外部flash的细节，见<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/app_dev/bootloaders_dfu/mcuboot_nsib/bootloader_partitioning.html#ug-bootloader-external-flash">文档</a>.</p>
+<h2 id="动态分区"><a href="#动态分区" class="headerlink" title="动态分区"></a>动态分区</h2><p>实际上Partition Manager还支持根据不同子工程编译的大小动态分区。但是动态分区对于实际的项目来说没有任何意义，实际项目一定都需要静态分区，才能确保固件升级（DFU）的正确性。</p>
+<p>如需了解更多，参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/scripts/partition_manager/partition_manager.html">Partition Manager文档</a>。</p>
+<h2 id="检查Partition-Manager是否开启"><a href="#检查Partition-Manager是否开启" class="headerlink" title="检查Partition Manager是否开启"></a>检查Partition Manager是否开启</h2><p>要检查自己是否开启了Partition Manager，检查编译后的<code>.config</code>中有无：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_PARTITION_MANAGER_ENABLED=y</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>不要主动去设置它，一般来说开启多镜像编译后，它就会自动使能。</p>
+</blockquote>
+<h2 id="用CMake变量指定分区文件"><a href="#用CMake变量指定分区文件" class="headerlink" title="用CMake变量指定分区文件"></a>用CMake变量指定分区文件</h2><p>通常来说，编译时会自动选择项目根目录下的<code>pm_static_&lt;board_name&gt;.yaml</code>文件。</p>
+<p>但是如果你的项目比较复杂，希望用CMake变量来指定Partition Manager文件，类似于指定<code>CONF_FILE</code>配置文件那种方式，则需要在Sysbuild级别的配置<code>sysbuild.cmake</code>中进行设置，变量为<code>PM_STATIC_FILE</code>。</p>
+<p><code>sysbuild.cmake</code></p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span>(PM_STATIC_YML_FILE <span class="variable">$&#123;CMAKE_CURRENT_LIST_DIR&#125;</span>/foo/bar/pm_static.yml CACHE INTERNAL <span class="string">&quot;&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h1 id="8-Zephyr中的“Boards”"><a href="#8-Zephyr中的“Boards”" class="headerlink" title="8. Zephyr中的“Boards”"></a>8. Zephyr中的“Boards”</h1><p>在Zephyr中，Boards是非常重要的一个概念。直观地理解，它指的就是你开发的项目的PCB板子。Zephyr中有很多可选择的Boards，都是各个厂商或提交给Zephyr的。在编译时必须选择一个Boards。</p>
+<p>但看完前面的介绍，我们就可以更深入地理解Boards：它其实就是一堆默认的Kconfig，DeviceTree配置文件的集合。</p>
+<h2 id="Boards默认配置文件"><a href="#Boards默认配置文件" class="headerlink" title="Boards默认配置文件"></a>Boards默认配置文件</h2><p>当我们选择<code>nrf52840dk/nrf52840</code>时，就会导入SDK中<code>$&#123;NCS&#125;/zephyr/boards/nordic/nrf52840dk/</code>目录下的各种配置文件。这其中，<code>nrf52840dk</code>是板子的名称，<code>nrf52840</code>是SoC的名称。</p>
+<p>其中，Kconfig配置文件是<code>nrf52840dk_nrf52840_defconfig</code>；DeviceTree文件是<code>nrf52840dk_nrf52840.dts</code>。其余<code>.dts</code>或<code>.dtsi</code>文件是被它include的。例如，引脚分配文件<code>nrf52840dk_nrf52840-pinctrl.dtsi</code>。</p>
+<p>当编译时，选择<code>nrf52840dk/nrf52811</code>时，它是用<code>nrf52840</code>这颗芯片来模拟<code>nrf52811</code>的资源，让你也可以用nRF52840DK这个开发板来进行nRF52811的开发。</p>
+<h2 id="Board-Name"><a href="#Board-Name" class="headerlink" title="Board Name"></a>Board Name</h2><p>Boards是为了编译固件而服务的。因此board name中一定包含编译目标所需要的信息。</p>
+<p>示例：</p>
+<ul>
+<li><code>nrf52840dk/nrf52840</code>：为nRF52840DK开发板上的nRF52840这颗SoC芯片编译固件</li>
+<li><code>nrf5340dk/nrf5340/cpuapp</code>：为nRF5340DK开发板上的nRF5340这颗<strong>双核</strong>芯片的<strong>App核</strong>编译固件</li>
+<li><code>nrf54l15/cpuapp/ns</code>：为nRF554L15DK开发板上的nRF54L15这颗<strong>双核</strong>芯片的<strong>App核</strong>编译固件，并且选择非安全（non-secure）地址空间进行编译。</li>
+</ul>
+<p>完整示例：</p>
+<p><img src="https://docs-be.nordicsemi.com/bundle/ncs-latest/page/zephyr/_images/board-terminology.svg?_LANG=enus" alt="Board terminology diagram"></p>
+<p><code>nrf54l15dk@1.0.0/nrf54l15/cpuapp/ns</code>：</p>
+<table>
+<thead>
+<tr>
+<th>nrf54l15dk</th>
+<th>@1.0.0</th>
+<th>&#x2F;nrf54l15</th>
+<th>&#x2F;cpuapp</th>
+<th>&#x2F;ns</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>板子名称</td>
+<td>板子版本（常见于工程样片版本）</td>
+<td><strong>Board qualifier</strong> for SoC</td>
+<td><strong>Board qualifier</strong> for CPU cluster</td>
+<td><strong>Board qualifier</strong> for variant</td>
+</tr>
+</tbody></table>
+<h3 id="老版本板子名称"><a href="#老版本板子名称" class="headerlink" title="老版本板子名称"></a>老版本板子名称</h3><details>
+    <summary>[点击展开]</summary>
+
+<p>前面介绍的都是Zephyr的Hardware Model v2。在板子、SoC、CPU之间有层级关系。</p>
+<p>在NCS v2.6.x之前，用的是没有层级关系的板子名称。例如<code>nrf52840dk_nrf52840</code>和<code>nrf52840dk_nrf52811</code>被认为是两块不同的板子。</p>
+<p>当然你也可以简单理解为，Hardware Model v2就是简单把下划线<code>_</code>换成了斜杠<code>/</code>。</p>
+</details>
+
+<h2 id="CMake中使用Boards变量"><a href="#CMake中使用Boards变量" class="headerlink" title="CMake中使用Boards变量"></a>CMake中使用Boards变量</h2><p>可能你需要在CMake中根据Board来配置不同的文件。Zephyr的boards CMake扩展已经提供了以下变量供使用：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># The following variables will be defined when this CMake module completes:</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># - BOARD:                       Board, without revision field.</span></span><br><span class="line"><span class="comment"># - BOARD_REVISION:              Board revision</span></span><br><span class="line"><span class="comment"># - BOARD_QUALIFIERS:            Board qualifiers</span></span><br><span class="line"><span class="comment"># - NORMALIZED_BOARD_QUALIFIERS: Board qualifiers in lower-case format where slashes have been</span></span><br><span class="line"><span class="comment">#                                replaced with underscores</span></span><br><span class="line"><span class="comment"># - NORMALIZED_BOARD_TARGET:     Board target in lower-case format where slashes have been</span></span><br><span class="line"><span class="comment">#                                replaced with underscores</span></span><br><span class="line"><span class="comment"># - BOARD_DIR:                   Board directory with the implementation for selected board</span></span><br><span class="line"><span class="comment"># - ARCH_DIR:                    Arch dir for extracted from selected board</span></span><br><span class="line"><span class="comment"># - BOARD_ROOT:                  BOARD_ROOT with ZEPHYR_BASE appended</span></span><br><span class="line"><span class="comment"># - BOARD_EXTENSION_DIRS:        List of board extension directories (If</span></span><br><span class="line"><span class="comment">#                                BOARD_EXTENSIONS is not explicitly disabled)</span></span><br></pre></td></tr></table></figure>
+
+<p>例如，选择板子<code>nrf52840dk/nrf52840</code>，在CMakeLixts.txt中加入以下消息打印：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">message</span>(STATUS <span class="string">&quot;BOARD:$&#123;BOARD&#125;&quot;</span>)</span><br><span class="line"><span class="keyword">message</span>(STATUS <span class="string">&quot;BOARD_REVISION:$&#123;BOARD_REVISION&#125;&quot;</span>)</span><br><span class="line"><span class="keyword">message</span>(STATUS <span class="string">&quot;BOARD_QUALIFIERS:$&#123;BOARD_QUALIFIERS&#125;&quot;</span>)</span><br><span class="line"><span class="keyword">message</span>(STATUS <span class="string">&quot;NORMALIZED_BOARD_QUALIFIERS:$&#123;NORMALIZED_BOARD_QUALIFIERS&#125;&quot;</span>)</span><br><span class="line"><span class="keyword">message</span>(STATUS <span class="string">&quot;NORMALIZED_BOARD_TARGET:$&#123;NORMALIZED_BOARD_TARGET&#125;&quot;</span>)</span><br><span class="line"><span class="keyword">message</span>(STATUS <span class="string">&quot;BOARD_DIR:$&#123;BOARD_DIR&#125;&quot;</span>)</span><br><span class="line"><span class="keyword">message</span>(STATUS <span class="string">&quot;ARCH_DIR:$&#123;ARCH_DIR&#125;&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>编译时cmake打印：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-- BOARD:                        nrf52840dk</span><br><span class="line"></span><br><span class="line">-- BOARD_REVISION:</span><br><span class="line"></span><br><span class="line">-- BOARD_QUALIFIERS:             /nrf52840</span><br><span class="line"></span><br><span class="line">-- NORMALIZED_BOARD_QUALIFIERS:  _nrf52840</span><br><span class="line"></span><br><span class="line">-- NORMALIZED_BOARD_TARGET:      nrf52840dk_nrf52840</span><br><span class="line"></span><br><span class="line">-- BOARD_DIR:      /home/jayant/project/ncs/v2.8.0/zephyr/boards/nordic/nrf52840dk</span><br><span class="line"></span><br><span class="line">-- ARCH_DIR:</span><br></pre></td></tr></table></figure>
+
+<p>其中比较有用的是<code>$&#123;NORMALIZED_BOARD_TARGET&#125;</code>，你可以在<code>CMakeLists.txt</code>或者<code>sysbuild.cmake</code>中用这个变量来匹配设置一些配置文件，例如：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在sysbuild.cmake中使用，把分区设置同时应用到Application和Bootloader</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Partition manager</span></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">EXISTS</span> <span class="string">&quot;$&#123;CMAKE_CURRENT_LIST_DIR&#125;/partitions/pm_static_$&#123;NORMALIZED_BOARD_TARGET&#125;.yml&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">set</span>(PM_STATIC_YML_FILE <span class="string">&quot;$&#123;CMAKE_CURRENT_LIST_DIR&#125;/partitions/pm_static_$&#123;NORMALIZED_BOARD_TARGET&#125;.yml&quot;</span> CACHE INTERNAL <span class="string">&quot;&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">message</span>(STATUS <span class="string">&quot;Using Partition Manager file: $&#123;CMAKE_CURRENT_LIST_DIR&#125;/partitions/pm_static_$&#123;NORMALIZED_BOARD_TARGET&#125;.yml&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>()</span><br><span class="line">    <span class="keyword">message</span>(FATAL_ERROR <span class="string">&quot;Can&#x27;t find Partition Manager scripts ($&#123;CMAKE_CURRENT_LIST_DIR&#125;/partitions/pm_static_$&#123;NORMALIZED_BOARD_TARGET&#125;.yml)&quot;</span>)</span><br><span class="line"><span class="keyword">endif</span>()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以上配置会在<code>partitions/</code>目录下自动查找板子对应的<code>pm_static_xxx.yml</code>配置文件：</p>
+<h2 id="自定义板子"><a href="#自定义板子" class="headerlink" title="自定义板子"></a>自定义板子</h2><p>如果你的项目比较简单，可以不用自定义板子。直接选择Nordic开发板作为基础的Board。然后用device tree overlay文件和Kconfig配置文件，来增、删、改配置。</p>
+<p>但是定义自己的板子会有许多好处，比如：</p>
+<ul>
+<li>让一个工程同时支持自己的Borad和开发板。debug时，可以对比开发板和自己的板子的表现。在排查硬件问题，进行功耗优化时非常有用。</li>
+<li>用同一块板子开发不同工程时，移植非常方便。</li>
+<li>你选择的芯片封装和开发板上的封装并不相同，引脚数量有区别，需要自定义board。</li>
+</ul>
+<h3 id="自定义板子的步骤"><a href="#自定义板子的步骤" class="headerlink" title="自定义板子的步骤"></a>自定义板子的步骤</h3><p>也可以参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/app_dev/board_support/defining_custom_board.html">官方文档</a></p>
+<h4 id="创建Board"><a href="#创建Board" class="headerlink" title="创建Board"></a>创建Board</h4><p>可以在VS Code中图形化操作，定义板子：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145312936.webp" alt="image-20250107145312936"></p>
+<p>输入板子名称，是给人阅读的字符串，可以带空格：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145418793.webp" alt="image-20250107145418793"></p>
+<p>输入板子名称，是编译时使用的名称，不能带空格：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145508177.webp" alt="image-20250107145508177"></p>
+<p>选择使用的NCS版本：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145532264.webp" alt="image-20250107145532264"></p>
+<p>选择SoC芯片：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145557369.webp" alt="image-20250107145557369"></p>
+<p>选择自己的boards相关文件存放的位置，通常就是当前project根目录即可。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107145720987.webp" alt="image-20250107145720987"></p>
+<p>输入公司名称，作为vendor字段：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108145721828.webp" alt="image-20250108145721828"></p>
+<p>创建完毕后，就存放在当前工程的boards目录下：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108145954333.webp" alt="image-20250108145954333"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 目录结构，你可以添加自己的doc</span><br><span class="line">application_dir/</span><br><span class="line">├── boards/</span><br><span class="line">│   └── vendor/</span><br><span class="line">│       └── my_custom_board/</span><br><span class="line">│           ├── doc/</span><br><span class="line">│           │   └── img</span><br><span class="line">│           └── support/</span><br><span class="line">└── src/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="添加默认Kconfig"><a href="#添加默认Kconfig" class="headerlink" title="添加默认Kconfig"></a>添加默认Kconfig</h4><p>默认的config就是你的<code>&lt;board_name&gt;_defconfig</code>：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108154144637.webp" alt="image-20250108154144637"></p>
+<p>可以按需求拷贝开发板的默认配置，参考<code>$&#123;NCS-2.8.0&#125;/zephyr/boards/arm/nrf52840dk_nrf52840/nrf52840dk_nrf52840_defconfig</code></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108154101849.webp" alt="image-20250108154101849"></p>
+<p>以上是添加默认的配置值。如果你想增加这个板子的菜单可选项，可以在<code>Konfig.&lt;board_name&gt;</code>中添加你的菜单项。</p>
+<blockquote>
+<p>值得一提的是，如果你的板子上没有32.768kHz晶振，则需要使用内部RC震荡器。可以把内部晶振相关配置写到这个defconfg中</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_CLOCK_CONTROL_NRF_K32SRC_RC=y</span><br><span class="line">CONFIG_CLOCK_CONTROL_NRF_K32SRC_XTAL=n</span><br><span class="line">CONFIG_CLOCK_CONTROL_NRF_K32SRC_RC_CALIBRATION=y</span><br></pre></td></tr></table></figure>
+
+<p>但是，在成本允许的情况下，还是非常推荐使用外部32k晶振的。外部晶体相比于内部RC震荡器具有更高的温度稳定性。此外，内部RC震荡器需要经常用高频时钟进行校准，因此功耗也会更高。</p>
+</blockquote>
+<h4 id="添加默认设备树配置"><a href="#添加默认设备树配置" class="headerlink" title="添加默认设备树配置"></a>添加默认设备树配置</h4><p>在<code>&lt;board_name&gt;.dts</code>中增加你的默认设备树配置。你也可以按需求拷贝对应芯片的开发板文件。例如：<code>/$&#123;NCS-v2.8.0&#125;/zephyr/boards/nordic/nrf52840dk/nrf52840dk_nrf52840.dts</code></p>
+<p>这里着重介绍一些要用到的：</p>
+<h5 id="特殊引脚配置（in-UICR）"><a href="#特殊引脚配置（in-UICR）" class="headerlink" title="特殊引脚配置（in UICR）"></a>特殊引脚配置（in UICR）</h5><p>当你的GPIO不够用时，可能需要把一些特殊引脚当作GPIO使用。这些需要写芯片的UICR寄存器（类似于Flash的一个区域，存储用户配置）。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;uicr &#123;</span><br><span class="line">    // bool类型属性，有则为true，没有则为false</span><br><span class="line">    </span><br><span class="line">    // Reset pin 当作 reset 而不是GPIO使用</span><br><span class="line">    gpio-as-nreset;</span><br><span class="line">    </span><br><span class="line">    // 删除属性，就是把bool类型设为false</span><br><span class="line">    </span><br><span class="line">    // NFC引脚不当作GPIO使用</span><br><span class="line">    /delete-property/ nfct-pins-as-gpios；</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在较老的NCS版本，v2.4.x及之前，不是在DeviceTree中设置，而是在Kconfig中设置：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_GPIO_AS_PINRESET=y</span><br><span class="line"></span><br><span class="line">CONFIG_NFCT_PINS_AS_GPIOS=n</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h5 id="电源regulator配置"><a href="#电源regulator配置" class="headerlink" title="电源regulator配置"></a>电源regulator配置</h5><p>板子外部通过VDD引脚对芯片进行供电，Nordic芯片内部还有一级电源Regulator给内核供电。这个Regulator可以配置成DC&#x2F;DC或者LDO。如果是DC&#x2F;DC的话，板子外部需要添加对应的电感电容。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108163305341.webp" alt="image-20250108163305341"></p>
+<center>
+    nRF52832内部供电-DCDC模式
+</center>
+
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108163523995.webp" alt="image-20250108163523995"></p>
+<center>
+    nRF52840内部两级供电-双DC/DC模式
+</center>
+
+<p>nRF52840有高电压模式，可以用VDDH引脚输入2.5～5.5V电压。</p>
+<p>你也可以不使用VDDH。直接把VDDH和VDD短路，这种情况下会跳过Regulator0，供电范围是1.7~3.6V：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108163945669.webp" alt="image-20250108163945669"></p>
+<center>
+    nRF52840一级供电 - LDO模式
+</center>
+
+<p>大多数应用，采用一级供电即可。此外，像是nRF52840-QFAA这种封装（QFN48）内部已经把VDDH和VDD进行了短路操作，这时regulator0已经被屏蔽。直接配置reg1即可</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 使用DC/DC</span><br><span class="line">&amp;reg1 &#123;</span><br><span class="line">    regulator-initial-mode = &lt;NRF5X_REG_MODE_DCDC&gt;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 使用LDO</span><br><span class="line">&amp;reg1 &#123;</span><br><span class="line">    regulator-initial-mode = &lt;NRF5X_REG_MODE_LDO&gt;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>如果你用的是带有VDDH供电的封装，则用以下设备树开启REG0的DC&#x2F;DC</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// reg0 只在nrf52840-qiaa.dtsi中有定义</span><br><span class="line">&amp;reg0 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在较老的NCS版本中，不是在设备树中配置，而是用Kconfig配置DC&#x2F;DC</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_SOC_DCDC_NRF52X=y</span><br><span class="line">CONFIG_SOC_DCDC_NRF52X_HV=y</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h5 id="gpio-reserve"><a href="#gpio-reserve" class="headerlink" title="gpio reserve"></a>gpio reserve</h5><p>在开发板的设备树中，我们可能会看到gpio port的节点下有一些配置。我们需要知道它的意思。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;gpio0 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    gpio-reserved-ranges = &lt;0 2&gt;, &lt;6 1&gt;, &lt;8 3&gt;, &lt;17 7&gt;;</span><br><span class="line">    gpio-line-names = &quot;XL1&quot;, &quot;XL2&quot;, &quot;AREF&quot;, &quot;A0&quot;, &quot;A1&quot;, &quot;RTS&quot;, &quot;TXD&quot;,</span><br><span class="line">        &quot;CTS&quot;, &quot;RXD&quot;, &quot;NFC1&quot;, &quot;NFC2&quot;, &quot;BUTTON1&quot;, &quot;BUTTON2&quot;, &quot;LED1&quot;,</span><br><span class="line">        &quot;LED2&quot;, &quot;LED3&quot;, &quot;LED4&quot;, &quot;QSPI CS&quot;, &quot;RESET&quot;, &quot;QSPI CLK&quot;,</span><br><span class="line">        &quot;QSPI DIO0&quot;, &quot;QSPI DIO1&quot;, &quot;QSPI DIO2&quot;, &quot;QSPI DIO3&quot;,&quot;BUTTON3&quot;,</span><br><span class="line">        &quot;BUTTON4&quot;, &quot;SDA&quot;, &quot;SCL&quot;, &quot;A2&quot;, &quot;A3&quot;, &quot;A4&quot;, &quot;A5&quot;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这里<code>gpio-reserved-ranges</code>的意思是：从软件层面上限制gpio0的某些引脚不能当作普通GPIO使用，因为它们在开发板上已经接了一些元器件。这可以防止出一些引脚分配问题。</p>
+<p><code>&lt;0 2&gt;</code>的意思是P0.00及其之后一共2个引脚，也就是P0.00和P0.01，因为它们是32.768kHz低频晶振所使用的引脚；同理，<code>&lt;17 7&gt;</code>的意思是P0.17及其之后一共7个引脚不能当普通GPIO使用，因为它们是板子上外部QSPI flash采用的引脚，还有P0.18是 reset引脚。</p>
+<p>这个只是限制引脚不能当作普通GPIO使用，运行时会报错。但是并不限制这些引脚用pinctrl来分配给外设（毕竟QSPI引脚就是这么分配的）。</p>
+<p>我们在拷贝开发板的dts到我们自定义的board时，注意不要完全拷贝这部分，要根据需求来。</p>
+<h5 id="Zephyr软件依赖的设备树节点"><a href="#Zephyr软件依赖的设备树节点" class="headerlink" title="Zephyr软件依赖的设备树节点"></a>Zephyr软件依赖的设备树节点</h5><p>Zephyr中有许多现成的软件模块，它们与硬件有关。比如命令行终端shell，又比如LED和button的驱动。当你使能这些软件模块时，它们会去device tree中寻找自己应该操作哪些硬件。</p>
+<p>比如，许多Zephyr Kernel功能用的是<code>/chosen</code>节点下的定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/&#123;</span><br><span class="line">    chosen &#123;</span><br><span class="line">        zephyr,console = &amp;uart0;</span><br><span class="line">        zephyr,shell-uart = &amp;uart0;</span><br><span class="line">        zephyr,uart-mcumgr = &amp;uart0;</span><br><span class="line">        zephyr,bt-mon-uart = &amp;uart0;</span><br><span class="line">        zephyr,bt-c2h-uart = &amp;uart0;</span><br><span class="line">        zephyr,ieee802154 = &amp;ieee802154;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 如果用到OpenThread, Zigbee协议，则需要开启802.15.4</span><br><span class="line">&amp;ieee802154 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>而其他一些library和例程用的是<code>/aliases</code>节点下的定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/&#123;</span><br><span class="line">    aliases &#123;</span><br><span class="line">        led0 = &amp;led0;</span><br><span class="line">        led1 = &amp;led1;</span><br><span class="line">        led2 = &amp;led2;</span><br><span class="line">        led3 = &amp;led3;</span><br><span class="line">        pwm-led0 = &amp;pwm_led0;</span><br><span class="line">        sw0 = &amp;button0;</span><br><span class="line">        sw1 = &amp;button1;</span><br><span class="line">        sw2 = &amp;button2;</span><br><span class="line">        sw3 = &amp;button3;</span><br><span class="line">        bootloader-led0 = &amp;led0;</span><br><span class="line">        mcuboot-button0 = &amp;button0;</span><br><span class="line">        mcuboot-led0 = &amp;led0;</span><br><span class="line">        watchdog0 = &amp;wdt0;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>很多例程会用到LED和Button。当你在自己的板子上运行例程，而你的板子上又没有定义led或button时，记得删除例程中LED和Button相关代码。</p>
+<p>例程led和button相关的CONFIG是：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Remove support for LEDs and buttons on Nordic development kits</span><br><span class="line">CONFIG_DK_LIBRARY=n</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h5 id="外部Flash"><a href="#外部Flash" class="headerlink" title="外部Flash"></a>外部Flash</h5><p>nRF52840DK开发板上默认的QSPI flash为：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;qspi &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    pinctrl-0 = &lt;&amp;qspi_default&gt;;</span><br><span class="line">    pinctrl-1 = &lt;&amp;qspi_sleep&gt;;</span><br><span class="line">    pinctrl-names = &quot;default&quot;, &quot;sleep&quot;;</span><br><span class="line">    mx25r64: mx25r6435f@0 &#123;</span><br><span class="line">        compatible = &quot;nordic,qspi-nor&quot;;</span><br><span class="line">        reg = &lt;0&gt;;</span><br><span class="line">        /* MX25R64 supports only pp and pp4io */</span><br><span class="line">        writeoc = &quot;pp4io&quot;;</span><br><span class="line">        /* MX25R64 supports all readoc options */</span><br><span class="line">        readoc = &quot;read4io&quot;;</span><br><span class="line">        sck-frequency = &lt;8000000&gt;;</span><br><span class="line">        jedec-id = [c2 28 17];</span><br><span class="line">        sfdp-bfp = [</span><br><span class="line">            e5 20 f1 ff  ff ff ff 03  44 eb 08 6b  08 3b 04 bb</span><br><span class="line">            ee ff ff ff  ff ff 00 ff  ff ff 00 ff  0c 20 0f 52</span><br><span class="line">            10 d8 00 ff  23 72 f5 00  82 ed 04 cc  44 83 68 44</span><br><span class="line">            30 b0 30 b0  f7 c4 d5 5c  00 be 29 ff  f0 d0 ff ff</span><br><span class="line">        ];</span><br><span class="line">        size = &lt;67108864&gt;;</span><br><span class="line">        has-dpd;</span><br><span class="line">        t-enter-dpd = &lt;10000&gt;;</span><br><span class="line">        t-exit-dpd = &lt;35000&gt;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在nRF7002DK中，也有SPI Flash</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;spi4 &#123;</span><br><span class="line">    compatible = &quot;nordic,nrf-spim&quot;;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    pinctrl-0 = &lt;&amp;spi4_default&gt;;</span><br><span class="line">    pinctrl-1 = &lt;&amp;spi4_sleep&gt;;</span><br><span class="line">    pinctrl-names = &quot;default&quot;, &quot;sleep&quot;;</span><br><span class="line">    cs-gpios = &lt;&amp;gpio0 11 GPIO_ACTIVE_LOW&gt;;</span><br><span class="line">    mx25r64: mx25r6435f@0 &#123;</span><br><span class="line">        compatible = &quot;jedec,spi-nor&quot;;</span><br><span class="line">        reg = &lt;0&gt;;</span><br><span class="line">        spi-max-frequency = &lt;33000000&gt;;</span><br><span class="line">        jedec-id = [c2 28 17];</span><br><span class="line">        sfdp-bfp = [</span><br><span class="line">            e5 20 f1 ff ff ff ff 03 44 eb 08 6b 08 3b 04 bb</span><br><span class="line">            ee ff ff ff ff ff 00 ff ff ff 00 ff 0c 20 0f 52</span><br><span class="line">            10 d8 00 ff 23 72 f5 00 82 ed 04 cc 44 83 68 44</span><br><span class="line">            30 b0 30 b0 f7 c4 d5 5c 00 be 29 ff f0 d0 ff ff</span><br><span class="line">        ];</span><br><span class="line">        size = &lt;67108864&gt;;</span><br><span class="line">        has-dpd;</span><br><span class="line">        t-enter-dpd = &lt;10000&gt;;</span><br><span class="line">        t-exit-dpd = &lt;5000&gt;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>QSPI Flash选用的驱动为<code>compatible = &quot;nordic,qspi-nor&quot;</code>. SPI Flash选用的驱动为<code>compatible = &quot;jedec,spi-nor</code>。</p>
+<p><strong>如果你选的板子上的外挂flash和开发板自带的不同</strong>，则可以参考<code>$&#123;NCS&#125;/zephyr/samples/drivers/jesd216</code>例程。不论你用的是QSPI还是SPI Flash，都把它先挂到SPI上，然后根据此例程的说明运行。只需要填写好jedec-id（flash的手册中会写明），例程会自动读取其余Flash信息（例如sfdp-bfp），并把对应的设备树配置打印到日志中，复制出来即可。但是Flash一定是需要支持JEDEC的。</p>
+<blockquote>
+<p>JEDEC (Joint Electron Device Engineering Council) 是一个制定半导体行业标准的组织。对于外挂Flash存储器来说，JEDEC标准定义了Flash存储器的接口、性能和功能特性。JEDEC标准确保了不同厂商生产的Flash存储器具有互操作性和兼容性。</p>
+</blockquote>
+<h5 id="Partition-Manager"><a href="#Partition-Manager" class="headerlink" title="Partition Manager"></a>Partition Manager</h5><p>用MCUBoot进行升级时，如果需要把Second slot放到外部Flash，则需要增加以下配置，让Partition Manager知道外部Flash也要参与存储器分区：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">chosen &#123;</span><br><span class="line">    nordic,pm-ext-flash = &amp;mx25r64; // 赋值为你的外部flash的label</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="用自定义板子编译"><a href="#用自定义板子编译" class="headerlink" title="用自定义板子编译"></a>用自定义板子编译</h4><p>VS Code Build界面中出现自定义Board可以选择：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250108181200141.webp" alt="image-20250108181200141"></p>
+<p>也可以在命令行编译时以当前板子为参数</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build -d build -b my_board/nrf52840 --sysbuild</span><br></pre></td></tr></table></figure>
+
+<h1 id="9-编译流程与输出文件"><a href="#9-编译流程与输出文件" class="headerlink" title="9. 编译流程与输出文件"></a>9. 编译流程与输出文件</h1><h2 id="编译流程"><a href="#编译流程" class="headerlink" title="编译流程"></a>编译流程</h2><p><img src="https://docs-be.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/_images/ncs-toolchain.svg?_LANG=enus" alt="nRF Connect SDK tools and configuration"></p>
+<h2 id="输出文件"><a href="#输出文件" class="headerlink" title="输出文件"></a>输出文件</h2><p>以下均按照开启sysbuild的情况下来看路径：</p>
+<ol>
+<li>当前application工程固件：<code>build/&lt;your_application_name&gt;/zephyr/zephyr.hex</code></li>
+<li>当前多工程编译合并固件：<code>build/merged.hex</code>，如果有多个核，每个核会有自己的<code>merged_&lt;core&gt;.hex</code></li>
+<li>DFU升级文件：<code>build/dfu_application.zip</code>，通过蓝牙等方式升级时使用的升级包</li>
+</ol>
+<p>更多输出文件请参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/app_dev/config_and_build/output_build_files.html">官方文档</a>.</p>
+<h2 id="VS-Code界面"><a href="#VS-Code界面" class="headerlink" title="VS Code界面"></a>VS Code界面</h2><p>也可以在nRF Connect for VS Code插件界面中查看自己的所有参与<strong>编译的源码</strong>、<strong>配置文件</strong>、<strong>输出文件</strong>：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250107033534650.webp" alt="image-20250107033534650"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2022/12/2a39e705bff0/" data-id="cmqop0ngc004wy8o5c5iy25zi" data-title="理解Zephyr项目的配置与构建系统" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/jayant97.github.io/2022/12/693c6a957393/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          最简洁清爽的ssh使用方案
+        
+      </div>
+    </a>
+  
+  
+    <a href="/jayant97.github.io/2022/12/779143a4bec8/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">安装nRF-Connect-SDK</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Jayant Tang<br>
+      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+  
+    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/jayant97.github.io/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

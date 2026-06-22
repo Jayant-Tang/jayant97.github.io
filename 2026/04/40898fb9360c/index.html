@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>nRF Connect SDK Add-ons介绍与国内安装实践 | 一苇万顷</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="本文介绍什么是 nRF Connect SDK Add-ons，以及在国内网络环境下如何安装。 1. 为什么会有 Add-ons？NCS（nRF Connect SDK）是 Nordic 的主 SDK，包含了 BLE、Thread、Zigbee、Wi-Fi、蜂窝、Matter 等各种协议栈和驱动。但随着支持的附加功能越来越多，统一打包进一个 NCS 版本发布的难度越来越高——每增加一个新功能，就要">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nRF Connect SDK Add-ons介绍与国内安装实践">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2026/04/40898fb9360c/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="本文介绍什么是 nRF Connect SDK Add-ons，以及在国内网络环境下如何安装。 1. 为什么会有 Add-ons？NCS（nRF Connect SDK）是 Nordic 的主 SDK，包含了 BLE、Thread、Zigbee、Wi-Fi、蜂窝、Matter 等各种协议栈和驱动。但随着支持的附加功能越来越多，统一打包进一个 NCS 版本发布的难度越来越高——每增加一个新功能，就要">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined5b2eb49e09be0239b9f9591393f79d73.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedccd349953c690bccf13e523a15eeedf3.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined36b72290f67d6a393ebdcabf8aba30ba.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined3730223c5403a0ccf86e0b1dbf8cdf54.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc0f20585ef0f177d3913fb6cde903757.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedcb5b0bc26c0aa90fcfd799e7f6af805d.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined140feacef6b78a73f623f14704f91101.png">
+<meta property="article:published_time" content="2026-04-22T02:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-22T03:18:34.232Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="NCS">
+<meta property="article:tag" content="Add-ons">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined5b2eb49e09be0239b9f9591393f79d73.png">
+  
+    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-nRF Connect SDK Add-ons介绍与国内安装实践" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/jayant97.github.io/2026/04/40898fb9360c/" class="article-date">
+  <time class="dt-published" datetime="2026-04-22T02:30:00.000Z" itemprop="datePublished">2026-04-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a>►<a class="article-category-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      nRF Connect SDK Add-ons介绍与国内安装实践
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>本文介绍什么是 nRF Connect SDK Add-ons，以及在国内网络环境下如何安装。</p>
+<h1 id="1-为什么会有-Add-ons？"><a href="#1-为什么会有-Add-ons？" class="headerlink" title="1. 为什么会有 Add-ons？"></a>1. 为什么会有 Add-ons？</h1><p>NCS（nRF Connect SDK）是 Nordic 的主 SDK，包含了 BLE、Thread、Zigbee、Wi-Fi、蜂窝、Matter 等各种协议栈和驱动。但随着支持的附加功能越来越多，统一打包进一个 NCS 版本发布的难度越来越高——每增加一个新功能，就要保证它和 NCS 里所有其他模块都不冲突，还要等一个正式发版窗口才能推出去，并且，某些附加功能（如ANT+）也不是由Nordic主导开发的。</p>
+<p>于是 Nordic 引入了 <strong>Add-on</strong> 机制：把一些特殊的功能单独做成独立发布的 SDK 扩展，<strong>绑定自己兼容的 NCS 版本</strong>，不用等 NCS 大版本更新就能迭代。</p>
+<p>在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/">Technical Documentation</a> 官网，可以看到Add-ons的入口：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined5b2eb49e09be0239b9f9591393f79d73.png" alt="image-20260422104000857"></p>
+<p>目前已有的 Add-on 包括：</p>
+<ul>
+<li><strong>Edge AI Add-on</strong>：手势识别、异常检测等 ML 推理框架与参考应用</li>
+<li><strong>Amazon Sidewalk Add-on</strong>：Amazon 的低功耗广域 IoT 协议</li>
+<li><strong>Zigbee R23 Add-on</strong>：Zigbee 3.0 R23 协议栈</li>
+<li><strong>Serial Modem Add-on</strong>：蜂窝模组的串口 AT 命令固件框架</li>
+</ul>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedccd349953c690bccf13e523a15eeedf3.png" alt="image-20260422104117669"></p>
+<blockquote>
+<p>Add-on 的完整列表可以在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://nrfconnect.github.io/ncs-app-index/">nRF Connect SDK Add-on Index</a> 查到。</p>
+</blockquote>
+<h1 id="2-Add-on-技术上是什么？"><a href="#2-Add-on-技术上是什么？" class="headerlink" title="2. Add-on 技术上是什么？"></a>2. Add-on 技术上是什么？</h1><p>Add-on 的本质是一套 west manifest。Add-on 并不是装一个插件这么简单——它本质上是一个独立的 Git 仓库，仓库里有自己的 <code>west.yml</code>，里面写死了它兼容的 NCS 版本和各个依赖模块的版本。</p>
+<p>当你把 west 的 manifest 指向这个仓库后，<code>west update</code> 会把整个工作区里所有仓库的版本都切换到 Add-on 要求的状态。所以安装 Add-on 时”会连 NCS 一起拉”是正常的，不是多此一举。</p>
+<p>正因为如此，建议<strong>每个 Add-on 单独对应一套工作区</strong>，不要在同一个目录里频繁来回切 manifest，否则仓库状态很容易混乱。</p>
+<h1 id="3-标准安装方式"><a href="#3-标准安装方式" class="headerlink" title="3. 标准安装方式"></a>3. 标准安装方式</h1><h2 id="3-1-VS-Code-图形界面"><a href="#3-1-VS-Code-图形界面" class="headerlink" title="3.1 VS Code 图形界面"></a>3.1 VS Code 图形界面</h2><p>在 nRF Connect 侧边栏选择 <strong>Create a new application</strong>，点击 <strong>Browse nRF Connect SDK Add-on Index</strong>，选择目标 Add-on 和版本，工具会自动把 Add-on 仓库和对应 NCS 一起拉下来。</p>
+<blockquote>
+<p>这种方式最简单，版本关系也不容易搞错，网络条件好的情况下首选这个。他会从GitHub拉取这个仓库，以及对应的NCS。</p>
+</blockquote>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined36b72290f67d6a393ebdcabf8aba30ba.png" alt="image-20260422104302358"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined3730223c5403a0ccf86e0b1dbf8cdf54.png" alt="image-20260422104315031"></p>
+<h2 id="3-2-命令行"><a href="#3-2-命令行" class="headerlink" title="3.2 命令行"></a>3.2 命令行</h2><p>以 Edge AI Add-on 为例：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Windows，先打开对应版本的工具链环境</span></span><br><span class="line">nrfutil toolchain-manager launch --ncs-version v3.2.4 -- powershell</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化工作区，-m 指定 Add-on 仓库，--mr 指定版本</span></span><br><span class="line">west init -m https://github.com/nrfconnect/sdk-edge-ai --mr v2.0.0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取依赖</span></span><br><span class="line">west update</span><br></pre></td></tr></table></figure>
+
+<p>不同 Add-on 的仓库地址和版本号不同，以各自的官方文档和 <code>west.yml</code> 为准。</p>
+<blockquote>
+<p>注意，某些仓库在GitHub是私有仓库，需要向相关公司申请才能获得访问权限。<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc0f20585ef0f177d3913fb6cde903757.png" alt="image-20260422105616904"></p>
+</blockquote>
+<h1 id="4-国内网络下的增量安装方案"><a href="#4-国内网络下的增量安装方案" class="headerlink" title="4. 国内网络下的增量安装方案"></a>4. 国内网络下的增量安装方案</h1><p>从零拉一套 Add-on 工作区意味着要从 GitHub 拉取完整的 NCS 和所有依赖，国内网络下成功率不高。<strong>如果你已经用国内镜像方式装好了一套标准版 NCS，可以让 west 在这个基础上只补齐 Add-on 的差异部分，成功率会高很多。</strong></p>
+<p>以 Edge AI Add-on v2.0.0 为例。</p>
+<p>首先，根据 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nrfconnect/sdk-edge-ai/blob/v2.0.0/west.yml">Nordic Edge AI的west配置</a>，我们得知2条重要信息：</p>
+<ol>
+<li>此 Add-on 需要NCS v3.3.0-preview2；</li>
+<li>此仓库在 west 工作区中的文件夹路径名为<code>edge-ai</code></li>
+</ol>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedcb5b0bc26c0aa90fcfd799e7f6af805d.png" alt="image-20260422105156792"></p>
+<p>目前和 v3.3.0-preview2 最接近的正式版是 v3.2.4。我们通过国内镜像安装v3.2.4，这部分可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17794804.html">nRF Connect SDK(NCS) 安装与入门 - jayant97</a></p>
+<p>假设你已有标准版NCS安装在 <code>D:/ncs/v3.2.4</code>。根据NCS根目录下<code>.west/config</code>文件下的配置，我们可以看到NCS原本的manifest是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nrfconnect/sdk-nrf">nrf仓库</a>：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line">[<span class="string">manifest</span>]</span><br><span class="line"><span class="string">path</span> <span class="string">=</span> <span class="string">nrf</span></span><br><span class="line"><span class="string">file</span> <span class="string">=</span> <span class="string">west.yml</span></span><br><span class="line"></span><br><span class="line">[<span class="string">zephyr</span>]</span><br><span class="line"><span class="string">base</span> <span class="string">=</span> <span class="string">zephyr</span></span><br></pre></td></tr></table></figure>
+
+<p>我们只需要把 manifest 切换成<code>https://github.com/nrfconnect/sdk-edge-ai</code>，再更新west工作区，即可增量拉取：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 打开工具链环境</span></span><br><span class="line"><span class="comment"># Windows</span></span><br><span class="line">nrfutil toolchain-manager launch --ncs-version v3.2.4 -- powershell</span><br><span class="line"><span class="comment"># Linux</span></span><br><span class="line">nrfutil toolchain-manager launch --ncs-version v3.2.4 --shell</span><br><span class="line"></span><br><span class="line"><span class="comment"># 克隆 Add-on 仓库到工作区里，并重命名为edge-ai</span></span><br><span class="line"><span class="built_in">cd</span> D:/ncs/v3.2.4</span><br><span class="line">git <span class="built_in">clone</span> -b v2.0.0 https://github.com/nrfconnect/sdk-edge-ai edge-ai</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把 manifest 切换到 Add-on</span></span><br><span class="line">west config manifest.path edge-ai</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取差异（网络失败可以重复执行，west 会断电重传）</span></span><br><span class="line">west update</span><br></pre></td></tr></table></figure>
+
+<p>完成后建议把这个工作区重命名，比如 <code>edge-ai-sdk</code>，和纯 NCS 目录区分开。</p>
+<p>切回标准 NCS 只需要把 manifest 改回来：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west config manifest.path nrf</span><br><span class="line">west update</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>验证当前 manifest 指向：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west config manifest.path</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><p><strong>west update 报 Git 文件不干净</strong></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined140feacef6b78a73f623f14704f91101.png" alt="image-20260409162727245"></p>
+<p>Windows 的 NTFS 文件系统不区分大小写，部分仓库里有大小写不一致的文件名，git checkout 时会报冲突。在报错的仓库目录里单独执行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config core.ignorecase <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<p>不建议全局设置，按需处理即可。</p>
+<p><strong>west update 中途失败</strong></p>
+<p><code>west update</code> 要拉取几十个仓库，网络抖动导致中断很正常，直接重新执行即可，已拉取的仓库不会重复下载。</p>
+<p><strong>安装完 Add-on 后，模块版本和原来不一样了</strong></p>
+<p>manifest 已切换到 Add-on，<code>west update</code> 会把所有模块（例如zephyr, mcuboot）对齐到 Add-on 的依赖版本。这是预期行为。</p>
+<h1 id="5-参考链接"><a href="#5-参考链接" class="headerlink" title="5. 参考链接"></a>5. 参考链接</h1><ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://nrfconnect.github.io/ncs-app-index/">nRF Connect SDK Add-on Index</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17794804.html">nRF Connect SDK(NCS) 安装与入门 - jayant97</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2026/04/40898fb9360c/" data-id="cmqop0ng40015y8o51esk95co" data-title="nRF Connect SDK Add-ons介绍与国内安装实践" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/jayant97.github.io/2026/04/b19b485a13d3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">一文了解Nordic边缘AI方案</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Jayant Tang<br>
+      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+  
+    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/jayant97.github.io/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

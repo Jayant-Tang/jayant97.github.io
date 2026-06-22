@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>在WSL2中搭建Matter CHIP Tool环境 | 一苇万顷</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="1. 简介本文介绍如何在Windows的WSL（Windows Subsystem for Linux）环境中搭建Matter CHIP Tool环境，无需开发者准备树莓派或原生Linux电脑。然后列举如何简单使用CHIP Tool对一台Matter设备进行测试。 阅读本文前，确保你掌握基本的Linux命令、网络、Docker知识。  目前仅测试了Matter Over Thread. 未测试Ma">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在WSL2中搭建Matter CHIP Tool环境">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/09/6376457096fe/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 简介本文介绍如何在Windows的WSL（Windows Subsystem for Linux）环境中搭建Matter CHIP Tool环境，无需开发者准备树莓派或原生Linux电脑。然后列举如何简单使用CHIP Tool对一台Matter设备进行测试。 阅读本文前，确保你掌握基本的Linux命令、网络、Docker知识。  目前仅测试了Matter Over Thread. 未测试Ma">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8dbf683c0a7a80fd73b418292e60fd2a.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/78f3021670ed1f78a44a1ba3e5479d62.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/a8cde52b539008b837a88ce344b544d9.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8cb8b417ebc6be2405d5fa4a225712c6.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/250c23524c4e8142ca271a5dba97e75a.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/44dff1cf0df15e4244ff8d9f7163b60f.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc0fdc3c2e9b8a106bef8c6402d6c5784.png">
+<meta property="article:published_time" content="2025-09-24T08:02:54.000Z">
+<meta property="article:modified_time" content="2026-06-22T03:18:34.244Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Matter">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8dbf683c0a7a80fd73b418292e60fd2a.webp">
+  
+    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-在WSL2中搭建Matter CHIP Tool环境" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/jayant97.github.io/2025/09/6376457096fe/" class="article-date">
+  <time class="dt-published" datetime="2025-09-24T08:02:54.000Z" itemprop="datePublished">2025-09-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/jayant97.github.io/categories/Matter/">Matter</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      在WSL2中搭建Matter CHIP Tool环境
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>本文介绍如何在Windows的WSL（Windows Subsystem for Linux）环境中搭建Matter CHIP Tool环境，无需开发者准备树莓派或原生Linux电脑。然后列举如何简单使用CHIP Tool对一台Matter设备进行测试。</p>
+<p>阅读本文前，确保你掌握基本的Linux命令、网络、Docker知识。</p>
+<blockquote>
+<p>目前仅测试了Matter Over Thread. 未测试Matter over Wi-Fi</p>
+</blockquote>
+<p>如果你追求快速稳定搭建CHIP Tool，不在乎搭建树莓派或Linux PC的成本，请直接参考官方文档：</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/thread/tools.html#thread_border_router">用树莓派或Docker搭建OTBR</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/matter/getting_started/tools.html#chip_tool_for_linux_or_macos">安装或编译CHIP Tool</a></li>
+</ul>
+<h1 id="2-前期准备"><a href="#2-前期准备" class="headerlink" title="2. 前期准备"></a>2. 前期准备</h1><ul>
+<li><p>一台Windows电脑，已安装WSL2 Ubuntu 24.04</p>
+<ul>
+<li>已经安装好<a target="_blank" rel="external nofollow noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/wsl/connect-usb">USBIPD</a>，可以把Windows的USB设备Attach到WSL中</li>
+<li>安装USBIPD的图形界面<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nickbeth/wsl-usb-manager/releases">wsl-usb-manager</a>，方便操作</li>
+</ul>
+</li>
+<li><p>2个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-hardware/nRF52840-Dongle">Nordic nRF52840 Dongle</a></p>
+</li>
+<li><p>一台用于测试的Matter设备，可以用烧录好Matter例程的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Technologies/Matter/Development-Hardware?lang=en#infotabs">开发板</a>代替</p>
+</li>
+<li><p>网络可访问DockerHub</p>
+</li>
+</ul>
+<blockquote>
+<p>注意：</p>
+<ol>
+<li><p>如果你之前没装过WSL2，记得安装时考虑磁盘容量</p>
+</li>
+<li><p>Windows家庭版默认不包含Hyper-V，需要自行搜索方式安装Hyper-V和WSL2</p>
+</li>
+<li><p>网络代理工具推荐开启Tun模式，这样才能代理WSL2内的网络</p>
+</li>
+<li><p>较老的WSL2 linux内核（5.x版本）可能并不包含bluetooth驱动，这里给出我的内核版本：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">uname</span> -r</span><br><span class="line">6.6.87.2-microsoft-standard-WSL2</span><br></pre></td></tr></table></figure>
+
+<p>如果你需要升级内核，在Windows中使用管理员权限运行Power Shell，执行：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">wsl <span class="literal">--update</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</blockquote>
+<h1 id="3-准备USB-Dongle"><a href="#3-准备USB-Dongle" class="headerlink" title="3. 准备USB Dongle"></a>3. 准备USB Dongle</h1><h2 id="烧录固件"><a href="#烧录固件" class="headerlink" title="烧录固件"></a>烧录固件</h2><h3 id="准备Blutooth-USB-dongle固件"><a href="#准备Blutooth-USB-dongle固件" class="headerlink" title="准备Blutooth USB dongle固件"></a>准备Blutooth USB dongle固件</h3><p>你可以自己编译：</p>
+<blockquote>
+<p>编译<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/samples/bluetooth/hci_usb/README.html#bluetooth_hci_usb">HCI USB</a>固件：<code>v3.1.0\zephyr\samples\bluetooth\hci_usb</code>，板子选择<code>nrf52840dongle/nrf52840</code></p>
+<p>编译得到的app固件路径：<code>build\hci_usb\zephyr\zephyr.hex</code></p>
+</blockquote>
+<p>也可以用我编译好的：</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/hci_usb_52840dongle_app_v3.1.0.hex">hci_usb_52840dongle_app_v3.1.0.hex</a></p>
+<h3 id="准备Thread-RCP固件"><a href="#准备Thread-RCP固件" class="headerlink" title="准备Thread RCP固件"></a>准备Thread RCP固件</h3><p>你可以自己编译：</p>
+<blockquote>
+<p>编译<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/samples/openthread/coprocessor/README.html">Thread: Co-processor</a>固件：<code>v3.1.0\nrf\samples\openthread\coprocessor</code></p>
+<p>编译得到的app固件路径：<code>build\hci_usb\zephyr\zephyr.hex</code></p>
+</blockquote>
+<p>也可以用我编译好的：</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/thread_rcp_52840dongle_app_v3.1.0.hex">thread_rcp_52840dongle_app_v3.1.0.hex</a></p>
+<h3 id="给2个52840dongle烧录固件"><a href="#给2个52840dongle烧录固件" class="headerlink" title="给2个52840dongle烧录固件"></a>给2个52840dongle烧录固件</h3><p>按住reset按钮的同时，插入USB到电脑：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8dbf683c0a7a80fd73b418292e60fd2a.webp" alt="image-20250926003620850"></p>
+<p>观察到红色呼吸灯，说明在bootloader模式。</p>
+<p>在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-Desktop/Download">nRF Connect for Desktop</a>的Programmer工具中，分别给2个dongle烧录前面的2个固件：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/78f3021670ed1f78a44a1ba3e5479d62.png" alt="image-20250924221212147"></p>
+<h2 id="把2个USB-Dongle附着到WSL2"><a href="#把2个USB-Dongle附着到WSL2" class="headerlink" title="把2个USB Dongle附着到WSL2"></a>把2个USB Dongle附着到WSL2</h2><p>先在WSL2中安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install bluez bluez-tools bluetooth usbutils</span><br></pre></td></tr></table></figure>
+
+<p>安装Nordic USB规则：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install libusb-1.0-0</span><br><span class="line"></span><br><span class="line"><span class="comment"># download from https://github.com/NordicSemiconductor/nrf-udev/releases</span></span><br><span class="line"><span class="built_in">sudo</span> dpkg -i nrf-udev_1.0.1-all.deb</span><br></pre></td></tr></table></figure>
+
+<p>检查内核是否已经有开启蓝牙驱动，如果没有就加载这个内核模块：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">lsmod | grep btusb</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> modprobe btusb</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>目前的内核版本（6.6.87.2-microsoft-standard-WSL2）应该默认就已经开启了蓝牙驱动。</p>
+</blockquote>
+<p>在Windows的WSL USB Manager中查看多出来的两个USB设备，右键点击，先bind，再Attach：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/a8cde52b539008b837a88ce344b544d9.png" alt="image-20250924221745107"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8cb8b417ebc6be2405d5fa4a225712c6.png" alt="image-20250924221849053"></p>
+<p>在WSL中检查：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ lsusb</span><br><span class="line">Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub</span><br><span class="line">Bus 001 Device 002: ID 1915:0000 Nordic Semiconductor ASA Thread Co-Processor</span><br><span class="line">Bus 001 Device 003: ID 2fe3:000b NordicSemiconductor USB-DEV</span><br><span class="line">Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub</span><br></pre></td></tr></table></figure>
+
+<p>检查Thread串口tty是否出现：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">ls</span> /dev/ttyACM*</span><br><span class="line">/dev/ttyACM0</span><br></pre></td></tr></table></figure>
+
+<p>然后检查蓝牙，你可以在<code>bluetoothctl</code>交互式命令中使用<code>power on</code>, <code>list</code>, <code>scan on</code>等进行测试，用<code>exit</code>退出：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hciconfig</span><br><span class="line">hci0:   Type: Primary  Bus: USB</span><br><span class="line">        BD Address: 00:00:00:00:00:00  ACL MTU: 27:3  SCO MTU: 0:0</span><br><span class="line">        UP RUNNING</span><br><span class="line">        RX bytes:702 acl:0 sco:0 events:62 errors:0</span><br><span class="line">        TX bytes:381 acl:0 sco:0 commands:62 errors:0</span><br><span class="line">       </span><br><span class="line">$ bluetoothctl </span><br><span class="line">Waiting to connect to bluetoothd...[bluetooth]# hci0 new_settings: powered bondable le secure-conn static-addr</span><br><span class="line">[bluetooth]# Agent registered</span><br><span class="line">[bluetooth]# [CHG] Controller C1:A2:0D:11:AE:6E Pairable: <span class="built_in">yes</span></span><br><span class="line">[bluetooth]# list</span><br><span class="line">Controller C1:A2:0D:11:AE:6E DESKTOP-KLNH3ME [default]</span><br><span class="line">[bluetooth]# power on</span><br><span class="line">[bluetooth]# Changing power on succeeded</span><br><span class="line">[bluetooth]# scan on</span><br><span class="line">[bluetooth]# SetDiscoveryFilter success</span><br><span class="line">[bluetooth]# Discovery started</span><br><span class="line">[bluetooth]# [CHG] Controller C1:A2:0D:11:AE:6E Discovering: <span class="built_in">yes</span></span><br><span class="line">[bluetooth]# [NEW] Device 6C:EC:A5:98:63:AD 6C-EC-A5-98-63-AD</span><br><span class="line">[bluetooth]# [NEW] Device D5:B7:10:B1:20:21 HB7930785605</span><br><span class="line">[bluetooth]# [NEW] Device 7A:10:6A:1A:36:14 7A-10-6A-1A-36-14</span><br><span class="line">[bluetooth]# [NEW] Device 68:D0:F4:5C:F6:F9 68-D0-F4-5C-F6-F9</span><br><span class="line">[bluetooth]# [NEW] Device 24:F1:50:56:37:10 24-F1-50-56-37-10</span><br><span class="line">[bluetooth]# [NEW] Device 26:F1:C5:BB:E7:3D 26-F1-C5-BB-E7-3D</span><br><span class="line">[bluetooth]# [NEW] Device 44:48:FF:76:DA:F3 U-BACDAF2</span><br><span class="line">[bluetooth]# [NEW] Device A0:99:21:05:6A:D5 midea</span><br><span class="line">......</span><br><span class="line">......</span><br><span class="line">[bluetooth]# <span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="4-准备CHIP-Tool可执行文件"><a href="#4-准备CHIP-Tool可执行文件" class="headerlink" title="4. 准备CHIP Tool可执行文件"></a>4. 准备CHIP Tool可执行文件</h1><p>推荐直接下载Nordic编译好的可执行文件：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nrfconnect/sdk-connectedhomeip/releases">Releases · nrfconnect&#x2F;sdk-connectedhomeip</a></p>
+<blockquote>
+<p>如果你想自己编译，参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/matter/getting_started/tools.html#chip_tool_for_linux_or_macos">CHIP Tool for Linux or macOS</a></p>
+</blockquote>
+<p>下载好可执行文件chip-tool_x64，重命名为chip-tool，添加到<code>PATH</code>环境变量，并用<code>chmod a+x chip-tool</code>增加可执行权限。</p>
+<p>确保你可以执行<code>chip-tool</code>即可。</p>
+<h1 id="5-安装OTBR-Docker"><a href="#5-安装OTBR-Docker" class="headerlink" title="5. 安装OTBR Docker"></a>5. 安装OTBR Docker</h1><p>官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/thread/tools.html#running_otbr_using_docker"><strong>Running OTBR using Docker</strong></a></p>
+<h2 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install avahi-daemon avahi-utils docker.io</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：avahi-daemon和avahi-utils是官方文档没有提到，并且WSL2中缺少的。它负责mDNS功能。</p>
+</blockquote>
+<h2 id="配置otbr网络"><a href="#配置otbr网络" class="headerlink" title="配置otbr网络"></a>配置otbr网络</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Start the Docker daemon</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create an IPv6 network for the OpenThread Border Router container in Docker</span></span><br><span class="line"><span class="built_in">sudo</span> docker network create --ipv6 --subnet fd11:db8:1::/64 -o com.docker.network.bridge.name=otbr0 otbr</span><br></pre></td></tr></table></figure>
+
+<h2 id="拉取镜像"><a href="#拉取镜像" class="headerlink" title="拉取镜像"></a>拉取镜像</h2><p>注意镜像版本(<code>fbde28a</code>)要和<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/thread/tools.html#running_otbr_using_docker">官方文档</a>最新版本一致:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker pull nrfconnect/otbr:fbde28a</span><br></pre></td></tr></table></figure>
+
+<p>检查拉取的镜像：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker image <span class="built_in">ls</span></span><br><span class="line">REPOSITORY        TAG       IMAGE ID       CREATED         SIZE</span><br><span class="line">nrfconnect/otbr   fbde28a   62c4237aa6f4   11 months ago   1.49GB</span><br></pre></td></tr></table></figure>
+
+<h2 id="运行容器"><a href="#运行容器" class="headerlink" title="运行容器"></a>运行容器</h2><p>在运行之前，确保内核加载了ipv6功能：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> modprobe ip6table_filter</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里只是一次性加载，每次重启WSL后都要执行重新加载</p>
+</blockquote>
+<p>运行容器：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> docker run -it --<span class="built_in">rm</span> --privileged --name otbr --network otbr -p 8080:80 \</span><br><span class="line">--sysctl <span class="string">&quot;net.ipv6.conf.all.disable_ipv6=0 net.ipv4.conf.all.forwarding=1 net.ipv6.conf.all.forwarding=1&quot;</span> \</span><br><span class="line">--volume <span class="string">&quot;/dev/ttyACM0:/dev/radio&quot;</span> nrfconnect/otbr:fbde28a --radio-url <span class="string">&quot;spinel+hdlc+uart:///dev/radio?uart-baudrate=1000000&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>这个容器名称是otbr，使用的网络名称也叫otbr，是前面创建的</li>
+<li><code>--rm</code>参数会让这个容器在停止时自动被删除，无需手动清理</li>
+<li>命令中的<code>/dev/ttyACM0</code>就是附着到WSL2中的Thread RCP。如果你的串口号不一样记得修改。</li>
+<li>相比于官方文档，这里部分参数我加了引号<code>&quot;</code>，这样才能让zsh等shell正常执行。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>容器运行时会占用shell终端，可以先按Ctrl+P，松开，再按Ctrl+Q，让容器去后台运行。</p>
+<p>你也可以在运行时直接加上<code>-d</code>参数，这样一开始docker就会在后台运行。</p>
+<p>后台运行的话，可以用<code>docker logs otbr</code>查看历史日志。</p>
+<p>这里介绍一些docker快捷键：</p>
+<table>
+<thead>
+<tr>
+<th align="left">快捷键</th>
+<th align="left">作用</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>Ctrl+P, Ctrl+Q</code></td>
+<td align="left">脱离容器但不停止</td>
+<td align="left"><strong>最常用</strong></td>
+</tr>
+<tr>
+<td align="left"><code>Ctrl+C</code></td>
+<td align="left">停止容器</td>
+<td align="left">发送 SIGTERM 信号</td>
+</tr>
+<tr>
+<td align="left"><code>Ctrl+Z</code></td>
+<td align="left">暂停容器</td>
+<td align="left">发送 SIGTSTP 信号</td>
+</tr>
+<tr>
+<td align="left"><code>Ctrl+D</code></td>
+<td align="left">退出容器</td>
+<td align="left">如果使用 <code>docker exec</code> 进入</td>
+</tr>
+</tbody></table>
+</blockquote>
+<h2 id="设置Thread网络"><a href="#设置Thread网络" class="headerlink" title="设置Thread网络"></a>设置Thread网络</h2><h3 id="方式一：本地网页开启Thread网络"><a href="#方式一：本地网页开启Thread网络" class="headerlink" title="方式一：本地网页开启Thread网络"></a>方式一：本地网页开启Thread网络</h3><p>OTBR容器会开启一个网页服务器，用浏览器访问 <a target="_blank" rel="external nofollow noopener noreferrer" href="http://localhost:8080/">http://localhost:8080/</a> </p>
+<p>在Form页面，记下<code>On-Mesh Prefix</code>，然后点击<code>FORM</code>开启网络：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/250c23524c4e8142ca271a5dba97e75a.png" alt="image-20250924234615593"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/44dff1cf0df15e4244ff8d9f7163b60f.png" alt="image-20250924234632166"></p>
+<p>检查Thread网络状态：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo service otbr-agent status&quot;</span></span><br><span class="line"> * otbr-agent is running</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo ot-ctl state&quot;</span></span><br><span class="line">leader</span><br><span class="line">Done</span><br></pre></td></tr></table></figure>
+
+<h3 id="方式二：命令开启Thread网络"><a href="#方式二：命令开启Thread网络" class="headerlink" title="方式二：命令开启Thread网络"></a>方式二：命令开启Thread网络</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># create new dataset</span></span><br><span class="line">docker <span class="built_in">exec</span> otbr ot-ctl dataset init new</span><br><span class="line"></span><br><span class="line"><span class="comment"># check new dataset</span></span><br><span class="line">docker <span class="built_in">exec</span> otbr ot-ctl dataset </span><br><span class="line"></span><br><span class="line"><span class="comment"># commit this dataset</span></span><br><span class="line">docker <span class="built_in">exec</span> otbr ot-ctl dataset commit active</span><br><span class="line"></span><br><span class="line"><span class="comment"># Start network</span></span><br><span class="line">docker <span class="built_in">exec</span> otbr ot-ctl ifconfig up</span><br><span class="line">docker <span class="built_in">exec</span> otbr ot-ctl thread start</span><br><span class="line"></span><br><span class="line"><span class="comment"># wait for about 7s</span></span><br><span class="line"><span class="built_in">sleep</span> 7</span><br><span class="line"></span><br><span class="line"><span class="comment"># check network state</span></span><br><span class="line">docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo ot-ctl state&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Set On-Mesh prefix: fd11:22::/64</span></span><br><span class="line">docker <span class="built_in">exec</span> -it otbr ot-ctl prefix add fd11:22::/64 paos</span><br><span class="line">docker <span class="built_in">exec</span> -it otbr ot-ctl netdata register</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="添加路由规则"><a href="#添加路由规则" class="headerlink" title="添加路由规则"></a>添加路由规则</h2><p>我们希望让chip-tool向Thread网络内的地址发出的IPv6 UDP包能被正确路由。</p>
+<p>这里要用到上一步记住的<code>On-Mesh Prefix</code>，假设是<code>fd11:22::/64</code>，添加路由：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> ip -6 route add fd11:22::/64 dev otbr0 via fd11:db8:1::2</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这是一次性添加，每次重启WSL后要重新执行</p>
+</blockquote>
+<p>检查路由表是否成功添加：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ip -6 route</span><br><span class="line">fd11:22::/64 via fd11:db8:1::2 dev otbr0 metric 1024 pref medium</span><br><span class="line">fd11:db8:1::/64 dev otbr0 proto kernel metric 256 pref medium</span><br><span class="line">fe80::/64 dev eth0 proto kernel metric 256 pref medium</span><br><span class="line">fe80::/64 dev veth2f60c62 proto kernel metric 256 pref medium</span><br><span class="line">fe80::/64 dev otbr0 proto kernel metric 256 pref medium</span><br></pre></td></tr></table></figure>
+
+<p>可以看到第一行的路由规则，所有发往<code>fd11:22::/64</code>的数据包，都将被路由到<code>otbr0</code>网卡。如果你发现重启后这一条没了，就再次执行前面的命令。</p>
+<h1 id="6-CHIP-Tool运行测试"><a href="#6-CHIP-Tool运行测试" class="headerlink" title="6. CHIP Tool运行测试"></a>6. CHIP Tool运行测试</h1><blockquote>
+<p>本节只介绍通过ble配网Matter over Thread设备。更多方式请参考官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/matter/chip_tool_guide.html#using_chip_tool_for_matter_device_testing">Using CHIP Tool for Matter device testing</a></p>
+</blockquote>
+<p>找一个开发板，编译并烧录<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-3.1.0/page/nrf/samples/matter/light_bulb/README.html">Matter: Light bulb</a>例程（<code>nrf\samples\matter\light_bulb</code>），运行，查看串口日志：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">...</span><br><span class="line">I: 238 [DL]Device Configuration:</span><br><span class="line">I: 241 [DL]  Serial Number: 11223344556677889900</span><br><span class="line">I: 245 [DL]  Vendor Id: 65521 (0xFFF1)</span><br><span class="line">I: 249 [DL]  Product Id: 32773 (0x8005)</span><br><span class="line">I: 252 [DL]  Product Name: not-specified</span><br><span class="line">I: 256 [DL]  Hardware Version: 0</span><br><span class="line">I: 259 [DL]  Setup Pin Code (0 for UNKNOWN/ERROR): 20202021</span><br><span class="line">I: 264 [DL]  Setup Discriminator (0xFFFF for UNKNOWN/ERROR): 3840 (0xF00)</span><br><span class="line">I: 271 [DL]  Manufacturing Date: 2022-01-01</span><br><span class="line">I: 275 [DL]  Device Type: 65535 (0xFFFF)</span><br><span class="line">I: 278 [SVR]SetupQRCode: [MT:6FCJ142C00KA0648G00]</span><br><span class="line">I: 283 [SVR]Copy/paste the below URL in a browser to see the QR Code:</span><br><span class="line">I: 289 [SVR]https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3A6FCJ142C00KA0648G00</span><br><span class="line">I: 298 [SVR]Manual pairing code: [34970112332]</span><br><span class="line">E: 302 [DL]Long dispatch time: 258 ms, for event type 2</span><br><span class="line">I: 309 [DL]CHIPoBLE advertising started</span><br><span class="line">I: 313 [DL]NFC Tag emulation started</span><br></pre></td></tr></table></figure>
+
+<p>灯泡这个例程是开机自动开启配网广播的，不需要操作。</p>
+<p>记录下<code>Pin Code: 20202021</code>和<code>Discriminator: 3840</code>。</p>
+<h3 id="获取当前Thread网络密钥"><a href="#获取当前Thread网络密钥" class="headerlink" title="获取当前Thread网络密钥"></a>获取当前Thread网络密钥</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo ot-ctl dataset active -x&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo ot-ctl dataset active -x&quot;</span></span><br><span class="line">0e0800000000000100004a0300001435060004001fffe00708fdc22a566b13a4e10c0402a0f7f8051000112233445566778899aabbccddeeff030e4f70656e54687265616444656d6f0410445f2b5ca6f2a93a55ce570a70efeecb000300000f0208111111112222222201021234</span><br><span class="line">Done</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意每次重启Docker容器，密钥都会发生微小的变化。记得重新获取。</p>
+</blockquote>
+<h3 id="设备入网"><a href="#设备入网" class="headerlink" title="设备入网"></a>设备入网</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool pairing ble-thread &lt;node_id&gt; hex:&lt;operational_dataset&gt; &lt;pin_code&gt; &lt;discriminator&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>node_id</code>：用户自定义的一个正数id，代表当前要绑定的设备</li>
+<li><code>hex:&lt;operational_dataset&gt;</code>：Thread网络密钥</li>
+<li><code>&lt;pin_code&gt;</code>：设备的pin code</li>
+<li><code>&lt;discriminator&gt;</code>：设备的discriminator</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool pairing ble-thread 0x101 hex:0e08000000000001000000030000114a0300001635060004001fffe00208f238904e09085f280708fdf0b133259ede240510499ab47780ab5caa763e9137e92acfa5030f4f70656e5468726561642d37313734010271740410d15cae05d12237c4be2c167faea01e5c0c0402a0f7f8 20202021 3840 --bypass-attestation-verifier <span class="literal">true</span> </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：这里使用<code>--bypass-attestation-verifier true </code>跳过了证书验证。各种测试证书、生产的正式证书设置不在本文讨论范围。</p>
+</blockquote>
+<p>最终没有错误日志输出，即可说明配网成功：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">......</span><br><span class="line">[1758729999.505] [6784:6786] [CTL] Successfully finished commissioning step <span class="string">&#x27;SendComplete&#x27;</span></span><br><span class="line">[1758729999.505] [6784:6786] [CTL] Commissioning stage next step: <span class="string">&#x27;SendComplete&#x27;</span> -&gt; <span class="string">&#x27;Cleanup&#x27;</span></span><br><span class="line">[1758729999.505] [6784:6786] [CTL] Performing next commissioning step <span class="string">&#x27;Cleanup&#x27;</span></span><br><span class="line">[1758729999.505] [6784:6786] [CTL] Successfully finished commissioning step <span class="string">&#x27;Cleanup&#x27;</span></span><br><span class="line">[1758729999.505] [6784:6786] [DIS] Closing all BLE connections</span><br><span class="line">[1758729999.505] [6784:6786] [IN] Clearing BLE pending packets.</span><br><span class="line">[1758729999.505] [6784:6786] [BLE] Auto-closing end point<span class="string">&#x27;s BLE connection.</span></span><br><span class="line"><span class="string">[1758729999.505] [6784:6786] [DL] Closing BLE GATT connection (con 0x74aa1c024530)</span></span><br><span class="line"><span class="string">[1758729999.505] [6784:6785] [DL] Close BLE connection: peer=DE:4A:50:3D:16:29</span></span><br><span class="line"><span class="string">[1758729999.661] [6784:6786] [IN] SecureSession[0x74aa140054c0]: MarkForEviction Type:1 LSID:14320</span></span><br><span class="line"><span class="string">[1758729999.661] [6784:6786] [SC] SecureSession[0x74aa140054c0, LSID:14320]: State change &#x27;</span>kActive<span class="string">&#x27; --&gt; &#x27;</span>kPendingEviction<span class="string">&#x27;</span></span><br><span class="line"><span class="string">[1758729999.661] [6784:6786] [IN] SecureSession[0x74aa140054c0]: Released - Type:1 LSID:14320</span></span><br><span class="line"><span class="string">[1758729999.661] [6784:6786] [CTL] Commissioning complete for node ID 0x0000000000000101: success</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [TOO] Device commissioning completed with success</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6785] [DL] BLE connection closed: conn=0x74aa1c024530</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [DMG] ICR moving to [AwaitingDe]</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [EM] &lt;&lt;&lt; [E:35636i S:14321 M:191290806 (Ack:148794768)] (S) Msg TX from 000000000001B669 to 1:0000000000000101 [5CA5] [UDP:[fd11:22::ae46:4779:ebf3:9b3b]:5540] --- Type 0000:10 (SecureChannel:StandaloneAck) (B:34)</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [EM] Flushed pending ack for MessageCounter:148794768 on exchange 35636i</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [DL] HandlePlatformSpecificBLEEvent 16390</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [BLE] No endpoint for unsubscribe complete</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6786] [BLE] No endpoint for connection error</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [CTL] Shutting down the commissioner</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [PAF] WiFiPAF: Closing all WiFiPAF sessions to shutdown</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [CTL] Shutting down the controller</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [IN] Expiring all sessions for fabric 0x1!!</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [IN] SecureSession[0x74aa1400e6f0]: MarkForEviction Type:2 LSID:14321</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [SC] SecureSession[0x74aa1400e6f0, LSID:14321]: State change &#x27;</span>kActive<span class="string">&#x27; --&gt; &#x27;</span>kPendingEviction<span class="string">&#x27;</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [IN] SecureSession[0x74aa1400e6f0]: Released - Type:2 LSID:14321</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [FP] Forgetting fabric 0x1</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Pending Last Known Good Time: 2023-10-14T01:16:48</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Previous Last Known Good Time: 2023-10-14T01:16:48</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Reverted Last Known Good Time to previous value</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [CTL] Shutting down the commissioner</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [PAF] WiFiPAF: Closing all WiFiPAF sessions to shutdown</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [CTL] Shutting down the controller</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [CTL] Shutting down the System State, this will teardown the CHIP Stack</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [DMG] All ReadHandler-s are clean, clear GlobalDirtySet</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [FP] Shutting down FabricTable</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Pending Last Known Good Time: 2023-10-14T01:16:48</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Previous Last Known Good Time: 2023-10-14T01:16:48</span></span><br><span class="line"><span class="string">[1758729999.662] [6784:6784] [TS] Reverted Last Known Good Time to previous value</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] Wrote settings to /tmp/chip_counters.ini</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] NVS set: chip-counters/total-operational-hours = 0 (0x0)</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] Inet Layer shutdown</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] BLE Layer shutdown</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] WiFi-PAF Layer shutdown</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [PAF] WiFiPAF: Closing all WiFiPAF sessions to shutdown</span></span><br><span class="line"><span class="string">[1758729999.666] [6784:6784] [DL] System Layer shutdown</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="控制设备测试"><a href="#控制设备测试" class="headerlink" title="控制设备测试"></a>控制设备测试</h3><p>比如控制led亮灭：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool onoff toggle &lt;node_id&gt; &lt;endpoint_id&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>node_id</code>：前面配网时，用户自己分配的一个正数ID</li>
+<li><code>endpoint_id</code>：onoff这个功能所在的endpoint。这个取决于设备端的Matter Cluster配置（使用zap-tool配置）</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-tool onoff toggle 0x101 1</span><br></pre></td></tr></table></figure>
+
+<p>反复执行此命令，能观察到开发板上led亮灭。</p>
+<p>至此，chip-tool搭建成功。</p>
+<h1 id="7-自动化脚本"><a href="#7-自动化脚本" class="headerlink" title="7. 自动化脚本"></a>7. 自动化脚本</h1><p>每次重启电脑都要重新开一遍OTBR太麻烦，这里给出一个自动化脚本:<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc0fdc3c2e9b8a106bef8c6402d6c5784.png" alt="image-20251001205804868"></p>
+<p>包含：</p>
+<ul>
+<li>硬件、内核驱动、服务检查</li>
+<li>开启OTBR docker</li>
+<li>自动FORM Thread网络</li>
+<li>自动设置On-Mesh prefix</li>
+<li>自动设置路由表</li>
+<li>自动获取Thread网络密钥</li>
+</ul>
+<p><code>otbr-start.sh</code>:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># from Thread RCP USB Dongle</span></span><br><span class="line"><span class="comment"># Nordic VID:PID = 1915:0000</span></span><br><span class="line">VID=<span class="string">&quot;1915&quot;</span></span><br><span class="line">PID=<span class="string">&quot;0000&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## dependency check</span></span><br><span class="line"><span class="built_in">echo</span> ======================================================================================================</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Checking Kernel Modules...&quot;</span></span><br><span class="line">lsmod | grep -q btusb</span><br><span class="line"><span class="keyword">if</span> [ $? -ne 0 ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">sudo</span> modprobe btusb</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">lsmod | grep -q ip6table_filter</span><br><span class="line"><span class="keyword">if</span> [ $? -ne 0 ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">sudo</span> modprobe ip6table_filter</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> ======================================================================================================</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Checking USB...&quot;</span></span><br><span class="line">lsusb | grep <span class="string">&quot;Thread Co-Processor&quot;</span></span><br><span class="line"><span class="keyword">if</span> [ $? -ne 0 ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;No Nordic Thread RCP device found. Please plug in the device and try again.&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">lsusb | grep <span class="string">&quot;NordicSemiconductor USB-DEV&quot;</span></span><br><span class="line"><span class="keyword">if</span> [ $? -ne 0 ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;No Nordic BLE device found. Please plug in the device and try again.&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># find Thread RCP tty</span></span><br><span class="line">bus_device=$(lsusb | grep <span class="string">&quot;<span class="variable">$VID</span>:<span class="variable">$PID</span>&quot;</span> | awk <span class="string">&#x27;&#123;print $2&quot;:&quot;$4&#125;&#x27;</span> | sed <span class="string">&#x27;s/://&#x27;</span> | sed <span class="string">&#x27;s/$//&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ -n <span class="string">&quot;<span class="variable">$bus_device</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    bus=$(<span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$bus_device</span>&quot;</span> | <span class="built_in">cut</span> -d<span class="string">&#x27;:&#x27;</span> -f1)</span><br><span class="line">    device=$(<span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$bus_device</span>&quot;</span> | <span class="built_in">cut</span> -d<span class="string">&#x27;:&#x27;</span> -f2)</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Find tty Device: Bus <span class="variable">$bus</span> Device <span class="variable">$device</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> otrcp_tty <span class="keyword">in</span> /dev/ttyACM*; <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">if</span> [ -e <span class="string">&quot;<span class="variable">$otrcp_tty</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">            tty_name=$(<span class="built_in">basename</span> <span class="string">&quot;<span class="variable">$otrcp_tty</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">            udev_info=$(udevadm info --name=<span class="string">&quot;<span class="variable">$otrcp_tty</span>&quot;</span> --query=property)</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$udev_info</span>&quot;</span> | grep -q <span class="string">&quot;ID_VENDOR_ID=<span class="variable">$VID</span>&quot;</span> &amp;&amp; <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$udev_info</span>&quot;</span> | grep -q <span class="string">&quot;ID_MODEL_ID=<span class="variable">$PID</span>&quot;</span>; <span class="keyword">then</span></span><br><span class="line">                <span class="built_in">echo</span> <span class="string">&quot;Matched TTY: [<span class="variable">$otrcp_tty</span>]&quot;</span></span><br><span class="line">                found=1</span><br><span class="line">            <span class="keyword">fi</span></span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [ <span class="variable">$found</span> -eq 0 ]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;USB exists, but no corresponding ttyACM interface found.&quot;</span></span><br><span class="line">        <span class="built_in">exit</span> 1</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;No USB device found with VID:PID = <span class="variable">$VID</span>:<span class="variable">$PID</span>&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> ======================================================================================================</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Checking Service...&quot;</span></span><br><span class="line">services=<span class="string">&quot;dbus bluetooth avahi-daemon docker&quot;</span></span><br><span class="line"><span class="keyword">for</span> service <span class="keyword">in</span> <span class="variable">$services</span>; <span class="keyword">do</span></span><br><span class="line">    <span class="keyword">if</span> systemctl is-active --quiet <span class="string">&quot;<span class="variable">$service</span>&quot;</span>; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;✅ <span class="variable">$service</span> - running&quot;</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;❌ <span class="variable">$service</span> - stopped&quot;</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Checking bluetooth status...&quot;</span></span><br><span class="line">hciconfig | grep <span class="string">&quot;UP RUNNING&quot;</span></span><br><span class="line"><span class="keyword">if</span> [ $? -ne 0 ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;BLE HCI dongle not working&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> ======================================================================================================</span><br><span class="line"><span class="comment">## Checking OTBR docker</span></span><br><span class="line">docker ps --filter=<span class="string">&quot;name=otbr&quot;</span> | grep -q <span class="string">&quot;otbr&quot;</span></span><br><span class="line"><span class="keyword">if</span> [ $? -eq 0 ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;OTBR still running, clear...&quot;</span></span><br><span class="line">    docker stop otbr</span><br><span class="line">    <span class="keyword">while</span> docker ps -a --filter <span class="string">&quot;name=otbr&quot;</span> | grep -q <span class="string">&quot;otbr&quot;</span>; <span class="keyword">do</span></span><br><span class="line">        <span class="built_in">sleep</span> 1</span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Starting OTBR docker</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Starting OTBR docker in the backend...&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># add `-d` to run container in the background</span></span><br><span class="line"><span class="comment"># add `--rm` to auto-remove container when it stops</span></span><br><span class="line"><span class="built_in">sudo</span> docker run -it --<span class="built_in">rm</span> -d --privileged --name otbr --network otbr -p 8080:80 \</span><br><span class="line">--sysctl <span class="string">&quot;net.ipv6.conf.all.disable_ipv6=0 net.ipv4.conf.all.forwarding=1 net.ipv6.conf.all.forwarding=1&quot;</span> \</span><br><span class="line">--volume <span class="variable">$otrcp_tty</span>:/dev/radio nrfconnect/otbr:fbde28a --radio-url spinel+hdlc+uart:///dev/radio?uart-baudrate=1000000</span><br><span class="line"></span><br><span class="line"><span class="built_in">sleep</span> 4</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; - Checking OTBR status...&quot;</span></span><br><span class="line">docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo service otbr-agent status&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Form the Thread Network</span></span><br><span class="line"><span class="built_in">echo</span> ======================================================================================================</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; - Forming Thread Network...&quot;</span></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; - Create new dataset&quot;</span></span><br><span class="line">docker <span class="built_in">exec</span> -it otbr ot-ctl dataset init new</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; - Print new dataset&quot;</span></span><br><span class="line">docker <span class="built_in">exec</span> -it otbr ot-ctl dataset</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; - Commit new dataset&quot;</span></span><br><span class="line">docker <span class="built_in">exec</span> -it otbr ot-ctl dataset commit active</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; - Bringing up Thread interface&quot;</span></span><br><span class="line">docker <span class="built_in">exec</span> -it otbr ot-ctl ifconfig up</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; - Starting Thread network&quot;</span></span><br><span class="line">docker <span class="built_in">exec</span> -it otbr ot-ctl thread start</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Waiting for Thread network forming...&quot;</span></span><br><span class="line"><span class="built_in">sleep</span> 7</span><br><span class="line">docker <span class="built_in">exec</span> -it otbr sh -c <span class="string">&quot;sudo ot-ctl state&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Add On-Mesh Prefix after network is formed</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; - Adding On-Mesh Prefix fd11:22::/64&quot;</span></span><br><span class="line">docker <span class="built_in">exec</span> -it otbr ot-ctl prefix add fd11:22::/64 paos</span><br><span class="line">docker <span class="built_in">exec</span> -it otbr ot-ctl netdata register</span><br><span class="line"></span><br><span class="line"><span class="comment"># Wait a bit for prefix propagation</span></span><br><span class="line"><span class="built_in">sleep</span> 3</span><br><span class="line"></span><br><span class="line"><span class="comment"># Get the actual On-Mesh Prefix</span></span><br><span class="line">onmesh_prefix=$(docker <span class="built_in">exec</span> -it otbr ot-ctl prefix | grep <span class="string">&quot;paos&quot;</span> | awk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span> | <span class="built_in">tr</span> -d <span class="string">&#x27;\r&#x27;</span>)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; - On-Mesh Prefix detected: <span class="variable">$onmesh_prefix</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> +e</span><br><span class="line"></span><br><span class="line"><span class="comment">## Configuring route table</span></span><br><span class="line">GATEWAY=$(docker inspect -f <span class="string">&#x27;&#123;&#123;range .NetworkSettings.Networks&#125;&#125;&#123;&#123;.GlobalIPv6Address&#125;&#125;&#123;&#123;end&#125;&#125;&#x27;</span> otbr)</span><br><span class="line"><span class="built_in">echo</span> ======================================================================================================</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Clear route table...&quot;</span></span><br><span class="line">ip -6 route show | grep <span class="string">&quot;via <span class="variable">$GATEWAY</span> dev&quot;</span> | <span class="keyword">while</span> <span class="built_in">read</span> route; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;deleted: [<span class="variable">$route</span>]&quot;</span></span><br><span class="line">    <span class="built_in">sudo</span> ip -6 route del <span class="variable">$route</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;Adding route for On-Mesh Prefix <span class="variable">$onmesh_prefix</span>...&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> ip -6 route add <span class="variable">$onmesh_prefix</span> dev otbr0 via <span class="variable">$GATEWAY</span></span><br><span class="line"></span><br><span class="line">ip -6 route show | grep <span class="string">&quot;via <span class="variable">$GATEWAY</span> dev&quot;</span> </span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> ======================================================================================================</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;OTBR network credentials for Matter provisioning:&quot;</span></span><br><span class="line">docker <span class="built_in">exec</span> otbr sh -c <span class="string">&quot;sudo ot-ctl dataset active -x&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="8-已知问题"><a href="#8-已知问题" class="headerlink" title="8. 已知问题"></a>8. 已知问题</h1><p>目前，通过USBIPD把2个USB Dongle附着到WSL中似乎已经是极限带宽。如果再额外附着一个Nordic开发板到WSL，会导致ThreadRCP无响应，进而导致OTBR配置失败。</p>
+<p>部分<code>docker exec -it otbr ot-ctl xxxx</code>命令会返回：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">connect session failed: No such file or directory</span><br></pre></td></tr></table></figure>
+
+<p>因此最好确保只有2个52840 dongle连接到WSL。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2025/09/6376457096fe/" data-id="cmqop0ng6001vy8o57w3d35b6" data-title="在WSL2中搭建Matter CHIP Tool环境" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          Matter证书体系与量产设备证书烧录
+        
+      </div>
+    </a>
+  
+  
+    <a href="/jayant97.github.io/2025/04/f1f289c546d9/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">nRF9151蜂窝模组简介与定位例程解析</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Jayant Tang<br>
+      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+  
+    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/jayant97.github.io/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

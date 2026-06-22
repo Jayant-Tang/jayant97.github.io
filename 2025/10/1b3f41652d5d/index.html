@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>在Matter中添加自己的蓝牙广播与服务 | 一苇万顷</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="1. 简介在Matter设备中添加自己的蓝牙广播和服务是常见的需求。主要来自于两个方面： 一是功能的角度，因为Matter规定了每一种设备类型只能有它固定的操作，如果厂商有特殊的配置要传给设备，是没法通过Matter传输的。因为Apple, Google, Samsung等手机的家庭APP里不会有为厂商单独配置的界面。  实际上Matter也支持厂商自定义Cluster，只不过目前各大手机的家庭A">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在Matter中添加自己的蓝牙广播与服务">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/10/1b3f41652d5d/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 简介在Matter设备中添加自己的蓝牙广播和服务是常见的需求。主要来自于两个方面： 一是功能的角度，因为Matter规定了每一种设备类型只能有它固定的操作，如果厂商有特殊的配置要传给设备，是没法通过Matter传输的。因为Apple, Google, Samsung等手机的家庭APP里不会有为厂商单独配置的界面。  实际上Matter也支持厂商自定义Cluster，只不过目前各大手机的家庭A">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7e99575576b0cf2b4da41e00a995e054.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb5958e874aa216464360d5bc9927f605.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined52b5be21062af907892d2e21c37deedc.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined9bf37427840f60ad73a8cf5660288d89.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedcbec65bc87613ac3d663fa5805e7fdb6.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined856ea6b709377794ad6d8e8ebe50685a.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined51746b4f706d5d682b2ea2016ba3a766.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb6587de7976c1524cc5c378771aaa111.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd5b2ea434f2ea7e51d6cd05e87033227.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined60067f1a4db598f3ecd1f2ccc87c6282.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedf5178032ab16701130068acb45ee84a2.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedff30110b3494195396ee7239bde87d89.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd61d2864bfe01dd42569bd24f4683874.png">
+<meta property="article:published_time" content="2025-10-21T07:50:54.000Z">
+<meta property="article:modified_time" content="2026-06-22T03:18:34.243Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Matter">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7e99575576b0cf2b4da41e00a995e054.png">
+  
+    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-在Matter中添加自己的蓝牙广播与服务" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/jayant97.github.io/2025/10/1b3f41652d5d/" class="article-date">
+  <time class="dt-published" datetime="2025-10-21T07:50:54.000Z" itemprop="datePublished">2025-10-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/jayant97.github.io/categories/Matter/">Matter</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      在Matter中添加自己的蓝牙广播与服务
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>在Matter设备中添加自己的蓝牙广播和服务是常见的需求。主要来自于两个方面：</p>
+<p>一是功能的角度，因为Matter规定了每一种设备类型只能有它固定的操作，如果厂商有特殊的配置要传给设备，是没法通过Matter传输的。因为Apple, Google, Samsung等手机的家庭APP里不会有为厂商单独配置的界面。</p>
+<blockquote>
+<p>实际上Matter也支持厂商自定义Cluster，只不过目前各大手机的家庭APP无法操作这些自定义Cluster。</p>
+</blockquote>
+<p>二是生态的角度，智能家具厂商往往都有自己的手机APP。虽然Matter出现的目标是打破生态壁垒，但厂商肯定还是不愿意放弃自己的APP生态的，主打一个“我全都要”。</p>
+<p>本文将会基于nRF Connect SDK v3.0.2说明如何在Nordic芯片平台上给Matter工程添加自己的蓝牙广播和服务。</p>
+<h1 id="2-多蓝牙广播方案分析"><a href="#2-多蓝牙广播方案分析" class="headerlink" title="2. 多蓝牙广播方案分析"></a>2. 多蓝牙广播方案分析</h1><p>对于Matter over Wi-Fi 设备，Wi-Fi和BLE不是同一个射频硬件，只要互相不干扰就行。</p>
+<p>对于Matter over Thread 设备，Nordic只需要一颗MCU，就可以实现BLE和Thread共用射频硬件，它们实际上在物理层是分时共存的：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7e99575576b0cf2b4da41e00a995e054.png" alt="image-20251021162011675"></p>
+<p>在Matter例程里，BLE广播只有2个应用场景：</p>
+<ol>
+<li>Matter配网阶段的设备发现：配网阶段，手机扫码后根据二维码信息扫描附近的BLE广播，确认要连接的是哪个设备。BLE连接后传输网络密钥，设备通过网络密钥链接到对应的网络后（Thread或者Wi-Fi），BLE的使命就结束了。设备入网后，BLE就关闭，只保留Thread或者Wi-Fi。</li>
+<li>设备OTA升级：通过Zephyr的MCUMgr SMP Server蓝牙服务升级，需要手机APP中集成了MCUMgr SMP Client来对设备进行升级。</li>
+</ol>
+<p>我们会发现例程本身就有“Matter广播与私有广播共存”的用法了，因为SMP服务并不是Matter标准规定的，而是 Zephyr 通用的BLE OTA升级方案。</p>
+<p>除此之外，nRF Connect SDK还支持多广播集（Multi ADV sets）共存，直接分时发出多个广播，可以各自具有不同的地址，从外部看起来就像是有多台BLE设备在广播一样。</p>
+<p>因此，在Matter里面添加广播，有两个方案。</p>
+<h2 id="方案一：Matter-蓝牙广播仲裁器"><a href="#方案一：Matter-蓝牙广播仲裁器" class="headerlink" title="方案一：Matter 蓝牙广播仲裁器"></a>方案一：Matter 蓝牙广播仲裁器</h2><p>Matter已经把SDK平台提供的蓝牙功能封装成了自己的API，其具体的实现位于：</p>
+<p><code>v3.0.2\modules\lib\matter\src\platform\Zephyr\BLEManagerImpl.cpp</code></p>
+<p>其中，有一个功能叫做广播仲裁器（Advertising Arbiter），是一个C++类。广播还是同一个广播，但是可以让你替换广播数据，从而实现替换广播名称、广播的UUID等等，在NCS中甚至还能改MAC地址（需要修改SDK源码）。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb5958e874aa216464360d5bc9927f605.png" alt="image-20251021165035555"></p>
+<p>这个是Matter本身就提供的功能，也是推荐使用的方案。在Matter（CHIP）协议栈初始化之后，CHIP Server启动之前，可以通过仲裁器注册一组广播请求，包含广播数据、广播间隔、回调函数、优先级等等。</p>
+<p>CHIP Server启动后，每个需要蓝牙广播的软件模块可以主动插入请求（Insert Request）或者取消请求（Cancel Request）。仲裁器会根据优先级排列当前所有的插入请求的广播，并执行优先级最高的（top-priority）广播。</p>
+<p>比如你可以这样设置优先级：</p>
+<ul>
+<li>Matter配网广播：0，最高</li>
+<li>私有BLE广播：1</li>
+<li>OTA广播：uint8_max</li>
+</ul>
+<p>当一个广播成为优先级最高的广播时，会触发提前注册好的<code>onStarted</code>回调函数；或者不再成为优先级最高的广播时，会触发提前注册好的<code>onStopped</code>回调函数。</p>
+<p>整个框架都是完善的，Matter SDK已经提供好了。全程只有一个蓝牙广播，只需切换它的内容。</p>
+<h2 id="方案二：Zephyr多广播集（Multi-ADV-sets）"><a href="#方案二：Zephyr多广播集（Multi-ADV-sets）" class="headerlink" title="方案二：Zephyr多广播集（Multi ADV sets）"></a>方案二：Zephyr多广播集（Multi ADV sets）</h2><p>Matter蓝牙仲裁器的方案有一个小缺点，就是没办法让产品一开机就同时广播Matter配网和厂商的私有蓝牙，需要用户先进行某种操作。比如，有以下几种方案：</p>
+<ul>
+<li>通过产品上的按钮来选择当前应该进行哪个广播</li>
+<li>先发出Matter配网广播，等产品配网成功后，再发出厂商自己的广播供APP连接</li>
+<li>先发出厂商自己广播，等连接完厂商的APP之后，再去APP里操作开启Matter配网广播</li>
+</ul>
+<p>如果你不能接受这个小缺点，可以看Nordic的多广播共存方案，可以直接开启多个广播：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined52b5be21062af907892d2e21c37deedc.png" alt="image-20251021170819938"></p>
+<p>这时，使用的蓝牙广播API就不是普通的<code>bt_le_adv_start()</code>，而是<code>bt_le_ext_adv_start()</code>。用这个API可以创建多个广播集。</p>
+<blockquote>
+<p>可能有人对这里的API名字中的”扩展广播“有误解，这里需要解释一下。</p>
+<p>在Bluetooth Core Spec 5.0中，有一个新特性叫做扩展广播（Extended Advertising），它其实包含四个部分：</p>
+<ol>
+<li>允许255字节的广播数据PDU和扫描响应数据PDU，但是必须位于0-36信道。原来的广播信道37, 38, 39仍然只有31字节的PDU。</li>
+<li>允许通过多个扩展广播包形成链的形式，广播至多1650字节数据 。初始的广播包在37，38，39信道，然后跳到0-36信道。</li>
+<li>允许广播有多个实例集合，这个广播实例可以是普通广播也可以是前面第1项描述的”变长“的广播</li>
+<li>新特性：周期性广播。让广播间隔不再随机，这样observer端就可以不用持续开启扫描窗口，从而节省功耗</li>
+</ol>
+<p>因此<strong>扩展广播（Extended Advertising）</strong>指的是以上4个功能，而不是很多科普文章只提到的1号的功能。</p>
+<p>参考连接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.bluetooth.com/zh-cn/bluetooth-resources/bluetooth-core-5-0-go-faster-go-further/">蓝牙™ Core 5.0功能 增强版 |蓝牙™ 技术网站</a></p>
+<p>Zephyr 的<code>bt_le_ext_adv</code> API可以实现以上所有4个功能。我们这里需要用到的是功能3。具体的链路层广播分时共存是由Nordic SoftDevice Controller自动实现的。</p>
+</blockquote>
+<p>如果要使用这个方案，就需要修改NCS中的Matter源代码，把蓝牙广播仲裁器里面使用的广播的API改成<code>bt_le_ext_adv_start()</code>。</p>
+<p>此外，扩展广播的<code>connected()</code>回调函数定义是不一样的，除了要记录<code>conn</code>之外，还能知道是从哪个广播连进来的：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined9bf37427840f60ad73a8cf5660288d89.png" alt="image-20251021183010806"></p>
+<p>实际应用开发中，我们可能有多个蓝牙业务的软件模块，每个模块里面各自有自己的广播和服务。软件模块可以各自注册不同的<code>bt_le_ext_adv_cb</code>。</p>
+<h1 id="3-多蓝牙连接与多蓝牙服务方案分析"><a href="#3-多蓝牙连接与多蓝牙服务方案分析" class="headerlink" title="3. 多蓝牙连接与多蓝牙服务方案分析"></a>3. 多蓝牙连接与多蓝牙服务方案分析</h1><p>Zephyr的蓝牙只有一个GATT Server。因此，无论你用前面的哪个蓝牙多广播方案，无论外部的BLE主机是通过哪个广播连接进来的，看到的蓝牙服务都是一样的。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedcbec65bc87613ac3d663fa5805e7fdb6.png" alt="image-20251021180814475"></p>
+<h2 id="普通广播连接时回调"><a href="#普通广播连接时回调" class="headerlink" title="普通广播连接时回调"></a>普通广播连接时回调</h2><p>在普通的蓝牙广播（<code>bt_le_adv_start()</code>）场景下，蓝牙连接成功时，在<code>connected()</code>回调函数里，一定要把<code>conn</code>记录下来作为句柄：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined856ea6b709377794ad6d8e8ebe50685a.png" alt="image-20251021181113185"></p>
+<p>如果从机被多个主机连接，开发者应该保存每个<code>conn</code>指针。后续进行GATT特征读写的时候，就靠<code>conn</code>来指定发送数据给哪个主机，同时也靠<code>conn</code>来判断数据是从哪台主机发来的。</p>
+<p>注意，这种<code>connected()</code>回调函数可以注册很多个，形成链表。当连接成功时，所有<code>connected()</code>函数会依次执行。任何软件模块都可以注册自己的<code>connected()</code>来获取蓝牙连接、断开相关的事件。</p>
+<blockquote>
+<p>代码里的<code>bt_conn_ref()</code>是给<code>conn</code>指针增加引用计数，防止其资源被操作系统自动释放。连接断开后再用<code>bt_conn_unref()</code>减少引用计数即可。</p>
+<p><strong>如果一个连接被多次引用，那么后续连接断开后，一定要释放相同的次数，否则将会出现内存泄漏</strong>。</p>
+<p>一般在<code>connected()</code>回调函数里面调用了一次<code>bt_conn_ref()</code>，那么就在<code>disconnected()</code>回调函数里面调用一次<code>bt_conn_unref()</code>即可。</p>
+<p>即使有多个软件模块各自注册了自己的<code>connected()</code>和<code>disconnected()</code>，在里面各自执行<code>bt_conn_ref()</code>和<code>bt_conn_unref()</code>也没关系。只要保证它们的数量是成对的即可</p>
+</blockquote>
+<h2 id="扩展广播连接时回调"><a href="#扩展广播连接时回调" class="headerlink" title="扩展广播连接时回调"></a>扩展广播连接时回调</h2><p>与普通广播的回调函数不同，扩展广播的<code>connected()</code>回调函数<strong>不是放在一个链表里，而是独立的。</strong></p>
+<p>这意味着，当你有多个扩展广播时，如果一个蓝牙主机连接其中一个扩展广播，那么只有那个扩展广播的<code>connected()</code>回调函数会执行，这就避免了混乱。</p>
+<blockquote>
+<p>但是如果此时还有已注册的普通<code>connected()</code>回调，还是会把整个链表都调用一遍。</p>
+</blockquote>
+<p>但是，所有的<code>disconnect()</code>回调函数仍然是处于同一个链表的。因此一定要在<code>disconnected()</code>回调函数里面判断一下当前的<code>*conn</code>句柄是不是建立连接的时候保存的那个，如果是，再进行相关释放动作。例如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">bt_le_ext_adv</span> *<span class="title">ext_adv1</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">bt_conn</span> *<span class="title">ext_conn1</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 连接时回调</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">connected1</span><span class="params">(<span class="keyword">struct</span> bt_le_ext_adv *extadv,</span></span><br><span class="line"><span class="params">              <span class="keyword">struct</span> bt_le_ext_adv_connected_info *info)</span></span><br><span class="line">&#123;</span><br><span class="line">    ext_conn1 = bt_conn_ref(info-&gt;conn);	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 给扩展广播注册connected回调</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bt_le_ext_adv_cb</span> <span class="title">adv_ext_cb1</span> =</span> &#123;</span><br><span class="line">    .connected = connected1</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 断开时</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">disconnected</span><span class="params">(<span class="keyword">struct</span> bt_conn *conn, <span class="type">uint8_t</span> reason)</span></span><br><span class="line">&#123;    </span><br><span class="line">    <span class="comment">// 连接断开不属于当前业务，不处理</span></span><br><span class="line">    <span class="keyword">if</span>(conn != ext_conn1) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加释放动作等</span></span><br><span class="line">    bt_conn_unref(ext_conn1);</span><br><span class="line">    ext_conn1 = <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 普通广播方式，不注册connected</span></span><br><span class="line">BT_CONN_CB_DEFINE(conn_callbacks) = &#123;</span><br><span class="line">    .connected    = <span class="literal">NULL</span>,</span><br><span class="line">    .disconnected = disconnected,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="4-多蓝牙地址分析"><a href="#4-多蓝牙地址分析" class="headerlink" title="4. 多蓝牙地址分析"></a>4. 多蓝牙地址分析</h1><p>要让自己的蓝牙广播和Matter共存，并且两者的蓝牙设备地址不同。</p>
+<p>Zephyr本身就支持多蓝牙地址，在Zephyr中它被称为蓝牙身份（Bluetooth Identity）。</p>
+<p>蓝牙身份保存在一个数组中，数组长度是<code>CONFIG_BT_ID_MAX</code>，默认是1。</p>
+<p>可以通过各种方式，在蓝牙协议栈初始化（<code>bt_enable()</code>）之前或之后，创建各种蓝牙地址，并保存到蓝牙身份数组。</p>
+<p>这一方面详细的介绍，请参考《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/19166250">NCS(Zephyr)中的蓝牙地址详解</a>》。</p>
+<h2 id="蓝牙广播地址切换"><a href="#蓝牙广播地址切换" class="headerlink" title="蓝牙广播地址切换"></a>蓝牙广播地址切换</h2><p>不论是普通广播还是扩展广播，在开启广播时都要使用<code>bt_le_adv_param</code>作为广播相关的配置参数。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** LE Advertising Parameters. */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bt_le_adv_param</span> &#123;</span></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * @brief Local identity.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">uint8_t</span>  id;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>广播参数结构体的第一个成员就是<code>id</code>。大多数蓝牙例程的广播参数都使用<code>0</code>作为<code>id</code>，也就是使用蓝牙身份数组的第1个身份。</p>
+<p>在开启广播的时候，我们可以修改设置广播参数中的<code>id</code>来选择自己用哪个蓝牙身份。</p>
+<h2 id="Matter使用的蓝牙身份"><a href="#Matter使用的蓝牙身份" class="headerlink" title="Matter使用的蓝牙身份"></a>Matter使用的蓝牙身份</h2><p>首先我们要明确几个要求：</p>
+<ul>
+<li>Matter标准规定，Matter的配网广播必须使用<strong>Random Static Address</strong>，且每次上电都要变化，从而确保隐私。</li>
+</ul>
+<p>在<code>v3.0.2/modules/lib/matter/src/platform/Zephyr/BLEAdvertisingArbiter.cpp</code>中，可以看到每次广播开启时都设置了使用的<code>id</code>。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined51746b4f706d5d682b2ea2016ba3a766.png" alt="image-20251026205602364"></p>
+<h2 id="Matter创建的蓝牙身份"><a href="#Matter创建的蓝牙身份" class="headerlink" title="Matter创建的蓝牙身份"></a>Matter创建的蓝牙身份</h2><p>前面使用的<code>sBtIid</code>是在<code>v3.0.2/modules/lib/matter/src/platform/Zephyr/BLEManagerImpl.cpp</code>中赋值的：</p>
+<p>在<code>CHIP_ERROR BLEManagerImpl::_Init()</code>函数中，有：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_BT_BONDABLE</span></span><br><span class="line">    <span class="type">bt_addr_le_t</span> idsAddr[CONFIG_BT_ID_MAX];</span><br><span class="line">    <span class="type">size_t</span> idsCount = CONFIG_BT_ID_MAX;</span><br><span class="line"></span><br><span class="line">    err = <span class="built_in">bt_enable</span>(<span class="literal">nullptr</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">VerifyOrReturnError</span>(err == <span class="number">0</span>, <span class="built_in">MapErrorZephyr</span>(err));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">settings_load</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">bt_id_get</span>(idsAddr, &amp;idsCount);</span><br><span class="line"></span><br><span class="line">    err = <span class="built_in">InitRandomStaticAddress</span>(idsCount &gt; <span class="number">1</span>, id);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">VerifyOrReturnError</span>(err == <span class="number">0</span> &amp;&amp; id == kMatterBleIdentity, <span class="built_in">MapErrorZephyr</span>(err));</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">    err = <span class="built_in">InitRandomStaticAddress</span>(<span class="literal">false</span>, id);</span><br><span class="line">    <span class="built_in">VerifyOrReturnError</span>(err == <span class="number">0</span> &amp;&amp; id == kMatterBleIdentity, <span class="built_in">MapErrorZephyr</span>(err));</span><br><span class="line">    err = <span class="built_in">bt_enable</span>(<span class="literal">nullptr</span>);</span><br><span class="line">    <span class="built_in">VerifyOrReturnError</span>(err == <span class="number">0</span>, <span class="built_in">MapErrorZephyr</span>(err));</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">// CONFIG_BT_BONDABLE</span></span></span><br></pre></td></tr></table></figure>
+
+<p>首先，Matter的蓝牙广播是不允许绑定的。Matter协议栈会根据系统的其他蓝牙广播是否支持绑定（<code>CONFIG_BT_BONDABLE</code>）来执行不同的初始化过程：</p>
+<ul>
+<li><p>如果系统没有蓝牙绑定功能，则在<code>bt_enable()</code>之前先尝试用随机数创建<code>id=0</code>的蓝牙身份</p>
+</li>
+<li><p>如果系统有蓝牙绑定功能，则先等<code>bt_enable()</code>和<code>settings_load()</code>创建<code>id=0</code>创建蓝牙身份，然后Matter再用随机数创建<code>id=1</code>的蓝牙身份</p>
+</li>
+</ul>
+<p>创建完毕后，在初始化Matter蓝牙广播仲裁器时传入参数，给<code>sBtId</code>赋值：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">BLEAdvertisingArbiter::<span class="built_in">Init</span>(<span class="built_in">static_cast</span>&lt;<span class="type">uint8_t</span>&gt;(id));</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，不要直接打开或者关闭<code>CONFIG_BT_BONDABLE</code>。这只是一个中间的临时选项。</p>
+<p>要开启蓝牙绑定功能：开启<code>CONFIG_BT_SMP=y</code>，它会自动select开启<code>CONFIG_BT_BONDABLE</code>。</p>
+</blockquote>
+<h1 id="5-双蓝牙共存方案实例"><a href="#5-双蓝牙共存方案实例" class="headerlink" title="5. 双蓝牙共存方案实例"></a>5. 双蓝牙共存方案实例</h1><p>基于前面对Matter源代码的分析，以及《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/19166250">NCS(Zephyr)中的蓝牙地址详解</a>》中对Zephyr初始化蓝牙地址的介绍。我们会发现双蓝牙地址共存的方案有很多影响因素：</p>
+<ol>
+<li>使用前面介绍的“蓝牙仲裁器方案”或“多扩展广播方案”？</li>
+<li>自己的蓝牙服务是否需要绑定？</li>
+<li>自己的私有蓝牙广播是否需要使用公共地址（Public Address）？</li>
+<li>自己的芯片是单核蓝牙SoC（如nRF54L15）还是双核蓝牙SoC（如nRF5340）？</li>
+</ol>
+<p>这样一共是2×2×2×2，有16种可能性的组合，实在太多，本文无法一一分析介绍。</p>
+<p>本文在这里列出2种比较常见的方案，读者可以举一反三，实现自己的多蓝牙地址方案。</p>
+<h2 id="案例一：“蓝牙仲裁器方案”-需绑定-使用公共地址-单核SoC"><a href="#案例一：“蓝牙仲裁器方案”-需绑定-使用公共地址-单核SoC" class="headerlink" title="案例一：“蓝牙仲裁器方案” + 需绑定 + 使用公共地址 + 单核SoC"></a>案例一：“蓝牙仲裁器方案” + 需绑定 + 使用公共地址 + 单核SoC</h2><h3 id="（1）设置两个地址"><a href="#（1）设置两个地址" class="headerlink" title="（1）设置两个地址"></a>（1）设置两个地址</h3><p>首先，设置:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_BT_ID_MAX=2</span><br><span class="line">CONFIG_BT_SMP=y</span><br><span class="line">CONFIG_BT_MAX_CONN=2</span><br></pre></td></tr></table></figure>
+
+<p><code>#include &lt;zephyr/bluetooth/controller.h&gt;</code></p>
+<p>单核Soc，直接在Matter初始化之前设置公共地址到Controller层。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb6587de7976c1524cc5c378771aaa111.png" alt="image-20251027150520780"></p>
+<p>由于我们开启了蓝牙绑定<code>CONFIG_BT_SMP=y</code>功能，Matter协议栈里面会先执行<code>bt_enable()</code>和<code>settings_load()</code>，从而设置好<code>id=0</code>的蓝牙公共地址。</p>
+<p>然后Matter会再创建自己用的<code>id=1</code>的随机静态地址。</p>
+<h3 id="（2）使用广播仲裁器编写自己的蓝牙广播c-代码"><a href="#（2）使用广播仲裁器编写自己的蓝牙广播c-代码" class="headerlink" title="（2）使用广播仲裁器编写自己的蓝牙广播c++代码"></a>（2）使用广播仲裁器编写自己的蓝牙广播c++代码</h3><p>写了一个c++类<code>AppBle</code>，使用单例模式，部分代码：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">BT_CONN_CB_DEFINE</span>(conn_callbacks) = &#123;</span><br><span class="line">    .connected = AppBle::Connected,</span><br><span class="line">    .disconnected = AppBle::Disconnected,</span><br><span class="line">    .le_param_updated = AppBle::LeParamUpdated,</span><br><span class="line">    .security_changed = AppBle::SecurityChanged,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">uint8_t</span> kFlags = BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">uint8_t</span> k_ccs_uuid[] = &#123;BT_COMMUNICATION_SERVICE&#125;;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">char</span> k_adv_name[] = <span class="string">&quot;My_ADV&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> ::chip;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> ::chip::DeviceLayer;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">AppBle::Init</span><span class="params">(<span class="type">uint8_t</span> priority)</span></span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="comment">// 设置广播数据，以及当前广播成为top广播时的回调函数</span></span><br><span class="line">    mAdvData[<span class="number">0</span>] = <span class="built_in">BT_DATA</span>(BT_DATA_FLAGS, &amp;kFlags, <span class="built_in">sizeof</span>(kFlags));</span><br><span class="line">    mAdvData[<span class="number">1</span>] = <span class="built_in">BT_DATA</span>(BT_DATA_NAME_COMPLETE, k_adv_name, <span class="built_in">static_cast</span>&lt;<span class="type">uint8_t</span>&gt;(<span class="built_in">strlen</span>(k_adv_name)));    </span><br><span class="line">    mScanRespData[<span class="number">0</span>] = <span class="built_in">BT_DATA</span>(BT_DATA_UUID128_ALL, k_ccs_uuid,  <span class="built_in">sizeof</span>(k_ccs_uuid));</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 使用public地址时，广播参数要携带 BT_LE_ADV_OPT_USE_IDENTITY</span></span><br><span class="line">    mAdvertisingRequest.priority = priority;</span><br><span class="line">    mAdvertisingRequest.options = (BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN);</span><br><span class="line">    mAdvertisingRequest.minInterval = mAdvIntervalMin;</span><br><span class="line">    mAdvertisingRequest.maxInterval = mAdvIntervalMax;</span><br><span class="line">    mAdvertisingRequest.advertisingData = ::chip::<span class="built_in">Span</span>&lt;bt_data&gt;(mAdvData);</span><br><span class="line">    mAdvertisingRequest.scanResponseData = ::chip::<span class="built_in">Span</span>&lt;bt_data&gt;(mScanRespData);</span><br><span class="line"></span><br><span class="line">    mAdvertisingRequest.onStarted = [](<span class="type">int</span> rc) &#123;</span><br><span class="line">        <span class="keyword">if</span> (rc == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="built_in">Instance</span>().mIsStarted = <span class="literal">true</span>;</span><br><span class="line">            <span class="built_in">LOG_INF</span>(<span class="string">&quot;private advertising started.&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">LOG_ERR</span>(<span class="string">&quot;Failed to start Private BLE advertising: %d&quot;</span>, rc);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    mAdvertisingRequest.onStopped = []() &#123;</span><br><span class="line">        <span class="built_in">Instance</span>().mIsStarted = <span class="literal">false</span>;</span><br><span class="line">        <span class="built_in">LOG_INF</span>(<span class="string">&quot;Private advertising stopped.&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief 向Matter BLE仲裁器申请开启广播. 当没有优先级更高的广播时,将适用本广播的数据和参数</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">AppBle::StartServer</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">Instance</span>().mConn = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">PlatformMgr</span>().<span class="built_in">LockChipStack</span>();</span><br><span class="line">    CHIP_ERROR ret = BLEAdvertisingArbiter::<span class="built_in">InsertRequest</span>(mAdvertisingRequest);</span><br><span class="line">    <span class="built_in">PlatformMgr</span>().<span class="built_in">UnlockChipStack</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (CHIP_NO_ERROR != ret) &#123;</span><br><span class="line">        <span class="built_in">LOG_ERR</span>(<span class="string">&quot;Could not start private advertising&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief 向Matter BLE仲裁器申请关闭当前广播.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppBle::StopServer</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!mIsStarted)&#123;</span><br><span class="line">        <span class="built_in">LOG_WRN</span>(<span class="string">&quot;private ADV was already stopped&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">PlatformMgr</span>().<span class="built_in">LockChipStack</span>();</span><br><span class="line">    BLEAdvertisingArbiter::<span class="built_in">CancelRequest</span>(mAdvertisingRequest);</span><br><span class="line">    <span class="built_in">PlatformMgr</span>().<span class="built_in">UnlockChipStack</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppBle::Connected</span><span class="params">(bt_conn *conn, <span class="type">uint8_t</span> err)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Instance</span>().mIsStarted) &#123;</span><br><span class="line">        <span class="keyword">if</span> (err || !conn) &#123;</span><br><span class="line">            <span class="built_in">LOG_ERR</span>(<span class="string">&quot;private ADV connection failed (err %u)&quot;</span>, err);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">LOG_INF</span>(<span class="string">&quot;## private ADV connected: %s ##&quot;</span>, <span class="built_in">LogAddress</span>(conn));</span><br><span class="line">        <span class="built_in">LOG_INF</span>(<span class="string">&quot;Will disconnect if no data transfer after %ds&quot;</span>, AppBle::<span class="built_in">Instance</span>().mDisconnectTimeout);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 保存当前连接</span></span><br><span class="line">        <span class="built_in">Instance</span>().mConn = <span class="built_in">bt_conn_ref</span>(conn);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 发起绑定</span></span><br><span class="line">        <span class="built_in">bt_conn_set_security</span>(conn, BT_SECURITY_L3);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppBle::Disconnected</span><span class="params">(bt_conn *conn, <span class="type">uint8_t</span> reason)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">Instance</span>().mIsStarted) &#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;private Adv not started&quot;</span>);</span><br><span class="line">        <span class="built_in">Instance</span>().mConn = <span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (conn != <span class="built_in">Instance</span>().mConn) &#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;Not private Connection&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">LOG_INF</span>(<span class="string">&quot;## private ADV disconnected: %s&quot;</span>, <span class="built_in">LogAddress</span>(conn));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">Instance</span>().mConn != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">        <span class="built_in">bt_conn_unref</span>(<span class="built_in">Instance</span>().mConn);</span><br><span class="line">        <span class="built_in">Instance</span>().mConn = <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppBle::SecurityChanged</span><span class="params">(bt_conn *conn, <span class="type">bt_security_t</span> level, <span class="keyword">enum</span> bt_security_err err)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">Instance</span>().mIsStarted)&#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;private Adv not started&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (conn != <span class="built_in">Instance</span>().mConn) &#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;Not private Connection&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!err) &#123;</span><br><span class="line">        <span class="built_in">LOG_INF</span>(<span class="string">&quot;BT Security changed: %s level %u&quot;</span>, <span class="built_in">LogAddress</span>(conn), level);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">LOG_ERR</span>(<span class="string">&quot;BT Security failed: level %u err %d&quot;</span>, level, err);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppBle::LeParamUpdated</span><span class="params">(<span class="keyword">struct</span> bt_conn *conn, <span class="type">uint16_t</span> interval, <span class="type">uint16_t</span> latency, <span class="type">uint16_t</span> timeout)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">Instance</span>().mIsStarted)&#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;private Adv not started&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (conn != <span class="built_in">Instance</span>().mConn) &#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;Not private Connection&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">LOG_INF</span>(<span class="string">&quot;private ADV conn interval changed with %s&quot;</span>, <span class="built_in">LogAddress</span>(conn));</span><br><span class="line">    <span class="built_in">LOG_INF</span>(<span class="string">&quot;interval=%d, latency=%d, timeout=%d&quot;</span>, interval, latency, timeout);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">char</span>* <span class="title">AppBle::LogAddress</span><span class="params">(bt_conn *conn)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> CONFIG_LOG</span></span><br><span class="line">    <span class="type">static</span> <span class="type">char</span> addr[BT_ADDR_LE_STR_LEN];</span><br><span class="line">    <span class="built_in">bt_addr_le_to_str</span>(<span class="built_in">bt_conn_get_dst</span>(conn), addr, <span class="built_in">sizeof</span>(addr));</span><br><span class="line">    <span class="keyword">return</span> addr;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后在<code>AppTask.cpp</code>中，注册自己的私有广播：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">CHIP_ERROR <span class="title">AppTask::Init</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* Initialize Matter stack */</span></span><br><span class="line">    <span class="built_in">ReturnErrorOnFailure</span>(Nrf::Matter::<span class="built_in">PrepareServer</span>());</span><br><span class="line"></span><br><span class="line">    <span class="built_in">ReturnErrorOnFailure</span>(Nrf::Matter::<span class="built_in">RegisterEventHandler</span>(AppTask::DefaultMatterEventHandler, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化私有广播，优先级1，比Matter配网广播更低</span></span><br><span class="line">    AppBle::<span class="built_in">Instance</span>().<span class="built_in">Init</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 开启蓝牙配网广播，任务入队列</span></span><br><span class="line">    Nrf::<span class="built_in">PostTask</span>([] &#123;</span><br><span class="line">        AppTask::<span class="built_in">Instance</span>().<span class="built_in">StartBLEAdvertisement</span>();</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 开启私有广播，任务入队列</span></span><br><span class="line">    Nrf::<span class="built_in">PostTask</span>([] &#123;</span><br><span class="line">        AppBle::<span class="built_in">Instance</span>().<span class="built_in">StartServer</span>();</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 启动Matter协议栈</span></span><br><span class="line">    <span class="keyword">return</span> Nrf::Matter::<span class="built_in">StartServer</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="（3）修改广播仲裁器源码"><a href="#（3）修改广播仲裁器源码" class="headerlink" title="（3）修改广播仲裁器源码"></a>（3）修改广播仲裁器源码</h3><p>在<code>v3.0.2/modules/lib/matter/src/platform/Zephyr/BLEAdvertisingArbiter.h</code></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd5b2ea434f2ea7e51d6cd05e87033227.png" alt="image-20251027153951723"></p>
+<p>修改广播仲裁器源码，当检测到广播参数包含我们设置的<code>BT_LE_ADV_OPT_USE_IDENTITY</code>时，就临时切换到<code>id=0</code>的蓝牙身份（公共地址）。其他情况下，就正常使用Matter自己的<code>id=1</code>的蓝牙身份。</p>
+<blockquote>
+<p>蓝牙广播仲裁器方案的优势是，对SDK的修改最少，只有上面展示的部分。并且这种修改完全不影响正常的Matter例程</p>
+</blockquote>
+<h2 id="案例二：“扩展广播方案”-需绑定-使用公共地址-双核SoC"><a href="#案例二：“扩展广播方案”-需绑定-使用公共地址-双核SoC" class="headerlink" title="案例二：“扩展广播方案” + 需绑定 + 使用公共地址 + 双核SoC"></a>案例二：“扩展广播方案” + 需绑定 + 使用公共地址 + 双核SoC</h2><h3 id="（1）设置两个地址-1"><a href="#（1）设置两个地址-1" class="headerlink" title="（1）设置两个地址"></a>（1）设置两个地址</h3><p>首先，设置:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_BT_ID_MAX=2</span><br><span class="line">CONFIG_BT_SMP=y</span><br></pre></td></tr></table></figure>
+
+<p>由于是双核SoC，必须在<code>bt_enable()</code>和<code>settings_load()</code>之间用HCI命令设置公共地址。</p>
+<p>在<code>v3.0.2/modules/lib/matter/src/platform/Zephyr/BLEManagerImpl.cpp</code>中：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined60067f1a4db598f3ecd1f2ccc87c6282.png" alt="image-20251027154808135"></p>
+<p>由于我们开启了蓝牙绑定<code>CONFIG_BT_SMP=y</code>功能，把《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/19166250">NCS(Zephyr)中的蓝牙地址详解</a>》介绍的HCI设置公共地址的函数插入到上图的位置。那么在<code>settings_load()</code>时就会自动创建<code>id=0</code>的公共地址蓝牙身份。在后续的<code>InitRandomStaticAddress()</code>中，会创建<code>id=1</code>的静态随机地址蓝牙身份，供Matter使用。</p>
+<h3 id="（2）把Matter广播改成扩展广播"><a href="#（2）把Matter广播改成扩展广播" class="headerlink" title="（2）把Matter广播改成扩展广播"></a>（2）把Matter广播改成扩展广播</h3><p>先设置</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_BT_EXT_ADV=y</span><br><span class="line">CONFIG_BT_EXT_ADV_MAX_ADV_SET=2</span><br><span class="line">CONFIG_BT_MAX_CONN=2</span><br></pre></td></tr></table></figure>
+
+<p><code>v3.0.2\modules\lib\matter\src\platform\Zephyr\BLEManagerImpl.h</code>:</p>
+<p>把connected回调函数从C++私有成员（private）改成C++公共成员（public）。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedf5178032ab16701130068acb45ee84a2.png" alt="image-20251027155806635"></p>
+<p><code>v3.0.2\modules\lib\matter\src\platform\Zephyr\BLEManagerImpl.cpp</code>：</p>
+<p>把connected回调函数取消注册，因为后面要在扩展广播里面注册：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedff30110b3494195396ee7239bde87d89.png" alt="image-20251027155919624"></p>
+<p>先extern声明一下：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> bt_conn *matter_conn;</span><br></pre></td></tr></table></figure>
+
+<p>然后在disconnected回调函数中，添加判断：当前断开事件是不是属于Matter广播的断开事件，如果不是就不管。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd61d2864bfe01dd42569bd24f4683874.png" alt="image-20251027160111687"></p>
+<p>最后是<code>v3.0.2\modules\lib\matter\src\platform\Zephyr\BLEAdvertisingArbiter.cpp</code>，这个改动就太大了，直接贴全部代码：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    Copyright (c) 2023 Project CHIP Authors</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="line"><span class="comment"> *    you may not use this file except in compliance with the License.</span></span><br><span class="line"><span class="comment"> *    You may obtain a copy of the License at</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *        http://www.apache.org/licenses/LICENSE-2.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    Unless required by applicable law or agreed to in writing, software</span></span><br><span class="line"><span class="comment"> *    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span></span><br><span class="line"><span class="comment"> *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span></span><br><span class="line"><span class="comment"> *    See the License for the specific language governing permissions and</span></span><br><span class="line"><span class="comment"> *    limitations under the License.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;BLEAdvertisingArbiter.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;lib/support/CodeUtils.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;lib/support/logging/CHIPLogging.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;platform/CHIPDeviceLayer.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;platform/Zephyr/BLEManagerImpl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;system/SystemError.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/bluetooth/conn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">bt_le_ext_adv *matter_ext_adv = <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">bt_conn</span> *matter_conn = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">matter_ext_adv_connected_cb</span><span class="params">(<span class="keyword">struct</span> bt_le_ext_adv *extadv,</span></span></span><br><span class="line"><span class="params"><span class="function">              <span class="keyword">struct</span> bt_le_ext_adv_connected_info *info)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    __ASSERT(extadv == matter_ext_adv, <span class="string">&quot;Matter adv wrong&quot;</span>);</span><br><span class="line">    <span class="built_in">printk</span>(<span class="string">&quot;## Matter ext adv connected %p ##\n&quot;</span>, info-&gt;conn);</span><br><span class="line">    matter_conn = info-&gt;conn;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// move the original connected() callback here</span></span><br><span class="line">    chip::DeviceLayer::Internal::BLEManagerImpl::<span class="built_in">HandleConnect</span>(matter_conn, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">bt_le_ext_adv_cb</span> adv_matter_cb = &#123;</span><br><span class="line">    .connected = matter_ext_adv_connected_cb</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> chip &#123;</span><br><span class="line"><span class="keyword">namespace</span> DeviceLayer &#123;</span><br><span class="line"><span class="keyword">namespace</span> BLEAdvertisingArbiter &#123;</span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// List of advertising requests ordered by priority</span></span><br><span class="line"><span class="type">sys_slist_t</span> sRequests;</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> sIsInitialized    = <span class="literal">false</span>;</span><br><span class="line"><span class="type">bool</span> sWasDisconnection = <span class="literal">false</span>;</span><br><span class="line"><span class="type">uint8_t</span> sBtId          = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Cast an intrusive list node to the containing request object</span></span><br><span class="line"><span class="function"><span class="type">const</span> BLEAdvertisingArbiter::Request &amp; <span class="title">ToRequest</span><span class="params">(<span class="type">const</span> <span class="type">sys_snode_t</span> * node)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> *<span class="built_in">static_cast</span>&lt;<span class="type">const</span> BLEAdvertisingArbiter::Request *&gt;(node);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Notify application about stopped advertising if the callback has been provided</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">NotifyAdvertisingStopped</span><span class="params">(<span class="type">const</span> <span class="type">sys_snode_t</span> * node)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">VerifyOrReturn</span>(node);</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> Request &amp; request = <span class="built_in">ToRequest</span>(node);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (request.onStopped != <span class="literal">nullptr</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        request.<span class="built_in">onStopped</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Restart advertising using the top-priority request</span></span><br><span class="line"><span class="function">CHIP_ERROR <span class="title">RestartAdvertising</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line">    <span class="type">static</span> <span class="type">bool</span> first_time = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (first_time) &#123;</span><br><span class="line">        first_time = <span class="literal">false</span>; </span><br><span class="line">        bt_le_adv_param first_param = <span class="built_in">BT_LE_ADV_PARAM_INIT</span>(BT_LE_ADV_OPT_CONN, BT_GAP_ADV_FAST_INT_MIN_1, BT_GAP_ADV_FAST_INT_MAX_1,<span class="literal">NULL</span>);</span><br><span class="line">        first_param.id = sBtId;</span><br><span class="line">        err = <span class="built_in">bt_le_ext_adv_create</span>(&amp;first_param, &amp;adv_matter_cb, &amp;matter_ext_adv);</span><br><span class="line">        <span class="keyword">if</span> (err)&#123;</span><br><span class="line">            <span class="built_in">printk</span>(<span class="string">&quot;===Failed to create a connectable advertising set (err %d)\n&quot;</span>, err);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Note: bt_le_adv_stop() returns success when the advertising was not started</span></span><br><span class="line">    <span class="comment">//ReturnErrorOnFailure(System::MapErrorZephyr(bt_le_adv_stop()));</span></span><br><span class="line">    <span class="built_in">ReturnErrorOnFailure</span>(System::<span class="built_in">MapErrorZephyr</span>(<span class="built_in">bt_le_ext_adv_stop</span>(matter_ext_adv)));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">ReturnErrorCodeIf</span>(<span class="built_in">sys_slist_is_empty</span>(&amp;sRequests), CHIP_NO_ERROR);</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> Request &amp; top    = <span class="built_in">ToRequest</span>(<span class="built_in">sys_slist_peek_head</span>(&amp;sRequests));</span><br><span class="line">    bt_le_adv_param params = <span class="built_in">BT_LE_ADV_PARAM_INIT</span>(top.options, top.minInterval, top.maxInterval, <span class="literal">nullptr</span>);</span><br><span class="line">    params.id              = sBtId;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** Change to ext_adv instead of normal one */</span>   </span><br><span class="line">    <span class="comment">// const int result = bt_le_adv_start(&amp;params, top.advertisingData.data(), top.advertisingData.size(), top.scanResponseData.data(),</span></span><br><span class="line">    <span class="comment">//                                    top.scanResponseData.size());</span></span><br><span class="line"></span><br><span class="line">    err = <span class="built_in">bt_le_ext_adv_set_data</span>(matter_ext_adv, top.advertisingData.<span class="built_in">data</span>(), top.advertisingData.<span class="built_in">size</span>(), top.scanResponseData.<span class="built_in">data</span>(),</span><br><span class="line">                                       top.scanResponseData.<span class="built_in">size</span>());</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;===Failed to set advertising data (err %d)\n&quot;</span>, err);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    err = <span class="built_in">bt_le_ext_adv_update_param</span>(matter_ext_adv, &amp;params);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;===Update Matter adv param (err %d)\n&quot;</span>, err);		</span><br><span class="line">    &#125;		</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> result = <span class="built_in">bt_le_ext_adv_start</span>(matter_ext_adv, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;===Failed to start advertising (err %d)\n&quot;</span>, err);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (result &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">ChipLogProgress</span>(DeviceLayer, <span class="string">&quot;Advertising start failed, will retry once connection is released&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (top.onStarted != <span class="literal">nullptr</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        top.<span class="built_in">onStarted</span>(result);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> System::<span class="built_in">MapErrorZephyr</span>(result);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">BT_CONN_CB_DEFINE</span>(conn_callbacks) = &#123;</span><br><span class="line">    .disconnected = [](<span class="keyword">struct</span> bt_conn * conn, <span class="type">uint8_t</span> reason) &#123; sWasDisconnection = <span class="literal">true</span>; &#125;,</span><br><span class="line">    .recycled =</span><br><span class="line">        []() &#123;</span><br><span class="line">            <span class="comment">// In this callback the connection object was returned to the pool and we can try to re-start connectable</span></span><br><span class="line">            <span class="comment">// advertising, but only if the disconnection was detected.</span></span><br><span class="line">            <span class="keyword">if</span> (sWasDisconnection)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">SystemLayer</span>().<span class="built_in">ScheduleLambda</span>([] &#123;</span><br><span class="line">                    <span class="keyword">if</span> (!<span class="built_in">sys_slist_is_empty</span>(&amp;sRequests))</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="comment">// Starting from Zephyr 4.0 Automatic advertiser resumption is deprecated,</span></span><br><span class="line">                        <span class="comment">// so the BLE Advertising Arbiter has to take over the responsibility of restarting the advertiser.</span></span><br><span class="line">                        <span class="comment">// Restart advertising in this callback if there are pending requests after the connection is released.</span></span><br><span class="line">                        <span class="built_in">RestartAdvertising</span>();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">                <span class="comment">// Reset the disconnection flag to avoid restarting advertising multiple times</span></span><br><span class="line">                sWasDisconnection = <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">&#125;;</span><br><span class="line">&#125; <span class="comment">// namespace</span></span><br><span class="line"></span><br><span class="line"><span class="function">CHIP_ERROR <span class="title">Init</span><span class="params">(<span class="type">uint8_t</span> btId)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (sIsInitialized)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> CHIP_ERROR_INCORRECT_STATE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    sBtId          = btId;</span><br><span class="line">    sIsInitialized = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> CHIP_NO_ERROR;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">CHIP_ERROR <span class="title">InsertRequest</span><span class="params">(Request &amp; request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!sIsInitialized)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> CHIP_ERROR_INCORRECT_STATE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">CancelRequest</span>(request);</span><br><span class="line"></span><br><span class="line">    <span class="type">sys_snode_t</span> * prev = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="type">sys_snode_t</span> * node = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Find position of the request in the list that preserves ordering by priority</span></span><br><span class="line">    <span class="built_in">SYS_SLIST_FOR_EACH_NODE</span>(&amp;sRequests, node)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (request.priority &lt; <span class="built_in">ToRequest</span>(node).priority)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        prev = node;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (prev == <span class="literal">nullptr</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">NotifyAdvertisingStopped</span>(<span class="built_in">sys_slist_peek_head</span>(&amp;sRequests));</span><br><span class="line">        <span class="built_in">sys_slist_prepend</span>(&amp;sRequests, &amp;request);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">sys_slist_insert</span>(&amp;sRequests, prev, &amp;request);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If the request is top-priority, restart the advertising</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">sys_slist_peek_head</span>(&amp;sRequests) == &amp;request)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">RestartAdvertising</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> CHIP_NO_ERROR;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">CancelRequest</span><span class="params">(Request &amp; request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!sIsInitialized)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> <span class="type">bool</span> isTopPriority = (<span class="built_in">sys_slist_peek_head</span>(&amp;sRequests) == &amp;request);</span><br><span class="line">    <span class="built_in">VerifyOrReturn</span>(<span class="built_in">sys_slist_find_and_remove</span>(&amp;sRequests, &amp;request));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If cancelled request was top-priority, restart the advertising.</span></span><br><span class="line">    <span class="keyword">if</span> (isTopPriority)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">RestartAdvertising</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125; <span class="comment">// namespace BLEAdvertisingArbiter</span></span><br><span class="line">&#125; <span class="comment">// namespace DeviceLayer</span></span><br><span class="line">&#125; <span class="comment">// namespace chip</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>主要思路：</p>
+<ol>
+<li>一开始要用<code>bt_le_ext_adv_create</code>创建扩展广播</li>
+<li>广播停止的API要改成扩展广播停止API</li>
+<li>广播启动API要改成一系列扩展广播的数据更新、参数更新、扩展广播启动API。注意到广播参数中的id用的是<code>sBtId</code>，也就是<code>1</code>.</li>
+<li>要在扩展广播专属的connected回调函数中，调用前一步我们取消注册的Matter自己的<code>HandleConnect</code>函数。这也是为什么前面我们要把它改成C++公共成员。</li>
+</ol>
+<h3 id="（3）再添加自己的扩展广播"><a href="#（3）再添加自己的扩展广播" class="headerlink" title="（3）再添加自己的扩展广播"></a>（3）再添加自己的扩展广播</h3><p>前一步修改已经让Matter可以运行了。再在自己的文件里等待蓝牙初始化完成，然后创建自己的广播即可：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/bluetooth/bluetooth.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/bluetooth/conn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">bt_le_ext_adv *my_ext_adv = <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">bt_conn</span> *my_conn = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">uint8_t</span> mfg_data[] = &#123; <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0x30</span>,<span class="number">0x31</span>,<span class="number">0x32</span>,<span class="number">0x33</span>&#125;;</span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="keyword">struct</span> <span class="title class_">bt_data</span> ad[] = &#123;</span><br><span class="line">    <span class="built_in">BT_DATA_BYTES</span>(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),</span><br><span class="line">    <span class="built_in">BT_DATA</span>(BT_DATA_NAME_COMPLETE, <span class="string">&quot;Common&quot;</span>, <span class="built_in">sizeof</span>(<span class="string">&quot;Common&quot;</span>) - <span class="number">1</span>),</span><br><span class="line">    <span class="built_in">BT_DATA</span>(BT_DATA_MANUFACTURER_DATA, mfg_data, <span class="built_in">sizeof</span>(mfg_data)),</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">disconnected</span><span class="params">(<span class="keyword">struct</span> bt_conn *conn, <span class="type">uint8_t</span> reason)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 仅处理自己的连接断开事件</span></span><br><span class="line">    <span class="keyword">if</span> (conn != my_conn) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printk</span>(<span class="string">&quot;## My private disconnected (reason 0x%02x) ##\n&quot;</span>, reason);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (my_conn) &#123;</span><br><span class="line">        <span class="built_in">bt_conn_unref</span>(my_conn);</span><br><span class="line">        my_conn = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">BT_CONN_CB_DEFINE</span>(conn_callbacks) = &#123;</span><br><span class="line">    .connected    = <span class="literal">NULL</span>,</span><br><span class="line">    .disconnected = disconnected,</span><br><span class="line">    .security_changed = <span class="literal">NULL</span>,</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">my_ext_adv_connected_cb</span><span class="params">(<span class="keyword">struct</span> bt_le_ext_adv *extadv,</span></span></span><br><span class="line"><span class="params"><span class="function">              <span class="keyword">struct</span> bt_le_ext_adv_connected_info *info)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    __ASSERT(extadv == my_ext_adv, <span class="string">&quot;My private adv wrong&quot;</span>);</span><br><span class="line">    <span class="built_in">printk</span>(<span class="string">&quot;## My private ext adv connected %p ##\n&quot;</span>, info-&gt;conn);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 保存当前conn，以便自己的蓝牙服务识别</span></span><br><span class="line">    my_conn = <span class="built_in">bt_conn_ref</span>(info-&gt;conn);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">bt_le_ext_adv_cb</span> my_ext_adv_cb = &#123;</span><br><span class="line">    .connected = my_ext_adv_connected_cb</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">my_private_ble_thread_entry</span><span class="params">(<span class="type">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (!<span class="built_in">bt_is_ready</span>()) &#123;</span><br><span class="line">        <span class="built_in">k_sleep</span>(<span class="built_in">K_MSEC</span>(<span class="number">100</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">bt_le_adv_param</span> adv_param0 = </span><br><span class="line">        &#123;</span><br><span class="line">            .id = <span class="number">0</span>,</span><br><span class="line">            .sid = <span class="number">0U</span>, <span class="comment">/* Supply unique SID when creating advertising set */</span></span><br><span class="line">            .secondary_max_skip = <span class="number">0U</span>,</span><br><span class="line">            .options = (BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN),</span><br><span class="line">            .interval_min = <span class="number">600</span>,</span><br><span class="line">            .interval_max = <span class="number">800</span>,</span><br><span class="line">            .peer = <span class="literal">NULL</span>,</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line">        </span><br><span class="line">    err = <span class="built_in">bt_le_ext_adv_create</span>(&amp;adv_param0, &amp;my_ext_adv_cb, &amp;my_ext_adv);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;Create my ext adv (err %d)\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    err = <span class="built_in">bt_le_ext_adv_set_data</span>(my_ext_adv, ad , <span class="built_in">ARRAY_SIZE</span>(ad), <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;Set my ext adv data (err %d)\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Start extended advertising set */</span></span><br><span class="line">    err = <span class="built_in">bt_le_ext_adv_start</span>(my_ext_adv,</span><br><span class="line">                BT_LE_EXT_ADV_START_DEFAULT);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;Start common adv (err %d)\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printk</span>(<span class="string">&quot;## My private ext adv started ##\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">K_THREAD_DEFINE</span>(my_private_ble_thread_id, <span class="number">4096</span>,</span><br><span class="line">            my_private_ble_thread_entry, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>,</span><br><span class="line">            <span class="number">7</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<p>注意自己的蓝牙服务和connected回调函数里面，仅需处理<code>conn == my_conn</code>的情况即可。</p>
+<blockquote>
+<p>可以发现这种方式对SDK改动较大，编译其他Matter工程时要注意</p>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2025/10/1b3f41652d5d/" data-id="cmqop0ng5001gy8o58u802cer" data-title="在Matter中添加自己的蓝牙广播与服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/jayant97.github.io/2026/04/b19b485a13d3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          一文了解Nordic边缘AI方案
+        
+      </div>
+    </a>
+  
+  
+    <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Matter OTA固件升级</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Jayant Tang<br>
+      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+  
+    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/jayant97.github.io/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

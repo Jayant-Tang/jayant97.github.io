@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>树莓派串口终端与网口直连终端 | 一苇万顷</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="1. 概览 本文满足以下树莓派使用场景：  无显示器，无键盘鼠标，无小型路由器。 有Wi-Fi网络，但无Wi-Fi网络管理员权限（校园网&#x2F;企业网），树莓派需要连接到互联网。 有USB转TTL串口模块。电脑通过串口登陆树莓派终端。 有一根网线。电脑可以通过网口直连树莓派。 整套设备携带到没有网络的地方也可用。 不影响笔记本网口正常功能。  2. 配置串口终端 硬件：树莓派5 系统：Rasp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="树莓派串口终端与网口直连终端">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/03/dd490e6182dc/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 概览 本文满足以下树莓派使用场景：  无显示器，无键盘鼠标，无小型路由器。 有Wi-Fi网络，但无Wi-Fi网络管理员权限（校园网&#x2F;企业网），树莓派需要连接到互联网。 有USB转TTL串口模块。电脑通过串口登陆树莓派终端。 有一根网线。电脑可以通过网口直连树莓派。 整套设备携带到没有网络的地方也可用。 不影响笔记本网口正常功能。  2. 配置串口终端 硬件：树莓派5 系统：Rasp">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250331132936987.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/7_5_5c4a976d-c917-4049-ba8f-85bb33d52568_1024x1024.webp">
+<meta property="article:published_time" content="2025-03-31T05:21:27.000Z">
+<meta property="article:modified_time" content="2026-06-22T03:18:34.254Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="嵌入式,Nordic,BLE,LTE,Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250331132936987.webp">
+  
+    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-树莓派串口终端与网口直连终端" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/jayant97.github.io/2025/03/dd490e6182dc/" class="article-date">
+  <time class="dt-published" datetime="2025-03-31T05:21:27.000Z" itemprop="datePublished">2025-03-31</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      树莓派串口终端与网口直连终端
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概览"><a href="#1-概览" class="headerlink" title="1. 概览"></a>1. 概览</h1><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250331132936987.webp" alt="image-20250331132936987"></p>
+<p>本文满足以下树莓派使用场景：</p>
+<ol>
+<li>无显示器，无键盘鼠标，无小型路由器。</li>
+<li>有Wi-Fi网络，但无Wi-Fi网络管理员权限（校园网&#x2F;企业网），树莓派需要连接到互联网。</li>
+<li>有USB转TTL串口模块。电脑通过串口登陆树莓派终端。</li>
+<li>有一根网线。电脑可以通过网口直连树莓派。</li>
+<li>整套设备携带到没有网络的地方也可用。</li>
+<li>不影响笔记本网口正常功能。</li>
+</ol>
+<h1 id="2-配置串口终端"><a href="#2-配置串口终端" class="headerlink" title="2. 配置串口终端"></a>2. 配置串口终端</h1><ul>
+<li>硬件：树莓派5</li>
+<li>系统：Raspbian或Ubuntu Server 24.04</li>
+</ul>
+<p>使用树莓派的Imager软件烧录完SD卡后，打开SD卡，boot盘，找到<code>config.txt</code>文件，在尾部添加:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">enable_uart=1</span><br><span class="line">dtoverlay=uart0</span><br><span class="line">dtparam=uart0_console</span><br></pre></td></tr></table></figure>
+
+<p>前两行开启串口Shell终端，可以登录控制台。第三行开启串口内核日志。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/7_5_5c4a976d-c917-4049-ba8f-85bb33d52568_1024x1024.webp" alt="img"></p>
+<p>引脚为上图中的 GPIO14, GPIO15，电平为3.3V。接好USB转串口（TXD接RXD，RXD接TXD，GND接GND），插入SD卡。上电，等待一段时间就可以从串口看到内核启动日志。并且可以输入用户名、密码登录终端。</p>
+<h1 id="3-配置网线直连终端"><a href="#3-配置网线直连终端" class="headerlink" title="3. 配置网线直连终端"></a>3. 配置网线直连终端</h1><p>网上有很多教程是在电脑上把Wi-Fi网络共享给网口，这样电脑就变成一个路由器，树莓派网口接到电脑上就可以访问互联网。</p>
+<p>但是本文将采用相反的方案。不修改电脑的网口配置，而是在树莓派的网口启动一个DHCP server，把树莓派变成路由器。</p>
+<h2 id="1-给树莓派网口配置静态IP"><a href="#1-给树莓派网口配置静态IP" class="headerlink" title="(1) 给树莓派网口配置静态IP"></a>(1) 给树莓派网口配置静态IP</h2><p>不同操作系统的配置不同。例如Ubuntu桌面版有Network Manager，而Server版没有。这里只展示Ubuntu Server版的配置。Ubuntu Server 24.04通过<code>netplan</code>配置网口。</p>
+<p>首先查看网口名称：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ip a</span><br></pre></td></tr></table></figure>
+
+<p>以太网口名通常为<code>eth0</code></p>
+<p>检查现有的Netplan配置</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo cat /etc/netplan/*.yaml</span><br></pre></td></tr></table></figure>
+
+<p>我这里的文件名是<code>50-cloud-init.yaml</code></p>
+<p>给网口配置静态ip：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nano /etc/netplan/50-cloud-init.yaml</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">network:</span><br><span class="line">  version: 2</span><br><span class="line">  wifis:</span><br><span class="line">    wlan0:</span><br><span class="line">      optional: true</span><br><span class="line">      dhcp4: true</span><br><span class="line">      access-points:</span><br><span class="line">        &quot;Wi-Fi SSID&quot;:</span><br><span class="line">          auth:</span><br><span class="line">            key-management: &quot;psk&quot;</span><br><span class="line">            password: &quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;</span><br><span class="line">  </span><br><span class="line">  ethernets:</span><br><span class="line">    eth0:</span><br><span class="line">      addresses: [192.168.10.1/24]</span><br><span class="line">      routes:</span><br><span class="line">       - to: 192.168.10.0/24</span><br><span class="line">         via: 192.168.10.1</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>wifis</code>的部分可能在SD卡烧录完毕，配置镜像的时候就已经输入好密码了，这部分不用动。</p>
+<p>增加一个和<code>wifis</code>同级别的<code>ethernets</code>部分。配置静态IP地址为<code>192.168.10.1/24</code>，<strong>注意不要和你的校园网&#x2F;企业网的网段冲突</strong>。如果冲突可以换成其他网段。</p>
+<p>应用配置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> netplan apply</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-在树莓派网口启动DHCP服务器"><a href="#2-在树莓派网口启动DHCP服务器" class="headerlink" title="(2) 在树莓派网口启动DHCP服务器"></a>(2) 在树莓派网口启动DHCP服务器</h2><p>安装dnsmasq</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install dnsmasq</span><br></pre></td></tr></table></figure>
+
+<p>配置dnsmasq</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mv</span> /etc/dnsmasq.conf /etc/dnsmasq.conf.bak</span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> nano /etc/dnsmasq.conf</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">port=0                  # 禁用 DNS 服务</span><br><span class="line">interface=eth0          # 仅监听 eth0</span><br><span class="line">dhcp-range=192.168.10.100,192.168.10.200,255.255.255.0,24h</span><br><span class="line">dhcp-option=option:router,192.168.10.1</span><br><span class="line">dhcp-option=option:dns-server,114.114.114.114  # 指定外部 DNS</span><br></pre></td></tr></table></figure>
+
+<p>这里我们只希望dnsmasq启动DHCP server，而不需要它帮我们代理DNS。因此这里需要<code>port=0</code>。</p>
+<p>重启dnsmasq</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl restart dnsmasq</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-通过网口ssh直连"><a href="#3-通过网口ssh直连" class="headerlink" title="(3) 通过网口ssh直连"></a>(3) 通过网口ssh直连</h2><p>重启树莓派</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> reboot</span><br></pre></td></tr></table></figure>
+
+<p>重启后，用电脑的网口应该就可以访问树莓派了：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 优先通过密码来登录</span></span><br><span class="line">ssh -o PreferredAuthentications=password pi@192.168.10.1</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-笔记本电脑网络接口优先级"><a href="#4-笔记本电脑网络接口优先级" class="headerlink" title="4. 笔记本电脑网络接口优先级"></a>4. 笔记本电脑网络接口优先级</h1><p>以上配置完成后，可能有些笔记本连上网口后会无法连接互联网。这是因为以太网口的默认路由优先级比Wi-Fi网卡高，访问互联网的请求都走到树莓派去了。</p>
+<p>我们可以修改笔记本的路由表，使得流量优先路由到Wi-Fi网卡。最终效果：</p>
+<ol>
+<li><strong>网线</strong> → 树莓派（<code>eth0</code>，IP: <code>192.168.10.1</code>），用于 SSH。</li>
+<li><strong>Wi-Fi</strong> → 路由器（互联网），用于上网。</li>
+<li>不连接树莓派时，网口仍然保持正常的功能。</li>
+</ol>
+<p>这里只展示Ubuntu笔记本电脑的配置方式：</p>
+<h2 id="1-查看当前路由"><a href="#1-查看当前路由" class="headerlink" title="(1) 查看当前路由"></a>(1) 查看当前路由</h2><p>以下内容在Ubuntu笔记本电脑，本地执行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ip route</span><br></pre></td></tr></table></figure>
+
+<p>可能会看到以下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">default via 192.168.10.1 dev enp0s31f6 proto dhcp metric 20500 </span><br><span class="line">default via 192.168.2.1 dev wlp0s20f3 proto dhcp metric 20600 </span><br><span class="line">169.254.0.0/16 dev enp0s31f6 scope link metric 1000 </span><br><span class="line">172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown</span><br></pre></td></tr></table></figure>
+
+<p>其中Wi-Fi网卡是<code>wlp0s20f3</code>，以太网口是<code>enp0s31f6</code>。Wi-Fi网口优先级比以太网口低。</p>
+<h2 id="2-修改默认路由"><a href="#2-修改默认路由" class="headerlink" title="(2) 修改默认路由"></a>(2) 修改默认路由</h2><p>Ubuntu桌面版有Network Manager，可以比较方便修改优先级。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ip a               <span class="comment"># 确认接口名称（如 wlan0、eth0）</span></span><br><span class="line">ip route           <span class="comment"># 查看当前路由表（注意默认路由的 metric）</span></span><br></pre></td></tr></table></figure>
+
+<p>检查Network Manager连接名称：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nmcli connection show</span><br></pre></td></tr></table></figure>
+
+<p><strong>降低 Wi-Fi 的 metric（数值越小优先级越高）</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nmcli connection modify <span class="string">&quot;MyWiFi&quot;</span> ipv4.route-metric 100   <span class="comment"># Wi-Fi 优先级更高</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>提高有线连接的 metric（数值越大优先级越低）</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nmcli connection modify <span class="string">&quot;有线连接名称&quot;</span> ipv4.route-metric 200</span><br></pre></td></tr></table></figure>
+
+<p>重新激活连接：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nmcli connection up <span class="string">&quot;MyWiFi&quot;</span></span><br><span class="line"><span class="built_in">sudo</span> nmcli connection up <span class="string">&quot;有线连接名称&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>验证优先级</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ ip route</span><br><span class="line">default via 192.168.2.1 dev wlp0s20f3 proto dhcp metric 20100 </span><br><span class="line">default via 192.168.10.1 dev enp0s31f6 proto dhcp metric 20200 </span><br><span class="line">169.254.0.0/16 dev enp0s31f6 scope link metric 1000 </span><br><span class="line">172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown </span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>关键点</strong>：Wi-Fi 的 <code>metric</code>（20100）比有线（20200）更小，因此优先级更高。</li>
+</ul>
+<p>如此便可实现网线ssh直连树莓派，同时笔记本通过Wi-Fi访问互联网不受影响。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2025/03/dd490e6182dc/" data-id="cmqop0ng8002hy8o51k6e44lf" data-title="树莓派串口终端与网口直连终端" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/jayant97.github.io/2025/04/f1f289c546d9/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          nRF9151蜂窝模组简介与定位例程解析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">NCS 低功耗日志打印</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Jayant Tang<br>
+      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+  
+    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/jayant97.github.io/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

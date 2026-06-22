@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>搭建自己的静态博客并自动部署 | 一苇万顷</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="1. 概述本文讲解本博客的搭建方式    部件 作用    Hexo 把.md文章转换为页面，并且快速部署到平台   GitHub Pages 提供从GitHub仓库创建网站的服务   GitHub Actions GitHub提供的免费持续集成服务   Hexo + Github Pages先从简单的讲起，看图：   简而言之：  Hexo是一个博客框架，存放在你的电脑上，能把你的markdow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="搭建自己的静态博客并自动部署">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/b42baba50896/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 概述本文讲解本博客的搭建方式    部件 作用    Hexo 把.md文章转换为页面，并且快速部署到平台   GitHub Pages 提供从GitHub仓库创建网站的服务   GitHub Actions GitHub提供的免费持续集成服务   Hexo + Github Pages先从简单的讲起，看图：   简而言之：  Hexo是一个博客框架，存放在你的电脑上，能把你的markdow">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/b42baba50896/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221202224730111.png">
+<meta property="og:image" content="https://jayant-tang.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203224217145.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221202233043747.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203005355143.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203191314829.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203195710806.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203202950352.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/b42baba50896/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203203135033.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20230104114033850.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20230104114222770.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203204246535.png">
+<meta property="og:image" content="https://jayant-tang.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203204425639.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203204626463.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203204859957.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203212530721.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203212852929.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203213623303.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203224247035.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203221125176.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203222104681.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203221924602.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203222001274.png">
+<meta property="og:image" content="https://jayant-tang.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221204210311635.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203222340559.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20230104121209837.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203225905257.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221204210811289.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221204211202297.png">
+<meta property="article:published_time" content="2022-12-02T13:48:08.000Z">
+<meta property="article:modified_time" content="2026-06-22T03:18:34.253Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="hexo">
+<meta property="article:tag" content="GitHub Pages">
+<meta property="article:tag" content="GitHub Actions">
+<meta property="article:tag" content="Typora">
+<meta property="article:tag" content="博客搭建">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/b42baba50896/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221202224730111.png">
+  
+    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-搭建自己的静态博客并自动部署" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/jayant97.github.io/2022/12/b42baba50896/" class="article-date">
+  <time class="dt-published" datetime="2022-12-02T13:48:08.000Z" itemprop="datePublished">2022-12-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      搭建自己的静态博客并自动部署
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><p>本文讲解本博客的搭建方式</p>
+<table>
+<thead>
+<tr>
+<th>部件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io/zh-cn/">Hexo</a></td>
+<td>把.md文章转换为页面，并且快速部署到平台</td>
+</tr>
+<tr>
+<td>GitHub Pages</td>
+<td>提供从GitHub仓库创建网站的服务</td>
+</tr>
+<tr>
+<td>GitHub Actions</td>
+<td>GitHub提供的免费持续集成服务</td>
+</tr>
+</tbody></table>
+<h2 id="Hexo-Github-Pages"><a href="#Hexo-Github-Pages" class="headerlink" title="Hexo + Github Pages"></a>Hexo + Github Pages</h2><p>先从简单的讲起，看图：</p>
+<img src="./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221202224730111.png" alt="image-20221202224730111" style="zoom: 50%;">
+
+<p>简而言之：</p>
+<ul>
+<li>Hexo是一个博客框架，存放在你的电脑上，能把你的markdown文章转换成网站源码，并存入一个git仓库</li>
+<li>Github Pages是GitHub提供的免费静态网站服务，能让你展示文档。你只需要把网站源码存入一个repository，并且启用这个服务，GitHub就会帮你建一个静态网站，分配一个网址。别人从这个网址就能看到你的博客了。</li>
+<li>Hexo能一键把本地的网站源码推送到GitHub，让GitHub自动将其部署为Pages</li>
+</ul>
+<h2 id="GitHub-Actions"><a href="#GitHub-Actions" class="headerlink" title="GitHub Actions"></a>GitHub Actions</h2><p>​    前面的方法，网站所有的资源都存在本地，除了markdown文章和图片这种<strong>资源文件</strong>以外，网站的<strong>美化主题</strong>、<strong>配置</strong>等也存在本地。</p>
+<p>​    这会产生几个问题：</p>
+<ul>
+<li><p>数据容易丢失，一旦硬盘损坏，你的博客就灰飞烟灭了</p>
+</li>
+<li><p>只能在一台电脑上写文章，多台电脑之间hexo文件夹不好同步</p>
+</li>
+<li><p>网站的配置文件修改，没有历史记录追踪</p>
+</li>
+<li><p>由于网站的美化主题本身就是Github上的项目，每次要手动更新，很麻烦</p>
+</li>
+<li><p>每次写完文章，都要用hexo命令生成网站，还要用hexo命令部署网站，重复操作</p>
+</li>
+</ul>
+<p>​    所以，<strong>最好把hexo文件夹本身也当作Git项目，并放在GitHub托管</strong>。并且，还要把hexo部署的操作给自动化，让我们每次写完markdown文章，一 Push 就能自动部署页面。</p>
+<p>​    这就要用到GitHub Actions，它是GitHub提供的<strong>持续集成</strong>（Continuous integration， CI）服务。这里不详述CI&#x2F;CD的概念，你只需要知道，GitHub提供的这个服务，可以让你的仓库在特定条件下（例如push时），触发对应的<strong>动作（Actions）</strong>。</p>
+<p>​    所谓的Actions，可以认为就是一条一条的Linux命令（也可以是Windows CMD命令）或者脚本，并且GitHub给你一个虚拟服务器去自动执行这一条一条的命令，这个虚拟服务器具有2核CPU，7GB内存，14GB硬盘。</p>
+<p>​    你可以写自己的Actions，也可以用别人的Actions。Github提供了一个Action商店。</p>
+<p>​    最终的效果应该如下图：</p>
+<img src="/imgs/搭建自己的静态博客并自动部署.assets/image-20221203224217145.png" alt="image-20221203224217145.png" style="zoom: 50%;">
+
+<p>配置完成后的效果：</p>
+<ul>
+<li>写完文章后，直接本地hexo仓库<code>commit</code>，然后<code>push</code></li>
+<li>GitHub上的hexo仓库由<code>push</code>触发Actions，自动在虚拟服务器中生成网站源码，然后部署到网站仓库中</li>
+<li>网站仓库（xxxx.github.io）更新时，自动更新Github Pages</li>
+<li>hexo的美化主题，作为hexo的git submodule，每次push时自动checkout最新分支</li>
+</ul>
+<h1 id="2-搭建步骤"><a href="#2-搭建步骤" class="headerlink" title="2. 搭建步骤"></a>2. 搭建步骤</h1><p>一些简单的步骤就只简略提一下。</p>
+<h2 id="2-1-在GitHub创建仓库并启用Pages"><a href="#2-1-在GitHub创建仓库并启用Pages" class="headerlink" title="2.1. 在GitHub创建仓库并启用Pages"></a>2.1. 在GitHub创建仓库并启用Pages</h2><ol>
+<li>注册一个GitHub账号</li>
+<li>在GitHub创建两个仓库<code>&lt;site_name&gt;.github.io</code>和<code>my-hexo</code><br> 前者是GitHub Pages仓库，命名必须以<code>github.io</code>结尾，后者是hexo仓库，可随意取名。<br> 两个仓库都留空，不创建任何文件。</li>
+<li>然后设置Pages，在<code>&lt;site_name&gt;.github.io</code>仓库中：</li>
+</ol>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221202233043747.png" alt="image-20221202233043747"></p>
+<p>在仓库的Settings中，选择Pages，下方选择哪个分支的哪个目录被识别为网站的根目录。</p>
+<blockquote>
+<p>GitHub现在的主分支是<code>main</code>而不是<code>master</code>了，我是自己创建了一个<code>master</code>分支，因为我本地的git默认主分支还是master。</p>
+</blockquote>
+<h2 id="2-2-本地部署hexo"><a href="#2-2-本地部署hexo" class="headerlink" title="2.2. 本地部署hexo"></a>2.2. 本地部署hexo</h2><h3 id="安装软件"><a href="#安装软件" class="headerlink" title="安装软件"></a>安装软件</h3><p>首先安装依赖，需要安装的软件：</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://git-scm.com/">Git (git-scm.com)</a>：版本管理</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://nodejs.org/en/download/">Node.js</a>：hexo所需的平台</li>
+</ul>
+<blockquote>
+<p>Windows用户安装时，一定要勾选<code>Add to PATH </code>选项</p>
+</blockquote>
+<p>然后安装hexo</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm  install -g hexo-cli <span class="comment"># 全局安装</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>关于Node.js和hexo的版本依赖关系，请参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io/zh-cn/docs/#Node-js-%E7%89%88%E6%9C%AC%E9%99%90%E5%88%B6">文档 | Hexo</a></p>
+</blockquote>
+<h3 id="初始化hexo"><a href="#初始化hexo" class="headerlink" title="初始化hexo"></a>初始化hexo</h3><p>找个喜欢的地方创建一个文件夹用于存放hexo项目，例如<code>my-hexo</code>。</p>
+<p>进入这个仓库，然后进行hexo初始化</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 新建文件夹</span></span><br><span class="line">$ <span class="built_in">mkdir</span> my-hexo &amp;&amp; <span class="built_in">cd</span> my-hexo</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化hexo，执行这步之前，需确保文件夹是空的</span></span><br><span class="line">$ hexo init ./</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装依赖的node.js插件</span></span><br><span class="line">$ npm install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：</p>
+<ul>
+<li>hexo初始化要求文件夹为空，因此必须先初始化hexo，再初始化git。否则<code>.git/</code>的存在将导致hexo无法初始化</li>
+<li><code>hexo init</code>时，产生了文件<code>package.json</code>，里面记录了hexo所依赖的npm包的具体来源和版本号</li>
+<li><code>npm install</code>时，就根据<code>package.json</code>记录的内容进行了包的安装。包的具体安装情况记录在<code>package-lock.json</code>中</li>
+</ul>
+</blockquote>
+<p>安装完毕后，目录结构应该如下</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">|-- _config.landscape.yml  # landscape主题配置文件</span><br><span class="line">|-- _config.yml            # 网站配置文件</span><br><span class="line">|-- node_modules           # node.js插件包</span><br><span class="line">|-- package-lock.json      # node.js插件包记录</span><br><span class="line">|-- package.json           # node.js插件包记录</span><br><span class="line">|-- scaffolds/             # 文章、页面模板文件夹</span><br><span class="line">|-- source/                # 网站静态资源（文章、图片等）</span><br><span class="line">`-- themes/                # 网站美化主题文件夹</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="初始化git并传到远程仓库"><a href="#初始化git并传到远程仓库" class="headerlink" title="初始化git并传到远程仓库"></a>初始化git并传到远程仓库</h3><blockquote>
+<p>如果你从没用过git，需要配置本地的git用户和邮箱：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&gt;$ git config --global user.name &lt;用户名&gt;</span><br><span class="line">&gt;$ git config --global user.email &lt;邮箱&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这个用户名和邮箱只是本地提交代码时记录修改人是谁，并非是要登录什么网站</p>
+</blockquote>
+<p>​    还是在这个目录，进行Git仓库初始化</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git init</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>本文不解释git及其相关概念，后续使用git命令时，即使是复制，也务必明白你在做什么</p>
+<p>另外，记得确认仓库中的<code>.gitignore</code>文件，它是<code>hexo init &lt;文件夹&gt;</code>时生成的，其内容包括：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.DS_Store</span><br><span class="line">Thumbs.db</span><br><span class="line">db.json</span><br><span class="line">*.log</span><br><span class="line">node_modules/         # 安装的npm包</span><br><span class="line">public/               # 生成的静态网站源码目录</span><br><span class="line">.deploy*/             # xxxx.github.io仓库</span><br><span class="line">_multiconfig.yml</span><br></pre></td></tr></table></figure>
+
+<p>​    这是让git不要去追踪一些自动生成的内容，这些内容与文章、站点配置无关。</p>
+</blockquote>
+<p>​    然后再<code>commit</code>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git add .</span><br><span class="line">$ git commit -m <span class="string">&quot;init&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>​    还记得前面在GitHub创建的<code>my-hexo</code>仓库还是空的吗，现在需要把本地<code>my-hexo</code>仓库绑定到GitHub仓库。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git remote add origin https://github.com/&lt;用户名&gt;/&lt;仓库名&gt;.git</span><br><span class="line">$ git branch -M master  <span class="comment"># 默认主分支我改名为master</span></span><br><span class="line">$ git push -u origin master</span><br></pre></td></tr></table></figure>
+
+<h3 id="本地预览hexo网站页面"><a href="#本地预览hexo网站页面" class="headerlink" title="本地预览hexo网站页面"></a>本地预览hexo网站页面</h3><p>依次输入以下命令</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo clean      <span class="comment"># 清理hexo缓存</span></span><br><span class="line">$ hexo g          <span class="comment"># 生成hexo网站源码</span></span><br><span class="line">$ hexo s --debug  <span class="comment"># 在本地开启网站的访问端口</span></span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">16:49:54.435 DEBUG Generator: tag</span><br><span class="line">16:49:54.436 DEBUG Generator: category</span><br><span class="line">16:49:54.436 DEBUG Generator: index</span><br><span class="line">16:49:54.445 INFO  Hexo is running at http://localhost:4000/ . Press Ctrl+C to stop.</span><br></pre></td></tr></table></figure>
+
+<p>终端中会打印本地网站的地址，Ctrl+鼠标左键点击访问即可：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203005355143.png" alt="image-20221203005355143"></p>
+<p>可以看到默认页面即为成功，首页的唯一一篇文章是hexo自带的<code>source/_post/hello-world.md</code>.</p>
+<blockquote>
+<p>终端按Ctrl + C停止本地服务器</p>
+</blockquote>
+<h2 id="2-3-配置hexo"><a href="#2-3-配置hexo" class="headerlink" title="2.3.  配置hexo"></a>2.3.  配置hexo</h2><h3 id="安装主题"><a href="#安装主题" class="headerlink" title="安装主题"></a>安装主题</h3><p>​    hexo有很多美化主题，可以在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io/themes/">Themes | Hexo</a>找到喜欢的主题，也可以在GitHub上搜索其他主题。我选择的主题是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://butterfly.js.org/">Butterfly - A Simple and Card UI Design theme for Hexo</a>。主题除了美化外，往往还提供许多其他功能的配置。</p>
+<p>​    主题放在themes文件夹下。<strong>不论安装什么主题，一定要注意</strong>：</p>
+<ul>
+<li>虽然主题的官方教程一般都是让用<code>git clone</code>到themes文件夹下，但是我们的hexo文件夹已经是一个git仓库了，所以要以<code>git submodule</code>的形式安装；</li>
+<li><code>themes</code>下的主题文件夹必须以<code>&lt;主题名&gt;</code>来命名，而不是GitHub仓库的名称，如<code>hexo-theme-&lt;主题名&gt;</code>。</li>
+<li>很多主题的官方说明会要求安装其他的npm包。使用<code>npm</code>安装这些包时，一定要带<code>--save</code>选项。这样这些包才会被记录到<code>package.json</code>中，这样我们以后push时，GitHub Actions上面的虚拟服务器才会帮我们完整的安装这些依赖。</li>
+<li>主题本身的配置文件在<code>themes/&lt;主题名&gt;/_config.yml</code>中，但这个文件是被主题仓库管理的，不会被hexo仓库管理，无法推送到GitHub。而且主题仓库更新后我们修改的配置也会丢失。所以我们应当在hexo根目录下创建<code>_config.&lt;主题名&gt;.yml</code>文件，并把主题中的配置文件拷贝进去。这样配置文件就会被hexo仓库管理。（但是原来主题文件夹里的_config.yml也不要删除）</li>
+</ul>
+<p>下面是我安装butterfly的步骤:</p>
+<ol>
+<li>把butterfly作为git submodule安装到hexo中</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git submodule add -b master https://github.com/jerryc127/hexo-theme-butterfly.git ./themes/butterfly</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：<code>git submodule add</code>时，一定要指定主题的文件夹名称，将其命名为主题的名称，此处为<code>themes/butterfly</code>。若不这样做，将会变成其GitHub仓库的名称，如<code>hexo-theme-butterfly</code>，这样是不行的。</p>
+</blockquote>
+<ol start="2">
+<li>安装渲染器</li>
+</ol>
+<p>根据butterfly的官方文档，需要安装渲染器。其他主题可能需要其他渲染器。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install hexo-renderer-pug hexo-renderer-stylus --save</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>一定要带<code>--save</code></p>
+</blockquote>
+<ol start="3">
+<li>拷贝<strong>主题配置</strong>文件</li>
+</ol>
+<p>把<code>themes/&lt;主题名&gt;/_config.yml</code>配置拷到hexo根目录下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cp</span> themes/butterfly/_config.yml ./_config.butterfly.yml</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>应用主题</li>
+</ol>
+<p>修改<strong>hexo配置文件</strong>，<code>my-hexo</code>根目录下的<code>_config.yml</code>，找到<code>theme</code>项并修改：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">theme:</span> <span class="string">butterfly</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>yml格式的<code>:</code>后面一定要有一个空格</p>
+</blockquote>
+<ol start="5">
+<li>查看效果</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo g</span><br><span class="line">hexo s --debug</span><br></pre></td></tr></table></figure>
+
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203191314829.png" alt="image-20221203191314829"></p>
+<ol start="6">
+<li>其他修改</li>
+</ol>
+<p>根据主题的官方说明，进行其他的自定义配置。所有的修改都在my-hexo根目录下<code>_config.&lt;主题名&gt;.yml</code>中修改。 </p>
+<blockquote>
+<p><code>themes/&lt;主题名&gt;/_config.yml</code>虽然不生效，但是也不能删除。</p>
+</blockquote>
+<h3 id="配置hexo"><a href="#配置hexo" class="headerlink" title="配置hexo"></a>配置hexo</h3><p>​    hexo本身的配置，需要修改<code>my-hexo</code>根目录下的<code>_config.yml</code>文件。可以修改站点名称、作者等，具体可以参考官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io/zh-cn/docs/configuration">配置 | Hexo</a>。</p>
+<p>​    这里提一些与Github Pages还有markdown文章插入相关的配置。</p>
+<h4 id="网站url与root"><a href="#网站url与root" class="headerlink" title="网站url与root"></a>网站url与root</h4><p>目前，GitHub Pages提供的网站url为：</p>
+<p><code>https://&lt;用户名&gt;.github.io/&lt;仓库名&gt;/</code></p>
+<p>例如：</p>
+<p><code>https://jayant-tang.github.io/jayant97.github.io/</code></p>
+<p>所以，要配置hexo的目录：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">url:</span> <span class="string">https://jayant-tang.github.io/jayant97.github.io</span></span><br><span class="line"><span class="attr">root:</span> <span class="string">/jayant97.github.io/</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>​    不同环境，访问资源的根目录是不同的。hexo的所有资源文件都应该放在<code>&lt;hexo文件夹&gt;/source</code>下，生成网页时，会自动拷贝到网页的根目录下。</p>
+<p>​    例如，有一张图片资源的路径是：<code>&lt;hexo文件夹&gt;/source/foo/bar/image.png</code>：</p>
+<ul>
+<li>对于你的markdown文章，可以设置根目录为<code>&lt;hexo文件夹&gt;/source</code></li>
+<li>对于网站，刚才已经配置了根目录为<code>/jayant97.github.io/</code></li>
+</ul>
+<p>只要设置好根目录，markdown和网页就可以使用<strong>相同的路径</strong>来访问到<strong>相同的资源</strong>了，如<code>/foo/bar/image.png</code>。</p>
+</blockquote>
+<h4 id="hexo的部署方式介绍"><a href="#hexo的部署方式介绍" class="headerlink" title="hexo的部署方式介绍"></a>hexo的部署方式介绍</h4><p>通常情况下，hexo的部署流程是这样的：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203195710806.png" alt="image-20221203195710806"></p>
+<ol>
+<li><code>hexo g</code>，生成网页源码，并存储在<code>/public</code>文件夹中</li>
+<li><code>hexo d</code>，把public同步到本地git仓库，然后推送到github仓库。</li>
+</ol>
+<p>先安装git部署的插件：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+
+
+
+<p>然后需要给hexo配置github仓库的路径和权限，打开<strong>hexo配置文件</strong>：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">    <span class="attr">repo:</span> <span class="string">git@github.com:Jayant-Tang/jayant97.github.io</span></span><br><span class="line">    <span class="comment">#repo: https://github.com/Jayant-Tang/jayant97.github.io</span></span><br><span class="line">    <span class="attr">branch:</span> <span class="string">master</span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>type</td>
+<td>部署类型，可以设置多个要部署的目标</td>
+</tr>
+<tr>
+<td>branch</td>
+<td>分支名称</td>
+</tr>
+<tr>
+<td>repo</td>
+<td>仓库名称，这里有ssh和https两种方式。使用ssh方式。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>GitHub认证方式：</p>
+<ul>
+<li>https方式，任何人可以随便clone，但是push时需要在弹窗中输入账号密码，认证身份；</li>
+<li>ssh方式，需要ssh key，公钥放在GitGub，私钥自己持有。只要持有私钥就可以用ssh访问GitHub仓库，纯命令行操作，不会弹窗。</li>
+</ul>
+<p>因为后面要用GitHub Actions在虚拟服务器里自动部署，所以需要用ssh的方式。</p>
+</blockquote>
+<h4 id="ssh密钥对的生成"><a href="#ssh密钥对的生成" class="headerlink" title="ssh密钥对的生成"></a>ssh密钥对的生成</h4><p>​     然后需要生成两对ssh  key，第一对用于<strong>电脑</strong>和<strong>GitHub</strong>之间的认证，第二对用于<strong>GitHub my-hexo仓库</strong> 和<strong>GitHub xxxx.github.io仓库</strong>之间的认证。</p>
+<p>​    生成key：</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ ssh-keygen -t ed25519 -C <span class="string">&quot;your_email@example.com&quot;</span> -f ~/.ssh/github_ed25519</span><br><span class="line"><span class="comment"># 输入后一直回车</span></span><br><span class="line"></span><br><span class="line">$ ssh-keygen -t ed25519 -C <span class="string">&quot;your_email@example.com&quot;</span> -f ~/.ssh/hexo_ed25519</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>-t</code>：选择加密算法，ed25519比较安全</p>
+<p><code>-C</code>:  密钥的备注说明文字。Github要求这里要填上git config时配置的邮箱，同时也必须是GitHub中已经配置的认证邮箱。</p>
+<p><code>-f</code>：生成的私钥文件名</p>
+</blockquote>
+<p>执行完毕后，<code>~/.ssh</code>下应该有4个新文件，其中带有<code>.pub</code>后缀的是公钥，不带的是私钥:</p>
+<figure class="highlight tex"><table><tr><td class="code"><pre><span class="line">~/.ssh</span><br><span class="line">|-github<span class="built_in">_</span>ed25519</span><br><span class="line">|-github<span class="built_in">_</span>ed25519.pub</span><br><span class="line">|-hexo<span class="built_in">_</span>ed25519</span><br><span class="line">`-hexo<span class="built_in">_</span>ed25519.pub</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="GitHub-ssh-key设置"><a href="#GitHub-ssh-key设置" class="headerlink" title="GitHub ssh key设置"></a>GitHub ssh key设置</h4><p>配置你的电脑ssh访问GitHub的权限。GitHub点击右上角头像-Settings，然后点击New SSH key：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203202950352.png" alt="image-20221203202950352"></p>
+<p>然后，把<code>github_ed25519.pub</code>的内容粘贴进去，其他都不用填，确认即可：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cat</span> ~/.ssh/ed25519.pub</span><br></pre></td></tr></table></figure>
+
+<img src="./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203203135033.png" alt="image-20221203203135033" style="zoom: 50%;">
+
+<p>测试：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ ssh -T git@github.com</span><br><span class="line"><span class="comment"># Attempts to ssh to GitHub</span></span><br><span class="line"></span><br><span class="line">&gt; The authenticity of host <span class="string">&#x27;github.com (IP ADDRESS)&#x27;</span> can<span class="string">&#x27;t be established.</span></span><br><span class="line"><span class="string">&gt; RSA key fingerprint is SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8.</span></span><br><span class="line"><span class="string">&gt; Are you sure you want to continue connecting (yes/no)?</span></span><br><span class="line"><span class="string"># 这里输入yes然后回车</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&gt; Hi USERNAME! You&#x27;</span>ve successfully authenticated, but GitHub does not provide shell access.</span><br></pre></td></tr></table></figure>
+
+<p>有以上输出说明权限配置成功。</p>
+<h3 id="配置主题"><a href="#配置主题" class="headerlink" title="配置主题"></a>配置主题</h3><p>根据你所使用的主题的官方文档来配置。建议把后面的其他部署都完成后，再研究主题的配置。</p>
+<h2 id="2-4-从电脑部署hexo"><a href="#2-4-从电脑部署hexo" class="headerlink" title="2.4. 从电脑部署hexo"></a>2.4. 从电脑部署hexo</h2><p>前面的步骤都完成后，可以执行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">hexo d</span><br></pre></td></tr></table></figure>
+
+<p>这时，hexo应该已经可以把网站配置到<code>xxxx.github.io</code>上了，过一会从网页端就可以看到网站页面了。</p>
+<p><strong>网页端的入口：</strong></p>
+<p>​	Pages仓库右边：</p>
+<p><img src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20230104114033850.png" alt="image-20230104114033850"></p>
+<p>然后点击View deployment</p>
+<p><img src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20230104114222770.png" alt="image-20230104114222770"></p>
+<h2 id="2-5-GitHub-Actions自动部署"><a href="#2-5-GitHub-Actions自动部署" class="headerlink" title="2.5. GitHub Actions自动部署"></a>2.5. GitHub Actions自动部署</h2><h4 id="pages仓库添加公钥"><a href="#pages仓库添加公钥" class="headerlink" title="pages仓库添加公钥"></a>pages仓库添加公钥</h4><p>​     我们需要设置<code>my-hexo</code>仓库访问<code>xxxx.github.io</code>仓库的权限，前者持有私钥，后者持有公钥。然后才能在push完<code>my-hexo</code>仓库之后，让<code>my-hexo</code>仓库的Actions自动部署博客到Pages仓库。</p>
+<p>​    首先进入<code>xxxx.github.io</code>仓库页面，找到Settings - Deploy Keys，然后点击Add deploy key：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203204246535.png" alt="image-20221203204246535"></p>
+<p>把<code>hexo_ed25519.pub</code>的内容粘贴进去：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cat</span> ~/.ssh/hexo_ed25519.pub</span><br></pre></td></tr></table></figure>
+
+<img src="/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203204425639.png" alt="image-20221203204425639.png" style="zoom:50%;">
+
+<p>Title填写<code>HEXO_DEPLOY_PUB</code></p>
+<h4 id="hexo仓库添加私钥"><a href="#hexo仓库添加私钥" class="headerlink" title="hexo仓库添加私钥"></a>hexo仓库添加私钥</h4><p>​    然后进入<code>my-hexo</code>仓库，找到Settings - Secrets - Actions，然后点击New repository secret.</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203204626463.png" alt="image-20221203204626463"></p>
+<p>把私钥<code>hexo_ed25519</code>中的内容粘贴进去：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cat</span> ~/.ssh/hexo_ed25519</span><br></pre></td></tr></table></figure>
+
+<p><img src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203204859957.png" alt="image-20221203204859957.png"></p>
+<p><strong>注意，Name要记住，后面需要用到</strong>。我这里配置的是<code>HEXO_DEPLOY_PRI</code>.</p>
+<h4 id="编写Actions"><a href="#编写Actions" class="headerlink" title="编写Actions"></a>编写Actions</h4><p>在本地my-hexo文件夹中，创建一个文件<code>.github/workflows/deploy.yml</code>，填入以下内容：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">name: CI</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在master分支上收到push时，开始执行流程</span></span><br><span class="line">on:</span><br><span class="line">  push:</span><br><span class="line">    branches:</span><br><span class="line">      - master</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置环境变量</span></span><br><span class="line"><span class="built_in">env</span>:</span><br><span class="line">  GIT_USER: Jayant.Tang</span><br><span class="line">  GIT_EMAIL: jayant.tang@nordicsemi.no</span><br><span class="line">  DEPLOY_REPO: Jayant-Tang/jayant97.github.io</span><br><span class="line">  DEPLOY_BRANCH: master</span><br><span class="line"></span><br><span class="line"><span class="comment"># 具体步骤</span></span><br><span class="line"><span class="built_in">jobs</span>:</span><br><span class="line">  build:</span><br><span class="line">    name: Build on node <span class="variable">$&#123;&#123; matrix.node_version &#125;</span>&#125; and <span class="variable">$&#123;&#123; matrix.os &#125;</span>&#125;</span><br><span class="line">    runs-on: ubuntu-latest</span><br><span class="line">    strategy:</span><br><span class="line">      matrix:</span><br><span class="line">        os: [ubuntu-latest]</span><br><span class="line">        node_version: [18.12.1] <span class="comment"># 修改好node js版本</span></span><br><span class="line"></span><br><span class="line">    steps:</span><br><span class="line">      - name: Checkout</span><br><span class="line">        uses: actions/checkout@v3</span><br><span class="line">        with:</span><br><span class="line">          submodules: recursive</span><br><span class="line"></span><br><span class="line">      - name: Checkout deploy repo</span><br><span class="line">        uses: actions/checkout@v3</span><br><span class="line">        with:</span><br><span class="line">          repository: <span class="variable">$&#123;&#123; env.DEPLOY_REPO &#125;</span>&#125;</span><br><span class="line">          ref: <span class="variable">$&#123;&#123; env.DEPLOY_BRANCH &#125;</span>&#125;</span><br><span class="line">          path: .deploy_git</span><br><span class="line"></span><br><span class="line">      - name: Use Node.js <span class="variable">$&#123;&#123; matrix.node_version &#125;</span>&#125;</span><br><span class="line">        uses: actions/setup-node@v3</span><br><span class="line">        with:</span><br><span class="line">          node-version: <span class="variable">$&#123;&#123; matrix.node_version &#125;</span>&#125;</span><br><span class="line"></span><br><span class="line">      - name: Configuration environment</span><br><span class="line">        <span class="built_in">env</span>:</span><br><span class="line">          HEXO_DEPLOY_PRI: <span class="variable">$&#123;&#123;secrets.HEXO_DEPLOY_PRI&#125;</span>&#125;</span><br><span class="line">        run: |</span><br><span class="line">          <span class="built_in">sudo</span> timedatectl set-timezone <span class="string">&quot;Asia/Shanghai&quot;</span></span><br><span class="line">          <span class="built_in">mkdir</span> -p ~/.ssh/</span><br><span class="line">          <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$HEXO_DEPLOY_PRI</span>&quot;</span> &gt; ~/.ssh/id_ed25519</span><br><span class="line">          <span class="built_in">chmod</span> 600 ~/.ssh/id_ed25519</span><br><span class="line">          ssh-keyscan github.com &gt;&gt; ~/.ssh/known_hosts</span><br><span class="line">          git config --global user.name <span class="variable">$GIT_USER</span></span><br><span class="line">          git config --global user.email <span class="variable">$GIT_EMAIL</span></span><br><span class="line">          <span class="comment">#cp _config.theme.yml themes/concise/_config.yml</span></span><br><span class="line"></span><br><span class="line">      - name: Install dependencies</span><br><span class="line">        run: |</span><br><span class="line">          npm install</span><br><span class="line"></span><br><span class="line">      - name: Deploy hexo</span><br><span class="line">        run: |</span><br><span class="line">          npm run deploy</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>内容修改：</p>
+<ol>
+<li><p>修改环境变量，改成你自己的用户名(GIT_USER)、邮箱(GIT_EMAIL)、pages仓库、pages分支</p>
+</li>
+<li><p>修改node_version: [xxxx]，填上你电脑本地安装的Nodejs的版本</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看本地Node.js版本</span></span><br><span class="line">node -v</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改时区，如果在中国就不用改了</p>
+</li>
+</ol>
+<p>内容解释：</p>
+<ol>
+<li>在hexo仓库的master分支收到push时，触发job</li>
+<li>在Ubuntu环境中，checkout本仓库的最新内容，并且同时自动获取各个submodle的仓库。这里的<code>actions/checkout@v3</code>是Actions商店提供的，我们只需要用<code>with</code>传参数进去就行了。商店页面<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/marketplace/actions/checkout">Checkout · Actions · GitHub Marketplace</a>。</li>
+<li>checkout pages仓库，并把它放到.deploy_git路径中</li>
+<li>安装指定版本的Node.js</li>
+<li>配置环境变量：添加私钥、配置git用户和邮箱。注意，这里的私钥的名称就是<code>$&#123;&#123;secrets.HEXO_DEPLOY_PRI&#125;&#125;</code>，与前面配置的<code>HEXO_DEPLOY_PRI</code>一致。</li>
+<li>根据package.json的内容安装npm包</li>
+<li>部署hexo博客</li>
+</ol>
+<p>其他说明：</p>
+<ul>
+<li>我没有使用商店中别人写的自动部署hexo的Actions，因为他们很久没更新了，使用的Node.js版本比较低，也没法通过传参的方式修改其内部使用的Node.js版本。</li>
+</ul>
+</blockquote>
+<h4 id="提交修改"><a href="#提交修改" class="headerlink" title="提交修改"></a>提交修改</h4><p>从一开始到现在，已经修改了不少内容了，将其commit然后push</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;add config&quot;</span></span><br><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>add之前一定要注意检查.gitignore，是否已经让git忽略了<code>db.json</code>，<code>node_modules/</code>，<code>public/</code>。</p>
+</blockquote>
+<p>push之后，在Github Actions页面应该已经可以看到流程了：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203212530721.png" alt="image-20221203212530721"></p>
+<p>你的每次push，都会触发actions。绿色勾说明整个流程没有出现错误（指Ubuntu linux命令没有出现执行错误的）。如果执行失败，会出现红色叉，你可以点进去看详细的执行记录。</p>
+<p>Actions执行完毕后，应该已经部署到Pages仓库了，这里也可以看到网站部署的记录：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203212852929.png" alt="image-20221203212852929"></p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203213623303.png" alt="image-20221203213623303"></p>
+<p>绿色说明部署成功，网站已经可以访问了。</p>
+<h1 id="3-编写并发布文章"><a href="#3-编写并发布文章" class="headerlink" title="3. 编写并发布文章"></a>3. 编写并发布文章</h1><h2 id="3-1-文章的存储与格式"><a href="#3-1-文章的存储与格式" class="headerlink" title="3.1. 文章的存储与格式"></a>3.1. 文章的存储与格式</h2><p>​    所有要显示的markdown文章都存放在<code>source/_posts/</code>目录下，不展示的文章（草稿）都放在<code>source/_drafts</code>目录下。</p>
+<p>​    新建文章：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">hexo new [layout] &lt;title&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>layout: markdown的布局（或者说模板），布局存放在<code>scaffolds/</code>目录下，默认有三种布局：</p>
+<ul>
+<li>post.md: 文章模板</li>
+<li>draft.md：草稿模板</li>
+<li>page.md：页面模板</li>
+</ul>
+<p>title：文章的标题，直接写标题即可，不需要写.md。<em><strong>但是最好不要有空格等特殊字符！！！</strong></em></p>
+</blockquote>
+<p>​	以上命令，会在<code>source/_posts/</code>目录下自动创建一个新的<code>&lt;title&gt;.md</code>文件，并且把模板内容拷贝过去。由于模板中有<code>date</code>参数，这时会自动记录当前的电脑本地时间作为这篇文章的创建时间，记录在Front-Matter中。</p>
+<h2 id="3-2-Front-Matter"><a href="#3-2-Front-Matter" class="headerlink" title="3.2. Front-Matter"></a>3.2. Front-Matter</h2><p>Front-Matter是markdown文件最上方以两行<code>---</code>分隔的区域，里面需要填写yml格式的文章配置，例如：</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">---</span><br><span class="line">title: Hello World</span><br><span class="line">date: 2013/7/13 20:46:25</span><br><span class="line">tags: </span><br><span class="line"><span class="bullet"> -</span> 嵌入式</span><br><span class="line"><span class="section"> - MCU</span></span><br><span class="line"><span class="section">---</span></span><br></pre></td></tr></table></figure>
+
+<p>在Typora编辑器中，直接在文章开头输入<code>---</code>并回车，就可以创建这个区域：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203224247035.png" alt="image-20221203224247035"></p>
+<p>​	对于某些主题来说，有些选项是必选的，具体要看对应主题的说明文档。比如，我使用的butterfly主题，就可以配置：</p>
+<ul>
+<li><p>title：文章标题</p>
+</li>
+<li><p>date：文章创建日期</p>
+</li>
+<li><p>cover：文章封面图</p>
+</li>
+<li><p>tags：文章标签</p>
+</li>
+<li><p>categories：文章目录</p>
+</li>
+<li><p>……</p>
+</li>
+</ul>
+<blockquote>
+<p>tags和categories的区别：</p>
+<p>​    tags是无顺序的，categories是一个递归层级。设计好的tags和categories能让读者很方便的从主页索引到对应的文章。</p>
+</blockquote>
+<p>​    这里，我们也可以体会到前面模板的意义：可以在模板里填好Front Matter，这样每次hexo就会自动帮我们生成了。</p>
+<h2 id="3-3-Typora在文章中插图的问题"><a href="#3-3-Typora在文章中插图的问题" class="headerlink" title="3.3. Typora在文章中插图的问题"></a>3.3. Typora在文章中插图的问题</h2><h3 id="方案一：云端图床"><a href="#方案一：云端图床" class="headerlink" title="方案一：云端图床"></a>方案一：云端图床</h3><p>图片全部放在云端图床，markdown和Pages都通过URL查看图片。具体的方式，本文不介绍，可以去网上查阅。</p>
+<h3 id="方案二：图片放在本地"><a href="#方案二：图片放在本地" class="headerlink" title="方案二：图片放在本地"></a>方案二：图片放在本地</h3><p>假设我们在markdown中展示一张图片，其路径为<code>source/imgs/foo/bar/image.png</code>。</p>
+<p>hexo生成网站后，网页会根据 <code>$&#123;root&#125;/imgs/foo/bar/image.png</code>来找这张图片，即是说，source文件夹放的内容，在网页端就是根目录下的内容。</p>
+<blockquote>
+<p>在<a href="#%E9%85%8D%E7%BD%AEhexo">2.3 配置hexo</a>中，我们已经配置了root为<code>&lt;仓库名&gt;</code>了。</p>
+</blockquote>
+<p>​    下面要解决的是，如何在markdown文章和网页中，能用<strong>同样的路径</strong>来访问图片资源。这样本地写文章时和网页端就都可以预览了，而且从markdown转换成html时，路径也是可用的。</p>
+<p>​     解决方式就是根目录，由于hexo的根目录前面已经设置过了，我们只需要设置markdown编辑器的根目录就好。设置完毕后，而这就都可以通过<code>/imgs/foo/bar/image.png</code>来访问同一张图片了。</p>
+<p><strong>（1）设置markdown文章访问图片时的根目录</strong></p>
+<p>​    我使用的Markdown编辑器是Typora，Typora支持<strong>针对每一篇文章单独设置</strong>根目录。</p>
+<p>直接在Front-Matter中填入以下内容即可：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">typora-root-url:</span> <span class="string">./..</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>由于文章的路径是<code>source/_post</code>，所以<code>./..</code>就是<code>source</code>了。</p>
+</blockquote>
+<p>你可以把这一行配置直接写进<code>scaffolds/post.md</code>中，这样下次模板就自动帮你填了。</p>
+<p>以上设置，直接从菜单栏设置是一样的，Typora会自动帮你写这一行：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203221125176.png" alt="image-20221203221125176"></p>
+<p><strong>（2）设置Typora粘贴图片时的行为</strong></p>
+<p>直接在Front-Matter中写入：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">typora-copy-images-to:</span> <span class="string">../../source/imgs/$&#123;filename&#125;.assets/</span></span><br></pre></td></tr></table></figure>
+
+<p>这个效果和下图中的偏好设置是一样的，<strong>但是不要去偏好设置里去配置，因为那是全局的配置</strong>：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203222104681.png" alt="image-20221203222104681"></p>
+<blockquote>
+<p>只需要在  Front-Matter 中写就行，不要去偏好设置里设置成上图的样子！！！</p>
+</blockquote>
+<p><strong>（3）检查效果</strong></p>
+<p>​    在Front-Matter中填入以上配置之后，每次粘贴图片到typora时，就会自动帮你把图片拷贝到<code>source/imgs/&lt;文章名&gt;.assets/</code>文件夹中。</p>
+<p>​    我们可以粘贴一张图片到typora中，检查图片位置：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203221924602.png" alt="image-20221203221924602"></p>
+<p>然后，检查markdown访问图片的路径，查看markdown源码：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203222001274.png" alt="image-20221203222001274"></p>
+<p>可以看到，路径名直接是从<code>/imgs</code>开始的，这说明根目录已经是<code>source</code>了。</p>
+<blockquote>
+<p>以上配置全部写在Front-Matter中，把这两行配置写入<code>scaffolds/post.md</code>的Front-Matter中，这样模板就创建好了。这些配置就只对hexo中的markdown有影响，对你平时用typora写其他文章没有任何影响。</p>
+<p>参考资料：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://support.typoraio.cn/YAML/">YAML Front Matter - Typora Support (typoraio.cn)</a></p>
+</blockquote>
+<h2 id="3-4-Typora中的html标签插图"><a href="#3-4-Typora中的html标签插图" class="headerlink" title="3.4. Typora中的html标签插图"></a>3.4. Typora中的html标签插图</h2><p>​    如果你在Typora中右键点击一张图片，然后进行缩放，它就会从Markdown语法的图片:</p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">![<span class="string">图片名称</span>](<span class="link">图片路径</span>)</span><br></pre></td></tr></table></figure>
+
+<p>​    变成html格式的img标签，比如缩小到50%：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&lt;img src=<span class="string">&quot;图片路径&quot;</span> alt=<span class="string">&quot;图片名称&quot;</span> style=<span class="string">&quot;zoom: 50%;&quot;</span> /&gt;</span><br></pre></td></tr></table></figure>
+
+<p>​	hexo在把<code>.md</code>文章转换成html的时候，会自动根据我们设置的根目录来替换markdown格式图片的路径。</p>
+<p>​	以本博客为例，<code>![测试图片](/imgs/image.png)</code>会被转换成<code>/jayant97.github.io/imgs/image.png</code>。</p>
+<p>​	但是，如果<code>.md</code>文章里的图片本来就是html格式的标签，<strong>hexo不会对其进行任何转换</strong>。这就导致，在网站上，图片的路径还是<code>/imgs/image.png</code>，所以网站上就找不到图片了。</p>
+<p>​	为了解决这个问题，网上解法很多。但我想了想，还是用Linux的sed命令来对文本进行替换，毕竟我并不懂JavaScripts。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sed  -i <span class="string">&#x27;s#&lt;img src=&quot;./imgs/#&lt;img src=&quot;/&lt;仓库名&gt;/imgs/#g&#x27;</span> ./source/_posts/*.md</span><br><span class="line">sed  -i <span class="string">&#x27;s#&lt;img src=&quot;/imgs/#&lt;img src=&quot;/&lt;仓库名&gt;/imgs/#g&#x27;</span> ./source/_posts/*.md</span><br><span class="line">sed  -i <span class="string">&#x27;s#&lt;img src=&quot;imgs/#&lt;img src=&quot;/&lt;仓库名&gt;/imgs/#g&#x27;</span> ./source/_posts/*.md</span><br></pre></td></tr></table></figure>
+
+<p>​	以上三个命令会把<code>&lt;img src=&quot;/imgs/</code> 和<code>&lt;img src=&quot;./imgs/</code>和<code>&lt;img src=&quot;imgs/</code>都替换成 <code>&lt;img src=&quot;/&lt;仓库名&gt;/imgs/</code>。</p>
+<blockquote>
+<p>默认情况下,html标签中的写法：</p>
+<ul>
+<li><p><code>./imgs</code>和<code>imgs</code>是一样的，在网页端会被当作<code>/&lt;文章名&gt;/imgs</code>。</p>
+</li>
+<li><p><code>/imgs</code>不会被转换，在网页端还是<code>/imgs</code></p>
+</li>
+</ul>
+<p>在网页上，以上两种方式都访问不到图片，只有<code>/jayant97.github.io/imgs</code>才能访问到图片。因为所有静态资源都在<code>source</code>文件夹下，而<code>source</code>中的内容会被拷贝到<code>&lt;site_name&gt;/xxxx.github.io/</code>中。</p>
+</blockquote>
+<p>​    把这些命令加到GitHub Actions中，这样我们本地用typora的时候还是能看到图片，push到远程的时候网页也能看到图片。</p>
+<p>​    首先在GitHub Actions的.yml文件中增加一个环境变量，方便后面更改：</p>
+<img src="/imgs/搭建自己的静态博客并自动部署.assets/image-20221204210311635.png" alt="image-20221204210311635" style="zoom: 67%;">
+
+<p>​	然后，在hexo部署的步骤之前，加入sed命令：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Sed</span> <span class="string">img</span> <span class="string">label</span></span><br><span class="line">  <span class="attr">run:</span> <span class="string">|</span></span><br><span class="line"><span class="string">    sed  -i &#x27;s#&lt;img src=&quot;./imgs/#&lt;img src=&quot;/$&#123;&#123; env.IMG_ROOT &#125;&#125;/imgs/#g&#x27;  ./source/_posts/*.md</span></span><br><span class="line"><span class="string">    sed  -i &#x27;s#&lt;img src=&quot;/imgs/#&lt;img src=&quot;/$&#123;&#123; env.IMG_ROOT &#125;&#125;/imgs/#g&#x27;  ./source/_posts/*.md</span></span><br><span class="line"><span class="string">    sed  -i &#x27;s#&lt;img src=&quot;imgs/#&lt;img src=&quot;/$&#123;&#123; env.IMG_ROOT &#125;&#125;/imgs/#g&#x27;  ./source/_posts/*.md</span></span><br></pre></td></tr></table></figure>
+
+<p>​	这样云端部署的时候就会自动帮你替换路径了。</p>
+<blockquote>
+<p>​	但是，本地<code>hexo s --debug</code>去查看网页的时候，由于没有Actions帮你转换，图片还是看不了的。这个问题倒没什么影响。</p>
+</blockquote>
+<h2 id="3-5-Typora云端和本地图片互转"><a href="#3-5-Typora云端和本地图片互转" class="headerlink" title="3.5. Typora云端和本地图片互转"></a>3.5. Typora云端和本地图片互转</h2><p>如果你有一篇文章，以前所有的图片是放在云端的，现在想放在本地。可以批量操作：</p>
+<p><img src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203222340559.png" alt="image-20221203222340559.png"></p>
+<p>​	只要文章已经写好了Front-Matter，那么整个复制过程会从你设置的图片根目录，来自动设置图片的路径。</p>
+<p>​	同理，也可以批量把本地图片上传到云端（需要提前设置好上传方式），<strong>文章内所有的图片路径都会自动更新</strong>。</p>
+<h2 id="3-6-文章的发布"><a href="#3-6-文章的发布" class="headerlink" title="3.6. 文章的发布"></a>3.6. 文章的发布</h2><p>​	文章写好以后，可以<code>hexo s --debug</code>在本地查看一下。也可以<code>hexo d</code>直接从本地发布。但是既然我们已经搭建好CI系统，可以直接add，commit然后push，后面的事情就交给GitHub Actions完成了。</p>
+<p>​	Github Actions会在虚拟服务器上，根据我们写好的yml，自动执行<code>hexo g</code>然后<code>hexo d</code>，这样网站就重新部署好了。</p>
+<p>​	但是这又会产生新问题：<strong>我们每次发布新文章，所有旧的文章都会被重新部署一遍</strong>，导致整个网站所有文章的更新日期都变成一样的了：</p>
+<p><img src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20230104121209837.png" alt="image-20230104121209837"></p>
+<p>​	</p>
+<h1 id="4-网站的其他设置"><a href="#4-网站的其他设置" class="headerlink" title="4. 网站的其他设置"></a>4. 网站的其他设置</h1><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>​    博客除了<strong>文章</strong>外，还有<strong>页面</strong>。页面的模板就是<code>scaffolds/post.md</code>。可以有时间线、标签、目录等页面，页面也存放在<code>source</code>目录下。</p>
+<p>​    在<code>_config.yml</code>中，配置了这些页面的目录：</p>
+<p><img src="/jayant97.github.io/./imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221203225905257.png" alt="image-20221203225905257"></p>
+<p>​    基本上所有的配置你都可以在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://hexo.io/zh-cn/docs/configuration">配置 | Hexo</a> 和你所用的主题的官方文档中找到。</p>
+<h2 id="文章的永久链接（Permalinks）"><a href="#文章的永久链接（Permalinks）" class="headerlink" title="文章的永久链接（Permalinks）"></a>文章的永久链接（Permalinks）</h2><p>​	hexo默认的文章URL格式是<code>/年/月/日/文章标题</code>，如果你的文章标题有中文，这个URL就会巨长无比：</p>
+<p><img src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221204210811289.png" alt="image-20221204210811289"></p>
+<p>​	我的方案是改成用文章标题+日期的hash值去命名url，这样更简洁。</p>
+<p>​	打开<strong>站点配置</strong><code>_config.yml</code>，修改：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">permalink:</span> <span class="string">:year/:month/:hash/</span></span><br></pre></td></tr></table></figure>
+
+<p>​	这样，文章的URL就会变成：</p>
+<p><img src="/jayant97.github.io/imgs/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E5%B9%B6%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2.assets/image-20221204211202297.png" alt="image-20221204211202297"></p>
+<p>​	这样URL就比较短了。</p>
+<h2 id="文章的更新日期"><a href="#文章的更新日期" class="headerlink" title="文章的更新日期"></a>文章的更新日期</h2><p>​	文章具有<strong>创建日期（date）</strong>和<strong>更新日期（updated）</strong>。默认情况下，更新日期使用的是操作系统中记录的文件最后修改日期。</p>
+<p>​	但是我们利用Github Actions部署时，</p>
+<h2 id="其他注意事项"><a href="#其他注意事项" class="headerlink" title="其他注意事项"></a>其他注意事项</h2><ul>
+<li>所有文章标题、文件名、目录名都不要有空格等特殊字符！！！（可以有减号<code>-</code>）</li>
+<li>本博客使用了Gitalk作为评论系统，把页面仓库的Github Issue变成一个评论区。会有一些API key之类的东西，明文配置在hexo仓库中，所以我把hexo仓库的权限设为私有了</li>
+<li>Front-Matter是yml格式，冒号<code>:</code>后面一定要加一个空格，不然识别不了。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2022/12/b42baba50896/" data-id="cmqop0ng8002ey8o5h0wx6xih" data-title="搭建自己的静态博客并自动部署" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/jayant97.github.io/2022/12/779143a4bec8/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          安装nRF-Connect-SDK
+        
+      </div>
+    </a>
+  
+  
+    <a href="/jayant97.github.io/2022/12/175d0fa05ecc/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">nRF9160与nRF Cloud应用示例</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Jayant Tang<br>
+      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+  
+    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/jayant97.github.io/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

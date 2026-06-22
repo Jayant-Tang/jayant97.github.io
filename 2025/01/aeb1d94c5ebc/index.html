@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>NCS 低功耗日志打印 | 一苇万顷</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="本文第一节直接给出配置，第二节介绍原理，第三节介绍踩的一个坑 低功耗日志打印配置 【注意】本文介绍的方法，仅支持NCSv2.8.0之后的版本。  软件配置以下代码与config直接在zephyr&#x2F;samples&#x2F;hello_world中进行配置即可。 配置文件：prj.conf # 开启LOG功能，并选择后端为串口CONFIG_LOG&#x3D;yCONFIG_LOG_MODE_DEFERRED&#x3D;yCONF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NCS 低功耗日志打印">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/01/aeb1d94c5ebc/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="本文第一节直接给出配置，第二节介绍原理，第三节介绍踩的一个坑 低功耗日志打印配置 【注意】本文介绍的方法，仅支持NCSv2.8.0之后的版本。  软件配置以下代码与config直接在zephyr&#x2F;samples&#x2F;hello_world中进行配置即可。 配置文件：prj.conf # 开启LOG功能，并选择后端为串口CONFIG_LOG&#x3D;yCONFIG_LOG_MODE_DEFERRED&#x3D;yCONF">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235219464.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235758123.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/969d3d8a3a037e411d2636670789c9f1.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127003520771.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127000857325.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/75adeaab93a5d89a9b48ffa11ff3137f.webp">
+<meta property="og:image" content="https://docs-be.nordicsemi.com/bundle/ncs-latest/page/zephyr/_images/devr-sync-ops.svg?_LANG=enus">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127005910755.webp">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127010021221.webp">
+<meta property="article:published_time" content="2025-01-26T15:10:26.000Z">
+<meta property="article:modified_time" content="2026-06-22T03:18:34.229Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="Zephyr">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235219464.webp">
+  
+    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-NCS-低功耗日志打印" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" class="article-date">
+  <time class="dt-published" datetime="2025-01-26T15:10:26.000Z" itemprop="datePublished">2025-01-26</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a>►<a class="article-category-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      NCS 低功耗日志打印
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>本文第一节直接给出配置，第二节介绍原理，第三节介绍踩的一个坑</p>
+<h1 id="低功耗日志打印配置"><a href="#低功耗日志打印配置" class="headerlink" title="低功耗日志打印配置"></a>低功耗日志打印配置</h1><blockquote>
+<p>【注意】本文介绍的方法，仅支持NCS<code>v2.8.0</code>之后的版本。</p>
+</blockquote>
+<h2 id="软件配置"><a href="#软件配置" class="headerlink" title="软件配置"></a>软件配置</h2><p>以下代码与config直接在<code>zephyr/samples/hello_world</code>中进行配置即可。</p>
+<p>配置文件：<code>prj.conf</code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 开启LOG功能，并选择后端为串口</span></span><br><span class="line">CONFIG_LOG=y</span><br><span class="line">CONFIG_LOG_MODE_DEFERRED=y</span><br><span class="line">CONFIG_LOG_BACKEND_UART=y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 日志对应串口开启异步输出（DMA）功能</span></span><br><span class="line">CONFIG_LOG_BACKEND_UART_ASYNC=y</span><br><span class="line">CONFIG_UART_ASYNC_API=y</span><br><span class="line">CONFIG_UART_0_INTERRUPT_DRIVEN=n</span><br><span class="line">CONFIG_UART_0_ASYNC=y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 以下为异步串口硬件计数功能</span></span><br><span class="line"><span class="comment"># 只影响RX，不影响TX，因此日志串口无需打开</span></span><br><span class="line"><span class="comment"># CONFIG_UART_0_NRF_HW_ASYNC=y</span></span><br><span class="line"><span class="comment"># CONFIG_UART_0_NRF_HW_ASYNC_TIMER=1</span></span><br><span class="line"><span class="comment"># CONFIG_NRFX_TIMER1=y</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开启Console功能，并选择后端为串口</span></span><br><span class="line">CONFIG_PRINTK=y</span><br><span class="line">CONFIG_UART_CONSOLE=y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭一切与输入有关的feature</span></span><br><span class="line">CONFIG_SHELL=n</span><br><span class="line">CONFIG_CONSOLE_HANDLER=n</span><br><span class="line"></span><br><span class="line"><span class="comment"># printk不重定向到LOG buffer</span></span><br><span class="line">CONFIG_LOG_PRINTK=n</span><br><span class="line"></span><br><span class="line"><span class="comment"># 以下两个选项需要同时打开或同时关闭</span></span><br><span class="line"><span class="comment"># 不要只打开CONFIG_PM_DEVICE=y</span></span><br><span class="line">CONFIG_PM_DEVICE_RUNTIME=y</span><br><span class="line">CONFIG_PM_DEVICE=y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭RTT通道</span></span><br><span class="line">CONFIG_USE_SEGGER_RTT=n</span><br><span class="line">CONFIG_RTT_CONSOLE=n</span><br></pre></td></tr></table></figure>
+
+<p>设备树overlay文件（没有可自己新建<code>app.overlay</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;uart0 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    zephyr,pm-device-runtime-auto; // 如果前面开了CONFIG_PM_DEVICE_RUNTIME=y，这里一定要使能</span><br><span class="line">    /delete-property/ hw-flow-control;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 原本uart0的Pinctrl是有流控CTS和RTS引脚的，</span><br><span class="line">// 这里直接覆盖去掉那两个引脚</span><br><span class="line">&amp;uart0_default &#123;</span><br><span class="line">    group1 &#123;</span><br><span class="line">        psels = &lt;NRF_PSEL(UART_TX, 0, 6)&gt;;</span><br><span class="line">    &#125;;</span><br><span class="line">    group2 &#123;</span><br><span class="line">        psels = &lt;NRF_PSEL(UART_RX, 0, 8)&gt;;</span><br><span class="line">        bias-pull-up;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;uart0_sleep &#123;</span><br><span class="line">    group1 &#123;</span><br><span class="line">        psels = &lt;NRF_PSEL(UART_TX, 0, 6)&gt;,</span><br><span class="line">            &lt;NRF_PSEL(UART_RX, 0, 8)&gt;;</span><br><span class="line">        low-power-enable;</span><br><span class="line">        bias-pull-up; // 这里控制休眠期间引脚是上拉还是下拉。上拉可节省100nA。</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>代码<code>main.c</code>：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/logging/log.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">LOG_MODULE_REGISTER(main);</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) &#123;   </span><br><span class="line">        <span class="comment">// 通过stdout输出，最终是通过串口阻塞API，一个字符一个字符输出</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Hello World! %s\n&quot;</span>, CONFIG_BOARD_TARGET);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// CONFIG_LOG_PRINTK=n 时，通过串口阻塞API，一个字符一个字符输出</span></span><br><span class="line">        <span class="comment">// CONFIG_LOG_PRINTK=y 时，通过logging subsystem的buffer输出</span></span><br><span class="line">        printk(<span class="string">&quot;Hello World! %s\n&quot;</span>, CONFIG_BOARD_TARGET);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// CONFIG_LOG_BACKEND_UART=y 时，通过异步串口API输出（DMA）</span></span><br><span class="line">        LOG_INF(<span class="string">&quot;Hello World! %s&quot;</span>, CONFIG_BOARD_TARGET);</span><br><span class="line">        </span><br><span class="line">        k_sleep(K_MSEC(<span class="number">1000</span>));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="硬件配置"><a href="#硬件配置" class="headerlink" title="硬件配置"></a>硬件配置</h2><p>以nRF52840DK为例：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235219464.webp" alt="image-20250126235219464"></p>
+<p>首先切开焊盘SB40，这个是MCU供电流过的地方。</p>
+<ol>
+<li>如果用电流表测试，则接<strong>电流流出</strong>和<strong>电流流入</strong></li>
+<li>如果用电源测试，则接<strong>电流流入</strong>和<strong>GND</strong></li>
+<li>如果使用PPK II，支持以上两种模式，可以3个引脚都接</li>
+<li>如果使用示波器，可以在焊盘R90上焊接一个10欧姆高精度电阻，然后用示波器双通道2个探头分别接入<strong>电流流入</strong>和<strong>电流流出</strong>，再接地。示波器双通道相减获得电流。</li>
+</ol>
+<blockquote>
+<p>PPK II推荐使用<strong>电流表模式</strong>。如果要使用<strong>电源模式，一定要确保供电电压和板子本身供电电压相同</strong>。否则MCU引脚和板子上其他器件会有压差，导致漏电。</p>
+<p>这里使用nRF52840DK，如果用电压源模式需要选择3V供电。</p>
+</blockquote>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235758123.webp" alt="image-20250126235758123"></p>
+<p>此外，即使你使用电源模式，USB也是必须要接的：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/969d3d8a3a037e411d2636670789c9f1.webp" alt="969d3d8a3a037e411d2636670789c9f1"></p>
+<p>否则电源供电会通过一些开关芯片漏到板子上的其他器件上，造成功耗评估严重偏高。</p>
+<h2 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h2><p>板子上JLINK （Interface MCU）自带串口，直接电脑打开JLINK上的串口即可：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127003520771.webp" alt="image-20250127003520771"></p>
+<p>日志：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*** Booting nRF Connect SDK v2.8.0-a2386bfc8401 ***</span><br><span class="line">*** Using Zephyr OS v3.7.99-0bc3393fb112 ***</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:00.354,217] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:01.360,687] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:02.367,248] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:03.373,809] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:04.380,371] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:05.386,932] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:06.393,463] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:07.400,054] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:08.406,585] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br></pre></td></tr></table></figure>
+
+<p><code>printk</code>和<code>printf</code>以及<code>LOG</code>都连续输出2次。这说明这三种方式内部分别各自存在buffer，buffer满了才会输出。</p>
+<p>底电流：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127000857325.webp" alt="image-20250127000857325"></p>
+<p>IDLE线程的底电流2.54uA，符合手册中System ON条件下，CPU不工作时的功耗：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/75adeaab93a5d89a9b48ffa11ff3137f.webp" alt="75adeaab93a5d89a9b48ffa11ff3137f"></p>
+<blockquote>
+<p>相对的，System OFF的功耗非常低，但是只能用reset或GPIO唤醒，且唤醒后必定reset。</p>
+</blockquote>
+<h1 id="配置解析"><a href="#配置解析" class="headerlink" title="配置解析"></a>配置解析</h1><h2 id="异步串口"><a href="#异步串口" class="headerlink" title="异步串口"></a>异步串口</h2><p>根据我之前的文章<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17828907.html">《Zephyr驱动与设备树实战——串口》</a>，我们知道异步串口只要不是正在发送或接收，就是低功耗的。RX时的功耗比较高，因为需要一直等待。但好在日志是一个不需要RX的功能，因此我们关闭所有RX：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_SHELL=n</span><br><span class="line">CONFIG_CONSOLE_HANDLER=n</span><br></pre></td></tr></table></figure>
+
+<p>其他关于异步串口的配置，可以看那篇文章解释。</p>
+<h2 id="Zephyr-Device-Power-Management"><a href="#Zephyr-Device-Power-Management" class="headerlink" title="Zephyr Device Power Management"></a>Zephyr Device Power Management</h2><p>接下来是关于低功耗的：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_PM_DEVICE_RUNTIME=y</span><br><span class="line">CONFIG_PM_DEVICE=y</span><br></pre></td></tr></table></figure>
+
+<p>这是Zephyr Device Power Management Subsystem的功能。Zephyr中把电源管理分为System Power Management 和 Device Power Managment。System Power Management的强大功能我们已经见识过了：只要其他线程都在阻塞（不论是在sleep还是在等待信号量），进入IDLE线程后，系统会自动让CPU休眠。当有EVENT到来时，CPU自动唤醒，无需开发者操心CPU的休眠。</p>
+<p>而<strong>Device Power Managment</strong>管理的是外设的功耗，包括片上外设和外挂的总线外设。如果你开发了一段时间Zephyr，会发现Zephyr的外设API是没有init和uninit的。因为外设的初始化是在main线程运行之前就已经被驱动程序做好了。</p>
+<p><code>CONFIG_PM_DEVICE=y</code>就让你可以在应用层手动去开关这些外设，具体的API为：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/pm/device.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">uart0</span> =</span> DEVICE_DT_GET(DT_NODELABEL(uart0));</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">button_0_enter_low_power</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    pm_device_action_run(uart0, PM_DEVICE_ACTION_SUSPEND);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">button_1_exit_low_power</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    pm_device_action_run(uart0, PM_DEVICE_ACTION_RESUME);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>驱动层已经实现了<code>PM_DEVICE_ACTION_SUSPEND</code>和<code>PM_DEVICE_ACTION_RESUME</code>对应的功能，开发者无需再关心其初始化的细节。</p>
+<p>通过这种方式你可以手动地全局开关一些外设。</p>
+<p>但是有时候手动去开关还是太麻烦，可能你会想这样做来实现低功耗：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">pm_device_action_run(&amp;my_dev, PM_DEVICE_ACTION_SUSPEND);</span><br><span class="line">operate_my_dev(&amp;my_dev);</span><br><span class="line">pm_device_action_run(&amp;my_dev, PM_DEVICE_ACTION_RESUME);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>但是这么做不是线程安全的，如果这段代码在不同线程里运行会出问题（常见于SPI，I2C等总线外设）。另外可能这个外设被Zephyr系统用到了，但是却在那之前被你关掉了，那就会出问题（尤其常见于QSPI外挂Flash）。</p>
+<p> <code>CONFIG_PM_DEVICE_RUNTIME=y</code>就是Zephyr提供的另外一个库，它相当于对Device Management的API进行了一层封装：</p>
+<p><img src="https://docs-be.nordicsemi.com/bundle/ncs-latest/page/zephyr/_images/devr-sync-ops.svg?_LANG=enus" alt="../../_images/devr-sync-ops.svg"></p>
+<p>当应用层调用外设的API时，驱动层先调用<code>pm_device_runtime_get()</code>函数，使得<code>usage</code>变量+1。当usage变量大于1时，PM Subsystem就会调用<code>pm_device_action_run(dev, PM_DEVICE_ACTION_RESUME)</code>来让驱动层打开这个外设。</p>
+<p>当这个外设不再使用时（发送完毕&#x2F;接收完毕），驱动层则调用<code>pm_device_runtime_put()</code>函数，使得<code>usage</code>变量-1。当<code>usage == 0</code>时，PM Subsystem就会调用<code>pm_device_action_run(dev, PM_DEVICE_ACTION_SUSPEND)</code>来让驱动层关闭这个外设。</p>
+<p>这种实现是线程安全的，并且不需要应用层手动控制这个外设。此外，即使应用层重复地进行<code>get</code>或者<code>put</code>，也不会影响它实际的运行逻辑。</p>
+<blockquote>
+<p> NCS v2.8.0之后，Nordic串口驱动才加入了Runtime的支持。</p>
+</blockquote>
+<p>Runtime电源管理的功能，要看驱动程序是否支持，主要是看它有没有调用<code>pm_device_runtime_put</code>和<code>pm_device_runtime_get</code>。</p>
+<p>另外，Runtime的功能一定要对每个外设分别使能。你可以在设备树里添加一个配置，让它自动使能：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;uart0 &#123;</span><br><span class="line">    zephyr,pm-device-runtime-auto;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>此外，Nordic串口驱动做了更多事情。<strong>如果<code>CONFIG_PM_DEVICE</code>和<code>CONFIG_PM_DEVICE_RUNTIME</code>都不打开</strong>，此串口驱动也实现了自己的私有runtime低功耗：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 见/zephyr/drivers/serial/Kconfig.nrfx_uart_instance</span><br><span class="line"></span><br><span class="line">config UART_$(nrfx_uart_num)_NRF_ASYNC_LOW_POWER</span><br><span class="line">    bool &quot;Low power mode&quot;</span><br><span class="line">    depends on HAS_HW_NRF_UARTE$(nrfx_uart_num)</span><br><span class="line">    depends on UART_ASYNC_API</span><br><span class="line">    depends on UART_NRFX_UARTE_LEGACY_SHIM</span><br><span class="line">    default y if !PM_DEVICE</span><br><span class="line">    help</span><br><span class="line">      When enabled, UARTE is enabled before each TX or RX usage and disabled</span><br><span class="line">      when not used. Disabling UARTE while in idle allows to achieve lowest</span><br><span class="line">      power consumption. It is only feasible if receiver is not always on.</span><br><span class="line">      This option is irrelevant when device power management (PM) is enabled</span><br><span class="line">      because then device state is controlled by the PM actions.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>因此，两个都不打开也是可以低功耗的，只要其他配置与本文保持一致即可（异步串口）。</p>
+<p>但是，很多NCS例程是只开了<code>CONFIG_PM_DEVICE</code>，没有开<code>CONFIG_PM_DEVICE_RUNTIME</code>，导致两种低功耗场景都沾不上边，<strong>这种情况下，底电流约为15uA</strong>。</p>
+</blockquote>
+<h1 id="踩坑记录"><a href="#踩坑记录" class="headerlink" title="踩坑记录"></a>踩坑记录</h1><p>记录一个坑中坑的情况，当打开以下配置时：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_LOG_PRINTK=y</span><br></pre></td></tr></table></figure>
+
+<p>printk会从LOG的后端进行输出，也就是利用异步串口DMA进行输出，而不是串口阻塞API一个字节一个字节输出，这听起来很美好。</p>
+<p>但是，当我们只用printk，且输出字符为刚好33字节时（含<code>\n</code>）：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/kernel.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;   </span><br><span class="line">        printk(<span class="string">&quot;12345678901234567890123456789012\n&quot;</span>);        </span><br><span class="line">        k_sleep(K_MSEC(<span class="number">1000</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>功耗会来到惊人的367uA!!!</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127005910755.webp" alt="image-20250127005910755"></p>
+<p>并且，多一个字节或者少一个字节，功耗都是正常的！</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/kernel.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;   </span><br><span class="line">        <span class="comment">//printk(&quot;12345678901234567890123456789012\n&quot;);</span></span><br><span class="line">        printk(<span class="string">&quot;1234567890123456789012345678901\n&quot;</span>); </span><br><span class="line">        k_sleep(K_MSEC(<span class="number">1000</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127010021221.webp" alt="image-20250127010021221"></p>
+<p>我猜想这可能是因为33字节会刚好触发了Power Management打开串口，但是却又差一个字节才能发出去，导致实际没发出去，要等下一次数据来才能发出去。但是发送完毕后，又马上打开了串口。</p>
+<p>这个问题最坑的点在于…</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">printk(<span class="string">&quot;Hello World! %s\n&quot;</span>, CONFIG_BOARD_TARGET);</span><br></pre></td></tr></table></figure>
+
+<p><code>&quot;Hello World! nrf52840dk/nrf52840\n&quot;</code> 刚好就是33字节…</p>
+<p>并且，在printk后面加一个LOG_INF输出，也不会出现这个问题。</p>
+<p>这个Bug的出现让我一度怀疑我的其他配置出现了问题，各种修改尝试、切换SDK、翻阅源码，都无法找出原因，直到有次随手修改了打印的内容…</p>
+<p>总之分享出来，让其他人别踩这个坑吧。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2025/01/aeb1d94c5ebc/" data-id="cmqop0ng0000hy8o59ydebfjd" data-title="NCS 低功耗日志打印" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/jayant97.github.io/2025/03/dd490e6182dc/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          树莓派串口终端与网口直连终端
+        
+      </div>
+    </a>
+  
+  
+    <a href="/jayant97.github.io/2025/01/22618b91ecf6/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">NCS(Zephyr)中的蓝牙地址</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Jayant Tang<br>
+      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+  
+    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/jayant97.github.io/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

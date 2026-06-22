@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>nRF9151蜂窝模组简介与定位例程解析 | 一苇万顷</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="1. 简介产品nRF9151是支持NB-IoT和CAT-M的低功耗蜂窝LTE模组。支持OpenMCU开发，和Nordic其他产品线统一SDK。支持GPS定位。 nRF Cloud是部署在AWS上的物联网云。支持MQTT和HTTPS（REST）API。提供设备注册、设备管理、OTA、定位（基站定位、Wi-Fi定位、AGPS、PGPS）等服务。 nRF7002是一个2.4G&#x2F;5G低功耗双频W">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nRF9151蜂窝模组简介与定位例程解析">
+<meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/04/f1f289c546d9/index.html">
+<meta property="og:site_name" content="一苇万顷">
+<meta property="og:description" content="1. 简介产品nRF9151是支持NB-IoT和CAT-M的低功耗蜂窝LTE模组。支持OpenMCU开发，和Nordic其他产品线统一SDK。支持GPS定位。 nRF Cloud是部署在AWS上的物联网云。支持MQTT和HTTPS（REST）API。提供设备注册、设备管理、OTA、定位（基站定位、Wi-Fi定位、AGPS、PGPS）等服务。 nRF7002是一个2.4G&#x2F;5G低功耗双频W">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(2).jpeg">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(3).jpeg">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250424130251452.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427124819121.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250424134257883.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427125146231.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427133846267.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20230311145904031-1781812259.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427165923803.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427170019787.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427172427929.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427173557275.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175008402.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175032694.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175858824.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180107690.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180227357.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180437793.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430161938500.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163301076.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163326698.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163535426.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430170545090.png">
+<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430171642316.png">
+<meta property="article:published_time" content="2025-04-24T03:22:12.000Z">
+<meta property="article:modified_time" content="2026-06-22T03:18:34.232Z">
+<meta property="article:author" content="Jayant Tang">
+<meta property="article:tag" content="嵌入式,Nordic,BLE,LTE,Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(2).jpeg">
+  
+    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+        
+          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-nRF9151蜂窝模组简介与定位例程解析" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/jayant97.github.io/2025/04/f1f289c546d9/" class="article-date">
+  <time class="dt-published" datetime="2025-04-24T03:22:12.000Z" itemprop="datePublished">2025-04-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      nRF9151蜂窝模组简介与定位例程解析
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><h2 id="产品"><a href="#产品" class="headerlink" title="产品"></a>产品</h2><p>nRF9151是支持NB-IoT和CAT-M的低功耗蜂窝LTE模组。支持OpenMCU开发，和Nordic其他产品线统一SDK。支持GPS定位。</p>
+<p>nRF Cloud是部署在AWS上的物联网云。支持MQTT和HTTPS（REST）API。提供设备注册、设备管理、OTA、定位（基站定位、Wi-Fi定位、AGPS、PGPS）等服务。</p>
+<p>nRF7002是一个2.4G&#x2F;5G低功耗双频Wi-Fi6收发器，可以用来模拟nRF7000。nRF7000是一个只能scan，不能connect的wifi6双频收发器，主要用于做Wi-Fi定位。</p>
+<h2 id="本文内容"><a href="#本文内容" class="headerlink" title="本文内容"></a>本文内容</h2><p>介绍如何搭建环境、编译nrf_cloud_multi_service工程。这是一个支持多个nRF Cloud服务的设备端工程。让nRF9151连接到nRF Cloud云端，并进行GPS定位、基站定位、Wi-Fi定位。</p>
+<p>介绍如何进行Modem Trace抓包分析基站内容。</p>
+<p>分析代码框架思路。</p>
+<h1 id="2-硬件准备"><a href="#2-硬件准备" class="headerlink" title="2. 硬件准备"></a>2. 硬件准备</h1><ul>
+<li>nRF9151开发板（或其他91系列开发板）</li>
+<li>NB-IoT物联网卡，这里是中国移动的。左边是开发板送的2张卡，在国内不好用。</li>
+<li>（可选）nRF7002EK。</li>
+</ul>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(2).jpeg" alt="Image (2)"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(3).jpeg" alt="Image (3)"></p>
+<blockquote>
+<p>关于SIM卡：</p>
+<ol>
+<li>9151DK赠送的两张卡（Onomondo和Wireless Logic）都是预先激活好的，不需要再次激活，并且带有一定的流量和使用期限。如果扫描二维码进行注册，可以获得更多的免费流量。</li>
+<li>Onomondo和Wireless Logic是虚拟运营商。他们会和全球的运营商合作，让自己的卡能够漫游到全球大部分地区，支持CAT-M和NB-IoT。具体覆盖范围可以去他们官网查询。国内在上海我试过Onomondo的NB IoT是可用的，Wireless Logic没有漫游成功。</li>
+<li>使用国内的物联网卡，如中国移动的物联网卡时，注意是要支持NB-IoT的，并且注意国内的卡都会锁设备。也就是说新卡一但在一台设备上使用了，就不能换到其他设备上了。</li>
+</ol>
+</blockquote>
+<h1 id="3-软件准备"><a href="#3-软件准备" class="headerlink" title="3. 软件准备"></a>3. 软件准备</h1><h2 id="安装开发环境与烧录工具"><a href="#安装开发环境与烧录工具" class="headerlink" title="安装开发环境与烧录工具"></a>安装开发环境与烧录工具</h2><p>首先按照<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17794804.html">《nRF Connect SDK安装与入门》</a>装好开发环境NCS v2.9.0，相关工具（nRF Connect for Desktop, nrfutil, Jlink驱动等）。</p>
+<h2 id="烧录Modem-Firmware"><a href="#烧录Modem-Firmware" class="headerlink" title="烧录Modem Firmware"></a>烧录Modem Firmware</h2><p>在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/nRF9151/Download?lang=en#infotabs">9151官网页面</a>下载最新版Modem Firmware (MFW)。</p>
+<p>MFW是Modem专门的固件，是不开源的，以zip包的形式提供。Modem有独立的CPU和存储空间，不占用App Core的Flash和RAM。</p>
+<p>可以用nRF Connect for Desktop里面的Programmer烧录。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250424130251452.png" alt="image-20250424130251452"></p>
+<p>也可以用nrfutil命令行操作：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nrfutil self-upgrade</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看可安装的工具</span></span><br><span class="line">nrfutil search</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装蜂窝系列模组工具</span></span><br><span class="line">nrfutil install 91</span><br><span class="line"></span><br><span class="line"><span class="comment"># 烧录modem firmware</span></span><br><span class="line">nrfutil 91 modem-firmware-upgrade --firmware ./project/mfw_nrf91x1_2.0.2.zip --all-jlinks</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置模拟开关"><a href="#配置模拟开关" class="headerlink" title="配置模拟开关"></a>配置模拟开关</h2><p>nRF9160无需此步骤。</p>
+<p>目前比较新的开发板都使用Interface MCU来控制板子上的模拟开关，而非物理开关。通过nRF Connect for Desktop上的Board Configurator控制。</p>
+<p>nRF9151DK上有两种方式可以连接LEDs和Buttons。一种是GPIO直连，一种是通过I2C接口的IO扩展器连接。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427124819121.png" alt="image-20250427124819121"></p>
+<p>如果你要使用7002EK扩展Wi-Fi功能，那么默认的LED就会占用7002要用的GPIO。因此，7002EK的DeviceTree文件会使能I2C接口的IO扩展器。</p>
+<p>见<code>zephyr/boards/nordic/nrf9151dk/dts/nrf9151dk_leds_on_io_expander.dtsi</code>。</p>
+<p>对应地就需要在开发板上把模拟开关切换到IO扩展器。使用nRF Connect for Desktop的Board Configurator来配置：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250424134257883.png" alt="image-20250424134257883"></p>
+<p>配置完毕后点击左边写入。这里写入是把配置写入到板子上的Interface MCU（即Jlink DEBUGGER）中。</p>
+<h1 id="4-修改、编译并烧录例程"><a href="#4-修改、编译并烧录例程" class="headerlink" title="4. 修改、编译并烧录例程"></a>4. 修改、编译并烧录例程</h1><p>通过copy a sample的形式复制并创建例程nRF Could Multi Service（<code>v2.9.0/nrf/samples/cellular/nrf_cloud_multi_service</code>）。</p>
+<p>修改<code>prj.conf</code>，增加以下内容</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动物联网卡需要单独配置PDN</span></span><br><span class="line">CONFIG_PDN=y              </span><br><span class="line">CONFIG_PDN_LEGACY_PCO=y</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">默认是NB+CATM+GPS，国内去掉CATM</span></span><br><span class="line">CONFIG_LTE_NETWORK_MODE_NBIOT_GPS=y</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置连接nRF Cloud时，使用UUID作为本机ID</span></span><br><span class="line">CONFIG_MODEM_JWT=y                              </span><br><span class="line">CONFIG_NRF_CLOUD_CLIENT_ID_SRC_INTERNAL_UUID=y </span><br></pre></td></tr></table></figure>
+
+<p>创建编译目标。如果有7002ek，就增加以下参数。如果没有就不加：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427125146231.png" alt="image-20250427125146231"></p>
+<p>也可以用命令行编译：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build -p \</span><br><span class="line">-b nrf9151dk/nrf9151/ns \</span><br><span class="line">-- \</span><br><span class="line">  -DSHIELD=nrf7002ek_nrf7000 \</span><br><span class="line">  -DSB_CONF_FILE=<span class="string">&quot;sysbuild_nrf700x-wifi-scan.conf&quot;</span> \</span><br><span class="line">  -DEXTRA_CONF_FILE=<span class="string">&quot;overlay-nrf7002ek-wifi-scan-only.conf&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>这个CMake参数等价于在CMakeLists.txt的开头写<code>set(SHIELD nrf7002ek_nrf7000)</code>，也就是会把7002ek这个扩展板的Kconfig配置和设备树overlay附加到当前工程的nrf9151板子上。</li>
+<li>7002ek有很多变体（<code>nrf7002ek</code>，<code>nrf7002ek_7001</code>，<code>nrf7002ek_7000</code>）。硬件上是2.4G&#x2F;5GHz双频的nRF7002，通过这种变体配置来模拟7001（只有2.4GHz）和7000（只能scan不能连接）</li>
+</ol>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[447/447] Linking C executable zephyr/zephyr.elf</span><br><span class="line">Memory region         Used Size  Region Size  %age Used</span><br><span class="line">           FLASH:      275888 B       384 KB     70.16%</span><br><span class="line">             RAM:      111608 B     215832 B     51.71%</span><br><span class="line">        IDT_LIST:          0 GB        32 KB      0.00%</span><br><span class="line">Generating files from /home/jayant/OneDrive_Nordic/Customer/Meari/nrf_cloud_multi_service/build/nrf_cloud_multi_service/zephyr/zephyr.elf for board: nrf9151dk</span><br><span class="line">image.py: sign the payload</span><br><span class="line">image.py: sign the payload</span><br><span class="line">[1/213] Preparing syscall dependency handling</span><br><span class="line"></span><br><span class="line">[6/213] Generating include/generated/zephyr/version.h</span><br><span class="line">-- Zephyr version: 3.7.99 (/home/jayant/project/ncs/v2.9.0/zephyr), build: v3.7.99-ncs2</span><br><span class="line">[213/213] Linking C executable zephyr/zephyr.elf</span><br><span class="line">Memory region         Used Size  Region Size  %age Used</span><br><span class="line">           FLASH:       48296 B      81408 B     59.33%</span><br><span class="line">             RAM:       28944 B        32 KB     88.33%</span><br><span class="line">        IDT_LIST:          0 GB        32 KB      0.00%</span><br><span class="line">Generating files from /home/jayant/OneDrive_Nordic/Customer/Meari/nrf_cloud_multi_service/build/mcuboot/zephyr/zephyr.elf for board: nrf9151dk</span><br><span class="line">[20/20] Generating ../merged.hex</span><br></pre></td></tr></table></figure>
+
+<p>编译完成后可以看到应用和bootloader的占用。</p>
+<p>然后烧录，使用nRF Connect for Desktop中的Serial Monitor查看串口：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427133846267.png" alt="image-20250427133846267"></p>
+<p>能观察到：</p>
+<ul>
+<li>nRF Cloud的客户端ID是UUID，不是IMEI</li>
+<li>设备可以附着基站，可以连网。但是无法连接到nRF Cloud MQTT</li>
+</ul>
+<h1 id="5-nRF-Cloud设备注册简介"><a href="#5-nRF-Cloud设备注册简介" class="headerlink" title="5. nRF Cloud设备注册简介"></a>5. nRF Cloud设备注册简介</h1><h2 id="设备注册"><a href="#设备注册" class="headerlink" title="设备注册"></a>设备注册</h2><p>nRF Cloud是Nordic的物联网云服务器，设置在AWS上，有设备托管、OTA、位置定位等服务。开放MQTT和HTTP（REST）的接口。</p>
+<p>此例程需要把设备注册（Provision）到nRF Cloud上。</p>
+<p>所谓的设备注册，就是让云端把这台设备的ID等信息注册在在你的个人账户下。除此之外，设备端和云端还需要各自持有对方的<strong>TLS证书（公钥）</strong>，这样才能进行双向的认证和加密。</p>
+<p>这里，云端的证书就是AWS的根证书，而设备端的证书是X.509格式的设备证书。</p>
+<h2 id="证书文件"><a href="#证书文件" class="headerlink" title="证书文件"></a>证书文件</h2><p>要阅读这部分，首先你需要了解非对称加密和TLS证书。</p>
+<p>设备内部需要三个证书文件（credentials）：</p>
+<ul>
+<li><strong>服务器根证书（Root CA）</strong>：这里是AWS根证书，用于确保自己连接的云服务器不是冒充的</li>
+<li><strong>设备证书（Client certificate）</strong>：预先给云服务器上传此证书。后续进行访问时，云服务器通过证书来验证设备是否真正是注册的设备。</li>
+<li><strong>设备私钥（Client private key）</strong>：通过密钥加密的数据，可以用设备证书携带的公钥解密。因此持有密钥的设备就是证书代表的设备。</li>
+</ul>
+<p>这三个文件都是存储在<strong>Modem</strong>里面的，不占用Application Core的flash空间。</p>
+<p>要管理modem里的证书，需要通过<code>AT%CMNG</code>命令来操作。可以写入云服务器的证书、自动生成证书和私钥等。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">%CMNG=&lt;opcode&gt;[,&lt;sec_tag&gt;[,&lt;type&gt;[,&lt;content&gt;[,&lt;passwd&gt;]]]]</span><br></pre></td></tr></table></figure>
+
+<p>这里<code>&lt;opcode&gt;</code>代表写、读等操作。</p>
+<p><code>&lt;sec_tag&gt;</code>很重要，代表的是一组证书的句柄标签，范围是0–2147483647。例如，<strong>nRF Cloud的句柄就是16842753</strong>。当代码中通过网络访问nRF Cloud时，就通过16842753这个sec tag来获取到对应的证书，进行TLS通讯。</p>
+<p><code>&lt;type&gt;</code>代表这个密钥文件的类型：</p>
+<ul>
+<li>0 – Root CA certificate (ASCII text).</li>
+<li>1 – Client certificate (ASCII text).</li>
+<li>2 – Client private key (ASCII text).</li>
+<li>……</li>
+</ul>
+<p>同一个sec_tag之下，可以存<strong>一组</strong>证书文件。这里指的就是不同的<code>&lt;type&gt;</code>。这里我们连接nRF Cloud，就需要0, 1, 2这三种整数文件。</p>
+<p>某些云平台会直接把这三个证书文件都生成好，让你把服务器根证书、设备证书和设备私钥直接烧录到设备中。这种方式有暴露设备私钥的风险（毕竟经历了云端，下载到PC，再烧录到设备）。</p>
+<p>nRF91系列可以直接在设备上生成私钥，使用<code>AT%KEYGEN</code>命令生成。私钥生成后无法读出，可以调用API使用这个私钥来进行加密、解密，但是绝对无法读取到私钥本身。而设备证书是可以读取的。</p>
+<p>更多参数详见：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ref_at_commands_nrf91x1/page/REF/at_commands/security/cmng.html">https://docs.nordicsemi.com/bundle/ref_at_commands_nrf91x1/page/REF/at_commands/security/cmng.html</a></p>
+<blockquote>
+<p>所有证书文件操作时都必须先关闭网络（<code>AT+CFUN=4</code>）</p>
+</blockquote>
+<h2 id="nRF-Cloud注册方式"><a href="#nRF-Cloud注册方式" class="headerlink" title="nRF Cloud注册方式"></a>nRF Cloud注册方式</h2><p>通过前面的介绍，我们知道配网需要完成2件事：</p>
+<ol>
+<li>把服务器的根证书存储到设备上</li>
+<li>把设备的证书上传到服务器，并且确保设备中有该证书对应的私钥</li>
+</ol>
+<p>nRF Cloud提供3种注册方式：</p>
+<h3 id="1-连接前注册（Preconnect-onboarding）"><a href="#1-连接前注册（Preconnect-onboarding）" class="headerlink" title="1. 连接前注册（Preconnect onboarding）"></a>1. 连接前注册（Preconnect onboarding）</h3><p>设备在生产完成后，还没有连网，就注册到云端。</p>
+<p>可以用电脑手动给云端上传一个csv表格，里面包含设备的ID和证书公钥等信息。适合设备在生产时阶段就批量注册到云端的情况。</p>
+<p>其中，证书的来源又有2种：</p>
+<ul>
+<li>用<code>AT%KEYGEN</code>让设备自动生成证书与私钥，再把证书记录到表格中（安全）</li>
+<li>先用电脑生成好设备证书和私钥，然后烧录到设备中（可能不安全）</li>
+</ul>
+<p>前者对应文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/samples/cellular/nrf_cloud_multi_service/README.html#onboarding_a_device_without_the_nrf_cloud_provisioning_service">Onboarding a device without the nRF Cloud Provisioning Service</a>;</p>
+<p>后者对应文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/samples/cellular/nrf_cloud_multi_service/README.html#onboarding_with_hard-coded_device_credentials">Onboarding with hard-coded device credentials</a></p>
+<h3 id="2-部署时注册（Auto-onboarding）"><a href="#2-部署时注册（Auto-onboarding）" class="headerlink" title="2. 部署时注册（Auto-onboarding）"></a>2. 部署时注册（Auto-onboarding）</h3><p>设备在生产完成后不注册到云端。而是等到现场部署时，再通过现场的人员操作进行证书生成、云端注册。</p>
+<p>这需要在编译时，就在代码中开启Provisionning Service相关的配置。</p>
+<p>本文不介绍这种方式，可以参考官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/samples/cellular/nrf_cloud_multi_service/README.html#provisioning_with_the_nrf_cloud_provisioning_service">https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/samples/cellular/nrf_cloud_multi_service/README.html#provisioning_with_the_nrf_cloud_provisioning_service</a></p>
+<h3 id="3-JITP（Just-in-Time-provisioning）"><a href="#3-JITP（Just-in-Time-provisioning）" class="headerlink" title="3. JITP（Just-in-Time provisioning）"></a>3. JITP（Just-in-Time provisioning）</h3><p>用于开发板评估的快速注册。由于开发板生产时都烧录好了证书，nRF Cloud也已经存储了这些证书。只需要扫描二维码就能把这个开发板对应的证书绑定到你的nRF Cloud账号里。</p>
+<p>但是如果你已经重新烧了modem firmware，或者是量产的产品，则不能使用这种方式。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/nrf-cloud/page/Devices/Associations/Onboarding.html#jitp">https://docs.nordicsemi.com/bundle/nrf-cloud/page/Devices/Associations/Onboarding.html#jitp</a></p>
+<h1 id="6-将设备注册到nRF-Cloud"><a href="#6-将设备注册到nRF-Cloud" class="headerlink" title="6. 将设备注册到nRF Cloud"></a>6. 将设备注册到nRF Cloud</h1><h2 id="注册nRF-Cloud账号并获取API-Key"><a href="#注册nRF-Cloud账号并获取API-Key" class="headerlink" title="注册nRF Cloud账号并获取API Key"></a>注册nRF Cloud账号并获取API Key</h2><ul>
+<li>免费注册一个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://nrfcloud.com/#/">nRF Cloud</a> 账号</li>
+</ul>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://img2023.cnblogs.com/blog/3028998/202303/3028998-20230311145904031-1781812259.png"><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20230311145904031-1781812259.png" alt="image-20221205005305505"></a></p>
+<p>注册登录后，右上角进入User Account界面</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427165923803.png" alt="image-20250427165923803"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427170019787.png" alt="image-20250427170019787"></p>
+<p>记录自己的API Key。</p>
+<blockquote>
+<p><strong>注意</strong>：API Key非常重要，可以通过API Key控制你账号下的所有设备、所有权限、调用付费API等。千万不能泄露！！！</p>
+<p>如果你怀疑API Key泄露，可以点击右边的Regenerate API Key重新生成。</p>
+</blockquote>
+<h2 id="安装nRF-Cloud-Utils"><a href="#安装nRF-Cloud-Utils" class="headerlink" title="安装nRF Cloud Utils"></a>安装nRF Cloud Utils</h2><p>需要python3环境。</p>
+<p>可以直接用pip安装：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip3 install nrfcloud-utils</span><br></pre></td></tr></table></figure>
+
+<p>也可以直接clone仓库：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nRFCloud/utils/">https://github.com/nRFCloud/utils/</a></p>
+<blockquote>
+<p>如果是pip安装，则直接执行命令，如<code>create_ca_cert</code>。</p>
+<p>如果是clone方式安装，则进入<code>src /nrfcloud_utils/</code>，然后执行脚本，如<code>create_ca_cert.py</code></p>
+</blockquote>
+<p><strong>推荐以pip安装的方式进行</strong>。</p>
+<h2 id="设置临时环境变量"><a href="#设置临时环境变量" class="headerlink" title="设置临时环境变量"></a>设置临时环境变量</h2><p>在命令行中设置临时环境变量，方便后面执行脚本</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Linux</span></span><br><span class="line"><span class="built_in">export</span> API_KEY=&lt;your_api_key&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Windows Powershell</span></span><br><span class="line"><span class="variable">$env:API_KEY</span>=&lt;your_api_key&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="生成自签CA证书"><a href="#生成自签CA证书" class="headerlink" title="生成自签CA证书"></a>生成自签CA证书</h2><p>生成一个你自己签名的根证书，私钥由你持有。后续所有的设备证书都由这个CA证书来签发。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">create_ca_cert \</span><br><span class="line">-c CN \</span><br><span class="line">-l Shanghai \</span><br><span class="line">-o <span class="string">&quot;Nordic Semiconductor K.K.&quot;</span> \</span><br><span class="line">--ou <span class="string">&quot;Sales&quot;</span> \</span><br><span class="line">--cn nordic.cn \</span><br><span class="line">-e jayant.tang@nordicsemi.no \</span><br><span class="line">-p ./my_ca \</span><br><span class="line">-f <span class="string">&quot;Jayant-&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参数解释可查看<code>create_ca_cert --help</code>。证书会生成到<code>-p</code>参数指定的目录下，这里是<code>/my_ca</code></p>
+</blockquote>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427172427929.png" alt="image-20250427172427929"></p>
+<p>文件分别为：证书、私钥、公钥。</p>
+<p>其中证书内包含公钥。</p>
+<h2 id="给设备签发设备证书"><a href="#给设备签发设备证书" class="headerlink" title="给设备签发设备证书"></a>给设备签发设备证书</h2><p>让设备生成公私钥，利用自签CA给设备签发设备证书，并把设备证书保存到csv表格中。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">device_credentials_installer \</span><br><span class="line">-d \</span><br><span class="line">-t <span class="string">&quot;jayant-DK&quot;</span> \</span><br><span class="line">--ca ./my_ca/Jayant-0x112b0b2f2db47ba510eb57430f349de6f76d882_ca.pem \</span><br><span class="line">--ca-key ./my_ca/Jayant-0x112b0b2f2db47ba510eb57430f349de6f76d882_prv.pem \</span><br><span class="line">-a \</span><br><span class="line">--devinfo-append \</span><br><span class="line">--csv ./jayant_provision.csv \</span><br><span class="line">--devinfo ./jayant_devinfo.csv \</span><br><span class="line">--term CRLF \</span><br><span class="line">--port /dev/ttyACM0</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li><code>-d</code>：安装前先从Modem中删除sectag</li>
+<li><code>-t</code>：用于设备分组管理的标签，是一个字符串</li>
+<li><code>-T</code>：设置自定义的子类型，如温湿度传感器等，是一个字符串。此处未设置</li>
+<li><code>--ca</code>：CA证书文件的路径</li>
+<li><code>--ca-key</code>：CA证书私钥的路径(prv)</li>
+<li><code>-a</code>或<code>--append</code>：保存<strong>设备注册信息</strong>到csv表格文件时，向末尾增加新的条目，而不是覆盖csv文件（这个选项是确保你可以重复执行脚本，搜集全部设备信息的基础）</li>
+<li><code>--devinfo-append</code>：保存<strong>设备信息</strong>到csv表格文件时，向末尾增加新的条目，而不是覆盖csv文件（这个选项是确保你可以重复执行脚本，搜集全部设备信息的基础）</li>
+<li><code>--csv</code>：用于存储设备注册信息的CSV表格的文件名，若文件不存在则创建。若文件存在，则根据<code>-a</code>选项，向文件中添加新条目。（存储UUID、前缀、固件等信息）</li>
+<li><code>--devinfo</code>：用于存储设备信息的CSV表格的文件名，若文件不存在则创建。若文件存在，则根据<code>-a</code>选项，向文件中添加新条目。（存储UUID、Modem固件版本、芯片IMEI等信息）</li>
+<li><code>--term</code>：AT指令的结束符（<code>NULL</code>,<code>CRLF</code>,<code>CR</code> 或<code>LF</code>）</li>
+<li><code>--port</code>：指定AT指令串口（windows上是COM口，Linux上是&#x2F;dev&#x2F;tty*）</li>
+</ul>
+</blockquote>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427173557275.png" alt="image-20250427173557275"></p>
+<p>公私钥生成后，脚本自动读取了设备信息并将其保存到了csv表格中。</p>
+<p>由于添加了<code>-a</code>和<code>--devinfo-append</code>，如果你有多个设备要注册，这些信息会追加添加到表格中。</p>
+<p>注册时，最大支持一次性注册3000台设备。</p>
+<blockquote>
+<p>这种方式是用<code>AT%KEYGEN</code>自动生成私钥的，比较安全。</p>
+<p>如果你想用前面提到的“先用电脑生成设备私钥，再烧录进去”的方式。可以参考：<code>create_device_credentials</code>命令来进行生成。然后用<code>AT%CMNG</code>命令烧录三个证书文件（服务器CA证书、设备证书、设备私钥）。烧录前记得AT+CFUN&#x3D;4关闭网络。AWS IoT CA证书在这里下载（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.amazontrust.com/repository/AmazonRootCA1.pem%EF%BC%89">https://www.amazontrust.com/repository/AmazonRootCA1.pem）</a></p>
+</blockquote>
+<h2 id="把注册信息上传到云端"><a href="#把注册信息上传到云端" class="headerlink" title="把注册信息上传到云端"></a>把注册信息上传到云端</h2><p>可以继续使用命令</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nrf_cloud_onboard --api-key <span class="variable">$API_KEY</span> --csv jayant_provision.csv</span><br></pre></td></tr></table></figure>
+
+<p>利用前面获得的API_KEY来上传csv表格，注册设备。</p>
+<p>也可以直接在网页端操作：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175008402.png" alt="image-20250427175008402"></p>
+<p>选择批量注册：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175032694.png" alt="image-20250427175032694"></p>
+<p>然后把<code>jayant_provision.csv</code>表格拖进去就可以注册了。</p>
+<h2 id="检查连网情况"><a href="#检查连网情况" class="headerlink" title="检查连网情况"></a>检查连网情况</h2><p>由于安装证书时，设备被设置为飞行模式。这里打开串口，再reset一下。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175858824.png" alt="image-20250427175858824"></p>
+<p>可以看到设备成功连网并访问到nRF Cloud.</p>
+<h1 id="7-查看定位"><a href="#7-查看定位" class="headerlink" title="7. 查看定位"></a>7. 查看定位</h1><p>我们进入nRF Cloud会发现设备已经上线：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180107690.png" alt="image-20250427180107690"></p>
+<p>点击ID进入设备详情页：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180227357.png" alt="image-20250427180227357"></p>
+<p>可以看到，设备通过MQTT已经上传了经纬度。同时，网页通过谷歌地图渲染了这个经纬度的地点（需要翻墙代理才能看到）。</p>
+<p>并且根据颜色不同，有单基站、多基站、Wi-Fi和GPS定位：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180437793.png" alt="image-20250427180437793"></p>
+<p>我这里在室内，所以GPS定位失败。但是Wi-Fi定位还是很准的。</p>
+<h1 id="8-Modem-Trace抓包"><a href="#8-Modem-Trace抓包" class="headerlink" title="8. Modem Trace抓包"></a>8. Modem Trace抓包</h1><p>本节介绍如何进行Modem Trace抓包。Modem Trace就是让nRF9151和基站之间交互的数据包以二进制格式通过串口等方式输出，方便进行抓包调试。</p>
+<p>要使能Modem Trace，需要打开一些config和进行一些设备树配置。Zephyr中支持通过snippets的形式提供一组config和设备树配置，这样就不用一个一个手动添加了。</p>
+<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430161938500.png" alt="image-20250430161938500"></p>
+<p>在Build Configuration中添加<code>nrf91-modem-trace-uart</code>即可。</p>
+<p>如果是命令行编译的方法，就添加<code>-D&lt;image_name&gt;_SNIPPET=&quot;nrf91-modem-trace-uart&quot;</code>参数，如：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build -p \</span><br><span class="line">-b nrf9151dk/nrf9151/ns \</span><br><span class="line">-- \</span><br><span class="line">  -DSHIELD=nrf7002ek_nrf7000 \</span><br><span class="line">  -DSB_CONF_FILE=<span class="string">&quot;sysbuild_nrf700x-wifi-scan.conf&quot;</span> \</span><br><span class="line">  -DEXTRA_CONF_FILE=<span class="string">&quot;overlay-nrf7002ek-wifi-scan-only.conf&quot;</span> \</span><br><span class="line">  -Dnrf_cloud_multi_service_SNIPPET=<span class="string">&quot;nrf91-modem-trace-uart&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果你想查看snippets具体添加了哪些配置，可以查看Build信息：</p>
+<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163301076.png" alt="image-20250430163301076"></p>
+<p>可以看到使用的是串口1，波特率1M：</p>
+<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163326698.png" alt="image-20250430163326698"></p>
+</blockquote>
+<p><strong>编译完毕后重新烧录固件</strong>。</p>
+<p>把9151DK通过USB连接到电脑。在nRF Connect for Desktop中打开Cellular Monitor：</p>
+<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163535426.png" alt="image-20250430163535426"></p>
+<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430170545090.png" alt="image-20250430170545090"></p>
+<p>nRF9151的UART0和UART1，在板子上直接连到Jink USB的，因此无需再接串口。</p>
+<p>这里一个串口是日志输出和AT Commands通道，另一个是Modem Trace，注意不要选错。Modem Trace database选择你下载的Modem Firmware的版本。</p>
+<p><strong>nRF Connect下的所有软件可以共享串口，所以你可以同时打开“Open Serial Terminal”，查看日志和AT Commands.</strong></p>
+<p>之后点击Start就可以开始抓包：</p>
+<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430171642316.png" alt="image-20250430171642316"></p>
+<p>左下角为抓包文件存储位置。</p>
+<p>你也可以在Start之前，打开“Open in Wireshark”：</p>
+<h1 id="9-代码解析"><a href="#9-代码解析" class="headerlink" title="9. 代码解析"></a>9. 代码解析</h1>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2025/04/f1f289c546d9/" data-id="cmqop0ng2000sy8o5aarea6kb" data-title="nRF9151蜂窝模组简介与定位例程解析" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/jayant97.github.io/2025/09/6376457096fe/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          在WSL2中搭建Matter CHIP Tool环境
+        
+      </div>
+    </a>
+  
+  
+    <a href="/jayant97.github.io/2025/03/dd490e6182dc/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">树莓派串口终端与网口直连终端</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
+          </li>
+        
+          <li>
+            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 Jayant Tang<br>
+      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+  
+    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/jayant97.github.io/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
