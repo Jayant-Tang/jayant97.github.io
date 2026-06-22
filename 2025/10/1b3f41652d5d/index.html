@@ -1,16 +1,29 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>在Matter中添加自己的蓝牙广播与服务 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="1. 简介在Matter设备中添加自己的蓝牙广播和服务是常见的需求。主要来自于两个方面： 一是功能的角度，因为Matter规定了每一种设备类型只能有它固定的操作，如果厂商有特殊的配置要传给设备，是没法通过Matter传输的。因为Apple, Google, Samsung等手机的家庭APP里不会有为厂商单独配置的界面。  实际上Matter也支持厂商自定义Cluster，只不过目前各大手机的家庭A">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="1. 简介在Matter设备中添加自己的蓝牙广播和服务是常见的需求。主要来自于两个方面： 一是功能的角度，因为Matter规定了每一种设备类型只能有它固定的操作，如果厂商有特殊的配置要传给设备，是没法通过Matter传输的。因为Apple, Google, Samsung等手机的家庭APP里不会有为厂商单独配置的界面。  实际上Matter也支持厂商自定义Cluster，只不过目前各大手机的家庭A">
 <meta property="og:type" content="article">
 <meta property="og:title" content="在Matter中添加自己的蓝牙广播与服务">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/10/1b3f41652d5d/index.html">
-<meta property="og:site_name" content="一苇万顷">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
 <meta property="og:description" content="1. 简介在Matter设备中添加自己的蓝牙广播和服务是常见的需求。主要来自于两个方面： 一是功能的角度，因为Matter规定了每一种设备类型只能有它固定的操作，如果厂商有特殊的配置要传给设备，是没法通过Matter传输的。因为Apple, Google, Samsung等手机的家庭APP里不会有为厂商单独配置的界面。  实际上Matter也支持厂商自定义Cluster，只不过目前各大手机的家庭A">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7e99575576b0cf2b4da41e00a995e054.png">
@@ -27,104 +40,559 @@
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedff30110b3494195396ee7239bde87d89.png">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd61d2864bfe01dd42569bd24f4683874.png">
 <meta property="article:published_time" content="2025-10-21T07:50:54.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.243Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.843Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="Matter">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7e99575576b0cf2b4da41e00a995e054.png">
   
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
   
   
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  <title>在Matter中添加自己的蓝牙广播与服务 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
   
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
   
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-在Matter中添加自己的蓝牙广播与服务" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2025/10/1b3f41652d5d/" class="article-date">
-  <time class="dt-published" datetime="2025-10-21T07:50:54.000Z" itemprop="datePublished">2025-10-21</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/jayant97.github.io/categories/Matter/">Matter</a>
-  </div>
+  
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="在Matter中添加自己的蓝牙广播与服务"></span>
+          
+        </div>
+
         
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      在Matter中添加自己的蓝牙广播与服务
-    </h1>
-  
-
-      </header>
+          
+  <div class="mt-3">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-10-21 15:50" pubdate>
+          2025年10月21日
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          22k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          185 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>在Matter设备中添加自己的蓝牙广播和服务是常见的需求。主要来自于两个方面：</p>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">在Matter中添加自己的蓝牙广播与服务</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>在Matter设备中添加自己的蓝牙广播和服务是常见的需求。主要来自于两个方面：</p>
 <p>一是功能的角度，因为Matter规定了每一种设备类型只能有它固定的操作，如果厂商有特殊的配置要传给设备，是没法通过Matter传输的。因为Apple, Google, Samsung等手机的家庭APP里不会有为厂商单独配置的界面。</p>
 <blockquote>
 <p>实际上Matter也支持厂商自定义Cluster，只不过目前各大手机的家庭APP无法操作这些自定义Cluster。</p>
 </blockquote>
-<p>二是生态的角度，智能家具厂商往往都有自己的手机APP。虽然Matter出现的目标是打破生态壁垒，但厂商肯定还是不愿意放弃自己的APP生态的，主打一个“我全都要”。</p>
+<p>二是生态的角度，智能家居厂商往往都有自己的手机APP。虽然Matter出现的目标是打破生态壁垒，但厂商肯定还是不愿意放弃自己的APP生态的，主打一个“我全都要”。</p>
 <p>本文将会基于nRF Connect SDK v3.0.2说明如何在Nordic芯片平台上给Matter工程添加自己的蓝牙广播和服务。</p>
 <h1 id="2-多蓝牙广播方案分析"><a href="#2-多蓝牙广播方案分析" class="headerlink" title="2. 多蓝牙广播方案分析"></a>2. 多蓝牙广播方案分析</h1><p>对于Matter over Wi-Fi 设备，Wi-Fi和BLE不是同一个射频硬件，只要互相不干扰就行。</p>
 <p>对于Matter over Thread 设备，Nordic只需要一颗MCU，就可以实现BLE和Thread共用射频硬件，它们实际上在物理层是分时共存的：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7e99575576b0cf2b4da41e00a995e054.png" alt="image-20251021162011675"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7e99575576b0cf2b4da41e00a995e054.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251021162011675"></p>
 <p>在Matter例程里，BLE广播只有2个应用场景：</p>
 <ol>
 <li>Matter配网阶段的设备发现：配网阶段，手机扫码后根据二维码信息扫描附近的BLE广播，确认要连接的是哪个设备。BLE连接后传输网络密钥，设备通过网络密钥链接到对应的网络后（Thread或者Wi-Fi），BLE的使命就结束了。设备入网后，BLE就关闭，只保留Thread或者Wi-Fi。</li>
@@ -136,7 +604,7 @@
 <h2 id="方案一：Matter-蓝牙广播仲裁器"><a href="#方案一：Matter-蓝牙广播仲裁器" class="headerlink" title="方案一：Matter 蓝牙广播仲裁器"></a>方案一：Matter 蓝牙广播仲裁器</h2><p>Matter已经把SDK平台提供的蓝牙功能封装成了自己的API，其具体的实现位于：</p>
 <p><code>v3.0.2\modules\lib\matter\src\platform\Zephyr\BLEManagerImpl.cpp</code></p>
 <p>其中，有一个功能叫做广播仲裁器（Advertising Arbiter），是一个C++类。广播还是同一个广播，但是可以让你替换广播数据，从而实现替换广播名称、广播的UUID等等，在NCS中甚至还能改MAC地址（需要修改SDK源码）。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb5958e874aa216464360d5bc9927f605.png" alt="image-20251021165035555"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb5958e874aa216464360d5bc9927f605.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251021165035555"></p>
 <p>这个是Matter本身就提供的功能，也是推荐使用的方案。在Matter（CHIP）协议栈初始化之后，CHIP Server启动之前，可以通过仲裁器注册一组广播请求，包含广播数据、广播间隔、回调函数、优先级等等。</p>
 <p>CHIP Server启动后，每个需要蓝牙广播的软件模块可以主动插入请求（Insert Request）或者取消请求（Cancel Request）。仲裁器会根据优先级排列当前所有的插入请求的广播，并执行优先级最高的（top-priority）广播。</p>
 <p>比如你可以这样设置优先级：</p>
@@ -154,7 +622,7 @@
 <li>先发出厂商自己广播，等连接完厂商的APP之后，再去APP里操作开启Matter配网广播</li>
 </ul>
 <p>如果你不能接受这个小缺点，可以看Nordic的多广播共存方案，可以直接开启多个广播：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined52b5be21062af907892d2e21c37deedc.png" alt="image-20251021170819938"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined52b5be21062af907892d2e21c37deedc.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251021170819938"></p>
 <p>这时，使用的蓝牙广播API就不是普通的<code>bt_le_adv_start()</code>，而是<code>bt_le_ext_adv_start()</code>。用这个API可以创建多个广播集。</p>
 <blockquote>
 <p>可能有人对这里的API名字中的”扩展广播“有误解，这里需要解释一下。</p>
@@ -166,17 +634,17 @@
 <li>新特性：周期性广播。让广播间隔不再随机，这样observer端就可以不用持续开启扫描窗口，从而节省功耗</li>
 </ol>
 <p>因此<strong>扩展广播（Extended Advertising）</strong>指的是以上4个功能，而不是很多科普文章只提到的1号的功能。</p>
-<p>参考连接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.bluetooth.com/zh-cn/bluetooth-resources/bluetooth-core-5-0-go-faster-go-further/">蓝牙™ Core 5.0功能 增强版 |蓝牙™ 技术网站</a></p>
+<p>参考链接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.bluetooth.com/zh-cn/bluetooth-resources/bluetooth-core-5-0-go-faster-go-further/">蓝牙™ Core 5.0功能 增强版 |蓝牙™ 技术网站</a></p>
 <p>Zephyr 的<code>bt_le_ext_adv</code> API可以实现以上所有4个功能。我们这里需要用到的是功能3。具体的链路层广播分时共存是由Nordic SoftDevice Controller自动实现的。</p>
 </blockquote>
 <p>如果要使用这个方案，就需要修改NCS中的Matter源代码，把蓝牙广播仲裁器里面使用的广播的API改成<code>bt_le_ext_adv_start()</code>。</p>
 <p>此外，扩展广播的<code>connected()</code>回调函数定义是不一样的，除了要记录<code>conn</code>之外，还能知道是从哪个广播连进来的：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined9bf37427840f60ad73a8cf5660288d89.png" alt="image-20251021183010806"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined9bf37427840f60ad73a8cf5660288d89.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251021183010806"></p>
 <p>实际应用开发中，我们可能有多个蓝牙业务的软件模块，每个模块里面各自有自己的广播和服务。软件模块可以各自注册不同的<code>bt_le_ext_adv_cb</code>。</p>
 <h1 id="3-多蓝牙连接与多蓝牙服务方案分析"><a href="#3-多蓝牙连接与多蓝牙服务方案分析" class="headerlink" title="3. 多蓝牙连接与多蓝牙服务方案分析"></a>3. 多蓝牙连接与多蓝牙服务方案分析</h1><p>Zephyr的蓝牙只有一个GATT Server。因此，无论你用前面的哪个蓝牙多广播方案，无论外部的BLE主机是通过哪个广播连接进来的，看到的蓝牙服务都是一样的。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedcbec65bc87613ac3d663fa5805e7fdb6.png" alt="image-20251021180814475"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedcbec65bc87613ac3d663fa5805e7fdb6.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251021180814475"></p>
 <h2 id="普通广播连接时回调"><a href="#普通广播连接时回调" class="headerlink" title="普通广播连接时回调"></a>普通广播连接时回调</h2><p>在普通的蓝牙广播（<code>bt_le_adv_start()</code>）场景下，蓝牙连接成功时，在<code>connected()</code>回调函数里，一定要把<code>conn</code>记录下来作为句柄：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined856ea6b709377794ad6d8e8ebe50685a.png" alt="image-20251021181113185"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined856ea6b709377794ad6d8e8ebe50685a.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251021181113185"></p>
 <p>如果从机被多个主机连接，开发者应该保存每个<code>conn</code>指针。后续进行GATT特征读写的时候，就靠<code>conn</code>来指定发送数据给哪个主机，同时也靠<code>conn</code>来判断数据是从哪台主机发来的。</p>
 <p>注意，这种<code>connected()</code>回调函数可以注册很多个，形成链表。当连接成功时，所有<code>connected()</code>函数会依次执行。任何软件模块都可以注册自己的<code>connected()</code>来获取蓝牙连接、断开相关的事件。</p>
 <blockquote>
@@ -190,8 +658,8 @@
 <blockquote>
 <p>但是如果此时还有已注册的普通<code>connected()</code>回调，还是会把整个链表都调用一遍。</p>
 </blockquote>
-<p>但是，所有的<code>disconnect()</code>回调函数仍然是处于同一个链表的。因此一定要在<code>disconnected()</code>回调函数里面判断一下当前的<code>*conn</code>句柄是不是建立连接的时候保存的那个，如果是，再进行相关释放动作。例如：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">bt_le_ext_adv</span> *<span class="title">ext_adv1</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">bt_conn</span> *<span class="title">ext_conn1</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 连接时回调</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">connected1</span><span class="params">(<span class="keyword">struct</span> bt_le_ext_adv *extadv,</span></span><br><span class="line"><span class="params">              <span class="keyword">struct</span> bt_le_ext_adv_connected_info *info)</span></span><br><span class="line">&#123;</span><br><span class="line">    ext_conn1 = bt_conn_ref(info-&gt;conn);	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 给扩展广播注册connected回调</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bt_le_ext_adv_cb</span> <span class="title">adv_ext_cb1</span> =</span> &#123;</span><br><span class="line">    .connected = connected1</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 断开时</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">disconnected</span><span class="params">(<span class="keyword">struct</span> bt_conn *conn, <span class="type">uint8_t</span> reason)</span></span><br><span class="line">&#123;    </span><br><span class="line">    <span class="comment">// 连接断开不属于当前业务，不处理</span></span><br><span class="line">    <span class="keyword">if</span>(conn != ext_conn1) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加释放动作等</span></span><br><span class="line">    bt_conn_unref(ext_conn1);</span><br><span class="line">    ext_conn1 = <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 普通广播方式，不注册connected</span></span><br><span class="line">BT_CONN_CB_DEFINE(conn_callbacks) = &#123;</span><br><span class="line">    .connected    = <span class="literal">NULL</span>,</span><br><span class="line">    .disconnected = disconnected,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>但是，所有的<code>disconnected()</code>回调函数仍然是处于同一个链表的。因此一定要在<code>disconnected()</code>回调函数里面判断一下当前的<code>*conn</code>句柄是不是建立连接的时候保存的那个，如果是，再进行相关释放动作。例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bt_le_ext_adv</span> *<span class="hljs-title">ext_adv1</span> =</span> <span class="hljs-literal">NULL</span>;<br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bt_conn</span> *<span class="hljs-title">ext_conn1</span> =</span> <span class="hljs-literal">NULL</span>;<br><br><span class="hljs-comment">// 连接时回调</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">connected1</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bt_le_ext_adv *extadv,</span><br><span class="hljs-params">              <span class="hljs-keyword">struct</span> bt_le_ext_adv_connected_info *info)</span><br>&#123;<br>    ext_conn1 = bt_conn_ref(info-&gt;conn);	<br>&#125;<br><br><span class="hljs-comment">// 给扩展广播注册connected回调</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bt_le_ext_adv_cb</span> <span class="hljs-title">adv_ext_cb1</span> =</span> &#123;<br>    .connected = connected1<br>&#125;;<br><br><span class="hljs-comment">// 断开时</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">disconnected</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bt_conn *conn, <span class="hljs-type">uint8_t</span> reason)</span><br>&#123;    <br>    <span class="hljs-comment">// 连接断开不属于当前业务，不处理</span><br>    <span class="hljs-keyword">if</span>(conn != ext_conn1) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 添加释放动作等</span><br>    bt_conn_unref(ext_conn1);<br>    ext_conn1 = <span class="hljs-literal">NULL</span>;<br>&#125;<br><br><span class="hljs-comment">// 普通广播方式，不注册connected</span><br>BT_CONN_CB_DEFINE(conn_callbacks) = &#123;<br>    .connected    = <span class="hljs-literal">NULL</span>,<br>    .disconnected = disconnected,<br>&#125;;<br><br></code></pre></td></tr></table></figure>
 
 <h1 id="4-多蓝牙地址分析"><a href="#4-多蓝牙地址分析" class="headerlink" title="4. 多蓝牙地址分析"></a>4. 多蓝牙地址分析</h1><p>要让自己的蓝牙广播和Matter共存，并且两者的蓝牙设备地址不同。</p>
 <p>Zephyr本身就支持多蓝牙地址，在Zephyr中它被称为蓝牙身份（Bluetooth Identity）。</p>
@@ -199,7 +667,7 @@
 <p>可以通过各种方式，在蓝牙协议栈初始化（<code>bt_enable()</code>）之前或之后，创建各种蓝牙地址，并保存到蓝牙身份数组。</p>
 <p>这一方面详细的介绍，请参考《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/19166250">NCS(Zephyr)中的蓝牙地址详解</a>》。</p>
 <h2 id="蓝牙广播地址切换"><a href="#蓝牙广播地址切换" class="headerlink" title="蓝牙广播地址切换"></a>蓝牙广播地址切换</h2><p>不论是普通广播还是扩展广播，在开启广播时都要使用<code>bt_le_adv_param</code>作为广播相关的配置参数。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** LE Advertising Parameters. */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bt_le_adv_param</span> &#123;</span></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * @brief Local identity.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">uint8_t</span>  id;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/** LE Advertising Parameters. */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bt_le_adv_param</span> &#123;</span><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * @brief Local identity.</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-type">uint8_t</span>  id;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>广播参数结构体的第一个成员就是<code>id</code>。大多数蓝牙例程的广播参数都使用<code>0</code>作为<code>id</code>，也就是使用蓝牙身份数组的第1个身份。</p>
 <p>在开启广播的时候，我们可以修改设置广播参数中的<code>id</code>来选择自己用哪个蓝牙身份。</p>
@@ -208,10 +676,10 @@
 <li>Matter标准规定，Matter的配网广播必须使用<strong>Random Static Address</strong>，且每次上电都要变化，从而确保隐私。</li>
 </ul>
 <p>在<code>v3.0.2/modules/lib/matter/src/platform/Zephyr/BLEAdvertisingArbiter.cpp</code>中，可以看到每次广播开启时都设置了使用的<code>id</code>。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined51746b4f706d5d682b2ea2016ba3a766.png" alt="image-20251026205602364"></p>
-<h2 id="Matter创建的蓝牙身份"><a href="#Matter创建的蓝牙身份" class="headerlink" title="Matter创建的蓝牙身份"></a>Matter创建的蓝牙身份</h2><p>前面使用的<code>sBtIid</code>是在<code>v3.0.2/modules/lib/matter/src/platform/Zephyr/BLEManagerImpl.cpp</code>中赋值的：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined51746b4f706d5d682b2ea2016ba3a766.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026205602364"></p>
+<h2 id="Matter创建的蓝牙身份"><a href="#Matter创建的蓝牙身份" class="headerlink" title="Matter创建的蓝牙身份"></a>Matter创建的蓝牙身份</h2><p>前面使用的<code>sBtId</code>是在<code>v3.0.2/modules/lib/matter/src/platform/Zephyr/BLEManagerImpl.cpp</code>中赋值的：</p>
 <p>在<code>CHIP_ERROR BLEManagerImpl::_Init()</code>函数中，有：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_BT_BONDABLE</span></span><br><span class="line">    <span class="type">bt_addr_le_t</span> idsAddr[CONFIG_BT_ID_MAX];</span><br><span class="line">    <span class="type">size_t</span> idsCount = CONFIG_BT_ID_MAX;</span><br><span class="line"></span><br><span class="line">    err = <span class="built_in">bt_enable</span>(<span class="literal">nullptr</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">VerifyOrReturnError</span>(err == <span class="number">0</span>, <span class="built_in">MapErrorZephyr</span>(err));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">settings_load</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">bt_id_get</span>(idsAddr, &amp;idsCount);</span><br><span class="line"></span><br><span class="line">    err = <span class="built_in">InitRandomStaticAddress</span>(idsCount &gt; <span class="number">1</span>, id);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">VerifyOrReturnError</span>(err == <span class="number">0</span> &amp;&amp; id == kMatterBleIdentity, <span class="built_in">MapErrorZephyr</span>(err));</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">    err = <span class="built_in">InitRandomStaticAddress</span>(<span class="literal">false</span>, id);</span><br><span class="line">    <span class="built_in">VerifyOrReturnError</span>(err == <span class="number">0</span> &amp;&amp; id == kMatterBleIdentity, <span class="built_in">MapErrorZephyr</span>(err));</span><br><span class="line">    err = <span class="built_in">bt_enable</span>(<span class="literal">nullptr</span>);</span><br><span class="line">    <span class="built_in">VerifyOrReturnError</span>(err == <span class="number">0</span>, <span class="built_in">MapErrorZephyr</span>(err));</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">// CONFIG_BT_BONDABLE</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_BT_BONDABLE</span><br>    <span class="hljs-type">bt_addr_le_t</span> idsAddr[CONFIG_BT_ID_MAX];<br>    <span class="hljs-type">size_t</span> idsCount = CONFIG_BT_ID_MAX;<br><br>    err = <span class="hljs-built_in">bt_enable</span>(<span class="hljs-literal">nullptr</span>);<br><br>    <span class="hljs-built_in">VerifyOrReturnError</span>(err == <span class="hljs-number">0</span>, <span class="hljs-built_in">MapErrorZephyr</span>(err));<br><br>    <span class="hljs-built_in">settings_load</span>();<br><br>    <span class="hljs-built_in">bt_id_get</span>(idsAddr, &amp;idsCount);<br><br>    err = <span class="hljs-built_in">InitRandomStaticAddress</span>(idsCount &gt; <span class="hljs-number">1</span>, id);<br><br>    <span class="hljs-built_in">VerifyOrReturnError</span>(err == <span class="hljs-number">0</span> &amp;&amp; id == kMatterBleIdentity, <span class="hljs-built_in">MapErrorZephyr</span>(err));<br><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    err = <span class="hljs-built_in">InitRandomStaticAddress</span>(<span class="hljs-literal">false</span>, id);<br>    <span class="hljs-built_in">VerifyOrReturnError</span>(err == <span class="hljs-number">0</span> &amp;&amp; id == kMatterBleIdentity, <span class="hljs-built_in">MapErrorZephyr</span>(err));<br>    err = <span class="hljs-built_in">bt_enable</span>(<span class="hljs-literal">nullptr</span>);<br>    <span class="hljs-built_in">VerifyOrReturnError</span>(err == <span class="hljs-number">0</span>, <span class="hljs-built_in">MapErrorZephyr</span>(err));<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">// CONFIG_BT_BONDABLE</span></span><br></code></pre></td></tr></table></figure>
 
 <p>首先，Matter的蓝牙广播是不允许绑定的。Matter协议栈会根据系统的其他蓝牙广播是否支持绑定（<code>CONFIG_BT_BONDABLE</code>）来执行不同的初始化过程：</p>
 <ul>
@@ -221,7 +689,7 @@
 </li>
 </ul>
 <p>创建完毕后，在初始化Matter蓝牙广播仲裁器时传入参数，给<code>sBtId</code>赋值：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">BLEAdvertisingArbiter::<span class="built_in">Init</span>(<span class="built_in">static_cast</span>&lt;<span class="type">uint8_t</span>&gt;(id));</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++">BLEAdvertisingArbiter::<span class="hljs-built_in">Init</span>(<span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">uint8_t</span>&gt;(id));<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>注意，不要直接打开或者关闭<code>CONFIG_BT_BONDABLE</code>。这只是一个中间的临时选项。</p>
@@ -237,48 +705,48 @@
 <p>这样一共是2×2×2×2，有16种可能性的组合，实在太多，本文无法一一分析介绍。</p>
 <p>本文在这里列出2种比较常见的方案，读者可以举一反三，实现自己的多蓝牙地址方案。</p>
 <h2 id="案例一：“蓝牙仲裁器方案”-需绑定-使用公共地址-单核SoC"><a href="#案例一：“蓝牙仲裁器方案”-需绑定-使用公共地址-单核SoC" class="headerlink" title="案例一：“蓝牙仲裁器方案” + 需绑定 + 使用公共地址 + 单核SoC"></a>案例一：“蓝牙仲裁器方案” + 需绑定 + 使用公共地址 + 单核SoC</h2><h3 id="（1）设置两个地址"><a href="#（1）设置两个地址" class="headerlink" title="（1）设置两个地址"></a>（1）设置两个地址</h3><p>首先，设置:</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_BT_ID_MAX=2</span><br><span class="line">CONFIG_BT_SMP=y</span><br><span class="line">CONFIG_BT_MAX_CONN=2</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">CONFIG_BT_ID_MAX=2<br>CONFIG_BT_SMP=y<br>CONFIG_BT_MAX_CONN=2<br></code></pre></td></tr></table></figure>
 
 <p><code>#include &lt;zephyr/bluetooth/controller.h&gt;</code></p>
 <p>单核Soc，直接在Matter初始化之前设置公共地址到Controller层。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb6587de7976c1524cc5c378771aaa111.png" alt="image-20251027150520780"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb6587de7976c1524cc5c378771aaa111.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251027150520780"></p>
 <p>由于我们开启了蓝牙绑定<code>CONFIG_BT_SMP=y</code>功能，Matter协议栈里面会先执行<code>bt_enable()</code>和<code>settings_load()</code>，从而设置好<code>id=0</code>的蓝牙公共地址。</p>
 <p>然后Matter会再创建自己用的<code>id=1</code>的随机静态地址。</p>
 <h3 id="（2）使用广播仲裁器编写自己的蓝牙广播c-代码"><a href="#（2）使用广播仲裁器编写自己的蓝牙广播c-代码" class="headerlink" title="（2）使用广播仲裁器编写自己的蓝牙广播c++代码"></a>（2）使用广播仲裁器编写自己的蓝牙广播c++代码</h3><p>写了一个c++类<code>AppBle</code>，使用单例模式，部分代码：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">BT_CONN_CB_DEFINE</span>(conn_callbacks) = &#123;</span><br><span class="line">    .connected = AppBle::Connected,</span><br><span class="line">    .disconnected = AppBle::Disconnected,</span><br><span class="line">    .le_param_updated = AppBle::LeParamUpdated,</span><br><span class="line">    .security_changed = AppBle::SecurityChanged,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">uint8_t</span> kFlags = BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">uint8_t</span> k_ccs_uuid[] = &#123;BT_COMMUNICATION_SERVICE&#125;;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">char</span> k_adv_name[] = <span class="string">&quot;My_ADV&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> ::chip;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> ::chip::DeviceLayer;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">AppBle::Init</span><span class="params">(<span class="type">uint8_t</span> priority)</span></span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="comment">// 设置广播数据，以及当前广播成为top广播时的回调函数</span></span><br><span class="line">    mAdvData[<span class="number">0</span>] = <span class="built_in">BT_DATA</span>(BT_DATA_FLAGS, &amp;kFlags, <span class="built_in">sizeof</span>(kFlags));</span><br><span class="line">    mAdvData[<span class="number">1</span>] = <span class="built_in">BT_DATA</span>(BT_DATA_NAME_COMPLETE, k_adv_name, <span class="built_in">static_cast</span>&lt;<span class="type">uint8_t</span>&gt;(<span class="built_in">strlen</span>(k_adv_name)));    </span><br><span class="line">    mScanRespData[<span class="number">0</span>] = <span class="built_in">BT_DATA</span>(BT_DATA_UUID128_ALL, k_ccs_uuid,  <span class="built_in">sizeof</span>(k_ccs_uuid));</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 使用public地址时，广播参数要携带 BT_LE_ADV_OPT_USE_IDENTITY</span></span><br><span class="line">    mAdvertisingRequest.priority = priority;</span><br><span class="line">    mAdvertisingRequest.options = (BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN);</span><br><span class="line">    mAdvertisingRequest.minInterval = mAdvIntervalMin;</span><br><span class="line">    mAdvertisingRequest.maxInterval = mAdvIntervalMax;</span><br><span class="line">    mAdvertisingRequest.advertisingData = ::chip::<span class="built_in">Span</span>&lt;bt_data&gt;(mAdvData);</span><br><span class="line">    mAdvertisingRequest.scanResponseData = ::chip::<span class="built_in">Span</span>&lt;bt_data&gt;(mScanRespData);</span><br><span class="line"></span><br><span class="line">    mAdvertisingRequest.onStarted = [](<span class="type">int</span> rc) &#123;</span><br><span class="line">        <span class="keyword">if</span> (rc == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="built_in">Instance</span>().mIsStarted = <span class="literal">true</span>;</span><br><span class="line">            <span class="built_in">LOG_INF</span>(<span class="string">&quot;private advertising started.&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">LOG_ERR</span>(<span class="string">&quot;Failed to start Private BLE advertising: %d&quot;</span>, rc);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    mAdvertisingRequest.onStopped = []() &#123;</span><br><span class="line">        <span class="built_in">Instance</span>().mIsStarted = <span class="literal">false</span>;</span><br><span class="line">        <span class="built_in">LOG_INF</span>(<span class="string">&quot;Private advertising stopped.&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief 向Matter BLE仲裁器申请开启广播. 当没有优先级更高的广播时,将适用本广播的数据和参数</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">AppBle::StartServer</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">Instance</span>().mConn = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">PlatformMgr</span>().<span class="built_in">LockChipStack</span>();</span><br><span class="line">    CHIP_ERROR ret = BLEAdvertisingArbiter::<span class="built_in">InsertRequest</span>(mAdvertisingRequest);</span><br><span class="line">    <span class="built_in">PlatformMgr</span>().<span class="built_in">UnlockChipStack</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (CHIP_NO_ERROR != ret) &#123;</span><br><span class="line">        <span class="built_in">LOG_ERR</span>(<span class="string">&quot;Could not start private advertising&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief 向Matter BLE仲裁器申请关闭当前广播.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppBle::StopServer</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!mIsStarted)&#123;</span><br><span class="line">        <span class="built_in">LOG_WRN</span>(<span class="string">&quot;private ADV was already stopped&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">PlatformMgr</span>().<span class="built_in">LockChipStack</span>();</span><br><span class="line">    BLEAdvertisingArbiter::<span class="built_in">CancelRequest</span>(mAdvertisingRequest);</span><br><span class="line">    <span class="built_in">PlatformMgr</span>().<span class="built_in">UnlockChipStack</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppBle::Connected</span><span class="params">(bt_conn *conn, <span class="type">uint8_t</span> err)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Instance</span>().mIsStarted) &#123;</span><br><span class="line">        <span class="keyword">if</span> (err || !conn) &#123;</span><br><span class="line">            <span class="built_in">LOG_ERR</span>(<span class="string">&quot;private ADV connection failed (err %u)&quot;</span>, err);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">LOG_INF</span>(<span class="string">&quot;## private ADV connected: %s ##&quot;</span>, <span class="built_in">LogAddress</span>(conn));</span><br><span class="line">        <span class="built_in">LOG_INF</span>(<span class="string">&quot;Will disconnect if no data transfer after %ds&quot;</span>, AppBle::<span class="built_in">Instance</span>().mDisconnectTimeout);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 保存当前连接</span></span><br><span class="line">        <span class="built_in">Instance</span>().mConn = <span class="built_in">bt_conn_ref</span>(conn);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 发起绑定</span></span><br><span class="line">        <span class="built_in">bt_conn_set_security</span>(conn, BT_SECURITY_L3);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppBle::Disconnected</span><span class="params">(bt_conn *conn, <span class="type">uint8_t</span> reason)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">Instance</span>().mIsStarted) &#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;private Adv not started&quot;</span>);</span><br><span class="line">        <span class="built_in">Instance</span>().mConn = <span class="literal">nullptr</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (conn != <span class="built_in">Instance</span>().mConn) &#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;Not private Connection&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">LOG_INF</span>(<span class="string">&quot;## private ADV disconnected: %s&quot;</span>, <span class="built_in">LogAddress</span>(conn));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">Instance</span>().mConn != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">        <span class="built_in">bt_conn_unref</span>(<span class="built_in">Instance</span>().mConn);</span><br><span class="line">        <span class="built_in">Instance</span>().mConn = <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppBle::SecurityChanged</span><span class="params">(bt_conn *conn, <span class="type">bt_security_t</span> level, <span class="keyword">enum</span> bt_security_err err)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">Instance</span>().mIsStarted)&#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;private Adv not started&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (conn != <span class="built_in">Instance</span>().mConn) &#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;Not private Connection&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!err) &#123;</span><br><span class="line">        <span class="built_in">LOG_INF</span>(<span class="string">&quot;BT Security changed: %s level %u&quot;</span>, <span class="built_in">LogAddress</span>(conn), level);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">LOG_ERR</span>(<span class="string">&quot;BT Security failed: level %u err %d&quot;</span>, level, err);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">AppBle::LeParamUpdated</span><span class="params">(<span class="keyword">struct</span> bt_conn *conn, <span class="type">uint16_t</span> interval, <span class="type">uint16_t</span> latency, <span class="type">uint16_t</span> timeout)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">Instance</span>().mIsStarted)&#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;private Adv not started&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (conn != <span class="built_in">Instance</span>().mConn) &#123;</span><br><span class="line">        <span class="built_in">LOG_DBG</span>(<span class="string">&quot;Not private Connection&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">LOG_INF</span>(<span class="string">&quot;private ADV conn interval changed with %s&quot;</span>, <span class="built_in">LogAddress</span>(conn));</span><br><span class="line">    <span class="built_in">LOG_INF</span>(<span class="string">&quot;interval=%d, latency=%d, timeout=%d&quot;</span>, interval, latency, timeout);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">char</span>* <span class="title">AppBle::LogAddress</span><span class="params">(bt_conn *conn)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> CONFIG_LOG</span></span><br><span class="line">    <span class="type">static</span> <span class="type">char</span> addr[BT_ADDR_LE_STR_LEN];</span><br><span class="line">    <span class="built_in">bt_addr_le_to_str</span>(<span class="built_in">bt_conn_get_dst</span>(conn), addr, <span class="built_in">sizeof</span>(addr));</span><br><span class="line">    <span class="keyword">return</span> addr;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-built_in">BT_CONN_CB_DEFINE</span>(conn_callbacks) = &#123;<br>    .connected = AppBle::Connected,<br>    .disconnected = AppBle::Disconnected,<br>    .le_param_updated = AppBle::LeParamUpdated,<br>    .security_changed = AppBle::SecurityChanged,<br>&#125;;<br><br><span class="hljs-keyword">namespace</span> &#123;<br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">uint8_t</span> kFlags = BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR;<br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">uint8_t</span> k_ccs_uuid[] = &#123;BT_COMMUNICATION_SERVICE&#125;;<br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">char</span> k_adv_name[] = <span class="hljs-string">&quot;My_ADV&quot;</span>;<br>&#125;<br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> ::chip;<br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> ::chip::DeviceLayer;<br><br><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">AppBle::Init</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> priority)</span></span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-comment">// 设置广播数据，以及当前广播成为top广播时的回调函数</span><br>    mAdvData[<span class="hljs-number">0</span>] = <span class="hljs-built_in">BT_DATA</span>(BT_DATA_FLAGS, &amp;kFlags, <span class="hljs-built_in">sizeof</span>(kFlags));<br>    mAdvData[<span class="hljs-number">1</span>] = <span class="hljs-built_in">BT_DATA</span>(BT_DATA_NAME_COMPLETE, k_adv_name, <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">uint8_t</span>&gt;(<span class="hljs-built_in">strlen</span>(k_adv_name)));    <br>    mScanRespData[<span class="hljs-number">0</span>] = <span class="hljs-built_in">BT_DATA</span>(BT_DATA_UUID128_ALL, k_ccs_uuid,  <span class="hljs-built_in">sizeof</span>(k_ccs_uuid));<br>    <br>    <span class="hljs-comment">// 使用public地址时，广播参数要携带 BT_LE_ADV_OPT_USE_IDENTITY</span><br>    mAdvertisingRequest.priority = priority;<br>    mAdvertisingRequest.options = (BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN);<br>    mAdvertisingRequest.minInterval = mAdvIntervalMin;<br>    mAdvertisingRequest.maxInterval = mAdvIntervalMax;<br>    mAdvertisingRequest.advertisingData = ::chip::<span class="hljs-built_in">Span</span>&lt;bt_data&gt;(mAdvData);<br>    mAdvertisingRequest.scanResponseData = ::chip::<span class="hljs-built_in">Span</span>&lt;bt_data&gt;(mScanRespData);<br><br>    mAdvertisingRequest.onStarted = [](<span class="hljs-type">int</span> rc) &#123;<br>        <span class="hljs-keyword">if</span> (rc == <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-built_in">Instance</span>().mIsStarted = <span class="hljs-literal">true</span>;<br>            <span class="hljs-built_in">LOG_INF</span>(<span class="hljs-string">&quot;private advertising started.&quot;</span>);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-built_in">LOG_ERR</span>(<span class="hljs-string">&quot;Failed to start Private BLE advertising: %d&quot;</span>, rc);<br>        &#125;<br>    &#125;;<br>    mAdvertisingRequest.onStopped = []() &#123;<br>        <span class="hljs-built_in">Instance</span>().mIsStarted = <span class="hljs-literal">false</span>;<br>        <span class="hljs-built_in">LOG_INF</span>(<span class="hljs-string">&quot;Private advertising stopped.&quot;</span>);<br>    &#125;;<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * @brief 向Matter BLE仲裁器申请开启广播. 当没有优先级更高的广播时,将使用本广播的数据和参数</span><br><span class="hljs-comment"> */</span><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">AppBle::StartServer</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-built_in">Instance</span>().mConn = <span class="hljs-literal">nullptr</span>;<br><br>    <span class="hljs-built_in">PlatformMgr</span>().<span class="hljs-built_in">LockChipStack</span>();<br>    CHIP_ERROR ret = BLEAdvertisingArbiter::<span class="hljs-built_in">InsertRequest</span>(mAdvertisingRequest);<br>    <span class="hljs-built_in">PlatformMgr</span>().<span class="hljs-built_in">UnlockChipStack</span>();<br><br>    <span class="hljs-keyword">if</span> (CHIP_NO_ERROR != ret) &#123;<br>        <span class="hljs-built_in">LOG_ERR</span>(<span class="hljs-string">&quot;Could not start private advertising&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * @brief 向Matter BLE仲裁器申请关闭当前广播.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">AppBle::StopServer</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (!mIsStarted)&#123;<br>        <span class="hljs-built_in">LOG_WRN</span>(<span class="hljs-string">&quot;private ADV was already stopped&quot;</span>);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-built_in">PlatformMgr</span>().<span class="hljs-built_in">LockChipStack</span>();<br>    BLEAdvertisingArbiter::<span class="hljs-built_in">CancelRequest</span>(mAdvertisingRequest);<br>    <span class="hljs-built_in">PlatformMgr</span>().<span class="hljs-built_in">UnlockChipStack</span>();<br>&#125;<br><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">AppBle::Connected</span><span class="hljs-params">(bt_conn *conn, <span class="hljs-type">uint8_t</span> err)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Instance</span>().mIsStarted) &#123;<br>        <span class="hljs-keyword">if</span> (err || !conn) &#123;<br>            <span class="hljs-built_in">LOG_ERR</span>(<span class="hljs-string">&quot;private ADV connection failed (err %u)&quot;</span>, err);<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br><br>        <span class="hljs-built_in">LOG_INF</span>(<span class="hljs-string">&quot;## private ADV connected: %s ##&quot;</span>, <span class="hljs-built_in">LogAddress</span>(conn));<br>        <span class="hljs-built_in">LOG_INF</span>(<span class="hljs-string">&quot;Will disconnect if no data transfer after %ds&quot;</span>, AppBle::<span class="hljs-built_in">Instance</span>().mDisconnectTimeout);<br><br>        <span class="hljs-comment">// 保存当前连接</span><br>        <span class="hljs-built_in">Instance</span>().mConn = <span class="hljs-built_in">bt_conn_ref</span>(conn);<br>        <br>        <span class="hljs-comment">// 发起绑定</span><br>        <span class="hljs-built_in">bt_conn_set_security</span>(conn, BT_SECURITY_L3);<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">AppBle::Disconnected</span><span class="hljs-params">(bt_conn *conn, <span class="hljs-type">uint8_t</span> reason)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Instance</span>().mIsStarted) &#123;<br>        <span class="hljs-built_in">LOG_DBG</span>(<span class="hljs-string">&quot;private Adv not started&quot;</span>);<br>        <span class="hljs-built_in">Instance</span>().mConn = <span class="hljs-literal">nullptr</span>;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (conn != <span class="hljs-built_in">Instance</span>().mConn) &#123;<br>        <span class="hljs-built_in">LOG_DBG</span>(<span class="hljs-string">&quot;Not private Connection&quot;</span>);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-built_in">LOG_INF</span>(<span class="hljs-string">&quot;## private ADV disconnected: %s&quot;</span>, <span class="hljs-built_in">LogAddress</span>(conn));<br><br>    <span class="hljs-keyword">if</span>(<span class="hljs-built_in">Instance</span>().mConn != <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-built_in">bt_conn_unref</span>(<span class="hljs-built_in">Instance</span>().mConn);<br>        <span class="hljs-built_in">Instance</span>().mConn = <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">AppBle::SecurityChanged</span><span class="hljs-params">(bt_conn *conn, <span class="hljs-type">bt_security_t</span> level, <span class="hljs-keyword">enum</span> bt_security_err err)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Instance</span>().mIsStarted)&#123;<br>        <span class="hljs-built_in">LOG_DBG</span>(<span class="hljs-string">&quot;private Adv not started&quot;</span>);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <br>    <span class="hljs-keyword">if</span> (conn != <span class="hljs-built_in">Instance</span>().mConn) &#123;<br>        <span class="hljs-built_in">LOG_DBG</span>(<span class="hljs-string">&quot;Not private Connection&quot;</span>);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (!err) &#123;<br>        <span class="hljs-built_in">LOG_INF</span>(<span class="hljs-string">&quot;BT Security changed: %s level %u&quot;</span>, <span class="hljs-built_in">LogAddress</span>(conn), level);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-built_in">LOG_ERR</span>(<span class="hljs-string">&quot;BT Security failed: level %u err %d&quot;</span>, level, err);<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">AppBle::LeParamUpdated</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bt_conn *conn, <span class="hljs-type">uint16_t</span> interval, <span class="hljs-type">uint16_t</span> latency, <span class="hljs-type">uint16_t</span> timeout)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Instance</span>().mIsStarted)&#123;<br>        <span class="hljs-built_in">LOG_DBG</span>(<span class="hljs-string">&quot;private Adv not started&quot;</span>);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (conn != <span class="hljs-built_in">Instance</span>().mConn) &#123;<br>        <span class="hljs-built_in">LOG_DBG</span>(<span class="hljs-string">&quot;Not private Connection&quot;</span>);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-built_in">LOG_INF</span>(<span class="hljs-string">&quot;private ADV conn interval changed with %s&quot;</span>, <span class="hljs-built_in">LogAddress</span>(conn));<br>    <span class="hljs-built_in">LOG_INF</span>(<span class="hljs-string">&quot;interval=%d, latency=%d, timeout=%d&quot;</span>, interval, latency, timeout);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">char</span>* <span class="hljs-title">AppBle::LogAddress</span><span class="hljs-params">(bt_conn *conn)</span></span><br><span class="hljs-function"></span>&#123;<br><span class="hljs-meta">#<span class="hljs-keyword">if</span> CONFIG_LOG</span><br>    <span class="hljs-type">static</span> <span class="hljs-type">char</span> addr[BT_ADDR_LE_STR_LEN];<br>    <span class="hljs-built_in">bt_addr_le_to_str</span>(<span class="hljs-built_in">bt_conn_get_dst</span>(conn), addr, <span class="hljs-built_in">sizeof</span>(addr));<br>    <span class="hljs-keyword">return</span> addr;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>然后在<code>AppTask.cpp</code>中，注册自己的私有广播：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">CHIP_ERROR <span class="title">AppTask::Init</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* Initialize Matter stack */</span></span><br><span class="line">    <span class="built_in">ReturnErrorOnFailure</span>(Nrf::Matter::<span class="built_in">PrepareServer</span>());</span><br><span class="line"></span><br><span class="line">    <span class="built_in">ReturnErrorOnFailure</span>(Nrf::Matter::<span class="built_in">RegisterEventHandler</span>(AppTask::DefaultMatterEventHandler, <span class="number">0</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化私有广播，优先级1，比Matter配网广播更低</span></span><br><span class="line">    AppBle::<span class="built_in">Instance</span>().<span class="built_in">Init</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 开启蓝牙配网广播，任务入队列</span></span><br><span class="line">    Nrf::<span class="built_in">PostTask</span>([] &#123;</span><br><span class="line">        AppTask::<span class="built_in">Instance</span>().<span class="built_in">StartBLEAdvertisement</span>();</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 开启私有广播，任务入队列</span></span><br><span class="line">    Nrf::<span class="built_in">PostTask</span>([] &#123;</span><br><span class="line">        AppBle::<span class="built_in">Instance</span>().<span class="built_in">StartServer</span>();</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 启动Matter协议栈</span></span><br><span class="line">    <span class="keyword">return</span> Nrf::Matter::<span class="built_in">StartServer</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function">CHIP_ERROR <span class="hljs-title">AppTask::Init</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">/* Initialize Matter stack */</span><br>    <span class="hljs-built_in">ReturnErrorOnFailure</span>(Nrf::Matter::<span class="hljs-built_in">PrepareServer</span>());<br><br>    <span class="hljs-built_in">ReturnErrorOnFailure</span>(Nrf::Matter::<span class="hljs-built_in">RegisterEventHandler</span>(AppTask::DefaultMatterEventHandler, <span class="hljs-number">0</span>));<br><br>    <span class="hljs-comment">// 初始化私有广播，优先级1，比Matter配网广播更低</span><br>    AppBle::<span class="hljs-built_in">Instance</span>().<span class="hljs-built_in">Init</span>(<span class="hljs-number">1</span>);<br><br>    <span class="hljs-comment">// 开启蓝牙配网广播，任务入队列</span><br>    Nrf::<span class="hljs-built_in">PostTask</span>([] &#123;<br>        AppTask::<span class="hljs-built_in">Instance</span>().<span class="hljs-built_in">StartBLEAdvertisement</span>();<br>    &#125;);<br><br>    <span class="hljs-comment">// 开启私有广播，任务入队列</span><br>    Nrf::<span class="hljs-built_in">PostTask</span>([] &#123;<br>        AppBle::<span class="hljs-built_in">Instance</span>().<span class="hljs-built_in">StartServer</span>();<br>    &#125;);<br>    <br>    <span class="hljs-comment">// 启动Matter协议栈</span><br>    <span class="hljs-keyword">return</span> Nrf::Matter::<span class="hljs-built_in">StartServer</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h3 id="（3）修改广播仲裁器源码"><a href="#（3）修改广播仲裁器源码" class="headerlink" title="（3）修改广播仲裁器源码"></a>（3）修改广播仲裁器源码</h3><p>在<code>v3.0.2/modules/lib/matter/src/platform/Zephyr/BLEAdvertisingArbiter.h</code></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd5b2ea434f2ea7e51d6cd05e87033227.png" alt="image-20251027153951723"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd5b2ea434f2ea7e51d6cd05e87033227.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251027153951723"></p>
 <p>修改广播仲裁器源码，当检测到广播参数包含我们设置的<code>BT_LE_ADV_OPT_USE_IDENTITY</code>时，就临时切换到<code>id=0</code>的蓝牙身份（公共地址）。其他情况下，就正常使用Matter自己的<code>id=1</code>的蓝牙身份。</p>
 <blockquote>
 <p>蓝牙广播仲裁器方案的优势是，对SDK的修改最少，只有上面展示的部分。并且这种修改完全不影响正常的Matter例程</p>
 </blockquote>
 <h2 id="案例二：“扩展广播方案”-需绑定-使用公共地址-双核SoC"><a href="#案例二：“扩展广播方案”-需绑定-使用公共地址-双核SoC" class="headerlink" title="案例二：“扩展广播方案” + 需绑定 + 使用公共地址 + 双核SoC"></a>案例二：“扩展广播方案” + 需绑定 + 使用公共地址 + 双核SoC</h2><h3 id="（1）设置两个地址-1"><a href="#（1）设置两个地址-1" class="headerlink" title="（1）设置两个地址"></a>（1）设置两个地址</h3><p>首先，设置:</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_BT_ID_MAX=2</span><br><span class="line">CONFIG_BT_SMP=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">CONFIG_BT_ID_MAX=2<br>CONFIG_BT_SMP=y<br></code></pre></td></tr></table></figure>
 
 <p>由于是双核SoC，必须在<code>bt_enable()</code>和<code>settings_load()</code>之间用HCI命令设置公共地址。</p>
 <p>在<code>v3.0.2/modules/lib/matter/src/platform/Zephyr/BLEManagerImpl.cpp</code>中：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined60067f1a4db598f3ecd1f2ccc87c6282.png" alt="image-20251027154808135"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined60067f1a4db598f3ecd1f2ccc87c6282.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251027154808135"></p>
 <p>由于我们开启了蓝牙绑定<code>CONFIG_BT_SMP=y</code>功能，把《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/19166250">NCS(Zephyr)中的蓝牙地址详解</a>》介绍的HCI设置公共地址的函数插入到上图的位置。那么在<code>settings_load()</code>时就会自动创建<code>id=0</code>的公共地址蓝牙身份。在后续的<code>InitRandomStaticAddress()</code>中，会创建<code>id=1</code>的静态随机地址蓝牙身份，供Matter使用。</p>
 <h3 id="（2）把Matter广播改成扩展广播"><a href="#（2）把Matter广播改成扩展广播" class="headerlink" title="（2）把Matter广播改成扩展广播"></a>（2）把Matter广播改成扩展广播</h3><p>先设置</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_BT_EXT_ADV=y</span><br><span class="line">CONFIG_BT_EXT_ADV_MAX_ADV_SET=2</span><br><span class="line">CONFIG_BT_MAX_CONN=2</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">CONFIG_BT_EXT_ADV=y<br>CONFIG_BT_EXT_ADV_MAX_ADV_SET=2<br>CONFIG_BT_MAX_CONN=2<br></code></pre></td></tr></table></figure>
 
 <p><code>v3.0.2\modules\lib\matter\src\platform\Zephyr\BLEManagerImpl.h</code>:</p>
 <p>把connected回调函数从C++私有成员（private）改成C++公共成员（public）。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedf5178032ab16701130068acb45ee84a2.png" alt="image-20251027155806635"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedf5178032ab16701130068acb45ee84a2.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251027155806635"></p>
 <p><code>v3.0.2\modules\lib\matter\src\platform\Zephyr\BLEManagerImpl.cpp</code>：</p>
 <p>把connected回调函数取消注册，因为后面要在扩展广播里面注册：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedff30110b3494195396ee7239bde87d89.png" alt="image-20251027155919624"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedff30110b3494195396ee7239bde87d89.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251027155919624"></p>
 <p>先extern声明一下：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> bt_conn *matter_conn;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">extern</span> bt_conn *matter_conn;<br></code></pre></td></tr></table></figure>
 
 <p>然后在disconnected回调函数中，添加判断：当前断开事件是不是属于Matter广播的断开事件，如果不是就不管。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd61d2864bfe01dd42569bd24f4683874.png" alt="image-20251027160111687"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd61d2864bfe01dd42569bd24f4683874.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251027160111687"></p>
 <p>最后是<code>v3.0.2\modules\lib\matter\src\platform\Zephyr\BLEAdvertisingArbiter.cpp</code>，这个改动就太大了，直接贴全部代码：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    Copyright (c) 2023 Project CHIP Authors</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="line"><span class="comment"> *    you may not use this file except in compliance with the License.</span></span><br><span class="line"><span class="comment"> *    You may obtain a copy of the License at</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *        http://www.apache.org/licenses/LICENSE-2.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *    Unless required by applicable law or agreed to in writing, software</span></span><br><span class="line"><span class="comment"> *    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span></span><br><span class="line"><span class="comment"> *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span></span><br><span class="line"><span class="comment"> *    See the License for the specific language governing permissions and</span></span><br><span class="line"><span class="comment"> *    limitations under the License.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;BLEAdvertisingArbiter.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;lib/support/CodeUtils.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;lib/support/logging/CHIPLogging.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;platform/CHIPDeviceLayer.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;platform/Zephyr/BLEManagerImpl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;system/SystemError.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/bluetooth/conn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">bt_le_ext_adv *matter_ext_adv = <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">bt_conn</span> *matter_conn = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">matter_ext_adv_connected_cb</span><span class="params">(<span class="keyword">struct</span> bt_le_ext_adv *extadv,</span></span></span><br><span class="line"><span class="params"><span class="function">              <span class="keyword">struct</span> bt_le_ext_adv_connected_info *info)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    __ASSERT(extadv == matter_ext_adv, <span class="string">&quot;Matter adv wrong&quot;</span>);</span><br><span class="line">    <span class="built_in">printk</span>(<span class="string">&quot;## Matter ext adv connected %p ##\n&quot;</span>, info-&gt;conn);</span><br><span class="line">    matter_conn = info-&gt;conn;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// move the original connected() callback here</span></span><br><span class="line">    chip::DeviceLayer::Internal::BLEManagerImpl::<span class="built_in">HandleConnect</span>(matter_conn, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">bt_le_ext_adv_cb</span> adv_matter_cb = &#123;</span><br><span class="line">    .connected = matter_ext_adv_connected_cb</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> chip &#123;</span><br><span class="line"><span class="keyword">namespace</span> DeviceLayer &#123;</span><br><span class="line"><span class="keyword">namespace</span> BLEAdvertisingArbiter &#123;</span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// List of advertising requests ordered by priority</span></span><br><span class="line"><span class="type">sys_slist_t</span> sRequests;</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> sIsInitialized    = <span class="literal">false</span>;</span><br><span class="line"><span class="type">bool</span> sWasDisconnection = <span class="literal">false</span>;</span><br><span class="line"><span class="type">uint8_t</span> sBtId          = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Cast an intrusive list node to the containing request object</span></span><br><span class="line"><span class="function"><span class="type">const</span> BLEAdvertisingArbiter::Request &amp; <span class="title">ToRequest</span><span class="params">(<span class="type">const</span> <span class="type">sys_snode_t</span> * node)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> *<span class="built_in">static_cast</span>&lt;<span class="type">const</span> BLEAdvertisingArbiter::Request *&gt;(node);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Notify application about stopped advertising if the callback has been provided</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">NotifyAdvertisingStopped</span><span class="params">(<span class="type">const</span> <span class="type">sys_snode_t</span> * node)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">VerifyOrReturn</span>(node);</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> Request &amp; request = <span class="built_in">ToRequest</span>(node);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (request.onStopped != <span class="literal">nullptr</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        request.<span class="built_in">onStopped</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Restart advertising using the top-priority request</span></span><br><span class="line"><span class="function">CHIP_ERROR <span class="title">RestartAdvertising</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line">    <span class="type">static</span> <span class="type">bool</span> first_time = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (first_time) &#123;</span><br><span class="line">        first_time = <span class="literal">false</span>; </span><br><span class="line">        bt_le_adv_param first_param = <span class="built_in">BT_LE_ADV_PARAM_INIT</span>(BT_LE_ADV_OPT_CONN, BT_GAP_ADV_FAST_INT_MIN_1, BT_GAP_ADV_FAST_INT_MAX_1,<span class="literal">NULL</span>);</span><br><span class="line">        first_param.id = sBtId;</span><br><span class="line">        err = <span class="built_in">bt_le_ext_adv_create</span>(&amp;first_param, &amp;adv_matter_cb, &amp;matter_ext_adv);</span><br><span class="line">        <span class="keyword">if</span> (err)&#123;</span><br><span class="line">            <span class="built_in">printk</span>(<span class="string">&quot;===Failed to create a connectable advertising set (err %d)\n&quot;</span>, err);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Note: bt_le_adv_stop() returns success when the advertising was not started</span></span><br><span class="line">    <span class="comment">//ReturnErrorOnFailure(System::MapErrorZephyr(bt_le_adv_stop()));</span></span><br><span class="line">    <span class="built_in">ReturnErrorOnFailure</span>(System::<span class="built_in">MapErrorZephyr</span>(<span class="built_in">bt_le_ext_adv_stop</span>(matter_ext_adv)));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">ReturnErrorCodeIf</span>(<span class="built_in">sys_slist_is_empty</span>(&amp;sRequests), CHIP_NO_ERROR);</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> Request &amp; top    = <span class="built_in">ToRequest</span>(<span class="built_in">sys_slist_peek_head</span>(&amp;sRequests));</span><br><span class="line">    bt_le_adv_param params = <span class="built_in">BT_LE_ADV_PARAM_INIT</span>(top.options, top.minInterval, top.maxInterval, <span class="literal">nullptr</span>);</span><br><span class="line">    params.id              = sBtId;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** Change to ext_adv instead of normal one */</span>   </span><br><span class="line">    <span class="comment">// const int result = bt_le_adv_start(&amp;params, top.advertisingData.data(), top.advertisingData.size(), top.scanResponseData.data(),</span></span><br><span class="line">    <span class="comment">//                                    top.scanResponseData.size());</span></span><br><span class="line"></span><br><span class="line">    err = <span class="built_in">bt_le_ext_adv_set_data</span>(matter_ext_adv, top.advertisingData.<span class="built_in">data</span>(), top.advertisingData.<span class="built_in">size</span>(), top.scanResponseData.<span class="built_in">data</span>(),</span><br><span class="line">                                       top.scanResponseData.<span class="built_in">size</span>());</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;===Failed to set advertising data (err %d)\n&quot;</span>, err);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    err = <span class="built_in">bt_le_ext_adv_update_param</span>(matter_ext_adv, &amp;params);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;===Update Matter adv param (err %d)\n&quot;</span>, err);		</span><br><span class="line">    &#125;		</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> result = <span class="built_in">bt_le_ext_adv_start</span>(matter_ext_adv, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;===Failed to start advertising (err %d)\n&quot;</span>, err);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (result &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">ChipLogProgress</span>(DeviceLayer, <span class="string">&quot;Advertising start failed, will retry once connection is released&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (top.onStarted != <span class="literal">nullptr</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        top.<span class="built_in">onStarted</span>(result);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> System::<span class="built_in">MapErrorZephyr</span>(result);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">BT_CONN_CB_DEFINE</span>(conn_callbacks) = &#123;</span><br><span class="line">    .disconnected = [](<span class="keyword">struct</span> bt_conn * conn, <span class="type">uint8_t</span> reason) &#123; sWasDisconnection = <span class="literal">true</span>; &#125;,</span><br><span class="line">    .recycled =</span><br><span class="line">        []() &#123;</span><br><span class="line">            <span class="comment">// In this callback the connection object was returned to the pool and we can try to re-start connectable</span></span><br><span class="line">            <span class="comment">// advertising, but only if the disconnection was detected.</span></span><br><span class="line">            <span class="keyword">if</span> (sWasDisconnection)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">SystemLayer</span>().<span class="built_in">ScheduleLambda</span>([] &#123;</span><br><span class="line">                    <span class="keyword">if</span> (!<span class="built_in">sys_slist_is_empty</span>(&amp;sRequests))</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="comment">// Starting from Zephyr 4.0 Automatic advertiser resumption is deprecated,</span></span><br><span class="line">                        <span class="comment">// so the BLE Advertising Arbiter has to take over the responsibility of restarting the advertiser.</span></span><br><span class="line">                        <span class="comment">// Restart advertising in this callback if there are pending requests after the connection is released.</span></span><br><span class="line">                        <span class="built_in">RestartAdvertising</span>();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">                <span class="comment">// Reset the disconnection flag to avoid restarting advertising multiple times</span></span><br><span class="line">                sWasDisconnection = <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">&#125;;</span><br><span class="line">&#125; <span class="comment">// namespace</span></span><br><span class="line"></span><br><span class="line"><span class="function">CHIP_ERROR <span class="title">Init</span><span class="params">(<span class="type">uint8_t</span> btId)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (sIsInitialized)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> CHIP_ERROR_INCORRECT_STATE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    sBtId          = btId;</span><br><span class="line">    sIsInitialized = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> CHIP_NO_ERROR;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">CHIP_ERROR <span class="title">InsertRequest</span><span class="params">(Request &amp; request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!sIsInitialized)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> CHIP_ERROR_INCORRECT_STATE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">CancelRequest</span>(request);</span><br><span class="line"></span><br><span class="line">    <span class="type">sys_snode_t</span> * prev = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="type">sys_snode_t</span> * node = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Find position of the request in the list that preserves ordering by priority</span></span><br><span class="line">    <span class="built_in">SYS_SLIST_FOR_EACH_NODE</span>(&amp;sRequests, node)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (request.priority &lt; <span class="built_in">ToRequest</span>(node).priority)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        prev = node;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (prev == <span class="literal">nullptr</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">NotifyAdvertisingStopped</span>(<span class="built_in">sys_slist_peek_head</span>(&amp;sRequests));</span><br><span class="line">        <span class="built_in">sys_slist_prepend</span>(&amp;sRequests, &amp;request);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">sys_slist_insert</span>(&amp;sRequests, prev, &amp;request);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If the request is top-priority, restart the advertising</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">sys_slist_peek_head</span>(&amp;sRequests) == &amp;request)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">RestartAdvertising</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> CHIP_NO_ERROR;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">CancelRequest</span><span class="params">(Request &amp; request)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!sIsInitialized)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> <span class="type">bool</span> isTopPriority = (<span class="built_in">sys_slist_peek_head</span>(&amp;sRequests) == &amp;request);</span><br><span class="line">    <span class="built_in">VerifyOrReturn</span>(<span class="built_in">sys_slist_find_and_remove</span>(&amp;sRequests, &amp;request));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If cancelled request was top-priority, restart the advertising.</span></span><br><span class="line">    <span class="keyword">if</span> (isTopPriority)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">RestartAdvertising</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125; <span class="comment">// namespace BLEAdvertisingArbiter</span></span><br><span class="line">&#125; <span class="comment">// namespace DeviceLayer</span></span><br><span class="line">&#125; <span class="comment">// namespace chip</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> *    Copyright (c) 2023 Project CHIP Authors</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> *    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span><br><span class="hljs-comment"> *    you may not use this file except in compliance with the License.</span><br><span class="hljs-comment"> *    You may obtain a copy of the License at</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> *        http://www.apache.org/licenses/LICENSE-2.0</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> *    Unless required by applicable law or agreed to in writing, software</span><br><span class="hljs-comment"> *    distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span><br><span class="hljs-comment"> *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span><br><span class="hljs-comment"> *    See the License for the specific language governing permissions and</span><br><span class="hljs-comment"> *    limitations under the License.</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;BLEAdvertisingArbiter.h&quot;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;lib/support/CodeUtils.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;lib/support/logging/CHIPLogging.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;platform/CHIPDeviceLayer.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;platform/Zephyr/BLEManagerImpl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;system/SystemError.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/bluetooth/conn.h&gt;</span></span><br><br><br>bt_le_ext_adv *matter_ext_adv = <span class="hljs-literal">NULL</span>;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">bt_conn</span> *matter_conn = <span class="hljs-literal">NULL</span>;<br><br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">matter_ext_adv_connected_cb</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bt_le_ext_adv *extadv,</span></span><br><span class="hljs-params"><span class="hljs-function">              <span class="hljs-keyword">struct</span> bt_le_ext_adv_connected_info *info)</span></span><br><span class="hljs-function"></span>&#123;<br>    __ASSERT(extadv == matter_ext_adv, <span class="hljs-string">&quot;Matter adv wrong&quot;</span>);<br>    <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;## Matter ext adv connected %p ##\n&quot;</span>, info-&gt;conn);<br>    matter_conn = info-&gt;conn;<br><br>    <span class="hljs-comment">// move the original connected() callback here</span><br>    chip::DeviceLayer::Internal::BLEManagerImpl::<span class="hljs-built_in">HandleConnect</span>(matter_conn, <span class="hljs-number">0</span>);<br>&#125;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">bt_le_ext_adv_cb</span> adv_matter_cb = &#123;<br>    .connected = matter_ext_adv_connected_cb<br>&#125;;<br><br><span class="hljs-keyword">namespace</span> chip &#123;<br><span class="hljs-keyword">namespace</span> DeviceLayer &#123;<br><span class="hljs-keyword">namespace</span> BLEAdvertisingArbiter &#123;<br><span class="hljs-keyword">namespace</span> &#123;<br><br><span class="hljs-comment">// List of advertising requests ordered by priority</span><br><span class="hljs-type">sys_slist_t</span> sRequests;<br><br><span class="hljs-type">bool</span> sIsInitialized    = <span class="hljs-literal">false</span>;<br><span class="hljs-type">bool</span> sWasDisconnection = <span class="hljs-literal">false</span>;<br><span class="hljs-type">uint8_t</span> sBtId          = <span class="hljs-number">0</span>;<br><br><span class="hljs-comment">// Cast an intrusive list node to the containing request object</span><br><span class="hljs-function"><span class="hljs-type">const</span> BLEAdvertisingArbiter::Request &amp; <span class="hljs-title">ToRequest</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">sys_snode_t</span> * node)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> *<span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">const</span> BLEAdvertisingArbiter::Request *&gt;(node);<br>&#125;<br><br><span class="hljs-comment">// Notify application about stopped advertising if the callback has been provided</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">NotifyAdvertisingStopped</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">sys_snode_t</span> * node)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-built_in">VerifyOrReturn</span>(node);<br><br>    <span class="hljs-type">const</span> Request &amp; request = <span class="hljs-built_in">ToRequest</span>(node);<br><br>    <span class="hljs-keyword">if</span> (request.onStopped != <span class="hljs-literal">nullptr</span>)<br>    &#123;<br>        request.<span class="hljs-built_in">onStopped</span>();<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// Restart advertising using the top-priority request</span><br><span class="hljs-function">CHIP_ERROR <span class="hljs-title">RestartAdvertising</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> err;<br>    <span class="hljs-type">static</span> <span class="hljs-type">bool</span> first_time = <span class="hljs-literal">true</span>;<br>    <span class="hljs-keyword">if</span> (first_time) &#123;<br>        first_time = <span class="hljs-literal">false</span>; <br>        bt_le_adv_param first_param = <span class="hljs-built_in">BT_LE_ADV_PARAM_INIT</span>(BT_LE_ADV_OPT_CONN, BT_GAP_ADV_FAST_INT_MIN_1, BT_GAP_ADV_FAST_INT_MAX_1,<span class="hljs-literal">NULL</span>);<br>        first_param.id = sBtId;<br>        err = <span class="hljs-built_in">bt_le_ext_adv_create</span>(&amp;first_param, &amp;adv_matter_cb, &amp;matter_ext_adv);<br>        <span class="hljs-keyword">if</span> (err)&#123;<br>            <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;===Failed to create a connectable advertising set (err %d)\n&quot;</span>, err);<br>        &#125;<br>    &#125;<br><br><br>    <span class="hljs-comment">// Note: bt_le_adv_stop() returns success when the advertising was not started</span><br>    <span class="hljs-comment">//ReturnErrorOnFailure(System::MapErrorZephyr(bt_le_adv_stop()));</span><br>    <span class="hljs-built_in">ReturnErrorOnFailure</span>(System::<span class="hljs-built_in">MapErrorZephyr</span>(<span class="hljs-built_in">bt_le_ext_adv_stop</span>(matter_ext_adv)));<br><br>    <span class="hljs-built_in">ReturnErrorCodeIf</span>(<span class="hljs-built_in">sys_slist_is_empty</span>(&amp;sRequests), CHIP_NO_ERROR);<br><br>    <span class="hljs-type">const</span> Request &amp; top    = <span class="hljs-built_in">ToRequest</span>(<span class="hljs-built_in">sys_slist_peek_head</span>(&amp;sRequests));<br>    bt_le_adv_param params = <span class="hljs-built_in">BT_LE_ADV_PARAM_INIT</span>(top.options, top.minInterval, top.maxInterval, <span class="hljs-literal">nullptr</span>);<br>    params.id              = sBtId;<br><br>    <span class="hljs-comment">/** Change to ext_adv instead of normal one */</span>   <br>    <span class="hljs-comment">// const int result = bt_le_adv_start(&amp;params, top.advertisingData.data(), top.advertisingData.size(), top.scanResponseData.data(),</span><br>    <span class="hljs-comment">//                                    top.scanResponseData.size());</span><br><br>    err = <span class="hljs-built_in">bt_le_ext_adv_set_data</span>(matter_ext_adv, top.advertisingData.<span class="hljs-built_in">data</span>(), top.advertisingData.<span class="hljs-built_in">size</span>(), top.scanResponseData.<span class="hljs-built_in">data</span>(),<br>                                       top.scanResponseData.<span class="hljs-built_in">size</span>());<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;===Failed to set advertising data (err %d)\n&quot;</span>, err);<br>    &#125;<br><br>    err = <span class="hljs-built_in">bt_le_ext_adv_update_param</span>(matter_ext_adv, &amp;params);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;===Update Matter adv param (err %d)\n&quot;</span>, err);		<br>    &#125;		<br><br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> result = <span class="hljs-built_in">bt_le_ext_adv_start</span>(matter_ext_adv, <span class="hljs-literal">NULL</span>);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;===Failed to start advertising (err %d)\n&quot;</span>, err);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (result &lt; <span class="hljs-number">0</span>)<br>    &#123;<br>        <span class="hljs-built_in">ChipLogProgress</span>(DeviceLayer, <span class="hljs-string">&quot;Advertising start failed, will retry once connection is released&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (top.onStarted != <span class="hljs-literal">nullptr</span>)<br>    &#123;<br>        top.<span class="hljs-built_in">onStarted</span>(result);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> System::<span class="hljs-built_in">MapErrorZephyr</span>(result);<br>&#125;<br><br><span class="hljs-built_in">BT_CONN_CB_DEFINE</span>(conn_callbacks) = &#123;<br>    .disconnected = [](<span class="hljs-keyword">struct</span> bt_conn * conn, <span class="hljs-type">uint8_t</span> reason) &#123; sWasDisconnection = <span class="hljs-literal">true</span>; &#125;,<br>    .recycled =<br>        []() &#123;<br>            <span class="hljs-comment">// In this callback the connection object was returned to the pool and we can try to re-start connectable</span><br>            <span class="hljs-comment">// advertising, but only if the disconnection was detected.</span><br>            <span class="hljs-keyword">if</span> (sWasDisconnection)<br>            &#123;<br>                <span class="hljs-built_in">SystemLayer</span>().<span class="hljs-built_in">ScheduleLambda</span>([] &#123;<br>                    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">sys_slist_is_empty</span>(&amp;sRequests))<br>                    &#123;<br>                        <span class="hljs-comment">// Starting from Zephyr 4.0 Automatic advertiser resumption is deprecated,</span><br>                        <span class="hljs-comment">// so the BLE Advertising Arbiter has to take over the responsibility of restarting the advertiser.</span><br>                        <span class="hljs-comment">// Restart advertising in this callback if there are pending requests after the connection is released.</span><br>                        <span class="hljs-built_in">RestartAdvertising</span>();<br>                    &#125;<br>                &#125;);<br>                <span class="hljs-comment">// Reset the disconnection flag to avoid restarting advertising multiple times</span><br>                sWasDisconnection = <span class="hljs-literal">false</span>;<br>            &#125;<br>        &#125;,<br>&#125;;<br>&#125; <span class="hljs-comment">// namespace</span><br><br><span class="hljs-function">CHIP_ERROR <span class="hljs-title">Init</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> btId)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (sIsInitialized)<br>    &#123;<br>        <span class="hljs-keyword">return</span> CHIP_ERROR_INCORRECT_STATE;<br>    &#125;<br><br>    sBtId          = btId;<br>    sIsInitialized = <span class="hljs-literal">true</span>;<br><br>    <span class="hljs-keyword">return</span> CHIP_NO_ERROR;<br>&#125;<br><br><span class="hljs-function">CHIP_ERROR <span class="hljs-title">InsertRequest</span><span class="hljs-params">(Request &amp; request)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (!sIsInitialized)<br>    &#123;<br>        <span class="hljs-keyword">return</span> CHIP_ERROR_INCORRECT_STATE;<br>    &#125;<br><br>    <span class="hljs-built_in">CancelRequest</span>(request);<br><br>    <span class="hljs-type">sys_snode_t</span> * prev = <span class="hljs-literal">nullptr</span>;<br>    <span class="hljs-type">sys_snode_t</span> * node = <span class="hljs-literal">nullptr</span>;<br><br>    <span class="hljs-comment">// Find position of the request in the list that preserves ordering by priority</span><br>    <span class="hljs-built_in">SYS_SLIST_FOR_EACH_NODE</span>(&amp;sRequests, node)<br>    &#123;<br>        <span class="hljs-keyword">if</span> (request.priority &lt; <span class="hljs-built_in">ToRequest</span>(node).priority)<br>        &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        prev = node;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (prev == <span class="hljs-literal">nullptr</span>)<br>    &#123;<br>        <span class="hljs-built_in">NotifyAdvertisingStopped</span>(<span class="hljs-built_in">sys_slist_peek_head</span>(&amp;sRequests));<br>        <span class="hljs-built_in">sys_slist_prepend</span>(&amp;sRequests, &amp;request);<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        <span class="hljs-built_in">sys_slist_insert</span>(&amp;sRequests, prev, &amp;request);<br>    &#125;<br><br>    <span class="hljs-comment">// If the request is top-priority, restart the advertising</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">sys_slist_peek_head</span>(&amp;sRequests) == &amp;request)<br>    &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">RestartAdvertising</span>();<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> CHIP_NO_ERROR;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">CancelRequest</span><span class="hljs-params">(Request &amp; request)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (!sIsInitialized)<br>    &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-type">const</span> <span class="hljs-type">bool</span> isTopPriority = (<span class="hljs-built_in">sys_slist_peek_head</span>(&amp;sRequests) == &amp;request);<br>    <span class="hljs-built_in">VerifyOrReturn</span>(<span class="hljs-built_in">sys_slist_find_and_remove</span>(&amp;sRequests, &amp;request));<br><br>    <span class="hljs-comment">// If cancelled request was top-priority, restart the advertising.</span><br>    <span class="hljs-keyword">if</span> (isTopPriority)<br>    &#123;<br>        <span class="hljs-built_in">RestartAdvertising</span>();<br>    &#125;<br>&#125;<br><br>&#125; <span class="hljs-comment">// namespace BLEAdvertisingArbiter</span><br>&#125; <span class="hljs-comment">// namespace DeviceLayer</span><br>&#125; <span class="hljs-comment">// namespace chip</span><br><br></code></pre></td></tr></table></figure>
 
 <p>主要思路：</p>
 <ol>
@@ -288,164 +756,439 @@
 <li>要在扩展广播专属的connected回调函数中，调用前一步我们取消注册的Matter自己的<code>HandleConnect</code>函数。这也是为什么前面我们要把它改成C++公共成员。</li>
 </ol>
 <h3 id="（3）再添加自己的扩展广播"><a href="#（3）再添加自己的扩展广播" class="headerlink" title="（3）再添加自己的扩展广播"></a>（3）再添加自己的扩展广播</h3><p>前一步修改已经让Matter可以运行了。再在自己的文件里等待蓝牙初始化完成，然后创建自己的广播即可：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/bluetooth/bluetooth.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/bluetooth/conn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">bt_le_ext_adv *my_ext_adv = <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">bt_conn</span> *my_conn = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">uint8_t</span> mfg_data[] = &#123; <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0x30</span>,<span class="number">0x31</span>,<span class="number">0x32</span>,<span class="number">0x33</span>&#125;;</span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="keyword">struct</span> <span class="title class_">bt_data</span> ad[] = &#123;</span><br><span class="line">    <span class="built_in">BT_DATA_BYTES</span>(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),</span><br><span class="line">    <span class="built_in">BT_DATA</span>(BT_DATA_NAME_COMPLETE, <span class="string">&quot;Common&quot;</span>, <span class="built_in">sizeof</span>(<span class="string">&quot;Common&quot;</span>) - <span class="number">1</span>),</span><br><span class="line">    <span class="built_in">BT_DATA</span>(BT_DATA_MANUFACTURER_DATA, mfg_data, <span class="built_in">sizeof</span>(mfg_data)),</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">disconnected</span><span class="params">(<span class="keyword">struct</span> bt_conn *conn, <span class="type">uint8_t</span> reason)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 仅处理自己的连接断开事件</span></span><br><span class="line">    <span class="keyword">if</span> (conn != my_conn) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printk</span>(<span class="string">&quot;## My private disconnected (reason 0x%02x) ##\n&quot;</span>, reason);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (my_conn) &#123;</span><br><span class="line">        <span class="built_in">bt_conn_unref</span>(my_conn);</span><br><span class="line">        my_conn = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">BT_CONN_CB_DEFINE</span>(conn_callbacks) = &#123;</span><br><span class="line">    .connected    = <span class="literal">NULL</span>,</span><br><span class="line">    .disconnected = disconnected,</span><br><span class="line">    .security_changed = <span class="literal">NULL</span>,</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">my_ext_adv_connected_cb</span><span class="params">(<span class="keyword">struct</span> bt_le_ext_adv *extadv,</span></span></span><br><span class="line"><span class="params"><span class="function">              <span class="keyword">struct</span> bt_le_ext_adv_connected_info *info)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    __ASSERT(extadv == my_ext_adv, <span class="string">&quot;My private adv wrong&quot;</span>);</span><br><span class="line">    <span class="built_in">printk</span>(<span class="string">&quot;## My private ext adv connected %p ##\n&quot;</span>, info-&gt;conn);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 保存当前conn，以便自己的蓝牙服务识别</span></span><br><span class="line">    my_conn = <span class="built_in">bt_conn_ref</span>(info-&gt;conn);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">bt_le_ext_adv_cb</span> my_ext_adv_cb = &#123;</span><br><span class="line">    .connected = my_ext_adv_connected_cb</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">my_private_ble_thread_entry</span><span class="params">(<span class="type">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (!<span class="built_in">bt_is_ready</span>()) &#123;</span><br><span class="line">        <span class="built_in">k_sleep</span>(<span class="built_in">K_MSEC</span>(<span class="number">100</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">bt_le_adv_param</span> adv_param0 = </span><br><span class="line">        &#123;</span><br><span class="line">            .id = <span class="number">0</span>,</span><br><span class="line">            .sid = <span class="number">0U</span>, <span class="comment">/* Supply unique SID when creating advertising set */</span></span><br><span class="line">            .secondary_max_skip = <span class="number">0U</span>,</span><br><span class="line">            .options = (BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN),</span><br><span class="line">            .interval_min = <span class="number">600</span>,</span><br><span class="line">            .interval_max = <span class="number">800</span>,</span><br><span class="line">            .peer = <span class="literal">NULL</span>,</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line">        </span><br><span class="line">    err = <span class="built_in">bt_le_ext_adv_create</span>(&amp;adv_param0, &amp;my_ext_adv_cb, &amp;my_ext_adv);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;Create my ext adv (err %d)\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    err = <span class="built_in">bt_le_ext_adv_set_data</span>(my_ext_adv, ad , <span class="built_in">ARRAY_SIZE</span>(ad), <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;Set my ext adv data (err %d)\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Start extended advertising set */</span></span><br><span class="line">    err = <span class="built_in">bt_le_ext_adv_start</span>(my_ext_adv,</span><br><span class="line">                BT_LE_EXT_ADV_START_DEFAULT);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">printk</span>(<span class="string">&quot;Start common adv (err %d)\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printk</span>(<span class="string">&quot;## My private ext adv started ##\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">K_THREAD_DEFINE</span>(my_private_ble_thread_id, <span class="number">4096</span>,</span><br><span class="line">            my_private_ble_thread_entry, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>,</span><br><span class="line">            <span class="number">7</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/bluetooth/bluetooth.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/bluetooth/conn.h&gt;</span></span><br><br>bt_le_ext_adv *my_ext_adv = <span class="hljs-literal">NULL</span>;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">bt_conn</span> *my_conn = <span class="hljs-literal">NULL</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-type">uint8_t</span> mfg_data[] = &#123; <span class="hljs-number">0xFF</span>, <span class="hljs-number">0xFF</span>, <span class="hljs-number">0x30</span>,<span class="hljs-number">0x31</span>,<span class="hljs-number">0x32</span>,<span class="hljs-number">0x33</span>&#125;;<br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">bt_data</span> ad[] = &#123;<br>    <span class="hljs-built_in">BT_DATA_BYTES</span>(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),<br>    <span class="hljs-built_in">BT_DATA</span>(BT_DATA_NAME_COMPLETE, <span class="hljs-string">&quot;Common&quot;</span>, <span class="hljs-built_in">sizeof</span>(<span class="hljs-string">&quot;Common&quot;</span>) - <span class="hljs-number">1</span>),<br>    <span class="hljs-built_in">BT_DATA</span>(BT_DATA_MANUFACTURER_DATA, mfg_data, <span class="hljs-built_in">sizeof</span>(mfg_data)),<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">disconnected</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bt_conn *conn, <span class="hljs-type">uint8_t</span> reason)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">// 仅处理自己的连接断开事件</span><br>    <span class="hljs-keyword">if</span> (conn != my_conn) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;## My private disconnected (reason 0x%02x) ##\n&quot;</span>, reason);<br><br>    <span class="hljs-keyword">if</span> (my_conn) &#123;<br>        <span class="hljs-built_in">bt_conn_unref</span>(my_conn);<br>        my_conn = <span class="hljs-literal">NULL</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-built_in">BT_CONN_CB_DEFINE</span>(conn_callbacks) = &#123;<br>    .connected    = <span class="hljs-literal">NULL</span>,<br>    .disconnected = disconnected,<br>    .security_changed = <span class="hljs-literal">NULL</span>,<br><br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">my_ext_adv_connected_cb</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> bt_le_ext_adv *extadv,</span></span><br><span class="hljs-params"><span class="hljs-function">              <span class="hljs-keyword">struct</span> bt_le_ext_adv_connected_info *info)</span></span><br><span class="hljs-function"></span>&#123;<br>    __ASSERT(extadv == my_ext_adv, <span class="hljs-string">&quot;My private adv wrong&quot;</span>);<br>    <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;## My private ext adv connected %p ##\n&quot;</span>, info-&gt;conn);<br><br>    <span class="hljs-comment">// 保存当前conn，以便自己的蓝牙服务识别</span><br>    my_conn = <span class="hljs-built_in">bt_conn_ref</span>(info-&gt;conn);<br>&#125;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">bt_le_ext_adv_cb</span> my_ext_adv_cb = &#123;<br>    .connected = my_ext_adv_connected_cb<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">my_private_ble_thread_entry</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">while</span> (!<span class="hljs-built_in">bt_is_ready</span>()) &#123;<br>        <span class="hljs-built_in">k_sleep</span>(<span class="hljs-built_in">K_MSEC</span>(<span class="hljs-number">100</span>));<br>    &#125;<br><br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">bt_le_adv_param</span> adv_param0 = <br>        &#123;<br>            .id = <span class="hljs-number">0</span>,<br>            .sid = <span class="hljs-number">0U</span>, <span class="hljs-comment">/* Supply unique SID when creating advertising set */</span><br>            .secondary_max_skip = <span class="hljs-number">0U</span>,<br>            .options = (BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN),<br>            .interval_min = <span class="hljs-number">600</span>,<br>            .interval_max = <span class="hljs-number">800</span>,<br>            .peer = <span class="hljs-literal">NULL</span>,<br>        &#125;;<br><br>    <span class="hljs-type">int</span> err;<br>        <br>    err = <span class="hljs-built_in">bt_le_ext_adv_create</span>(&amp;adv_param0, &amp;my_ext_adv_cb, &amp;my_ext_adv);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;Create my ext adv (err %d)\n&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br>    err = <span class="hljs-built_in">bt_le_ext_adv_set_data</span>(my_ext_adv, ad , <span class="hljs-built_in">ARRAY_SIZE</span>(ad), <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;Set my ext adv data (err %d)\n&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br>    <span class="hljs-comment">/* Start extended advertising set */</span><br>    err = <span class="hljs-built_in">bt_le_ext_adv_start</span>(my_ext_adv,<br>                BT_LE_EXT_ADV_START_DEFAULT);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;Start common adv (err %d)\n&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br>    <span class="hljs-built_in">printk</span>(<span class="hljs-string">&quot;## My private ext adv started ##\n&quot;</span>);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-built_in">K_THREAD_DEFINE</span>(my_private_ble_thread_id, <span class="hljs-number">4096</span>,<br>            my_private_ble_thread_entry, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>,<br>            <span class="hljs-number">7</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
 
 <p>注意自己的蓝牙服务和connected回调函数里面，仅需处理<code>conn == my_conn</code>的情况即可。</p>
 <blockquote>
 <p>可以发现这种方式对SDK改动较大，编译其他Matter工程时要注意</p>
 </blockquote>
 
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2025/10/1b3f41652d5d/" data-id="cmqop0ng5001gy8o58u802cer" data-title="在Matter中添加自己的蓝牙广播与服务" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li></ul>
 
-    </footer>
-  </div>
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/Matter/" class="category-chain-item">Matter</a>
   
-    <a href="/jayant97.github.io/2026/04/b19b485a13d3/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          一文了解Nordic边缘AI方案
-        
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Nordic/" class="print-no-link">#Nordic</a>
+      
+        <a href="/jayant97.github.io/tags/Matter/" class="print-no-link">#Matter</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>在Matter中添加自己的蓝牙广播与服务</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2025/10/1b3f41652d5d/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年10月21日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2026/04/b19b485a13d3/" title="一文了解Nordic边缘AI方案">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一文了解Nordic边缘AI方案</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/" title="Matter OTA固件升级">
+                        <span class="hidden-mobile">Matter OTA固件升级</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">Matter OTA固件升级</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>

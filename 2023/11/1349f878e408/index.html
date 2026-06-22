@@ -1,116 +1,585 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>在NCS中使用NRFX外设驱动库——以I2C为例 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="1. 前言之前编写了两篇与Zephyr设备树和驱动相关的文章：  详解Zephyr设备树与驱动模型 Zephyr设备树与驱动实战——串口  如果你看完这两篇文章，相信你对Zephyr的驱动模型已经有一定概念了。开发者能够直接使用厂商写好的高效、完善的驱动程序，无需再埋头于寄存器手册、波形时序、引脚配置等底层程序，只需专注于自己的应用即可。 但是，做嵌入式开发，总还有各种各样的原因，让人不得不陷入底">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="1. 前言之前编写了两篇与Zephyr设备树和驱动相关的文章：  详解Zephyr设备树与驱动模型 Zephyr设备树与驱动实战——串口  如果你看完这两篇文章，相信你对Zephyr的驱动模型已经有一定概念了。开发者能够直接使用厂商写好的高效、完善的驱动程序，无需再埋头于寄存器手册、波形时序、引脚配置等底层程序，只需专注于自己的应用即可。 但是，做嵌入式开发，总还有各种各样的原因，让人不得不陷入底">
 <meta property="og:type" content="article">
 <meta property="og:title" content="在NCS中使用NRFX外设驱动库——以I2C为例">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2023/11/1349f878e408/index.html">
-<meta property="og:site_name" content="一苇万顷">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
 <meta property="og:description" content="1. 前言之前编写了两篇与Zephyr设备树和驱动相关的文章：  详解Zephyr设备树与驱动模型 Zephyr设备树与驱动实战——串口  如果你看完这两篇文章，相信你对Zephyr的驱动模型已经有一定概念了。开发者能够直接使用厂商写好的高效、完善的驱动程序，无需再埋头于寄存器手册、波形时序、引脚配置等底层程序，只需专注于自己的应用即可。 但是，做嵌入式开发，总还有各种各样的原因，让人不得不陷入底">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231115221340971.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116001024624.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116002542051.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116004555046.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116004445733.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116013311689.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116011218081.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined63eb4a6736a0968bdbfb9f18f2b23e1b.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7f0c410444e9555ee98c3a97faa21026.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined750262bf3b95b47e39488136c6d7c9e5.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined3d8c8f49c007973906d82a6ad196428c.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedbcc04a1311bc8f70a15476eaa8f3ea74.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb96701e27dea67028e500a379148c302.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedba1ed65b8b5dbacc4032df0de7ea7eae.png">
 <meta property="article:published_time" content="2023-11-15T12:20:05.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.243Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.843Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="Zephyr">
 <meta property="article:tag" content="NRFX">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231115221340971.png">
-  
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+<meta property="article:tag" content="I2C">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined63eb4a6736a0968bdbfb9f18f2b23e1b.png">
   
   
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+  <title>在NCS中使用NRFX外设驱动库——以I2C为例 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
+  
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-在NCS中使用NRFX外设驱动库——以I2C为例" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2023/11/1349f878e408/" class="article-date">
-  <time class="dt-published" datetime="2023-11-15T12:20:05.000Z" itemprop="datePublished">2023-11-15</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a>►<a class="article-category-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a>
-  </div>
+  
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="在NCS中使用NRFX外设驱动库——以I2C为例"></span>
+          
+        </div>
+
         
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      在NCS中使用NRFX外设驱动库——以I2C为例
-    </h1>
-  
-
-      </header>
+          
+  <div class="mt-3">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-15 20:20" pubdate>
+          2023年11月15日
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          89 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>之前编写了两篇与Zephyr设备树和驱动相关的文章：</p>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">在NCS中使用NRFX外设驱动库——以I2C为例</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>之前编写了两篇与Zephyr设备树和驱动相关的文章：</p>
 <ul>
 <li><a href="https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/">详解Zephyr设备树与驱动模型</a></li>
 <li><a href="https://jayant-tang.github.io/jayant97.github.io/2023/11/4c8e1d7d162d/">Zephyr设备树与驱动实战——串口</a></li>
@@ -125,15 +594,15 @@
 </ul>
 <p>话先说在前面，Nordic的nRF5 SDK从17.10开始就不再更新了。从nRF53系列（也就是nRF5340）、nRF91蜂窝网络、nRF70 Wi-Fi系列以及马上要出的强力的nRF54系列产品，都只能使用NCS了。并且，今后单片机的嵌入式软件开发会越来越复杂：TCP&#x2F;IP、蓝牙、USB、Matter、OTA、文件系统、显示屏……各种复杂的应用和协议栈，如果都从底层寄存器开始做起，那真是不知道要浪费多少时间，关键是还不一定能做成功。Zephyr是一个RTOS，除了基本的多线程、线程间通讯之外，还有功耗管理、线程监控、自定义shell命令、非易失存储、DSP、加密、代码与变量位置重定向、C++支持等等功能。并且，Zephyr是Linux基金会维护的开源项目，底层也是POSIX接口，编译与配置系统是CMake和Kconfig，这意味着Zephyr可以很容易的集成许多第三方开源项目进来。</p>
 <p>不过Zephyr再好，厂商肯定是不会把底层调试的路完全封死的。本文将会以nRF52840DK为例，介绍在NCS中，如何使用NRFX库来使用I2C从机。这个NRFX库和之前nRF5 SDK中的nrfx几乎是一致的。</p>
-<h1 id="2-硬件连接"><a href="#2-硬件连接" class="headerlink" title="2. 硬件连接"></a>2. 硬件连接</h1><p><img src="/jayant97.github.io/./imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231115221340971.png" alt="image-20231115221340971"></p>
+<h1 id="2-硬件连接"><a href="#2-硬件连接" class="headerlink" title="2. 硬件连接"></a>2. 硬件连接</h1><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined63eb4a6736a0968bdbfb9f18f2b23e1b.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231115221340971"></p>
 <p>I2C主机：SDA(P0.26) SCL(P0.27)</p>
 <p>I2C从机：SDA(P0.30) SCL(P0.31)</p>
 <h1 id="3-例程代码"><a href="#3-例程代码" class="headerlink" title="3. 例程代码"></a>3. 例程代码</h1><h2 id="工程结构"><a href="#工程结构" class="headerlink" title="工程结构"></a>工程结构</h2><p>本文以<code>$&#123;NCS&#125;/zephyr/samples/hello_world</code>为基础。主要文件如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">|-- boards</span><br><span class="line">|    |</span><br><span class="line">|    `-- nrf52840dk_nrf52840.overlay</span><br><span class="line">|</span><br><span class="line">|-- src</span><br><span class="line">|    |</span><br><span class="line">|    |-- main.c</span><br><span class="line">|    |-- i2c_slave.c</span><br><span class="line">|    `-- message.h</span><br><span class="line">|</span><br><span class="line">|-- CMakeLists.txt</span><br><span class="line">`-- prj.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">|<span class="hljs-string">-- boards</span><br><span class="hljs-string"></span>|<span class="hljs-string">    </span>|<br>|<span class="hljs-string">    `-- nrf52840dk_nrf52840.overlay</span><br><span class="hljs-string"></span>|<br>|<span class="hljs-string">-- src</span><br><span class="hljs-string"></span>|<span class="hljs-string">    </span>|<br>|<span class="hljs-string">    </span>|<span class="hljs-string">-- main.c</span><br><span class="hljs-string"></span>|<span class="hljs-string">    </span>|<span class="hljs-string">-- i2c_slave.c</span><br><span class="hljs-string"></span>|<span class="hljs-string">    `-- message.h</span><br><span class="hljs-string"></span>|<br>|<span class="hljs-string">-- CMakeLists.txt</span><br><span class="hljs-string">`-- prj.conf</span><br></code></pre></td></tr></table></figure>
 
-<h2 id="CMakeLists-txt"><a href="#CMakeLists-txt" class="headerlink" title="CMakeLists.txt"></a>CMakeLists.txt</h2><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="comment"># SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>.<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">find_package</span>(Zephyr REQUIRED HINTS $ENV&#123;ZEPHYR_BASE&#125;)</span><br><span class="line"><span class="keyword">project</span>(hello_world)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_sources</span>(app PRIVATE </span><br><span class="line">    src/main.c</span><br><span class="line">    src/i2c_slave.c</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE </span><br><span class="line">    src)</span><br></pre></td></tr></table></figure>
+<h2 id="CMakeLists-txt"><a href="#CMakeLists-txt" class="headerlink" title="CMakeLists.txt"></a>CMakeLists.txt</h2><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-comment"># SPDX-License-Identifier: Apache-2.0</span><br><br><span class="hljs-keyword">cmake_minimum_required</span>(VERSION <span class="hljs-number">3.20</span>.<span class="hljs-number">0</span>)<br><br><span class="hljs-keyword">find_package</span>(Zephyr REQUIRED HINTS $ENV&#123;ZEPHYR_BASE&#125;)<br><span class="hljs-keyword">project</span>(hello_world)<br><br><span class="hljs-keyword">target_sources</span>(app PRIVATE <br>    src/main.c<br>    src/i2c_slave.c<br>    )<br><br><span class="hljs-keyword">target_include_directories</span>(app PRIVATE <br>    src)<br></code></pre></td></tr></table></figure>
 
-<h2 id="prj-conf"><a href="#prj-conf" class="headerlink" title="prj.conf"></a>prj.conf</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">the I2C matser using Zephyr driver</span></span><br><span class="line">CONFIG_I2C=y</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">the I2C slave using NRFX driver</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">see: https://github.com/zephyrproject-rtos/zephyr/issues/21445</span></span><br><span class="line">CONFIG_NRFX_TWIS1=y</span><br></pre></td></tr></table></figure>
+<h2 id="prj-conf"><a href="#prj-conf" class="headerlink" title="prj.conf"></a>prj.conf</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">the I2C master using Zephyr driver</span><br>CONFIG_I2C=y<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">the I2C slave using NRFX driver</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">see: https://github.com/zephyrproject-rtos/zephyr/issues/21445</span><br>CONFIG_NRFX_TWIS1=y<br></code></pre></td></tr></table></figure>
 
 <p>说明：</p>
 <ul>
@@ -144,7 +613,7 @@
 <p>由于版权原因，Nordic的I2C外设叫做TWI（Two-Wire Interface）</p>
 </blockquote>
 <h2 id="设备树overlay"><a href="#设备树overlay" class="headerlink" title="设备树overlay"></a>设备树overlay</h2><p><code>boards/nrf52840dk_nrf52840.overlay</code></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">&amp;i2c0 &#123;</span><br><span class="line">    compatible = <span class="string">&quot;nordic,nrf-twim&quot;</span>;</span><br><span class="line">    status = <span class="string">&quot;okay&quot;</span>;</span><br><span class="line">    clock-frequency = &lt;I2C_BITRATE_STANDARD&gt;;</span><br><span class="line">    pinctrl<span class="number">-0</span> = &lt;&amp;i2c0_default&gt;;</span><br><span class="line">    pinctrl<span class="number">-1</span> = &lt;&amp;i2c0_sleep&gt;;</span><br><span class="line">    pinctrl-names = <span class="string">&quot;default&quot;</span>, <span class="string">&quot;sleep&quot;</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// this node is here just to meet the requirements of the `CONFIG_NRFX_TWIS1=y`.</span></span><br><span class="line"><span class="comment">// The Zephyr I2C slave driver is not available now.</span></span><br><span class="line"><span class="comment">// So we use NRFX driver instead.</span></span><br><span class="line">&amp;i2c1 &#123;</span><br><span class="line">    compatible = <span class="string">&quot;nordic,nrf-twis&quot;</span>;</span><br><span class="line">    status = <span class="string">&quot;okay&quot;</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;pinctrl &#123;</span><br><span class="line">    i2c0_default: i2c0_default &#123;</span><br><span class="line">        group1 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(TWIM_SDA, <span class="number">0</span>, <span class="number">26</span>)&gt;,</span><br><span class="line">                &lt;NRF_PSEL(TWIM_SCL, <span class="number">0</span>, <span class="number">27</span>)&gt;;</span><br><span class="line">            nordic,drive-mode = &lt;NRF_DRIVE_S0D1&gt;; <span class="comment">// standard 0, disconnect 1</span></span><br><span class="line">            bias-pull-up; <span class="comment">// internal pull-up is too weak, only for 100kHz or lower  </span></span><br><span class="line">            </span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    i2c0_sleep: i2c0_sleep &#123;</span><br><span class="line">        group1 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(TWIM_SDA, <span class="number">0</span>, <span class="number">26</span>)&gt;,</span><br><span class="line">                &lt;NRF_PSEL(TWIM_SCL, <span class="number">0</span>, <span class="number">27</span>)&gt;;</span><br><span class="line">            low-power-enable;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// i2c1 not used for Zephyr driver, it is initialized by nrfx driver.</span></span><br><span class="line">    <span class="comment">// just for Devicetree GUI display</span></span><br><span class="line">    i2c1_default: i2c1_default &#123;</span><br><span class="line">        group1 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(TWIM_SDA, <span class="number">0</span>, <span class="number">30</span>)&gt;,</span><br><span class="line">                &lt;NRF_PSEL(TWIM_SCL, <span class="number">0</span>, <span class="number">31</span>)&gt;;</span><br><span class="line">                bias-pull-up; </span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    i2c1_sleep: i2c1_sleep &#123;</span><br><span class="line">        group1 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(TWIM_SDA, <span class="number">0</span>, <span class="number">30</span>)&gt;,</span><br><span class="line">                &lt;NRF_PSEL(TWIM_SCL, <span class="number">0</span>, <span class="number">31</span>)&gt;;</span><br><span class="line">            low-power-enable;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs c">&amp;i2c0 &#123;<br>    compatible = <span class="hljs-string">&quot;nordic,nrf-twim&quot;</span>;<br>    status = <span class="hljs-string">&quot;okay&quot;</span>;<br>    clock-frequency = &lt;I2C_BITRATE_STANDARD&gt;;<br>    pinctrl<span class="hljs-number">-0</span> = &lt;&amp;i2c0_default&gt;;<br>    pinctrl<span class="hljs-number">-1</span> = &lt;&amp;i2c0_sleep&gt;;<br>    pinctrl-names = <span class="hljs-string">&quot;default&quot;</span>, <span class="hljs-string">&quot;sleep&quot;</span>;<br>&#125;;<br><br><span class="hljs-comment">// this node is here just to meet the requirements of the `CONFIG_NRFX_TWIS1=y`.</span><br><span class="hljs-comment">// The Zephyr I2C slave driver is not available now.</span><br><span class="hljs-comment">// So we use NRFX driver instead.</span><br>&amp;i2c1 &#123;<br>    compatible = <span class="hljs-string">&quot;nordic,nrf-twis&quot;</span>;<br>    status = <span class="hljs-string">&quot;okay&quot;</span>;<br>&#125;;<br><br>&amp;pinctrl &#123;<br>    i2c0_default: i2c0_default &#123;<br>        group1 &#123;<br>            psels = &lt;NRF_PSEL(TWIM_SDA, <span class="hljs-number">0</span>, <span class="hljs-number">26</span>)&gt;,<br>                &lt;NRF_PSEL(TWIM_SCL, <span class="hljs-number">0</span>, <span class="hljs-number">27</span>)&gt;;<br>            nordic,drive-mode = &lt;NRF_DRIVE_S0D1&gt;; <span class="hljs-comment">// standard 0, disconnect 1</span><br>            bias-pull-up; <span class="hljs-comment">// internal pull-up is too weak, only for 100kHz or lower  </span><br>            <br>        &#125;;<br>    &#125;;<br><br>    i2c0_sleep: i2c0_sleep &#123;<br>        group1 &#123;<br>            psels = &lt;NRF_PSEL(TWIM_SDA, <span class="hljs-number">0</span>, <span class="hljs-number">26</span>)&gt;,<br>                &lt;NRF_PSEL(TWIM_SCL, <span class="hljs-number">0</span>, <span class="hljs-number">27</span>)&gt;;<br>            low-power-enable;<br>        &#125;;<br>    &#125;;<br><br>    <span class="hljs-comment">// i2c1 not used for Zephyr driver, it is initialized by nrfx driver.</span><br>    <span class="hljs-comment">// just for Devicetree GUI display</span><br>    i2c1_default: i2c1_default &#123;<br>        group1 &#123;<br>            psels = &lt;NRF_PSEL(TWIM_SDA, <span class="hljs-number">0</span>, <span class="hljs-number">30</span>)&gt;,<br>                &lt;NRF_PSEL(TWIM_SCL, <span class="hljs-number">0</span>, <span class="hljs-number">31</span>)&gt;;<br>                bias-pull-up; <br>        &#125;;<br>    &#125;;<br><br>    i2c1_sleep: i2c1_sleep &#123;<br>        group1 &#123;<br>            psels = &lt;NRF_PSEL(TWIM_SDA, <span class="hljs-number">0</span>, <span class="hljs-number">30</span>)&gt;,<br>                &lt;NRF_PSEL(TWIM_SCL, <span class="hljs-number">0</span>, <span class="hljs-number">31</span>)&gt;;<br>            low-power-enable;<br>        &#125;;<br>    &#125;;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p><strong>主机device tree说明：</strong></p>
 <ul>
@@ -157,7 +626,7 @@
 <p>补充：</p>
 <ul>
 <li><p>除了S（Standard）和D（Disconnect）之外，还有H（High-drive）。一些高速接口需要IO有更强的驱动能力，这种情况下可以配置为<code>NRF_DRIVE_H0H1</code>。不过具体还是要看芯片手册里面每个GPIO是否支持高驱（位于手册里的Pin assignment章节）：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116001024624.png" alt="image-20231116001024624"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7f0c410444e9555ee98c3a97faa21026.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231116001024624"></p>
 </li>
 <li><p>GPIO内部上&#x2F;下拉电阻比较大，典型值为13千欧。因此如果用内部上拉，速率只能配置为100Kbps。若要更高的速率，外部可以挂更小的电阻，例如5千欧左右可以达到400Kbps.</p>
 </li>
@@ -165,23 +634,23 @@
 </blockquote>
 <p><strong>从机device tree说明：</strong></p>
 <p><code>i2c1</code>为从机。从机的代码是用NRFX的，完全没有用到device tree。这里修改i2c1的device tree，完全是Kconfig的要求：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">config NRFX_TWIS1</span><br><span class="line">    bool &quot;TWIS1 driver instance&quot;</span><br><span class="line">    depends on $(dt_nodelabel_has_compat,i2c1,$(DT_COMPAT_NORDIC_NRF_TWIS))</span><br><span class="line">    select NRFX_TWIS</span><br></pre></td></tr></table></figure>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">config NRFX_TWIS1<br>    <span class="hljs-type">bool</span> &quot;TWIS1 driver instance&quot;<br>    <span class="hljs-keyword">depends</span> <span class="hljs-keyword">on</span> $(dt_nodelabel_has_compat,i2c1,$(DT_COMPAT_NORDIC_NRF_TWIS))<br>    <span class="hljs-keyword">select</span> NRFX_TWIS<br></code></pre></td></tr></table></figure>
 
 <p>我们可以看到，<code>CONFIG_TWIS1</code>的依赖项，要求device tree中的<code>i2c1</code>节点，必须具有<code>compatible=&quot;nordic,nrf-twis&quot;</code>。只有满足这个条件，我们才能写<code>CONFIG_TWIS1=y</code>。并且，此配置项会自动连锁使能<code>CONFIG_NRFX_TWIS=y</code>。</p>
 <p>我们要明确一点，NRFX是不需要device tree的。这里Kconfig的依赖项，我想只是为了能在项目中<strong>明显地指示出</strong>，我们使用了<code>i2c1</code>这个外设。以免在多人开发项目中产生一些误会，导致外设被重复使用。</p>
 <p>同理，从机的pinctrl也是没有实际作用的。写它只是为了能够在Device Tree的GUI中正确显示引脚分配：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116002542051.png" alt="image-20231116002542051"></p>
-<h2 id="message-h"><a href="#message-h" class="headerlink" title="message.h"></a>message.h</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> _MESSAGE_H_</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MASTER_TO_SLAVE <span class="string">&quot;Master to Slave&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SLAVE_TO_MASTER <span class="string">&quot;Slave to Master&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined750262bf3b95b47e39488136c6d7c9e5.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231116002542051"></p>
+<h2 id="message-h"><a href="#message-h" class="headerlink" title="message.h"></a>message.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> _MESSAGE_H_</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MASTER_TO_SLAVE <span class="hljs-string">&quot;Master to Slave&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SLAVE_TO_MASTER <span class="hljs-string">&quot;Slave to Master&quot;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
 
 <p>这里面只是主从机共用的测试用数据而已</p>
 <h2 id="主机代码"><a href="#主机代码" class="headerlink" title="主机代码"></a>主机代码</h2><p>main.c</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Copyright (c) 2012-2014 Wind River Systems, Inc.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/devicetree.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/drivers/i2c.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;message.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">twi_dev</span> =</span> DEVICE_DT_GET(DT_NODELABEL(i2c0));</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> I2C_ADDR 0xbeef <span class="comment">// only the lowest 7bit is useful</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> send_data[] = MASTER_TO_SLAVE;</span><br><span class="line">    <span class="type">char</span> read_data[<span class="number">128</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!device_is_ready(twi_dev))&#123;</span><br><span class="line">        printk(<span class="string">&quot;twi device is not ready!\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        k_sleep(K_MSEC(<span class="number">3000</span>));</span><br><span class="line">        printk(<span class="string">&quot;\n[Master] write: \&quot;%.*s\&quot;\n&quot;</span>, <span class="keyword">sizeof</span>(send_data), send_data);</span><br><span class="line">        i2c_write(twi_dev, send_data, <span class="keyword">sizeof</span>(send_data), I2C_ADDR);</span><br><span class="line"></span><br><span class="line">        k_sleep(K_MSEC(<span class="number">2000</span>));</span><br><span class="line">        printk(<span class="string">&quot;\n[Master] read\n&quot;</span>);</span><br><span class="line">        i2c_read(twi_dev, read_data, <span class="keyword">sizeof</span>(SLAVE_TO_MASTER), I2C_ADDR);</span><br><span class="line">        printk(<span class="string">&quot;[Master] received:\&quot;%.*s\&quot;\n&quot;</span>, <span class="keyword">sizeof</span>(SLAVE_TO_MASTER), read_data);</span><br><span class="line"></span><br><span class="line">        k_sleep(K_MSEC(<span class="number">1000</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * Copyright (c) 2012-2014 Wind River Systems, Inc.</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * SPDX-License-Identifier: Apache-2.0</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/device.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/devicetree.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/drivers/i2c.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;message.h&quot;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">twi_dev</span> =</span> DEVICE_DT_GET(DT_NODELABEL(i2c0));<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> I2C_ADDR 0xbeef <span class="hljs-comment">// only the lowest 7bit is useful</span></span><br><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">char</span> send_data[] = MASTER_TO_SLAVE;<br>    <span class="hljs-type">char</span> read_data[<span class="hljs-number">128</span>];<br><br>    <span class="hljs-keyword">if</span> (!device_is_ready(twi_dev))&#123;<br>        printk(<span class="hljs-string">&quot;twi device is not ready!\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>        k_sleep(K_MSEC(<span class="hljs-number">3000</span>));<br>        printk(<span class="hljs-string">&quot;\n[Master] write: \&quot;%.*s\&quot;\n&quot;</span>, <span class="hljs-keyword">sizeof</span>(send_data), send_data);<br>        i2c_write(twi_dev, send_data, <span class="hljs-keyword">sizeof</span>(send_data), I2C_ADDR);<br><br>        k_sleep(K_MSEC(<span class="hljs-number">2000</span>));<br>        printk(<span class="hljs-string">&quot;\n[Master] read\n&quot;</span>);<br>        i2c_read(twi_dev, read_data, <span class="hljs-keyword">sizeof</span>(SLAVE_TO_MASTER), I2C_ADDR);<br>        printk(<span class="hljs-string">&quot;[Master] received:\&quot;%.*s\&quot;\n&quot;</span>, <span class="hljs-keyword">sizeof</span>(SLAVE_TO_MASTER), read_data);<br><br>        k_sleep(K_MSEC(<span class="hljs-number">1000</span>));<br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><strong>主机程序说明：</strong></p>
 <ul>
 <li><p>主机会循环向i2c写入数据、然后读取数据。</p>
 </li>
-<li><p>先slepp，后发数据，是为了开始时要先等从机那边初始化好。</p>
+<li><p>先sleep，后发数据，是为了开始时要先等从机那边初始化好。</p>
 </li>
 <li><p>Zephyr标准API中，I2C从机地址这个参数是16bit的。但对于Nordic的芯片来说，<strong>只有最低7bit是真实的地址</strong>。硬件上也只支持7bit地址。</p>
 </li>
@@ -192,26 +661,26 @@
 </li>
 </ul>
 <h2 id="从机代码"><a href="#从机代码" class="headerlink" title="从机代码"></a>从机代码</h2><p>i2c_slave.c</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/devicetree.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;nrfx_twis.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/kernel.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;message.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STACKSIZE 1024</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRIORITY 7</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SLAVE_ADDR 0xef</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TWI_INT_PRIORITY 2</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SLAVE_SDA_PIN 30 <span class="comment">// P0.30</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SLAVE_SCL_PIN 31 <span class="comment">// P0.31</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TWIS_INST_IDX 1 <span class="comment">// twis1</span></span></span><br><span class="line"><span class="type">static</span> <span class="type">nrfx_twis_t</span> twis_inst = NRFX_TWIS_INSTANCE(TWIS_INST_IDX);</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MSG_TO_SEND <span class="string">&quot;Slave-to-Master&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">uint8_t</span> m_tx_buffer_slave[<span class="keyword">sizeof</span>(MSG_TO_SEND)] = MSG_TO_SEND;</span><br><span class="line"><span class="type">static</span> <span class="type">uint8_t</span> m_rx_buffer_slave[<span class="number">128</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * @brief Function for handling TWIS driver events.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @param[in] p_event Event information structure.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">twis_handler</span><span class="params">(<span class="type">nrfx_twis_evt_t</span> <span class="type">const</span> * p_event)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">nrfx_err_t</span> status;</span><br><span class="line">    (<span class="type">void</span>)status;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (p_event-&gt;type)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">case</span> NRFX_TWIS_EVT_WRITE_DONE:&#123;</span><br><span class="line">            <span class="type">uint32_t</span> len = p_event-&gt;data.rx_amount;</span><br><span class="line">            printk(<span class="string">&quot;--&gt; Slave event: received write done.\n&quot;</span>);</span><br><span class="line">            printk(<span class="string">&quot;[Slave] received:\&quot;%.*s\&quot;\n&quot;</span>, len, m_rx_buffer_slave);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NRFX_TWIS_EVT_WRITE_REQ:&#123;</span><br><span class="line">            status = nrfx_twis_rx_prepare(&amp;twis_inst, m_rx_buffer_slave, <span class="keyword">sizeof</span>(m_rx_buffer_slave));</span><br><span class="line">            NRFX_ASSERT(status == NRFX_SUCCESS);</span><br><span class="line">            printk(<span class="string">&quot;--&gt; Slave event: received write request\n&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NRFX_TWIS_EVT_READ_DONE:&#123;</span><br><span class="line">            printk(<span class="string">&quot;--&gt; Slave event: received read done.\n&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NRFX_TWIS_EVT_READ_REQ: &#123;</span><br><span class="line">            status = nrfx_twis_tx_prepare(&amp;twis_inst, m_tx_buffer_slave, <span class="keyword">sizeof</span>(m_tx_buffer_slave));</span><br><span class="line">            NRFX_ASSERT(status == NRFX_SUCCESS);</span><br><span class="line">            printk(<span class="string">&quot;--&gt; Slave event: received read request\n&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NRFX_TWIS_EVT_READ_ERROR:</span><br><span class="line">            printk(<span class="string">&quot;\nTWIS READ ERROR\n&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NRFX_TWIS_EVT_WRITE_ERROR:</span><br><span class="line">            printk(<span class="string">&quot;\nTWIS WRITE ERROR\n&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> NRFX_TWIS_EVT_GENERAL_ERROR:</span><br><span class="line">            printk(<span class="string">&quot;\nTWIS GENERAL ERROR\n&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            printk(<span class="string">&quot;--&gt; SLAVE event: %d.&quot;</span>, p_event-&gt;type);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">i2c_slave_entry</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">nrfx_err_t</span> status;</span><br><span class="line">    (<span class="type">void</span>)status;</span><br><span class="line"></span><br><span class="line">    printk(<span class="string">&quot;Starting nrfx_twim_twis non-blocking example.&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// connect handler to Zephyr interrupt</span></span><br><span class="line">    IRQ_CONNECT(DT_IRQN(DT_NODELABEL(i2c1)),</span><br><span class="line">        DT_IRQ(DT_NODELABEL(i2c1), priority),</span><br><span class="line">        nrfx_isr, twis_handler, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">nrfx_twis_config_t</span> twis_config = &#123;</span><br><span class="line">        .addr[<span class="number">0</span>]            = SLAVE_ADDR, <span class="comment">// first address</span></span><br><span class="line">        .addr[<span class="number">1</span>]            = <span class="number">0</span>,          <span class="comment">// second address</span></span><br><span class="line">        .scl                = SLAVE_SCL_PIN,                              </span><br><span class="line">        .sda                = SLAVE_SDA_PIN,                              </span><br><span class="line">        .scl_pull           = NRF_GPIO_PIN_PULLUP,                   </span><br><span class="line">        .sda_pull           = NRF_GPIO_PIN_PULLUP,                   </span><br><span class="line">        .interrupt_priority = TWI_INT_PRIORITY,</span><br><span class="line">        .skip_gpio_cfg = <span class="literal">false</span>,</span><br><span class="line">        .skip_psel_cfg = <span class="literal">false</span>,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    printk(<span class="string">&quot;\nI2C Slave: ADDR: 0x%x, SCL: %d, SDA: %d, int_pri: %d&quot;</span>,</span><br><span class="line">      twis_config.addr[<span class="number">0</span>],</span><br><span class="line">      twis_config.scl,</span><br><span class="line">      twis_config.sda,</span><br><span class="line">      twis_config.interrupt_priority);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(nrfx_twis_init(&amp;twis_inst, &amp;twis_config, twis_handler) == NRFX_SUCCESS)&#123;</span><br><span class="line">        printk(<span class="string">&quot;\nnrfx twis initialized.\n\n&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        printk(<span class="string">&quot;\nERROR: nrfx_twis_init()\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TWIS_INST_GET(TWIS_INST_IDX)), IRQ_PRIO_LOWEST,</span><br><span class="line">                       NRFX_TWIS_INST_HANDLER_GET(TWIS_INST_IDX), <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    nrfx_twis_enable(&amp;twis_inst);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">        k_sleep(K_FOREVER);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">K_THREAD_DEFINE(i2c_slave_id, STACKSIZE, i2c_slave_entry, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, PRIORITY, <span class="number">0</span>, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/device.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/devicetree.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;nrfx_twis.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/kernel.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;message.h&quot;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> STACKSIZE 1024</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PRIORITY 7</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SLAVE_ADDR 0xef</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> TWI_INT_PRIORITY 2</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SLAVE_SDA_PIN 30 <span class="hljs-comment">// P0.30</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SLAVE_SCL_PIN 31 <span class="hljs-comment">// P0.31</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> TWIS_INST_IDX 1 <span class="hljs-comment">// twis1</span></span><br><span class="hljs-type">static</span> <span class="hljs-type">nrfx_twis_t</span> twis_inst = NRFX_TWIS_INSTANCE(TWIS_INST_IDX);<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MSG_TO_SEND <span class="hljs-string">&quot;Slave-to-Master&quot;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-type">uint8_t</span> m_tx_buffer_slave[<span class="hljs-keyword">sizeof</span>(MSG_TO_SEND)] = MSG_TO_SEND;<br><span class="hljs-type">static</span> <span class="hljs-type">uint8_t</span> m_rx_buffer_slave[<span class="hljs-number">128</span>];<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * @brief Function for handling TWIS driver events.</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * @param[in] p_event Event information structure.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">twis_handler</span><span class="hljs-params">(<span class="hljs-type">nrfx_twis_evt_t</span> <span class="hljs-type">const</span> * p_event)</span><br>&#123;<br>    <span class="hljs-type">nrfx_err_t</span> status;<br>    (<span class="hljs-type">void</span>)status;<br><br>    <span class="hljs-keyword">switch</span> (p_event-&gt;type)<br>    &#123;<br>        <span class="hljs-keyword">case</span> NRFX_TWIS_EVT_WRITE_DONE:&#123;<br>            <span class="hljs-type">uint32_t</span> len = p_event-&gt;data.rx_amount;<br>            printk(<span class="hljs-string">&quot;--&gt; Slave event: received write done.\n&quot;</span>);<br>            printk(<span class="hljs-string">&quot;[Slave] received:\&quot;%.*s\&quot;\n&quot;</span>, len, m_rx_buffer_slave);<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">case</span> NRFX_TWIS_EVT_WRITE_REQ:&#123;<br>            status = nrfx_twis_rx_prepare(&amp;twis_inst, m_rx_buffer_slave, <span class="hljs-keyword">sizeof</span>(m_rx_buffer_slave));<br>            NRFX_ASSERT(status == NRFX_SUCCESS);<br>            printk(<span class="hljs-string">&quot;--&gt; Slave event: received write request\n&quot;</span>);<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">case</span> NRFX_TWIS_EVT_READ_DONE:&#123;<br>            printk(<span class="hljs-string">&quot;--&gt; Slave event: received read done.\n&quot;</span>);<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">case</span> NRFX_TWIS_EVT_READ_REQ: &#123;<br>            status = nrfx_twis_tx_prepare(&amp;twis_inst, m_tx_buffer_slave, <span class="hljs-keyword">sizeof</span>(m_tx_buffer_slave));<br>            NRFX_ASSERT(status == NRFX_SUCCESS);<br>            printk(<span class="hljs-string">&quot;--&gt; Slave event: received read request\n&quot;</span>);<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">case</span> NRFX_TWIS_EVT_READ_ERROR:<br>            printk(<span class="hljs-string">&quot;\nTWIS READ ERROR\n&quot;</span>);<br>            <span class="hljs-keyword">break</span>;<br><br>        <span class="hljs-keyword">case</span> NRFX_TWIS_EVT_WRITE_ERROR:<br>            printk(<span class="hljs-string">&quot;\nTWIS WRITE ERROR\n&quot;</span>);<br>            <span class="hljs-keyword">break</span>;<br><br>        <span class="hljs-keyword">case</span> NRFX_TWIS_EVT_GENERAL_ERROR:<br>            printk(<span class="hljs-string">&quot;\nTWIS GENERAL ERROR\n&quot;</span>);<br>            <span class="hljs-keyword">break</span>;<br><br>        <span class="hljs-keyword">default</span>:<br>            printk(<span class="hljs-string">&quot;--&gt; SLAVE event: %d.&quot;</span>, p_event-&gt;type);<br>    &#125;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">i2c_slave_entry</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">nrfx_err_t</span> status;<br>    (<span class="hljs-type">void</span>)status;<br><br>    printk(<span class="hljs-string">&quot;Starting nrfx_twim_twis non-blocking example.&quot;</span>);<br><br><br>    <span class="hljs-comment">// connect handler to Zephyr interrupt</span><br>    IRQ_CONNECT(DT_IRQN(DT_NODELABEL(i2c1)),<br>        DT_IRQ(DT_NODELABEL(i2c1), priority),<br>        nrfx_isr, twis_handler, <span class="hljs-number">0</span>);<br><br>    <span class="hljs-type">nrfx_twis_config_t</span> twis_config = &#123;<br>        .addr[<span class="hljs-number">0</span>]            = SLAVE_ADDR, <span class="hljs-comment">// first address</span><br>        .addr[<span class="hljs-number">1</span>]            = <span class="hljs-number">0</span>,          <span class="hljs-comment">// second address</span><br>        .scl                = SLAVE_SCL_PIN,                              <br>        .sda                = SLAVE_SDA_PIN,                              <br>        .scl_pull           = NRF_GPIO_PIN_PULLUP,                   <br>        .sda_pull           = NRF_GPIO_PIN_PULLUP,                   <br>        .interrupt_priority = TWI_INT_PRIORITY,<br>        .skip_gpio_cfg = <span class="hljs-literal">false</span>,<br>        .skip_psel_cfg = <span class="hljs-literal">false</span>,<br>    &#125;;<br><br>    printk(<span class="hljs-string">&quot;\nI2C Slave: ADDR: 0x%x, SCL: %d, SDA: %d, int_pri: %d&quot;</span>,<br>      twis_config.addr[<span class="hljs-number">0</span>],<br>      twis_config.scl,<br>      twis_config.sda,<br>      twis_config.interrupt_priority);<br><br>    <span class="hljs-keyword">if</span>(nrfx_twis_init(&amp;twis_inst, &amp;twis_config, twis_handler) == NRFX_SUCCESS)&#123;<br>        printk(<span class="hljs-string">&quot;\nnrfx twis initialized.\n\n&quot;</span>);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        printk(<span class="hljs-string">&quot;\nERROR: nrfx_twis_init()\n&quot;</span>);<br>    &#125;<br><br>    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TWIS_INST_GET(TWIS_INST_IDX)), IRQ_PRIO_LOWEST,<br>                       NRFX_TWIS_INST_HANDLER_GET(TWIS_INST_IDX), <span class="hljs-number">0</span>);<br><br>    nrfx_twis_enable(&amp;twis_inst);<br><br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)&#123;<br>        k_sleep(K_FOREVER);<br>    &#125;<br>&#125;<br><br>K_THREAD_DEFINE(i2c_slave_id, STACKSIZE, i2c_slave_entry, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>, PRIORITY, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
 
 <p><strong>从机程序说明：</strong></p>
 <p>从机用nrfx库初始化、注册中断服务函数、并使能TWIS。这部分代码，和nrf5 SDK中nrfx库的用法是一样的。</p>
 <p>与nRF5 SDK中略有不同的是，中断服务函数需要用Zephyr的机制去连接一下。这是因为Zephyr默认把所有中断向量全占了，用于整个驱动模型。这部分请参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/kernel/services/interrupts.html#interrupts">Zephyr内核文档——中断</a>。今后我也会写一篇博客来介绍Zephyr的中断。</p>
 <p>从机的程序也是一个线程，用<code>K_THREAD_DEFINE</code>来定义线程。线程中初始化完TWIS后，就进入了永久睡眠。</p>
 <p>对于I2C WRITE操作，在主机发送完7bit地址，之后的那一个比特为0（写）时，这一瞬间立即产生<code>NRFX_TWIS_EVT_WRITE_REQ</code>事件，这时要准备好接收数据的缓存。写完后，产生<code>NRFX_TWIS_EVT_WRITE_DONE</code>事件。</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116004555046.png" alt="image-20231116004555046"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined3d8c8f49c007973906d82a6ad196428c.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231116004555046"></p>
 <p>对于I2C READ操作也是同理。<code>NRFX_TWIS_EVT_READ_REQ</code>时，准备好即将要发送的缓存。<code>NRFX_TWIS_EVT_READ_DONE</code>说明发送完毕。</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116004445733.png" alt="image-20231116004445733"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedbcc04a1311bc8f70a15476eaa8f3ea74.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231116004445733"></p>
 <blockquote>
 <p>注意，不一定要在<code>NRFX_TWIS_EVT_READ_REQ</code>时，才开始准备要发送的数据。可以提前调用<code>nrfx_twis_tx_prepare()</code>来准备要发送的数据。接收也是同理。</p>
 </blockquote>
-<h2 id="程序运行结果"><a href="#程序运行结果" class="headerlink" title="程序运行结果"></a>程序运行结果</h2><p><img src="/jayant97.github.io/./imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116013311689.png" alt="image-20231116013311689"></p>
+<h2 id="程序运行结果"><a href="#程序运行结果" class="headerlink" title="程序运行结果"></a>程序运行结果</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb96701e27dea67028e500a379148c302.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231116013311689"></p>
 <h1 id="4-应用开发"><a href="#4-应用开发" class="headerlink" title="4. 应用开发"></a>4. 应用开发</h1><h2 id="其他NRFX例程"><a href="#其他NRFX例程" class="headerlink" title="其他NRFX例程"></a>其他NRFX例程</h2><p>位于<code>$&#123;NCS&#125;/modules/hal/nordic/nrfx/samples/src</code></p>
-<h2 id="与其他Zephyr标准驱动的共存"><a href="#与其他Zephyr标准驱动的共存" class="headerlink" title="与其他Zephyr标准驱动的共存"></a>与其他Zephyr标准驱动的共存</h2><p>通过前面的讲解，相信多数人都能理解，NRFX的驱动程序和Zephry的标准驱动是可以共存的，只要用到的<strong>外设资源</strong>不冲突、<strong>GPIO不冲突</strong>即可。</p>
+<h2 id="与其他Zephyr标准驱动的共存"><a href="#与其他Zephyr标准驱动的共存" class="headerlink" title="与其他Zephyr标准驱动的共存"></a>与其他Zephyr标准驱动的共存</h2><p>通过前面的讲解，相信多数人都能理解，NRFX的驱动程序和Zephyr的标准驱动是可以共存的，只要用到的<strong>外设资源</strong>不冲突、<strong>GPIO不冲突</strong>即可。</p>
 <p>这里还有另外两个要注意的点：</p>
 <h3 id="外设地址冲突"><a href="#外设地址冲突" class="headerlink" title="外设地址冲突"></a>外设地址冲突</h3><p>Nordic的串行外设（串口、SPI、SPIM、SPIS、TWI、TWIM、TWIS），并不是都能同时使用的。有些外设其实是同样的外设地址，内部共用了一部分串行和DMA电路。这样就造成了有很多外设可用的假象。实际上只是同一个芯片内部电路的不同使用方法。</p>
 <p>我们可以在芯片手册 Memory 章节的 Instantiation 小节看到所有外设实例的地址：</p>
-<p><img src="/jayant97.github.io/./imgs/%E5%9C%A8NCS%E4%B8%AD%E4%BD%BF%E7%94%A8NRFX%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E5%BA%93%E2%80%94%E2%80%94%E4%BB%A5I2C%E4%B8%BA%E4%BE%8B.assets/image-20231116011218081.png" alt="image-20231116011218081"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedba1ed65b8b5dbacc4032df0de7ea7eae.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231116011218081"></p>
 <p>可以看到，对于52840来说，串口0是独立的，SPI0和TWI0是二选一，SPI1和TWI1是二选一。</p>
 <p>不仅是NRFX，对于Zephyr标准驱动来说，也是一样的。我们可以从DeviceTree中看到，冲突的外设，它们的地址是相等的。</p>
 <p>此外，从右边我们可以看到，不带DMA的外设目前基本是不用的。</p>
@@ -223,166 +692,445 @@
 <p>理论上讲，当你用这些个通道时，随便用哪个都没区别。但是，<strong>你怎么知道目前Zephyr系统内的什么驱动已经用掉了哪个通道呢？</strong>如何防止自己选的通道和Zephyr内目前已经用的通道冲突？</p>
 <p>答案就是，别自己选。这些外设之所以叫资源型，就是因为它和内存等资源一样，可以集中管理，动态的分配和释放。<strong>而Nordic提供的所有Zephyr驱动，凡是用到了这些外设的，都是使用其对应的allocate函数，而不是直接指定一个具体的资源</strong>。</p>
 <p>例如，对于GPIOTE通道，可以用：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">nrfx_err_t</span> <span class="title function_">nrfx_gpiote_channel_alloc</span><span class="params">(<span class="type">uint8_t</span> * p_channel)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">nrfx_err_t</span> <span class="hljs-title function_">nrfx_gpiote_channel_alloc</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> * p_channel)</span>;<br></code></pre></td></tr></table></figure>
 
 <p>对于PPI通道，可以用：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">nrfx_err_t</span> <span class="title function_">nrfx_gppi_channel_alloc</span><span class="params">(<span class="type">uint8_t</span> * p_channel)</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">nrfx_err_t</span> <span class="hljs-title function_">nrfx_gppi_channel_alloc</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> * p_channel)</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>Nordic不同芯片，有的是PPI，有的是分布式PPI（DPPI）。NCS中统一用gppi，这是一个wrapper，会自动根据芯片平台选择调用PPI或DPPI的API。</p>
 </blockquote>
 
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2023/11/1349f878e408/" data-id="cmqop0ng6001ny8o5ci41duf5" data-title="在NCS中使用NRFX外设驱动库——以I2C为例" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li></ul>
 
-    </footer>
-  </div>
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/Zephyr/" class="category-chain-item">Zephyr</a>
   
-    <a href="/jayant97.github.io/2024/01/b74491c1a080/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          Nordic GPIO硬件原理与NCS应用详解
-        
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Nordic/" class="print-no-link">#Nordic</a>
+      
+        <a href="/jayant97.github.io/tags/Zephyr/" class="print-no-link">#Zephyr</a>
+      
+        <a href="/jayant97.github.io/tags/NRFX/" class="print-no-link">#NRFX</a>
+      
+        <a href="/jayant97.github.io/tags/I2C/" class="print-no-link">#I2C</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>在NCS中使用NRFX外设驱动库——以I2C为例</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2023/11/1349f878e408/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2024/01/b74491c1a080/" title="Nordic GPIO硬件原理与NCS应用详解">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Nordic GPIO硬件原理与NCS应用详解</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2023/11/4c8e1d7d162d/" title="Zephyr驱动与设备树实战——串口">
+                        <span class="hidden-mobile">Zephyr驱动与设备树实战——串口</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2023/11/4c8e1d7d162d/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">Zephyr驱动与设备树实战——串口</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>

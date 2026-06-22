@@ -1,16 +1,29 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>nRF9151蜂窝模组简介与定位例程解析 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="1. 简介产品nRF9151是支持NB-IoT和CAT-M的低功耗蜂窝LTE模组。支持OpenMCU开发，和Nordic其他产品线统一SDK。支持GPS定位。 nRF Cloud是部署在AWS上的物联网云。支持MQTT和HTTPS（REST）API。提供设备注册、设备管理、OTA、定位（基站定位、Wi-Fi定位、AGPS、PGPS）等服务。 nRF7002是一个2.4G&#x2F;5G低功耗双频W">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="1. 简介产品nRF9151是支持NB-IoT和CAT-M的低功耗蜂窝LTE模组。支持OpenMCU开发，和Nordic其他产品线统一SDK。支持GPS定位。 nRF Cloud是部署在AWS上的物联网云。支持MQTT和HTTPS（REST）API。提供设备注册、设备管理、OTA、定位（基站定位、Wi-Fi定位、AGPS、PGPS）等服务。 nRF7002是一个2.4G&#x2F;5G低功耗双频W">
 <meta property="og:type" content="article">
 <meta property="og:title" content="nRF9151蜂窝模组简介与定位例程解析">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/04/f1f289c546d9/index.html">
-<meta property="og:site_name" content="一苇万顷">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
 <meta property="og:description" content="1. 简介产品nRF9151是支持NB-IoT和CAT-M的低功耗蜂窝LTE模组。支持OpenMCU开发，和Nordic其他产品线统一SDK。支持GPS定位。 nRF Cloud是部署在AWS上的物联网云。支持MQTT和HTTPS（REST）API。提供设备注册、设备管理、OTA、定位（基站定位、Wi-Fi定位、AGPS、PGPS）等服务。 nRF7002是一个2.4G&#x2F;5G低功耗双频W">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(2).jpeg">
@@ -31,97 +44,553 @@
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180107690.png">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180227357.png">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180437793.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430161938500.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163301076.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163326698.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163535426.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430170545090.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430171642316.png">
 <meta property="article:published_time" content="2025-04-24T03:22:12.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.232Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.842Z">
 <meta property="article:author" content="Jayant Tang">
-<meta property="article:tag" content="嵌入式,Nordic,BLE,LTE,Linux">
-<meta name="twitter:card" content="summary">
+<meta property="article:tag" content="Nordic">
+<meta property="article:tag" content="nRF91">
+<meta property="article:tag" content="LTE">
+<meta property="article:tag" content="Cellular">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(2).jpeg">
   
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
   
   
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  <title>nRF9151蜂窝模组简介与定位例程解析 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
   
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
   
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-nRF9151蜂窝模组简介与定位例程解析" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2025/04/f1f289c546d9/" class="article-date">
-  <time class="dt-published" datetime="2025-04-24T03:22:12.000Z" itemprop="datePublished">2025-04-24</time>
-</a>
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="nRF9151蜂窝模组简介与定位例程解析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-04-24 11:22" pubdate>
+          2025年4月24日
+        </time>
+      </span>
     
   </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      nRF9151蜂窝模组简介与定位例程解析
-    </h1>
-  
 
-      </header>
+  <div class="mt-1">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          69 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><h2 id="产品"><a href="#产品" class="headerlink" title="产品"></a>产品</h2><p>nRF9151是支持NB-IoT和CAT-M的低功耗蜂窝LTE模组。支持OpenMCU开发，和Nordic其他产品线统一SDK。支持GPS定位。</p>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">nRF9151蜂窝模组简介与定位例程解析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><h2 id="产品"><a href="#产品" class="headerlink" title="产品"></a>产品</h2><p>nRF9151是支持NB-IoT和CAT-M的低功耗蜂窝LTE模组。支持OpenMCU开发，和Nordic其他产品线统一SDK。支持GPS定位。</p>
 <p>nRF Cloud是部署在AWS上的物联网云。支持MQTT和HTTPS（REST）API。提供设备注册、设备管理、OTA、定位（基站定位、Wi-Fi定位、AGPS、PGPS）等服务。</p>
 <p>nRF7002是一个2.4G&#x2F;5G低功耗双频Wi-Fi6收发器，可以用来模拟nRF7000。nRF7000是一个只能scan，不能connect的wifi6双频收发器，主要用于做Wi-Fi定位。</p>
 <h2 id="本文内容"><a href="#本文内容" class="headerlink" title="本文内容"></a>本文内容</h2><p>介绍如何搭建环境、编译nrf_cloud_multi_service工程。这是一个支持多个nRF Cloud服务的设备端工程。让nRF9151连接到nRF Cloud云端，并进行GPS定位、基站定位、Wi-Fi定位。</p>
@@ -132,8 +601,8 @@
 <li>NB-IoT物联网卡，这里是中国移动的。左边是开发板送的2张卡，在国内不好用。</li>
 <li>（可选）nRF7002EK。</li>
 </ul>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(2).jpeg" alt="Image (2)"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(3).jpeg" alt="Image (3)"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(2).jpeg" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Image (2)"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/Image%20(3).jpeg" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Image (3)"></p>
 <blockquote>
 <p>关于SIM卡：</p>
 <ol>
@@ -146,27 +615,27 @@
 <h2 id="烧录Modem-Firmware"><a href="#烧录Modem-Firmware" class="headerlink" title="烧录Modem Firmware"></a>烧录Modem Firmware</h2><p>在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nordicsemi.com/Products/nRF9151/Download?lang=en#infotabs">9151官网页面</a>下载最新版Modem Firmware (MFW)。</p>
 <p>MFW是Modem专门的固件，是不开源的，以zip包的形式提供。Modem有独立的CPU和存储空间，不占用App Core的Flash和RAM。</p>
 <p>可以用nRF Connect for Desktop里面的Programmer烧录。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250424130251452.png" alt="image-20250424130251452"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250424130251452.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250424130251452"></p>
 <p>也可以用nrfutil命令行操作：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nrfutil self-upgrade</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看可安装的工具</span></span><br><span class="line">nrfutil search</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装蜂窝系列模组工具</span></span><br><span class="line">nrfutil install 91</span><br><span class="line"></span><br><span class="line"><span class="comment"># 烧录modem firmware</span></span><br><span class="line">nrfutil 91 modem-firmware-upgrade --firmware ./project/mfw_nrf91x1_2.0.2.zip --all-jlinks</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">nrfutil self-upgrade<br><br><span class="hljs-comment"># 查看可安装的工具</span><br>nrfutil search<br><br><span class="hljs-comment"># 安装蜂窝系列模组工具</span><br>nrfutil install 91<br><br><span class="hljs-comment"># 烧录modem firmware</span><br>nrfutil 91 modem-firmware-upgrade --firmware ./project/mfw_nrf91x1_2.0.2.zip --all-jlinks<br></code></pre></td></tr></table></figure>
 
 <h2 id="配置模拟开关"><a href="#配置模拟开关" class="headerlink" title="配置模拟开关"></a>配置模拟开关</h2><p>nRF9160无需此步骤。</p>
 <p>目前比较新的开发板都使用Interface MCU来控制板子上的模拟开关，而非物理开关。通过nRF Connect for Desktop上的Board Configurator控制。</p>
 <p>nRF9151DK上有两种方式可以连接LEDs和Buttons。一种是GPIO直连，一种是通过I2C接口的IO扩展器连接。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427124819121.png" alt="image-20250427124819121"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427124819121.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427124819121"></p>
 <p>如果你要使用7002EK扩展Wi-Fi功能，那么默认的LED就会占用7002要用的GPIO。因此，7002EK的DeviceTree文件会使能I2C接口的IO扩展器。</p>
 <p>见<code>zephyr/boards/nordic/nrf9151dk/dts/nrf9151dk_leds_on_io_expander.dtsi</code>。</p>
 <p>对应地就需要在开发板上把模拟开关切换到IO扩展器。使用nRF Connect for Desktop的Board Configurator来配置：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250424134257883.png" alt="image-20250424134257883"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250424134257883.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250424134257883"></p>
 <p>配置完毕后点击左边写入。这里写入是把配置写入到板子上的Interface MCU（即Jlink DEBUGGER）中。</p>
-<h1 id="4-修改、编译并烧录例程"><a href="#4-修改、编译并烧录例程" class="headerlink" title="4. 修改、编译并烧录例程"></a>4. 修改、编译并烧录例程</h1><p>通过copy a sample的形式复制并创建例程nRF Could Multi Service（<code>v2.9.0/nrf/samples/cellular/nrf_cloud_multi_service</code>）。</p>
+<h1 id="4-修改、编译并烧录例程"><a href="#4-修改、编译并烧录例程" class="headerlink" title="4. 修改、编译并烧录例程"></a>4. 修改、编译并烧录例程</h1><p>通过”Copy a Sample”的形式复制并创建例程nRF Could Multi Service（<code>v2.9.0/nrf/samples/cellular/nrf_cloud_multi_service</code>）。</p>
 <p>修改<code>prj.conf</code>，增加以下内容</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动物联网卡需要单独配置PDN</span></span><br><span class="line">CONFIG_PDN=y              </span><br><span class="line">CONFIG_PDN_LEGACY_PCO=y</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">默认是NB+CATM+GPS，国内去掉CATM</span></span><br><span class="line">CONFIG_LTE_NETWORK_MODE_NBIOT_GPS=y</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置连接nRF Cloud时，使用UUID作为本机ID</span></span><br><span class="line">CONFIG_MODEM_JWT=y                              </span><br><span class="line">CONFIG_NRF_CLOUD_CLIENT_ID_SRC_INTERNAL_UUID=y </span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">移动物联网卡需要单独配置PDN</span><br>CONFIG_PDN=y              <br>CONFIG_PDN_LEGACY_PCO=y<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">默认是NB+CATM+GPS，国内去掉CATM</span><br>CONFIG_LTE_NETWORK_MODE_NBIOT_GPS=y<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">设置连接nRF Cloud时，使用UUID作为本机ID</span><br>CONFIG_MODEM_JWT=y                              <br>CONFIG_NRF_CLOUD_CLIENT_ID_SRC_INTERNAL_UUID=y <br></code></pre></td></tr></table></figure>
 
 <p>创建编译目标。如果有7002ek，就增加以下参数。如果没有就不加：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427125146231.png" alt="image-20250427125146231"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427125146231.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427125146231"></p>
 <p>也可以用命令行编译：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build -p \</span><br><span class="line">-b nrf9151dk/nrf9151/ns \</span><br><span class="line">-- \</span><br><span class="line">  -DSHIELD=nrf7002ek_nrf7000 \</span><br><span class="line">  -DSB_CONF_FILE=<span class="string">&quot;sysbuild_nrf700x-wifi-scan.conf&quot;</span> \</span><br><span class="line">  -DEXTRA_CONF_FILE=<span class="string">&quot;overlay-nrf7002ek-wifi-scan-only.conf&quot;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">west build -p \<br>-b nrf9151dk/nrf9151/ns \<br>-- \<br>  -DSHIELD=nrf7002ek_nrf7000 \<br>  -DSB_CONF_FILE=<span class="hljs-string">&quot;sysbuild_nrf700x-wifi-scan.conf&quot;</span> \<br>  -DEXTRA_CONF_FILE=<span class="hljs-string">&quot;overlay-nrf7002ek-wifi-scan-only.conf&quot;</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <ol>
@@ -174,11 +643,11 @@
 <li>7002ek有很多变体（<code>nrf7002ek</code>，<code>nrf7002ek_7001</code>，<code>nrf7002ek_7000</code>）。硬件上是2.4G&#x2F;5GHz双频的nRF7002，通过这种变体配置来模拟7001（只有2.4GHz）和7000（只能scan不能连接）</li>
 </ol>
 </blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[447/447] Linking C executable zephyr/zephyr.elf</span><br><span class="line">Memory region         Used Size  Region Size  %age Used</span><br><span class="line">           FLASH:      275888 B       384 KB     70.16%</span><br><span class="line">             RAM:      111608 B     215832 B     51.71%</span><br><span class="line">        IDT_LIST:          0 GB        32 KB      0.00%</span><br><span class="line">Generating files from /home/jayant/OneDrive_Nordic/Customer/Meari/nrf_cloud_multi_service/build/nrf_cloud_multi_service/zephyr/zephyr.elf for board: nrf9151dk</span><br><span class="line">image.py: sign the payload</span><br><span class="line">image.py: sign the payload</span><br><span class="line">[1/213] Preparing syscall dependency handling</span><br><span class="line"></span><br><span class="line">[6/213] Generating include/generated/zephyr/version.h</span><br><span class="line">-- Zephyr version: 3.7.99 (/home/jayant/project/ncs/v2.9.0/zephyr), build: v3.7.99-ncs2</span><br><span class="line">[213/213] Linking C executable zephyr/zephyr.elf</span><br><span class="line">Memory region         Used Size  Region Size  %age Used</span><br><span class="line">           FLASH:       48296 B      81408 B     59.33%</span><br><span class="line">             RAM:       28944 B        32 KB     88.33%</span><br><span class="line">        IDT_LIST:          0 GB        32 KB      0.00%</span><br><span class="line">Generating files from /home/jayant/OneDrive_Nordic/Customer/Meari/nrf_cloud_multi_service/build/mcuboot/zephyr/zephyr.elf for board: nrf9151dk</span><br><span class="line">[20/20] Generating ../merged.hex</span><br></pre></td></tr></table></figure>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs gradle">[<span class="hljs-number">447</span><span class="hljs-regexp">/447] Linking C executable zephyr/</span>zephyr.elf<br>Memory region         Used <span class="hljs-keyword">Size</span>  Region <span class="hljs-keyword">Size</span>  %age Used<br>           FLASH:      <span class="hljs-number">275888</span> B       <span class="hljs-number">384</span> KB     <span class="hljs-number">70.16</span>%<br>             RAM:      <span class="hljs-number">111608</span> B     <span class="hljs-number">215832</span> B     <span class="hljs-number">51.71</span>%<br>        IDT_LIST:          <span class="hljs-number">0</span> GB        <span class="hljs-number">32</span> KB      <span class="hljs-number">0.00</span>%<br>Generating files <span class="hljs-keyword">from</span> <span class="hljs-regexp">/home/</span>jayant<span class="hljs-regexp">/OneDrive_Nordic/</span>Customer<span class="hljs-regexp">/Meari/</span>nrf_cloud_multi_service<span class="hljs-regexp">/build/</span>nrf_cloud_multi_service<span class="hljs-regexp">/zephyr/</span>zephyr.elf <span class="hljs-keyword">for</span> board: nrf9151dk<br>image.py: sign the payload<br>image.py: sign the payload<br>[<span class="hljs-number">1</span>/<span class="hljs-number">213</span>] Preparing syscall dependency handling<br><br>[<span class="hljs-number">6</span><span class="hljs-regexp">/213] Generating include/g</span>enerated<span class="hljs-regexp">/zephyr/</span>version.h<br>-- Zephyr version: <span class="hljs-number">3.7</span>.<span class="hljs-number">99</span> (<span class="hljs-regexp">/home/</span>jayant<span class="hljs-regexp">/project/</span>ncs<span class="hljs-regexp">/v2.9.0/</span>zephyr), build: v3.<span class="hljs-number">7.99</span>-ncs2<br>[<span class="hljs-number">213</span><span class="hljs-regexp">/213] Linking C executable zephyr/</span>zephyr.elf<br>Memory region         Used <span class="hljs-keyword">Size</span>  Region <span class="hljs-keyword">Size</span>  %age Used<br>           FLASH:       <span class="hljs-number">48296</span> B      <span class="hljs-number">81408</span> B     <span class="hljs-number">59.33</span>%<br>             RAM:       <span class="hljs-number">28944</span> B        <span class="hljs-number">32</span> KB     <span class="hljs-number">88.33</span>%<br>        IDT_LIST:          <span class="hljs-number">0</span> GB        <span class="hljs-number">32</span> KB      <span class="hljs-number">0.00</span>%<br>Generating files <span class="hljs-keyword">from</span> <span class="hljs-regexp">/home/</span>jayant<span class="hljs-regexp">/OneDrive_Nordic/</span>Customer<span class="hljs-regexp">/Meari/</span>nrf_cloud_multi_service<span class="hljs-regexp">/build/m</span>cuboot<span class="hljs-regexp">/zephyr/</span>zephyr.elf <span class="hljs-keyword">for</span> board: nrf9151dk<br>[<span class="hljs-number">20</span><span class="hljs-regexp">/20] Generating ../m</span>erged.hex<br></code></pre></td></tr></table></figure>
 
 <p>编译完成后可以看到应用和bootloader的占用。</p>
 <p>然后烧录，使用nRF Connect for Desktop中的Serial Monitor查看串口：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427133846267.png" alt="image-20250427133846267"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427133846267.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427133846267"></p>
 <p>能观察到：</p>
 <ul>
 <li>nRF Cloud的客户端ID是UUID，不是IMEI</li>
@@ -186,7 +655,7 @@
 </ul>
 <h1 id="5-nRF-Cloud设备注册简介"><a href="#5-nRF-Cloud设备注册简介" class="headerlink" title="5. nRF Cloud设备注册简介"></a>5. nRF Cloud设备注册简介</h1><h2 id="设备注册"><a href="#设备注册" class="headerlink" title="设备注册"></a>设备注册</h2><p>nRF Cloud是Nordic的物联网云服务器，设置在AWS上，有设备托管、OTA、位置定位等服务。开放MQTT和HTTP（REST）的接口。</p>
 <p>此例程需要把设备注册（Provision）到nRF Cloud上。</p>
-<p>所谓的设备注册，就是让云端把这台设备的ID等信息注册在在你的个人账户下。除此之外，设备端和云端还需要各自持有对方的<strong>TLS证书（公钥）</strong>，这样才能进行双向的认证和加密。</p>
+<p>所谓的设备注册，就是让云端把这台设备的ID等信息注册在你的个人账户下。除此之外，设备端和云端还需要各自持有对方的<strong>TLS证书（公钥）</strong>，这样才能进行双向的认证和加密。</p>
 <p>这里，云端的证书就是AWS的根证书，而设备端的证书是X.509格式的设备证书。</p>
 <h2 id="证书文件"><a href="#证书文件" class="headerlink" title="证书文件"></a>证书文件</h2><p>要阅读这部分，首先你需要了解非对称加密和TLS证书。</p>
 <p>设备内部需要三个证书文件（credentials）：</p>
@@ -197,7 +666,7 @@
 </ul>
 <p>这三个文件都是存储在<strong>Modem</strong>里面的，不占用Application Core的flash空间。</p>
 <p>要管理modem里的证书，需要通过<code>AT%CMNG</code>命令来操作。可以写入云服务器的证书、自动生成证书和私钥等。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">%CMNG=&lt;opcode&gt;[,&lt;sec_tag&gt;[,&lt;type&gt;[,&lt;content&gt;[,&lt;passwd&gt;]]]]</span><br></pre></td></tr></table></figure>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xquery"><span class="hljs-meta">%CMNG</span>=<span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">opcode</span>&gt;</span>[,</span><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">sec_tag</span>&gt;</span>[,</span><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">type</span>&gt;</span>[,</span><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">content</span>&gt;</span>[,</span><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">passwd</span>&gt;</span>]]]]</span><br></code></pre></td></tr></table></figure>
 
 <p>这里<code>&lt;opcode&gt;</code>代表写、读等操作。</p>
 <p><code>&lt;sec_tag&gt;</code>很重要，代表的是一组证书的句柄标签，范围是0–2147483647。例如，<strong>nRF Cloud的句柄就是16842753</strong>。当代码中通过网络访问nRF Cloud时，就通过16842753这个sec tag来获取到对应的证书，进行TLS通讯。</p>
@@ -239,10 +708,10 @@
 <h1 id="6-将设备注册到nRF-Cloud"><a href="#6-将设备注册到nRF-Cloud" class="headerlink" title="6. 将设备注册到nRF Cloud"></a>6. 将设备注册到nRF Cloud</h1><h2 id="注册nRF-Cloud账号并获取API-Key"><a href="#注册nRF-Cloud账号并获取API-Key" class="headerlink" title="注册nRF Cloud账号并获取API Key"></a>注册nRF Cloud账号并获取API Key</h2><ul>
 <li>免费注册一个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://nrfcloud.com/#/">nRF Cloud</a> 账号</li>
 </ul>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://img2023.cnblogs.com/blog/3028998/202303/3028998-20230311145904031-1781812259.png"><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20230311145904031-1781812259.png" alt="image-20221205005305505"></a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://img2023.cnblogs.com/blog/3028998/202303/3028998-20230311145904031-1781812259.png"><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3028998-20230311145904031-1781812259.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221205005305505"></a></p>
 <p>注册登录后，右上角进入User Account界面</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427165923803.png" alt="image-20250427165923803"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427170019787.png" alt="image-20250427170019787"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427165923803.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427165923803"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427170019787.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427170019787"></p>
 <p>记录自己的API Key。</p>
 <blockquote>
 <p><strong>注意</strong>：API Key非常重要，可以通过API Key控制你账号下的所有设备、所有权限、调用付费API等。千万不能泄露！！！</p>
@@ -250,30 +719,30 @@
 </blockquote>
 <h2 id="安装nRF-Cloud-Utils"><a href="#安装nRF-Cloud-Utils" class="headerlink" title="安装nRF Cloud Utils"></a>安装nRF Cloud Utils</h2><p>需要python3环境。</p>
 <p>可以直接用pip安装：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip3 install nrfcloud-utils</span><br></pre></td></tr></table></figure>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cmake">pip3 <span class="hljs-keyword">install</span> nrfcloud-utils<br></code></pre></td></tr></table></figure>
 
 <p>也可以直接clone仓库：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nRFCloud/utils/">https://github.com/nRFCloud/utils/</a></p>
 <blockquote>
 <p>如果是pip安装，则直接执行命令，如<code>create_ca_cert</code>。</p>
-<p>如果是clone方式安装，则进入<code>src /nrfcloud_utils/</code>，然后执行脚本，如<code>create_ca_cert.py</code></p>
+<p>如果是clone方式安装，则进入<code>src/nrfcloud_utils/</code>，然后执行脚本，如<code>create_ca_cert.py</code></p>
 </blockquote>
 <p><strong>推荐以pip安装的方式进行</strong>。</p>
 <h2 id="设置临时环境变量"><a href="#设置临时环境变量" class="headerlink" title="设置临时环境变量"></a>设置临时环境变量</h2><p>在命令行中设置临时环境变量，方便后面执行脚本</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Linux</span></span><br><span class="line"><span class="built_in">export</span> API_KEY=&lt;your_api_key&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Linux</span><br><span class="hljs-built_in">export</span> API_KEY=&lt;your_api_key&gt;<br></code></pre></td></tr></table></figure>
 
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Windows Powershell</span></span><br><span class="line"><span class="variable">$env:API_KEY</span>=&lt;your_api_key&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># Windows Powershell</span><br><span class="hljs-variable">$env:API_KEY</span>=&lt;your_api_key&gt;<br></code></pre></td></tr></table></figure>
 
 <h2 id="生成自签CA证书"><a href="#生成自签CA证书" class="headerlink" title="生成自签CA证书"></a>生成自签CA证书</h2><p>生成一个你自己签名的根证书，私钥由你持有。后续所有的设备证书都由这个CA证书来签发。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">create_ca_cert \</span><br><span class="line">-c CN \</span><br><span class="line">-l Shanghai \</span><br><span class="line">-o <span class="string">&quot;Nordic Semiconductor K.K.&quot;</span> \</span><br><span class="line">--ou <span class="string">&quot;Sales&quot;</span> \</span><br><span class="line">--cn nordic.cn \</span><br><span class="line">-e jayant.tang@nordicsemi.no \</span><br><span class="line">-p ./my_ca \</span><br><span class="line">-f <span class="string">&quot;Jayant-&quot;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">create_ca_cert \<br>-c CN \<br>-l Shanghai \<br>-o <span class="hljs-string">&quot;Nordic Semiconductor K.K.&quot;</span> \<br>--ou <span class="hljs-string">&quot;Sales&quot;</span> \<br>--cn nordic.cn \<br>-e jayant.tang@nordicsemi.no \<br>-p ./my_ca \<br>-f <span class="hljs-string">&quot;Jayant-&quot;</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>参数解释可查看<code>create_ca_cert --help</code>。证书会生成到<code>-p</code>参数指定的目录下，这里是<code>/my_ca</code></p>
 </blockquote>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427172427929.png" alt="image-20250427172427929"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427172427929.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427172427929"></p>
 <p>文件分别为：证书、私钥、公钥。</p>
 <p>其中证书内包含公钥。</p>
 <h2 id="给设备签发设备证书"><a href="#给设备签发设备证书" class="headerlink" title="给设备签发设备证书"></a>给设备签发设备证书</h2><p>让设备生成公私钥，利用自签CA给设备签发设备证书，并把设备证书保存到csv表格中。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">device_credentials_installer \</span><br><span class="line">-d \</span><br><span class="line">-t <span class="string">&quot;jayant-DK&quot;</span> \</span><br><span class="line">--ca ./my_ca/Jayant-0x112b0b2f2db47ba510eb57430f349de6f76d882_ca.pem \</span><br><span class="line">--ca-key ./my_ca/Jayant-0x112b0b2f2db47ba510eb57430f349de6f76d882_prv.pem \</span><br><span class="line">-a \</span><br><span class="line">--devinfo-append \</span><br><span class="line">--csv ./jayant_provision.csv \</span><br><span class="line">--devinfo ./jayant_devinfo.csv \</span><br><span class="line">--term CRLF \</span><br><span class="line">--port /dev/ttyACM0</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">device_credentials_installer \<br>-d \<br>-t <span class="hljs-string">&quot;jayant-DK&quot;</span> \<br>--ca ./my_ca/Jayant-0x112b0b2f2db47ba510eb57430f349de6f76d882_ca.pem \<br>--ca-key ./my_ca/Jayant-0x112b0b2f2db47ba510eb57430f349de6f76d882_prv.pem \<br>-a \<br>--devinfo-append \<br>--csv ./jayant_provision.csv \<br>--devinfo ./jayant_devinfo.csv \<br>--term CRLF \<br>--port /dev/ttyACM0<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <ul>
@@ -290,208 +759,465 @@
 <li><code>--port</code>：指定AT指令串口（windows上是COM口，Linux上是&#x2F;dev&#x2F;tty*）</li>
 </ul>
 </blockquote>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427173557275.png" alt="image-20250427173557275"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427173557275.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427173557275"></p>
 <p>公私钥生成后，脚本自动读取了设备信息并将其保存到了csv表格中。</p>
 <p>由于添加了<code>-a</code>和<code>--devinfo-append</code>，如果你有多个设备要注册，这些信息会追加添加到表格中。</p>
 <p>注册时，最大支持一次性注册3000台设备。</p>
 <blockquote>
 <p>这种方式是用<code>AT%KEYGEN</code>自动生成私钥的，比较安全。</p>
-<p>如果你想用前面提到的“先用电脑生成设备私钥，再烧录进去”的方式。可以参考：<code>create_device_credentials</code>命令来进行生成。然后用<code>AT%CMNG</code>命令烧录三个证书文件（服务器CA证书、设备证书、设备私钥）。烧录前记得AT+CFUN&#x3D;4关闭网络。AWS IoT CA证书在这里下载（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.amazontrust.com/repository/AmazonRootCA1.pem%EF%BC%89">https://www.amazontrust.com/repository/AmazonRootCA1.pem）</a></p>
+<p>如果你想用前面提到的“先用电脑生成设备私钥，再烧录进去”的方式。可以参考<code>create_device_credentials</code>命令来进行生成，然后用<code>AT%CMNG</code>命令烧录三个证书文件（服务器CA证书、设备证书、设备私钥）。烧录前记得执行AT+CFUN&#x3D;4关闭网络。AWS IoT CA证书在这里下载（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.amazontrust.com/repository/AmazonRootCA1.pem%EF%BC%89">https://www.amazontrust.com/repository/AmazonRootCA1.pem）</a></p>
 </blockquote>
 <h2 id="把注册信息上传到云端"><a href="#把注册信息上传到云端" class="headerlink" title="把注册信息上传到云端"></a>把注册信息上传到云端</h2><p>可以继续使用命令</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nrf_cloud_onboard --api-key <span class="variable">$API_KEY</span> --csv jayant_provision.csv</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">nrf_cloud_onboard --api-key <span class="hljs-variable">$API_KEY</span> --csv jayant_provision.csv<br></code></pre></td></tr></table></figure>
 
 <p>利用前面获得的API_KEY来上传csv表格，注册设备。</p>
 <p>也可以直接在网页端操作：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175008402.png" alt="image-20250427175008402"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175008402.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427175008402"></p>
 <p>选择批量注册：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175032694.png" alt="image-20250427175032694"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175032694.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427175032694"></p>
 <p>然后把<code>jayant_provision.csv</code>表格拖进去就可以注册了。</p>
 <h2 id="检查连网情况"><a href="#检查连网情况" class="headerlink" title="检查连网情况"></a>检查连网情况</h2><p>由于安装证书时，设备被设置为飞行模式。这里打开串口，再reset一下。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175858824.png" alt="image-20250427175858824"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427175858824.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427175858824"></p>
 <p>可以看到设备成功连网并访问到nRF Cloud.</p>
 <h1 id="7-查看定位"><a href="#7-查看定位" class="headerlink" title="7. 查看定位"></a>7. 查看定位</h1><p>我们进入nRF Cloud会发现设备已经上线：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180107690.png" alt="image-20250427180107690"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180107690.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427180107690"></p>
 <p>点击ID进入设备详情页：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180227357.png" alt="image-20250427180227357"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180227357.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427180227357"></p>
 <p>可以看到，设备通过MQTT已经上传了经纬度。同时，网页通过谷歌地图渲染了这个经纬度的地点（需要翻墙代理才能看到）。</p>
 <p>并且根据颜色不同，有单基站、多基站、Wi-Fi和GPS定位：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180437793.png" alt="image-20250427180437793"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250427180437793.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250427180437793"></p>
 <p>我这里在室内，所以GPS定位失败。但是Wi-Fi定位还是很准的。</p>
-<h1 id="8-Modem-Trace抓包"><a href="#8-Modem-Trace抓包" class="headerlink" title="8. Modem Trace抓包"></a>8. Modem Trace抓包</h1><p>本节介绍如何进行Modem Trace抓包。Modem Trace就是让nRF9151和基站之间交互的数据包以二进制格式通过串口等方式输出，方便进行抓包调试。</p>
-<p>要使能Modem Trace，需要打开一些config和进行一些设备树配置。Zephyr中支持通过snippets的形式提供一组config和设备树配置，这样就不用一个一个手动添加了。</p>
-<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430161938500.png" alt="image-20250430161938500"></p>
-<p>在Build Configuration中添加<code>nrf91-modem-trace-uart</code>即可。</p>
-<p>如果是命令行编译的方法，就添加<code>-D&lt;image_name&gt;_SNIPPET=&quot;nrf91-modem-trace-uart&quot;</code>参数，如：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build -p \</span><br><span class="line">-b nrf9151dk/nrf9151/ns \</span><br><span class="line">-- \</span><br><span class="line">  -DSHIELD=nrf7002ek_nrf7000 \</span><br><span class="line">  -DSB_CONF_FILE=<span class="string">&quot;sysbuild_nrf700x-wifi-scan.conf&quot;</span> \</span><br><span class="line">  -DEXTRA_CONF_FILE=<span class="string">&quot;overlay-nrf7002ek-wifi-scan-only.conf&quot;</span> \</span><br><span class="line">  -Dnrf_cloud_multi_service_SNIPPET=<span class="string">&quot;nrf91-modem-trace-uart&quot;</span></span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>如果你想查看snippets具体添加了哪些配置，可以查看Build信息：</p>
-<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163301076.png" alt="image-20250430163301076"></p>
-<p>可以看到使用的是串口1，波特率1M：</p>
-<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163326698.png" alt="image-20250430163326698"></p>
-</blockquote>
-<p><strong>编译完毕后重新烧录固件</strong>。</p>
-<p>把9151DK通过USB连接到电脑。在nRF Connect for Desktop中打开Cellular Monitor：</p>
-<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430163535426.png" alt="image-20250430163535426"></p>
-<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430170545090.png" alt="image-20250430170545090"></p>
-<p>nRF9151的UART0和UART1，在板子上直接连到Jink USB的，因此无需再接串口。</p>
-<p>这里一个串口是日志输出和AT Commands通道，另一个是Modem Trace，注意不要选错。Modem Trace database选择你下载的Modem Firmware的版本。</p>
-<p><strong>nRF Connect下的所有软件可以共享串口，所以你可以同时打开“Open Serial Terminal”，查看日志和AT Commands.</strong></p>
-<p>之后点击Start就可以开始抓包：</p>
-<p><img src="/jayant97.github.io/./_posts/nRF9151%E8%9C%82%E7%AA%9D%E6%A8%A1%E7%BB%84%E7%AE%80%E4%BB%8B%E4%B8%8E%E5%AE%9A%E4%BD%8D%E4%BE%8B%E7%A8%8B%E8%A7%A3%E6%9E%90.assets/image-20250430171642316.png" alt="image-20250430171642316"></p>
-<p>左下角为抓包文件存储位置。</p>
-<p>你也可以在Start之前，打开“Open in Wireshark”：</p>
-<h1 id="9-代码解析"><a href="#9-代码解析" class="headerlink" title="9. 代码解析"></a>9. 代码解析</h1>
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2025/04/f1f289c546d9/" data-id="cmqop0ng2000sy8o5aarea6kb" data-title="nRF9151蜂窝模组简介与定位例程解析" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-    </footer>
-  </div>
+
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/Nordic/" class="category-chain-item">Nordic</a>
   
-    <a href="/jayant97.github.io/2025/09/6376457096fe/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          在WSL2中搭建Matter CHIP Tool环境
-        
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Nordic/" class="print-no-link">#Nordic</a>
+      
+        <a href="/jayant97.github.io/tags/nRF91/" class="print-no-link">#nRF91</a>
+      
+        <a href="/jayant97.github.io/tags/LTE/" class="print-no-link">#LTE</a>
+      
+        <a href="/jayant97.github.io/tags/Cellular/" class="print-no-link">#Cellular</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>nRF9151蜂窝模组简介与定位例程解析</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2025/04/f1f289c546d9/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年4月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/09/6376457096fe/" title="在WSL2中搭建Matter CHIP Tool环境">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">在WSL2中搭建Matter CHIP Tool环境</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/03/dd490e6182dc/" title="树莓派串口终端与网口直连终端">
+                        <span class="hidden-mobile">树莓派串口终端与网口直连终端</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2025/03/dd490e6182dc/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">树莓派串口终端与网口直连终端</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>

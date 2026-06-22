@@ -1,17 +1,30 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>NCS 低功耗日志打印 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="本文第一节直接给出配置，第二节介绍原理，第三节介绍踩的一个坑 低功耗日志打印配置 【注意】本文介绍的方法，仅支持NCSv2.8.0之后的版本。  软件配置以下代码与config直接在zephyr&#x2F;samples&#x2F;hello_world中进行配置即可。 配置文件：prj.conf # 开启LOG功能，并选择后端为串口CONFIG_LOG&#x3D;yCONFIG_LOG_MODE_DEFERRED&#x3D;yCONF">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="本文第一节直接给出配置，第二节介绍原理，第三节介绍踩到的一个坑 低功耗日志打印配置 【注意】本文介绍的方法，仅支持NCSv2.8.0之后的版本。  软件配置以下代码与config直接在zephyr&#x2F;samples&#x2F;hello_world中进行配置即可。 配置文件：prj.conf 12345678910111213141516171819202122232425262728293031323334">
 <meta property="og:type" content="article">
 <meta property="og:title" content="NCS 低功耗日志打印">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/01/aeb1d94c5ebc/index.html">
-<meta property="og:site_name" content="一苇万顷">
-<meta property="og:description" content="本文第一节直接给出配置，第二节介绍原理，第三节介绍踩的一个坑 低功耗日志打印配置 【注意】本文介绍的方法，仅支持NCSv2.8.0之后的版本。  软件配置以下代码与config直接在zephyr&#x2F;samples&#x2F;hello_world中进行配置即可。 配置文件：prj.conf # 开启LOG功能，并选择后端为串口CONFIG_LOG&#x3D;yCONFIG_LOG_MODE_DEFERRED&#x3D;yCONF">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
+<meta property="og:description" content="本文第一节直接给出配置，第二节介绍原理，第三节介绍踩到的一个坑 低功耗日志打印配置 【注意】本文介绍的方法，仅支持NCSv2.8.0之后的版本。  软件配置以下代码与config直接在zephyr&#x2F;samples&#x2F;hello_world中进行配置即可。 配置文件：prj.conf 12345678910111213141516171819202122232425262728293031323334">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235219464.webp">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235758123.webp">
@@ -23,110 +36,566 @@
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127005910755.webp">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127010021221.webp">
 <meta property="article:published_time" content="2025-01-26T15:10:26.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.229Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.841Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="Zephyr">
-<meta name="twitter:card" content="summary">
+<meta property="article:tag" content="Logging">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235219464.webp">
   
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
   
   
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  <title>NCS 低功耗日志打印 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
   
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
   
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-NCS-低功耗日志打印" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" class="article-date">
-  <time class="dt-published" datetime="2025-01-26T15:10:26.000Z" itemprop="datePublished">2025-01-26</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a>►<a class="article-category-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a>
-  </div>
+  
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="NCS 低功耗日志打印"></span>
+          
+        </div>
+
         
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      NCS 低功耗日志打印
-    </h1>
-  
-
-      </header>
+          
+  <div class="mt-3">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-26 23:10" pubdate>
+          2025年1月26日
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          64 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <p>本文第一节直接给出配置，第二节介绍原理，第三节介绍踩的一个坑</p>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">NCS 低功耗日志打印</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本文第一节直接给出配置，第二节介绍原理，第三节介绍踩到的一个坑</p>
 <h1 id="低功耗日志打印配置"><a href="#低功耗日志打印配置" class="headerlink" title="低功耗日志打印配置"></a>低功耗日志打印配置</h1><blockquote>
 <p>【注意】本文介绍的方法，仅支持NCS<code>v2.8.0</code>之后的版本。</p>
 </blockquote>
 <h2 id="软件配置"><a href="#软件配置" class="headerlink" title="软件配置"></a>软件配置</h2><p>以下代码与config直接在<code>zephyr/samples/hello_world</code>中进行配置即可。</p>
 <p>配置文件：<code>prj.conf</code></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 开启LOG功能，并选择后端为串口</span></span><br><span class="line">CONFIG_LOG=y</span><br><span class="line">CONFIG_LOG_MODE_DEFERRED=y</span><br><span class="line">CONFIG_LOG_BACKEND_UART=y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 日志对应串口开启异步输出（DMA）功能</span></span><br><span class="line">CONFIG_LOG_BACKEND_UART_ASYNC=y</span><br><span class="line">CONFIG_UART_ASYNC_API=y</span><br><span class="line">CONFIG_UART_0_INTERRUPT_DRIVEN=n</span><br><span class="line">CONFIG_UART_0_ASYNC=y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 以下为异步串口硬件计数功能</span></span><br><span class="line"><span class="comment"># 只影响RX，不影响TX，因此日志串口无需打开</span></span><br><span class="line"><span class="comment"># CONFIG_UART_0_NRF_HW_ASYNC=y</span></span><br><span class="line"><span class="comment"># CONFIG_UART_0_NRF_HW_ASYNC_TIMER=1</span></span><br><span class="line"><span class="comment"># CONFIG_NRFX_TIMER1=y</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开启Console功能，并选择后端为串口</span></span><br><span class="line">CONFIG_PRINTK=y</span><br><span class="line">CONFIG_UART_CONSOLE=y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭一切与输入有关的feature</span></span><br><span class="line">CONFIG_SHELL=n</span><br><span class="line">CONFIG_CONSOLE_HANDLER=n</span><br><span class="line"></span><br><span class="line"><span class="comment"># printk不重定向到LOG buffer</span></span><br><span class="line">CONFIG_LOG_PRINTK=n</span><br><span class="line"></span><br><span class="line"><span class="comment"># 以下两个选项需要同时打开或同时关闭</span></span><br><span class="line"><span class="comment"># 不要只打开CONFIG_PM_DEVICE=y</span></span><br><span class="line">CONFIG_PM_DEVICE_RUNTIME=y</span><br><span class="line">CONFIG_PM_DEVICE=y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭RTT通道</span></span><br><span class="line">CONFIG_USE_SEGGER_RTT=n</span><br><span class="line">CONFIG_RTT_CONSOLE=n</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 开启LOG功能，并选择后端为串口</span><br>CONFIG_LOG=y<br>CONFIG_LOG_MODE_DEFERRED=y<br>CONFIG_LOG_BACKEND_UART=y<br><br><span class="hljs-comment"># 日志对应串口开启异步输出（DMA）功能</span><br>CONFIG_LOG_BACKEND_UART_ASYNC=y<br>CONFIG_UART_ASYNC_API=y<br>CONFIG_UART_0_INTERRUPT_DRIVEN=n<br>CONFIG_UART_0_ASYNC=y<br><br><span class="hljs-comment"># 以下为异步串口硬件计数功能</span><br><span class="hljs-comment"># 只影响RX，不影响TX，因此日志串口无需打开</span><br><span class="hljs-comment"># CONFIG_UART_0_NRF_HW_ASYNC=y</span><br><span class="hljs-comment"># CONFIG_UART_0_NRF_HW_ASYNC_TIMER=1</span><br><span class="hljs-comment"># CONFIG_NRFX_TIMER1=y</span><br><br><span class="hljs-comment"># 开启Console功能，并选择后端为串口</span><br>CONFIG_PRINTK=y<br>CONFIG_UART_CONSOLE=y<br><br><span class="hljs-comment"># 关闭一切与输入有关的feature</span><br>CONFIG_SHELL=n<br>CONFIG_CONSOLE_HANDLER=n<br><br><span class="hljs-comment"># printk不重定向到LOG buffer</span><br>CONFIG_LOG_PRINTK=n<br><br><span class="hljs-comment"># 以下两个选项需要同时打开或同时关闭</span><br><span class="hljs-comment"># 不要只打开CONFIG_PM_DEVICE=y</span><br>CONFIG_PM_DEVICE_RUNTIME=y<br>CONFIG_PM_DEVICE=y<br><br><span class="hljs-comment"># 关闭RTT通道</span><br>CONFIG_USE_SEGGER_RTT=n<br>CONFIG_RTT_CONSOLE=n<br></code></pre></td></tr></table></figure>
 
 <p>设备树overlay文件（没有可自己新建<code>app.overlay</code>）：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;uart0 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    zephyr,pm-device-runtime-auto; // 如果前面开了CONFIG_PM_DEVICE_RUNTIME=y，这里一定要使能</span><br><span class="line">    /delete-property/ hw-flow-control;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 原本uart0的Pinctrl是有流控CTS和RTS引脚的，</span><br><span class="line">// 这里直接覆盖去掉那两个引脚</span><br><span class="line">&amp;uart0_default &#123;</span><br><span class="line">    group1 &#123;</span><br><span class="line">        psels = &lt;NRF_PSEL(UART_TX, 0, 6)&gt;;</span><br><span class="line">    &#125;;</span><br><span class="line">    group2 &#123;</span><br><span class="line">        psels = &lt;NRF_PSEL(UART_RX, 0, 8)&gt;;</span><br><span class="line">        bias-pull-up;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;uart0_sleep &#123;</span><br><span class="line">    group1 &#123;</span><br><span class="line">        psels = &lt;NRF_PSEL(UART_TX, 0, 6)&gt;,</span><br><span class="line">            &lt;NRF_PSEL(UART_RX, 0, 8)&gt;;</span><br><span class="line">        low-power-enable;</span><br><span class="line">        bias-pull-up; // 这里控制休眠期间引脚是上拉还是下拉。上拉可节省100nA。</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs dsconfig">&amp;<span class="hljs-string">uart0</span> &#123;<br>    <span class="hljs-string">status</span> = <span class="hljs-string">&quot;okay&quot;</span>;<br>    <span class="hljs-string">zephyr</span>,<span class="hljs-string">pm-device-runtime-auto</span>; // 如果前面开了<span class="hljs-string">CONFIG_PM_DEVICE_RUNTIME</span>=<span class="hljs-string">y</span>，这里一定要使能<br>    /<span class="hljs-built_in">delete-property/</span> <span class="hljs-string">hw-flow-control</span>;<br>&#125;;<br><br>// 原本<span class="hljs-string">uart0</span>的<span class="hljs-string">Pinctrl</span>是有流控<span class="hljs-string">CTS</span>和<span class="hljs-string">RTS</span>引脚的，<br>// 这里直接覆盖去掉那两个引脚<br>&amp;<span class="hljs-string">uart0_default</span> &#123;<br>    <span class="hljs-string">group1</span> &#123;<br>        <span class="hljs-string">psels</span> = &lt;<span class="hljs-string">NRF_PSEL</span>(<span class="hljs-string">UART_TX</span>, <span class="hljs-string">0</span>, <span class="hljs-string">6</span>)&gt;;<br>    &#125;;<br>    <span class="hljs-string">group2</span> &#123;<br>        <span class="hljs-string">psels</span> = &lt;<span class="hljs-string">NRF_PSEL</span>(<span class="hljs-string">UART_RX</span>, <span class="hljs-string">0</span>, <span class="hljs-string">8</span>)&gt;;<br>        <span class="hljs-string">bias-pull-up</span>;<br>    &#125;;<br>&#125;;<br><br>&amp;<span class="hljs-string">uart0_sleep</span> &#123;<br>    <span class="hljs-string">group1</span> &#123;<br>        <span class="hljs-string">psels</span> = &lt;<span class="hljs-string">NRF_PSEL</span>(<span class="hljs-string">UART_TX</span>, <span class="hljs-string">0</span>, <span class="hljs-string">6</span>)&gt;,<br>            &lt;<span class="hljs-string">NRF_PSEL</span>(<span class="hljs-string">UART_RX</span>, <span class="hljs-string">0</span>, <span class="hljs-string">8</span>)&gt;;<br>        <span class="hljs-string">low-power-enable</span>;<br>        <span class="hljs-string">bias-pull-up</span>; // 这里控制休眠期间引脚是上拉还是下拉。上拉可节省<span class="hljs-string">100nA</span>。<br>    &#125;;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>代码<code>main.c</code>：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/kernel.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/logging/log.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">LOG_MODULE_REGISTER(main);</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) &#123;   </span><br><span class="line">        <span class="comment">// 通过stdout输出，最终是通过串口阻塞API，一个字符一个字符输出</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Hello World! %s\n&quot;</span>, CONFIG_BOARD_TARGET);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// CONFIG_LOG_PRINTK=n 时，通过串口阻塞API，一个字符一个字符输出</span></span><br><span class="line">        <span class="comment">// CONFIG_LOG_PRINTK=y 时，通过logging subsystem的buffer输出</span></span><br><span class="line">        printk(<span class="string">&quot;Hello World! %s\n&quot;</span>, CONFIG_BOARD_TARGET);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// CONFIG_LOG_BACKEND_UART=y 时，通过异步串口API输出（DMA）</span></span><br><span class="line">        LOG_INF(<span class="string">&quot;Hello World! %s&quot;</span>, CONFIG_BOARD_TARGET);</span><br><span class="line">        </span><br><span class="line">        k_sleep(K_MSEC(<span class="number">1000</span>));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/logging/log.h&gt;</span></span><br><br>LOG_MODULE_REGISTER(main);<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>) &#123;   <br>        <span class="hljs-comment">// 通过stdout输出，最终是通过串口阻塞API，一个字符一个字符输出</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Hello World! %s\n&quot;</span>, CONFIG_BOARD_TARGET);<br>        <br>        <span class="hljs-comment">// CONFIG_LOG_PRINTK=n 时，通过串口阻塞API，一个字符一个字符输出</span><br>        <span class="hljs-comment">// CONFIG_LOG_PRINTK=y 时，通过logging subsystem的buffer输出</span><br>        printk(<span class="hljs-string">&quot;Hello World! %s\n&quot;</span>, CONFIG_BOARD_TARGET);<br>        <br>        <span class="hljs-comment">// CONFIG_LOG_BACKEND_UART=y 时，通过异步串口API输出（DMA）</span><br>        LOG_INF(<span class="hljs-string">&quot;Hello World! %s&quot;</span>, CONFIG_BOARD_TARGET);<br>        <br>        k_sleep(K_MSEC(<span class="hljs-number">1000</span>));<br><br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h2 id="硬件配置"><a href="#硬件配置" class="headerlink" title="硬件配置"></a>硬件配置</h2><p>以nRF52840DK为例：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235219464.webp" alt="image-20250126235219464"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235219464.webp" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250126235219464"></p>
 <p>首先切开焊盘SB40，这个是MCU供电流过的地方。</p>
 <ol>
 <li>如果用电流表测试，则接<strong>电流流出</strong>和<strong>电流流入</strong></li>
@@ -138,233 +607,510 @@
 <p>PPK II推荐使用<strong>电流表模式</strong>。如果要使用<strong>电源模式，一定要确保供电电压和板子本身供电电压相同</strong>。否则MCU引脚和板子上其他器件会有压差，导致漏电。</p>
 <p>这里使用nRF52840DK，如果用电压源模式需要选择3V供电。</p>
 </blockquote>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235758123.webp" alt="image-20250126235758123"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250126235758123.webp" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250126235758123"></p>
 <p>此外，即使你使用电源模式，USB也是必须要接的：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/969d3d8a3a037e411d2636670789c9f1.webp" alt="969d3d8a3a037e411d2636670789c9f1"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/969d3d8a3a037e411d2636670789c9f1.webp" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="969d3d8a3a037e411d2636670789c9f1"></p>
 <p>否则电源供电会通过一些开关芯片漏到板子上的其他器件上，造成功耗评估严重偏高。</p>
 <h2 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h2><p>板子上JLINK （Interface MCU）自带串口，直接电脑打开JLINK上的串口即可：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127003520771.webp" alt="image-20250127003520771"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127003520771.webp" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250127003520771"></p>
 <p>日志：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">*** Booting nRF Connect SDK v2.8.0-a2386bfc8401 ***</span><br><span class="line">*** Using Zephyr OS v3.7.99-0bc3393fb112 ***</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:00.354,217] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:01.360,687] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:02.367,248] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:03.373,809] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:04.380,371] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:05.386,932] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:06.393,463] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:07.400,054] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">[00:00:08.406,585] &lt;inf&gt; main: Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br><span class="line">Hello World! nrf52840dk/nrf52840</span><br></pre></td></tr></table></figure>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs nix"><span class="hljs-operator">*</span><span class="hljs-operator">*</span><span class="hljs-operator">*</span> Booting nRF Connect SDK v2.<span class="hljs-number">8</span>.<span class="hljs-number">0</span><span class="hljs-operator">-</span>a2386bfc8401 <span class="hljs-operator">*</span><span class="hljs-operator">*</span><span class="hljs-operator">*</span><br><span class="hljs-operator">*</span><span class="hljs-operator">*</span><span class="hljs-operator">*</span> Using Zephyr OS v3.<span class="hljs-number">7.9</span>9-<span class="hljs-number">0</span>bc3393fb112 <span class="hljs-operator">*</span><span class="hljs-operator">*</span><span class="hljs-operator">*</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>[<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00.354</span>,<span class="hljs-number">217</span>] <span class="hljs-symbol">&lt;inf&gt;</span> <span class="hljs-params">main:</span> Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>[<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">01.360</span>,<span class="hljs-number">687</span>] <span class="hljs-symbol">&lt;inf&gt;</span> <span class="hljs-params">main:</span> Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>[<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">02.367</span>,<span class="hljs-number">248</span>] <span class="hljs-symbol">&lt;inf&gt;</span> <span class="hljs-params">main:</span> Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>[<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">03.373</span>,<span class="hljs-number">809</span>] <span class="hljs-symbol">&lt;inf&gt;</span> <span class="hljs-params">main:</span> Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>[<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">04.380</span>,<span class="hljs-number">371</span>] <span class="hljs-symbol">&lt;inf&gt;</span> <span class="hljs-params">main:</span> Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>[<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">05.386</span>,<span class="hljs-number">932</span>] <span class="hljs-symbol">&lt;inf&gt;</span> <span class="hljs-params">main:</span> Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>[<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">06.393</span>,<span class="hljs-number">463</span>] <span class="hljs-symbol">&lt;inf&gt;</span> <span class="hljs-params">main:</span> Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>[<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">07.400</span>,<span class="hljs-number">054</span>] <span class="hljs-symbol">&lt;inf&gt;</span> <span class="hljs-params">main:</span> Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>[<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">08.406</span>,<span class="hljs-number">585</span>] <span class="hljs-symbol">&lt;inf&gt;</span> <span class="hljs-params">main:</span> Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-symbol">/nrf52840</span><br>Hello World<span class="hljs-operator">!</span> nrf52840dk<span class="hljs-operator">/</span>nrf52840<br></code></pre></td></tr></table></figure>
 
-<p><code>printk</code>和<code>printf</code>以及<code>LOG</code>都连续输出2次。这说明这三种方式内部分别各自存在buffer，buffer满了才会输出。</p>
+<p><code>printk</code>和<code>printf</code>以及<code>LOG</code>都连续输出2次。这说明这三种方式内部各自存在buffer，buffer满了才会输出。</p>
 <p>底电流：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127000857325.webp" alt="image-20250127000857325"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127000857325.webp" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250127000857325"></p>
 <p>IDLE线程的底电流2.54uA，符合手册中System ON条件下，CPU不工作时的功耗：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/75adeaab93a5d89a9b48ffa11ff3137f.webp" alt="75adeaab93a5d89a9b48ffa11ff3137f"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/75adeaab93a5d89a9b48ffa11ff3137f.webp" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="75adeaab93a5d89a9b48ffa11ff3137f"></p>
 <blockquote>
 <p>相对的，System OFF的功耗非常低，但是只能用reset或GPIO唤醒，且唤醒后必定reset。</p>
 </blockquote>
 <h1 id="配置解析"><a href="#配置解析" class="headerlink" title="配置解析"></a>配置解析</h1><h2 id="异步串口"><a href="#异步串口" class="headerlink" title="异步串口"></a>异步串口</h2><p>根据我之前的文章<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17828907.html">《Zephyr驱动与设备树实战——串口》</a>，我们知道异步串口只要不是正在发送或接收，就是低功耗的。RX时的功耗比较高，因为需要一直等待。但好在日志是一个不需要RX的功能，因此我们关闭所有RX：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_SHELL=n</span><br><span class="line">CONFIG_CONSOLE_HANDLER=n</span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_SHELL</span>=n<br><span class="hljs-attr">CONFIG_CONSOLE_HANDLER</span>=n<br></code></pre></td></tr></table></figure>
 
 <p>其他关于异步串口的配置，可以看那篇文章解释。</p>
 <h2 id="Zephyr-Device-Power-Management"><a href="#Zephyr-Device-Power-Management" class="headerlink" title="Zephyr Device Power Management"></a>Zephyr Device Power Management</h2><p>接下来是关于低功耗的：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_PM_DEVICE_RUNTIME=y</span><br><span class="line">CONFIG_PM_DEVICE=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_PM_DEVICE_RUNTIME</span>=y<br><span class="hljs-attr">CONFIG_PM_DEVICE</span>=y<br></code></pre></td></tr></table></figure>
 
-<p>这是Zephyr Device Power Management Subsystem的功能。Zephyr中把电源管理分为System Power Management 和 Device Power Managment。System Power Management的强大功能我们已经见识过了：只要其他线程都在阻塞（不论是在sleep还是在等待信号量），进入IDLE线程后，系统会自动让CPU休眠。当有EVENT到来时，CPU自动唤醒，无需开发者操心CPU的休眠。</p>
-<p>而<strong>Device Power Managment</strong>管理的是外设的功耗，包括片上外设和外挂的总线外设。如果你开发了一段时间Zephyr，会发现Zephyr的外设API是没有init和uninit的。因为外设的初始化是在main线程运行之前就已经被驱动程序做好了。</p>
+<p>这是Zephyr Device Power Management Subsystem的功能。Zephyr中把电源管理分为System Power Management 和 Device Power Management。System Power Management的强大功能我们已经见识过了：只要其他线程都在阻塞（不论是在sleep还是在等待信号量），进入IDLE线程后，系统会自动让CPU休眠。当有EVENT到来时，CPU自动唤醒，无需开发者操心CPU的休眠。</p>
+<p>而<strong>Device Power Management</strong>管理的是外设的功耗，包括片上外设和外挂的总线外设。如果你开发了一段时间Zephyr，会发现Zephyr的外设API是没有init和uninit的。因为外设的初始化是在main线程运行之前就已经被驱动程序做好了。</p>
 <p><code>CONFIG_PM_DEVICE=y</code>就让你可以在应用层手动去开关这些外设，具体的API为：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/pm/device.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">uart0</span> =</span> DEVICE_DT_GET(DT_NODELABEL(uart0));</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">button_0_enter_low_power</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    pm_device_action_run(uart0, PM_DEVICE_ACTION_SUSPEND);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">button_1_exit_low_power</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    pm_device_action_run(uart0, PM_DEVICE_ACTION_RESUME);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/pm/device.h&gt;</span></span><br><br><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">uart0</span> =</span> DEVICE_DT_GET(DT_NODELABEL(uart0));<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">button_0_enter_low_power</span><span class="hljs-params">()</span><br>&#123;<br>    ...<br>    pm_device_action_run(uart0, PM_DEVICE_ACTION_SUSPEND);<br>    ...<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">button_1_exit_low_power</span><span class="hljs-params">()</span><br>&#123;<br>    ...<br>    pm_device_action_run(uart0, PM_DEVICE_ACTION_RESUME);<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>驱动层已经实现了<code>PM_DEVICE_ACTION_SUSPEND</code>和<code>PM_DEVICE_ACTION_RESUME</code>对应的功能，开发者无需再关心其初始化的细节。</p>
 <p>通过这种方式你可以手动地全局开关一些外设。</p>
 <p>但是有时候手动去开关还是太麻烦，可能你会想这样做来实现低功耗：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">pm_device_action_run(&amp;my_dev, PM_DEVICE_ACTION_SUSPEND);</span><br><span class="line">operate_my_dev(&amp;my_dev);</span><br><span class="line">pm_device_action_run(&amp;my_dev, PM_DEVICE_ACTION_RESUME);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">...<br>pm_device_action_run(&amp;my_dev, PM_DEVICE_ACTION_SUSPEND);<br>operate_my_dev(&amp;my_dev);<br>pm_device_action_run(&amp;my_dev, PM_DEVICE_ACTION_RESUME);<br>...<br></code></pre></td></tr></table></figure>
 
 <p>但是这么做不是线程安全的，如果这段代码在不同线程里运行会出问题（常见于SPI，I2C等总线外设）。另外可能这个外设被Zephyr系统用到了，但是却在那之前被你关掉了，那就会出问题（尤其常见于QSPI外挂Flash）。</p>
 <p> <code>CONFIG_PM_DEVICE_RUNTIME=y</code>就是Zephyr提供的另外一个库，它相当于对Device Management的API进行了一层封装：</p>
-<p><img src="https://docs-be.nordicsemi.com/bundle/ncs-latest/page/zephyr/_images/devr-sync-ops.svg?_LANG=enus" alt="../../_images/devr-sync-ops.svg"></p>
+<p><img src="https://docs-be.nordicsemi.com/bundle/ncs-latest/page/zephyr/_images/devr-sync-ops.svg?_LANG=enus" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="../../_images/devr-sync-ops.svg"></p>
 <p>当应用层调用外设的API时，驱动层先调用<code>pm_device_runtime_get()</code>函数，使得<code>usage</code>变量+1。当usage变量大于1时，PM Subsystem就会调用<code>pm_device_action_run(dev, PM_DEVICE_ACTION_RESUME)</code>来让驱动层打开这个外设。</p>
 <p>当这个外设不再使用时（发送完毕&#x2F;接收完毕），驱动层则调用<code>pm_device_runtime_put()</code>函数，使得<code>usage</code>变量-1。当<code>usage == 0</code>时，PM Subsystem就会调用<code>pm_device_action_run(dev, PM_DEVICE_ACTION_SUSPEND)</code>来让驱动层关闭这个外设。</p>
 <p>这种实现是线程安全的，并且不需要应用层手动控制这个外设。此外，即使应用层重复地进行<code>get</code>或者<code>put</code>，也不会影响它实际的运行逻辑。</p>
 <blockquote>
-<p> NCS v2.8.0之后，Nordic串口驱动才加入了Runtime的支持。</p>
+<p>NCS v2.8.0之后，Nordic串口驱动才加入了Runtime的支持。</p>
 </blockquote>
 <p>Runtime电源管理的功能，要看驱动程序是否支持，主要是看它有没有调用<code>pm_device_runtime_put</code>和<code>pm_device_runtime_get</code>。</p>
 <p>另外，Runtime的功能一定要对每个外设分别使能。你可以在设备树里添加一个配置，让它自动使能：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;uart0 &#123;</span><br><span class="line">    zephyr,pm-device-runtime-auto;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs puppet">&amp;<span class="hljs-keyword">uart0</span> &#123;<br>    zephyr,pm-<span class="hljs-literal">device</span>-runtime-auto;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>此外，Nordic串口驱动做了更多事情。<strong>如果<code>CONFIG_PM_DEVICE</code>和<code>CONFIG_PM_DEVICE_RUNTIME</code>都不打开</strong>，此串口驱动也实现了自己的私有runtime低功耗：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 见/zephyr/drivers/serial/Kconfig.nrfx_uart_instance</span><br><span class="line"></span><br><span class="line">config UART_$(nrfx_uart_num)_NRF_ASYNC_LOW_POWER</span><br><span class="line">    bool &quot;Low power mode&quot;</span><br><span class="line">    depends on HAS_HW_NRF_UARTE$(nrfx_uart_num)</span><br><span class="line">    depends on UART_ASYNC_API</span><br><span class="line">    depends on UART_NRFX_UARTE_LEGACY_SHIM</span><br><span class="line">    default y if !PM_DEVICE</span><br><span class="line">    help</span><br><span class="line">      When enabled, UARTE is enabled before each TX or RX usage and disabled</span><br><span class="line">      when not used. Disabling UARTE while in idle allows to achieve lowest</span><br><span class="line">      power consumption. It is only feasible if receiver is not always on.</span><br><span class="line">      This option is irrelevant when device power management (PM) is enabled</span><br><span class="line">      because then device state is controlled by the PM actions.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"># 见/zephyr/drivers/<span class="hljs-type">serial</span>/Kconfig.nrfx_uart_instance<br><br>config UART_$(nrfx_uart_num)_NRF_ASYNC_LOW_POWER<br>    <span class="hljs-type">bool</span> &quot;Low power mode&quot;<br>    <span class="hljs-keyword">depends</span> <span class="hljs-keyword">on</span> HAS_HW_NRF_UARTE$(nrfx_uart_num)<br>    <span class="hljs-keyword">depends</span> <span class="hljs-keyword">on</span> UART_ASYNC_API<br>    <span class="hljs-keyword">depends</span> <span class="hljs-keyword">on</span> UART_NRFX_UARTE_LEGACY_SHIM<br>    <span class="hljs-keyword">default</span> y <span class="hljs-keyword">if</span> !PM_DEVICE<br>    help<br>      <span class="hljs-keyword">When</span> enabled, UARTE <span class="hljs-keyword">is</span> enabled <span class="hljs-keyword">before</span> <span class="hljs-keyword">each</span> TX <span class="hljs-keyword">or</span> RX <span class="hljs-keyword">usage</span> <span class="hljs-keyword">and</span> disabled<br>      <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span> used. Disabling UARTE <span class="hljs-keyword">while</span> <span class="hljs-keyword">in</span> idle allows <span class="hljs-keyword">to</span> achieve lowest<br>      power consumption. It <span class="hljs-keyword">is</span> <span class="hljs-keyword">only</span> feasible <span class="hljs-keyword">if</span> receiver <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">always</span> <span class="hljs-keyword">on</span>.<br>      This <span class="hljs-keyword">option</span> <span class="hljs-keyword">is</span> irrelevant <span class="hljs-keyword">when</span> device power management (PM) <span class="hljs-keyword">is</span> enabled<br>      because <span class="hljs-keyword">then</span> device state <span class="hljs-keyword">is</span> controlled <span class="hljs-keyword">by</span> the PM actions.<br><br></code></pre></td></tr></table></figure>
 
 <p>因此，两个都不打开也是可以低功耗的，只要其他配置与本文保持一致即可（异步串口）。</p>
 <p>但是，很多NCS例程是只开了<code>CONFIG_PM_DEVICE</code>，没有开<code>CONFIG_PM_DEVICE_RUNTIME</code>，导致两种低功耗场景都沾不上边，<strong>这种情况下，底电流约为15uA</strong>。</p>
 </blockquote>
-<h1 id="踩坑记录"><a href="#踩坑记录" class="headerlink" title="踩坑记录"></a>踩坑记录</h1><p>记录一个坑中坑的情况，当打开以下配置时：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_LOG_PRINTK=y</span><br></pre></td></tr></table></figure>
+<h1 id="踩坑记录"><a href="#踩坑记录" class="headerlink" title="踩坑记录"></a>踩坑记录</h1><p>记录一个连环坑的情况，当打开以下配置时：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_LOG_PRINTK</span>=y<br></code></pre></td></tr></table></figure>
 
 <p>printk会从LOG的后端进行输出，也就是利用异步串口DMA进行输出，而不是串口阻塞API一个字节一个字节输出，这听起来很美好。</p>
 <p>但是，当我们只用printk，且输出字符为刚好33字节时（含<code>\n</code>）：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/kernel.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;   </span><br><span class="line">        printk(<span class="string">&quot;12345678901234567890123456789012\n&quot;</span>);        </span><br><span class="line">        k_sleep(K_MSEC(<span class="number">1000</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/kernel.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>    &#123;   <br>        printk(<span class="hljs-string">&quot;12345678901234567890123456789012\n&quot;</span>);        <br>        k_sleep(K_MSEC(<span class="hljs-number">1000</span>));<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>功耗会来到惊人的367uA!!!</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127005910755.webp" alt="image-20250127005910755"></p>
+<p>功耗会达到惊人的367uA！</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127005910755.webp" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250127005910755"></p>
 <p>并且，多一个字节或者少一个字节，功耗都是正常的！</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/kernel.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;   </span><br><span class="line">        <span class="comment">//printk(&quot;12345678901234567890123456789012\n&quot;);</span></span><br><span class="line">        printk(<span class="string">&quot;1234567890123456789012345678901\n&quot;</span>); </span><br><span class="line">        k_sleep(K_MSEC(<span class="number">1000</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/kernel.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>    &#123;   <br>        <span class="hljs-comment">//printk(&quot;12345678901234567890123456789012\n&quot;);</span><br>        printk(<span class="hljs-string">&quot;1234567890123456789012345678901\n&quot;</span>); <br>        k_sleep(K_MSEC(<span class="hljs-number">1000</span>));<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127010021221.webp" alt="image-20250127010021221"></p>
-<p>我猜想这可能是因为33字节会刚好触发了Power Management打开串口，但是却又差一个字节才能发出去，导致实际没发出去，要等下一次数据来才能发出去。但是发送完毕后，又马上打开了串口。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250127010021221.webp" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250127010021221"></p>
+<p>我猜想这可能是因为33字节刚好触发了Power Management打开串口，但是却又差一个字节才能发出去，导致数据实际未能发出，要等下一次数据到来才能发送。但是发送完毕后，串口又立即被打开了。</p>
 <p>这个问题最坑的点在于…</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">printk(<span class="string">&quot;Hello World! %s\n&quot;</span>, CONFIG_BOARD_TARGET);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">printk(<span class="hljs-string">&quot;Hello World! %s\n&quot;</span>, CONFIG_BOARD_TARGET);<br></code></pre></td></tr></table></figure>
 
 <p><code>&quot;Hello World! nrf52840dk/nrf52840\n&quot;</code> 刚好就是33字节…</p>
 <p>并且，在printk后面加一个LOG_INF输出，也不会出现这个问题。</p>
 <p>这个Bug的出现让我一度怀疑我的其他配置出现了问题，各种修改尝试、切换SDK、翻阅源码，都无法找出原因，直到有次随手修改了打印的内容…</p>
 <p>总之分享出来，让其他人别踩这个坑吧。</p>
 
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2025/01/aeb1d94c5ebc/" data-id="cmqop0ng0000hy8o59ydebfjd" data-title="NCS 低功耗日志打印" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li></ul>
 
-    </footer>
-  </div>
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/Zephyr/" class="category-chain-item">Zephyr</a>
   
-    <a href="/jayant97.github.io/2025/03/dd490e6182dc/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          树莓派串口终端与网口直连终端
-        
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Nordic/" class="print-no-link">#Nordic</a>
+      
+        <a href="/jayant97.github.io/tags/Zephyr/" class="print-no-link">#Zephyr</a>
+      
+        <a href="/jayant97.github.io/tags/Logging/" class="print-no-link">#Logging</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>NCS 低功耗日志打印</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2025/01/aeb1d94c5ebc/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年1月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/03/dd490e6182dc/" title="树莓派串口终端与网口直连终端">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">树莓派串口终端与网口直连终端</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/01/22618b91ecf6/" title="NCS(Zephyr)中的蓝牙地址">
+                        <span class="hidden-mobile">NCS(Zephyr)中的蓝牙地址</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2025/01/22618b91ecf6/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">NCS(Zephyr)中的蓝牙地址</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>

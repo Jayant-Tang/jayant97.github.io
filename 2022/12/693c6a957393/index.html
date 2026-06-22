@@ -1,144 +1,612 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>最简洁清爽的ssh使用方案 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="1. 前言​	已经2022年了，看到很多朋友还在使用Putty、MobaXTerm之类的软件，ssh连接到自己的各种linux开发板、服务器等。每次都要回忆IP地址、用户名、密码。如果要传输文件，scp又要又要输一遍IP地址、用户名、密码。整个搞下来，精神聚焦不了，烦躁程度直线上升。 ​	今天把最方便的ssh使用方式分享给大家。先放一个演示效果如下： （1）在Linux shell终端，或者Win">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="1. 前言​	已经2022年了，看到很多朋友还在使用Putty、MobaXTerm之类的软件，ssh连接到自己的各种linux开发板、服务器等。每次都要回忆IP地址、用户名、密码。如果要传输文件，scp又要输一遍IP地址、用户名、密码。整个搞下来，精神聚焦不了，烦躁程度直线上升。 ​	今天把最方便的ssh使用方式分享给大家。先放一个演示效果如下： （1）在Linux shell终端，或者Windo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="最简洁清爽的ssh使用方案">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/693c6a957393/index.html">
-<meta property="og:site_name" content="一苇万顷">
-<meta property="og:description" content="1. 前言​	已经2022年了，看到很多朋友还在使用Putty、MobaXTerm之类的软件，ssh连接到自己的各种linux开发板、服务器等。每次都要回忆IP地址、用户名、密码。如果要传输文件，scp又要又要输一遍IP地址、用户名、密码。整个搞下来，精神聚焦不了，烦躁程度直线上升。 ​	今天把最方便的ssh使用方式分享给大家。先放一个演示效果如下： （1）在Linux shell终端，或者Win">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
+<meta property="og:description" content="1. 前言​	已经2022年了，看到很多朋友还在使用Putty、MobaXTerm之类的软件，ssh连接到自己的各种linux开发板、服务器等。每次都要回忆IP地址、用户名、密码。如果要传输文件，scp又要输一遍IP地址、用户名、密码。整个搞下来，精神聚焦不了，烦躁程度直线上升。 ​	今天把最方便的ssh使用方式分享给大家。先放一个演示效果如下： （1）在Linux shell终端，或者Windo">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214193456382.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214193918641.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214194243898.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214194211714.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214195611976.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214193456382.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214200636992.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214200752517.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214194211714.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214201022079.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214210243472.png">
-<meta property="og:image" content="https://jayant-tang.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214202240725.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214202411249.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214202548591.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214202711815.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214205402842.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc1d385c042e2d0733c1f2bc9b37dc395.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined4a667eb43975102a0959af2d6b39753e.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined340138ddb34d9e6f6993577e2a30ca43.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1d98998c6900099204a2a4a09bf586a5.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedcc484a88dafe91c37bc7990bfc76f633.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc1d385c042e2d0733c1f2bc9b37dc395.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc3029c930ea63673d865f6cd3760d9ed.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined17f0a9dfb6c791209b46bf49fdb7680e.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1d98998c6900099204a2a4a09bf586a5.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined0ae01f238f4daa0d7addbcba47f2dd11.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined588464c7a08a2392b7af5559c72a6b7f.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined95d194e719ac1f1864df5723867edc41.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8977e8073ab7335efe07b701e9a58746.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedfb563e271fc46498321ebaa6c6f2637c.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd6580c841a9ca229c7d3063af2862cda.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined6d4aa0fe84cfc5fbd24174981f84bcf4.png">
 <meta property="article:published_time" content="2022-12-14T11:27:13.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.253Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.844Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="ssh">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214193456382.png">
-  
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc1d385c042e2d0733c1f2bc9b37dc395.png">
   
   
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+  <title>最简洁清爽的ssh使用方案 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
+  
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-最简洁清爽的ssh使用方案" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2022/12/693c6a957393/" class="article-date">
-  <time class="dt-published" datetime="2022-12-14T11:27:13.000Z" itemprop="datePublished">2022-12-14</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/jayant97.github.io/categories/Linux/">Linux</a>►<a class="article-category-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a>
-  </div>
+  
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="最简洁清爽的ssh使用方案"></span>
+          
+        </div>
+
         
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      最简洁清爽的ssh使用方案
-    </h1>
-  
-
-      </header>
+          
+  <div class="mt-3">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-12-14 19:27" pubdate>
+          2022年12月14日
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>​	已经2022年了，看到很多朋友还在使用Putty、MobaXTerm之类的软件，ssh连接到自己的各种linux开发板、服务器等。每次都要回忆IP地址、用户名、密码。如果要传输文件，scp又要又要输一遍IP地址、用户名、密码。整个搞下来，精神聚焦不了，烦躁程度直线上升。</p>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">最简洁清爽的ssh使用方案</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>​	已经2022年了，看到很多朋友还在使用Putty、MobaXTerm之类的软件，ssh连接到自己的各种linux开发板、服务器等。每次都要回忆IP地址、用户名、密码。如果要传输文件，scp又要输一遍IP地址、用户名、密码。整个搞下来，精神聚焦不了，烦躁程度直线上升。</p>
 <p>​	今天把最方便的ssh使用方式分享给大家。先放一个<strong>演示效果</strong>如下：</p>
 <p>（1）在Linux shell终端，或者Windows Git Bash中，直接输入<code>ssh &lt;主机名&gt;</code>，就可<code>ssh</code>连接到指定主机，无需输入密码.</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214193456382.png" alt="image-20221214193456382"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc1d385c042e2d0733c1f2bc9b37dc395.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214193456382"></p>
 <center>上图为Windows11 Terminal中打开的Git Bash</center>
 
 
 <p>（2）<code>scp</code>远程拷贝，也只需主机名，无需用户名、密码：</p>
-<p>​	<img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214193918641.png" alt="image-20221214193918641"></p>
+<p>​	<img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined4a667eb43975102a0959af2d6b39753e.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214193918641"></p>
 <blockquote>
 <p>注：我的远程主机是OpenWrt，没安装sftp，所以这里<code>scp</code>要加<code>-O</code>参数。一般支持sftp的可以不加<code>-O</code>参数。</p>
 </blockquote>
 <p>（3）VS Code Remote，直接选择远程主机，无需密码</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214194243898.png" alt="image-20221214194243898"></p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214194211714.png" alt="image-20221214194211714"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined340138ddb34d9e6f6993577e2a30ca43.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214194243898"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1d98998c6900099204a2a4a09bf586a5.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214194211714"></p>
 <blockquote>
 <p>注：VS Code Remote要求对方主机要有<code>glibc</code>和<code>libstdc++</code>，实际上OpenWrt的C运行库是musl，是不能用VS Code Remote连的，我这里只是展示一下。</p>
 <p>​	大部分开发板的Linux系统都是可以使用VS Code Remote的</p>
 </blockquote>
 <h1 id="2-配置"><a href="#2-配置" class="headerlink" title="2. 配置"></a>2. 配置</h1><h2 id="2-1-创建密钥对"><a href="#2-1-创建密钥对" class="headerlink" title="2.1. 创建密钥对"></a>2.1. 创建密钥对</h2><p>​	使用密钥对而非账户密码来进行<code>ssh</code>连接。这里先生成密钥对</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh-keygen -t ed25519 -C <span class="string">&quot;xxxx@xxx.com&quot;</span> -f ~/.ssh/my_ed25519</span><br><span class="line"><span class="comment"># 一路回车即可，不要输入任何内容</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">ssh-keygen -t ed25519 -C <span class="hljs-string">&quot;xxxx@xxx.com&quot;</span> -f ~/.ssh/my_ed25519<br><span class="hljs-comment"># 一路回车即可，不要输入任何内容</span><br></code></pre></td></tr></table></figure>
 
 <p>​	参数说明：</p>
 <ul>
@@ -147,9 +615,9 @@
 <li><code>-f</code>：存放私钥的文件，会新建一个文件，建议放在<code>~/.ssh/</code>下</li>
 </ul>
 <p>​	创建完毕后，会发现<code>.ssh</code>目录下有公钥和私钥文件，其中带<code>.pub</code>后缀的是公钥：</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214195611976.png" alt="image-20221214195611976"></p>
-<h2 id="2-2-安装公钥到远程主机"><a href="#2-2-安装公钥到远程主机" class="headerlink" title="2.2. 安装公钥到远程主机"></a>2.2. 安装公钥到远程主机</h2><p>​	把公钥安装到远程主机，输入以下命令，最后填入你自己的填入远程主机用户名和IP地址：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ssh-copy-id -i ~/.ssh/my_ed25519.pub root@192.168.2.1</span><br></pre></td></tr></table></figure>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedcc484a88dafe91c37bc7990bfc76f633.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214195611976"></p>
+<h2 id="2-2-安装公钥到远程主机"><a href="#2-2-安装公钥到远程主机" class="headerlink" title="2.2. 安装公钥到远程主机"></a>2.2. 安装公钥到远程主机</h2><p>​	把公钥安装到远程主机，输入以下命令，最后填入你自己的远程主机用户名和IP地址：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ssh-copy-id -i ~/.ssh/my_ed25519.pub root@192.168.2.1<br></code></pre></td></tr></table></figure>
 
 <p>参数说明:</p>
 <ul>
@@ -157,25 +625,25 @@
 </ul>
 <p>第一次安装会要求你输入密码，输入密码后即为安装成功</p>
 <h2 id="2-3-配置ssh"><a href="#2-3-配置ssh" class="headerlink" title="2.3. 配置ssh"></a>2.3. 配置ssh</h2><p>​	修改<code>~/.ssh/config</code>，如果没有就创建一个新的，内容示例如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Host aliyun</span><br><span class="line">    HostName xxx.xxx.xxx.xxx</span><br><span class="line">    User root</span><br><span class="line">    Port 22</span><br><span class="line">    IdentityFile ~/.ssh/id_ed25519_aliyun</span><br><span class="line">Host google</span><br><span class="line">    HostName xxx.xxx.xxx.xxx</span><br><span class="line">    User ubuntu</span><br><span class="line">    Port 22</span><br><span class="line">    IdentityFile ~/.ssh/ds.txt</span><br><span class="line">Host r5s</span><br><span class="line">    HostName 192.168.2.1</span><br><span class="line">    User root</span><br><span class="line">    Port 22</span><br><span class="line">    IdentityFile ~/.ssh/id_ed25519</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">Host aliyun<br>    HostName xxx.xxx.xxx.xxx<br>    User root<br>    Port 22<br>    IdentityFile ~/.ssh/id_ed25519_aliyun<br>Host google<br>    HostName xxx.xxx.xxx.xxx<br>    User ubuntu<br>    Port 22<br>    IdentityFile ~/.ssh/ds.txt<br>Host r5s<br>    HostName 192.168.2.1<br>    User root<br>    Port 22<br>    IdentityFile ~/.ssh/id_ed25519<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li><code>Host</code>：命名，可以随便取名英文字母+数字+下划线</li>
 <li><code>HostName</code>：主机名，可填IP地址或域名</li>
 <li><code>User</code>：用户名</li>
 <li><code>Port</code>：端口号，如果不配置，默认是22</li>
-<li><code>IndentityFile</code>：私钥文件，必须是与前一步安装的公钥成对的私钥文件</li>
+<li><code>IdentityFile</code>：私钥文件，必须是与前一步安装的公钥成对的私钥文件</li>
 </ul>
 <h2 id="2-4-测试"><a href="#2-4-测试" class="headerlink" title="2.4. 测试"></a>2.4. 测试</h2><p>直接使用<code>config</code>中命名的别名就可以进行ssh连接，无需输入密码，例如：</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214193456382.png" alt="image-20221214193456382"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc1d385c042e2d0733c1f2bc9b37dc395.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214193456382"></p>
 <h1 id="3-其他相关话题"><a href="#3-其他相关话题" class="headerlink" title="3. 其他相关话题"></a>3. 其他相关话题</h1><h2 id="3-1-VS-Code-Remote"><a href="#3-1-VS-Code-Remote" class="headerlink" title="3.1. VS Code Remote"></a>3.1. VS Code Remote</h2><p>​	直接在插件商店搜索remote，安装remote开发合集即可，会自动安装remote ssh等：</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214200636992.png" alt="image-20221214200636992"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc3029c930ea63673d865f6cd3760d9ed.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214200636992"></p>
 <p>​	然后点击左下角即可开始选择远程主机：</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214200752517.png" alt="image-20221214200752517"></p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214194211714.png" alt="image-20221214194211714"></p>
-<p>​	第一次连接，需要选择是Linux&#x2F;Windows&#x2F;Mac OS，然后VS Code会自动在对方主机上编译安装服务端，需要对方主机上有C++环境。需要等待一段时间：<br><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214201022079.png" alt="image-20221214201022079"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined17f0a9dfb6c791209b46bf49fdb7680e.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214200752517"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1d98998c6900099204a2a4a09bf586a5.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214194211714"></p>
+<p>​	第一次连接，需要选择是Linux&#x2F;Windows&#x2F;Mac OS，然后VS Code会自动在对方主机上编译安装服务端，需要对方主机上有C++环境。需要等待一段时间：<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined0ae01f238f4daa0d7addbcba47f2dd11.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214201022079"></p>
 <p>​	安装完毕后，在VS Code中打开文件夹，就像在本地一样操作，左侧文件栏是可以拖放文件的：</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214210243472.png" alt="image-20221214210243472"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined588464c7a08a2392b7af5559c72a6b7f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214210243472"></p>
 <h2 id="3-2-固定IP地址"><a href="#3-2-固定IP地址" class="headerlink" title="3.2. 固定IP地址"></a>3.2. 固定IP地址</h2><p>​	现在家用网络很少用静态IP了，而是路由器通过DHCP服务自动给设备分配IP地址。但是我们希望：</p>
 <ul>
 <li>自己在家调试时，开发板不要每次上电IP地址就变化</li>
@@ -187,176 +655,458 @@
 </blockquote>
 <p>​	路由器管理页面种类很多，但是原理都是相通的，这里以OpenWrt为例：</p>
 <p>（1）选择 “网络”——“DHCP&#x2F;DNS”</p>
-<img src="/imgs/最简洁清爽的ssh使用方案.assets/image-20221214202240725.png" alt="image-20221214202240725" style="zoom:50%;">
+<img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined95d194e719ac1f1864df5723867edc41.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214202240725" style="zoom:50%;">
 
 <p>（2）可以看到已分配的IP地址，找到你的开发板，记住MAC地址：</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214202411249.png" alt="image-20221214202411249"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8977e8073ab7335efe07b701e9a58746.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214202411249"></p>
 <p>（3）在下方，“静态地址分配”中，选择“添加”，然后给MAC地址绑定一个固定的IP地址即可，主机名可以随便取个名，也可以不填：</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214202548591.png" alt="image-20221214202548591"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedfb563e271fc46498321ebaa6c6f2637c.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214202548591"></p>
 <p>（4）页面中选择“保存&amp;应用”即可：</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214202711815.png" alt="image-20221214202711815"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd6580c841a9ca229c7d3063af2862cda.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214202711815"></p>
 <blockquote>
 <p>注意：</p>
 <p>​	DHCP静态绑定，并不是说这个IP地址就不会被其它设备动态获取到了。只要这个IP在动态IP池子里，就有可能在被绑定的设备不在线时，动态分配给其他设备。</p>
 <p>​	为了避免这种情况，我们做DHCP静态分配时，最好把静态分配的地址放在动态分配地址池之外。</p>
 <p>​	以我的OpenWrt为例：</p>
 <p>​	在“网络”——“接口”——“LAN接口配置修改”中，可以看到DHCP服务器的设置：</p>
-<p><img src="/jayant97.github.io/imgs/%E6%9C%80%E7%AE%80%E6%B4%81%E6%B8%85%E7%88%BD%E7%9A%84ssh%E4%BD%BF%E7%94%A8%E6%96%B9%E6%A1%88.assets/image-20221214205402842.png" alt="image-20221214205402842"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined6d4aa0fe84cfc5fbd24174981f84bcf4.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221214205402842"></p>
 <p>​	可以看到基址是100，范围是150.由于我的LAN网段是 192.168.2.0&#x2F;24，所以动态地址池的分配范围就是192.168.2.100 ~ 192.168.2.250. </p>
 <p>​	所以前面做DHCP静态绑定时，IP地址设在这个范围之外即可。</p>
 </blockquote>
 
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2022/12/693c6a957393/" data-id="cmqop0ng8002ky8o57sep8wh6" data-title="最简洁清爽的ssh使用方案" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li></ul>
 
-    </footer>
-  </div>
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/Linux/" class="category-chain-item">Linux</a>
   
-    <a href="/jayant97.github.io/2022/12/dad29a5a49fd/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          利用Wireshark和tcpdump对整个局域网进行实时抓包
-        
+  
+    <span>></span>
+    
+  <a href="/jayant97.github.io/categories/Linux/ssh/" class="category-chain-item">ssh</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/jayant97.github.io/tags/ssh/" class="print-no-link">#ssh</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>最简洁清爽的ssh使用方案</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2022/12/693c6a957393/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年12月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2022/12/dad29a5a49fd/" title="利用Wireshark和tcpdump对整个局域网进行实时抓包">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">利用Wireshark和tcpdump对整个局域网进行实时抓包</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2022/12/2a39e705bff0/" title="理解Zephyr项目的配置与构建系统">
+                        <span class="hidden-mobile">理解Zephyr项目的配置与构建系统</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2022/12/2a39e705bff0/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">理解Zephyr项目的配置与构建系统</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>

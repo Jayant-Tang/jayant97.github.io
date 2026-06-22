@@ -1,17 +1,30 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>NCS(Zephyr)中的蓝牙地址 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="本文中的分析基于NCS v3.0.2  1. 蓝牙设备地址（Bluetooth Device Address）蓝牙设备地址（Device Address， 俗称MAC地址）分为两大类：  公共地址（Public Address） 随机地址（Random Address）  在蓝牙空口包的结构中，这两种地址的是由PDU Header中的TxAdd和RxAdd来区分的。0表示公共地址，1表示随机地">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="本文中的分析基于NCS v3.0.2  1. 蓝牙设备地址（Bluetooth Device Address）蓝牙设备地址（Device Address， 俗称MAC地址）分为两大类：  公共地址（Public Address） 随机地址（Random Address）  在蓝牙空口包的结构中，这两种地址是由PDU Header中的TxAdd和RxAdd来区分的。0表示公共地址，1表示随机地址">
 <meta property="og:type" content="article">
 <meta property="og:title" content="NCS(Zephyr)中的蓝牙地址">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/01/22618b91ecf6/index.html">
-<meta property="og:site_name" content="一苇万顷">
-<meta property="og:description" content="本文中的分析基于NCS v3.0.2  1. 蓝牙设备地址（Bluetooth Device Address）蓝牙设备地址（Device Address， 俗称MAC地址）分为两大类：  公共地址（Public Address） 随机地址（Random Address）  在蓝牙空口包的结构中，这两种地址的是由PDU Header中的TxAdd和RxAdd来区分的。0表示公共地址，1表示随机地">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
+<meta property="og:description" content="本文中的分析基于NCS v3.0.2  1. 蓝牙设备地址（Bluetooth Device Address）蓝牙设备地址（Device Address， 俗称MAC地址）分为两大类：  公共地址（Public Address） 随机地址（Random Address）  在蓝牙空口包的结构中，这两种地址是由PDU Header中的TxAdd和RxAdd来区分的。0表示公共地址，1表示随机地址">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc91c7dd15b504c86d0bf25503ab6155e.png">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7643529836a9f71e1a97b50e54651023.png">
@@ -29,96 +42,551 @@
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedfea0f2f25923b4de95e8054da50b8261.png">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined145580f60557b10d8c05d67fcf0da21b.png">
 <meta property="article:published_time" content="2025-01-26T08:02:54.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.228Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.841Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="Bluetooth">
 <meta property="article:tag" content="BLE">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc91c7dd15b504c86d0bf25503ab6155e.png">
   
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
   
   
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  <title>NCS(Zephyr)中的蓝牙地址 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
   
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
   
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-NCS(Zephyr)中的蓝牙地址" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2025/01/22618b91ecf6/" class="article-date">
-  <time class="dt-published" datetime="2025-01-26T08:02:54.000Z" itemprop="datePublished">2025-01-26</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/jayant97.github.io/categories/BLE/">BLE</a>
-  </div>
+  
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="NCS(Zephyr)中的蓝牙地址"></span>
+          
+        </div>
+
         
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      NCS(Zephyr)中的蓝牙地址
-    </h1>
-  
-
-      </header>
+          
+  <div class="mt-3">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-26 16:02" pubdate>
+          2025年1月26日
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          86 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <blockquote>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">NCS(Zephyr)中的蓝牙地址</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
 <p> 本文中的分析基于NCS v3.0.2</p>
 </blockquote>
 <h1 id="1-蓝牙设备地址（Bluetooth-Device-Address）"><a href="#1-蓝牙设备地址（Bluetooth-Device-Address）" class="headerlink" title="1. 蓝牙设备地址（Bluetooth Device Address）"></a>1. 蓝牙设备地址（Bluetooth Device Address）</h1><p>蓝牙设备地址（Device Address， 俗称MAC地址）分为两大类：</p>
@@ -126,9 +594,9 @@
 <li><strong>公共地址（Public Address）</strong></li>
 <li><strong>随机地址（Random Address）</strong></li>
 </ul>
-<p>在蓝牙空口包的结构中，这两种地址的是由PDU Header中的<code>TxAdd</code>和<code>RxAdd</code>来区分的。0表示公共地址，1表示随机地址。</p>
+<p>在蓝牙空口包的结构中，这两种地址是由PDU Header中的<code>TxAdd</code>和<code>RxAdd</code>来区分的。0表示公共地址，1表示随机地址。</p>
 <p>例如下图是蓝牙广播包的结构：PDU Header中的<code>TxAdd</code>决定地址类型；PDU Payload的开头是广播者的地址。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc91c7dd15b504c86d0bf25503ab6155e.png" alt="image-20251026020018730"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc91c7dd15b504c86d0bf25503ab6155e.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026020018730"></p>
 <p><strong>所有在广播阶段发生交互的包都包含蓝牙地址</strong>，不论是广播、扫描请求、连接请求，都包含蓝牙地址：</p>
 <ul>
 <li>广播包（<code>ADV_IND</code>, <code>ADV_DIRECT_IND</code>, <code>ADV_NONCONN_IND</code>, <code>ADV_SCAN_IND</code>）：包含<strong>广播者地址</strong></li>
@@ -139,17 +607,17 @@
 <blockquote>
 <p>连接建立后，连接包中就不含蓝牙地址了</p>
 </blockquote>
-<h2 id="蓝牙设备地址分类"><a href="#蓝牙设备地址分类" class="headerlink" title="蓝牙设备地址分类"></a>蓝牙设备地址分类</h2><p>随机地址又分为静态随机（Random Static）和私有随机（Private Static）地址。私有随机地址又分为可解析的（Resolvable）和不可解析的（Non-resolvable）。它们之间有特定比特的区别。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7643529836a9f71e1a97b50e54651023.png" alt="img"></p>
+<h2 id="蓝牙设备地址分类"><a href="#蓝牙设备地址分类" class="headerlink" title="蓝牙设备地址分类"></a>蓝牙设备地址分类</h2><p>随机地址又分为静态随机（Static Random）和私有随机（Private Random）地址。私有随机地址又分为可解析的（Resolvable）和不可解析的（Non-resolvable）。它们之间有特定比特的区别。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7643529836a9f71e1a97b50e54651023.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="img"></p>
 <p>最终有四类地址：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede73ddd6b3c544b0102a9a7501e943d3e.png" alt="image-20251026022752575"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede73ddd6b3c544b0102a9a7501e943d3e.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026022752575"></p>
 <h2 id="公共地址"><a href="#公共地址" class="headerlink" title="公共地址"></a>公共地址</h2><p>需要向IEEE购买的MAC地址段，以确保自己的设备地址全球唯一，并且别人通过地址就能知道设备是哪家公司的产品。公共地址在整个设备生命周期不可以更改。</p>
 <p>购买后，IEEE会分配Company ID。剩余的24bit由购买该地址段的公司自己分配。</p>
 <blockquote>
 <p>由于公共地址全球唯一，也可以当作序列号使用。但是蓝牙地址本身的全球唯一其实并不必要。只要蓝牙能扫到的几十米范围内设备没有重复的地址就可以了。</p>
 </blockquote>
 <h2 id="随机地址"><a href="#随机地址" class="headerlink" title="随机地址"></a>随机地址</h2><p>任何人都可以使用的随机数作为地址。由最高2个bit决定更具体的地址类型。</p>
-<h3 id="1-随机静态地址"><a href="#1-随机静态地址" class="headerlink" title="(1) 随机静态地址"></a>(1) 随机静态地址</h3><p>这个是最常用的地址，可以给每个设备分配一个固定的随机数作为地址；或者每次上电重新生成一个也可以。使用起来最方便。</p>
+<h3 id="1-随机静态地址"><a href="#1-随机静态地址" class="headerlink" title="(1) 随机静态地址"></a>(1) 随机静态地址</h3><p>这是最常用的地址，可以给每个设备分配一个固定的随机数作为地址；或者每次上电重新生成一个也可以。使用起来最方便。</p>
 <h3 id="2-随机私有地址"><a href="#2-随机私有地址" class="headerlink" title="(2) 随机私有地址"></a>(2) 随机私有地址</h3><p>私有地址会在运行时动态改变，防止被追踪。</p>
 <h4 id="不可解析私有地址"><a href="#不可解析私有地址" class="headerlink" title="不可解析私有地址"></a>不可解析私有地址</h4><p>没有任何规律的随机变化地址。适合一些仅需要广播的场景，例如Beacon推送。</p>
 <p>由于地址一直在变化，游客的手机只能收到Beacon的广播内容。手机无法根据Beacon的地址映射Beacon的物理位置，因此无法实现对手机用户的定位追踪。</p>
@@ -160,8 +628,8 @@
 <ol>
 <li>手表并不是一直与手机连接，而是只在需要的时候才发起广播，让手机来连接</li>
 <li>为了不让此广播被跟踪，手表的广播地址需要实时随机变化</li>
-<li>为了让手机知道这个实时变化的地址是自己绑定的手表，这个地址具有特殊的结构prand + hash。</li>
-<li>prand是手表生成的随机数，一直变化；hash是用prand和IRK进行哈希计算生成的（IRK是手机和手表配对后存储的，与配对绑定的IRK是同一个）</li>
+<li>为了让手机知道这个实时变化的地址是自己绑定的手表，这个地址具有特殊的结构：prand + hash。</li>
+<li>prand是手表生成的随机数，一直变化；hash是用prand和IRK进行哈希计算生成的（IRK是手机和手表配对时双方存储的同一个密钥）</li>
 <li>只有手机能够通过prand计算出hash，从而知道这个手表是与自己配对的</li>
 </ol>
 <blockquote>
@@ -173,18 +641,18 @@
 </blockquote>
 <p>由此我们可以得知：一台设备要想使用RPA广播，需要先使用Random Static Address或者Public Address，让手机进行正常的连接配对之后，两边才有IRK。这时再切换成RPA广播即可。</p>
 <h1 id="2-Zephyr中的蓝牙身份"><a href="#2-Zephyr中的蓝牙身份" class="headerlink" title="2. Zephyr中的蓝牙身份"></a>2. Zephyr中的蓝牙身份</h1><p>在Zephyr中，蓝牙设备地址由如下结构体描述：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_PUBLIC       0x00</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_RANDOM       0x01</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_PUBLIC_ID    0x02</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_RANDOM_ID    0x03</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_UNRESOLVED   0xFE <span class="comment">/* Resolvable Private Address</span></span></span><br><span class="line"><span class="comment"><span class="meta">                      * (Controller unable to resolve)</span></span></span><br><span class="line"><span class="comment"><span class="meta">                      */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_LE_ANONYMOUS    0xFF <span class="comment">/* No address provided</span></span></span><br><span class="line"><span class="comment"><span class="meta">                      * (anonymous advertisement)</span></span></span><br><span class="line"><span class="comment"><span class="meta">                      */</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** Length in bytes of a standard Bluetooth address */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_SIZE 6</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** Bluetooth Device Address */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">uint8_t</span>  val[BT_ADDR_SIZE];</span><br><span class="line">&#125; <span class="type">bt_addr_t</span>;</span><br><span class="line"><span class="comment">/**/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** Bluetooth LE Device Address */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">uint8_t</span>      type;</span><br><span class="line">    <span class="type">bt_addr_t</span> a;</span><br><span class="line">&#125; <span class="type">bt_addr_le_t</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_LE_PUBLIC       0x00</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_LE_RANDOM       0x01</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_LE_PUBLIC_ID    0x02</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_LE_RANDOM_ID    0x03</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_LE_UNRESOLVED   0xFE <span class="hljs-comment">/* Resolvable Private Address</span></span><br><span class="hljs-comment"><span class="hljs-meta">                      * (Controller unable to resolve)</span></span><br><span class="hljs-comment"><span class="hljs-meta">                      */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_LE_ANONYMOUS    0xFF <span class="hljs-comment">/* No address provided</span></span><br><span class="hljs-comment"><span class="hljs-meta">                      * (anonymous advertisement)</span></span><br><span class="hljs-comment"><span class="hljs-meta">                      */</span></span><br><br><span class="hljs-comment">/** Length in bytes of a standard Bluetooth address */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_SIZE 6</span><br><br><span class="hljs-comment">/** Bluetooth Device Address */</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">uint8_t</span>  val[BT_ADDR_SIZE];<br>&#125; <span class="hljs-type">bt_addr_t</span>;<br><span class="hljs-comment">/**/</span><br><br><span class="hljs-comment">/** Bluetooth LE Device Address */</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">uint8_t</span>      type;<br>    <span class="hljs-type">bt_addr_t</span> a;<br>&#125; <span class="hljs-type">bt_addr_le_t</span>;<br></code></pre></td></tr></table></figure>
 
 <p>一个蓝牙低功耗地址结构体<code>bt_addr_le_t</code>包含蓝牙地址<code>bt_addr_t</code>和它的类型。</p>
 <p>其中的<strong>地址类型</strong>，我们在设置自己的地址的时候，只需要用到<code>BT_ADDR_LE_PUBLIC</code>和<code>BT_ADDR_LE_RANDOM</code>。</p>
 <p>Zephyr本身支持多蓝牙地址，在Zephyr中它被称为<strong>蓝牙身份（Bluetooth Identity）</strong>。</p>
 <p>在<code>zephyr\subsys\bluetooth\host\hci_core.h</code>中，有如下定义：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct bt_dev &#123;</span><br><span class="line">    /* Local Identity Address(es) */</span><br><span class="line">    bt_addr_le_t            id_addr[CONFIG_BT_ID_MAX];</span><br><span class="line">    uint8_t                 id_count;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">bt_dev</span> &#123;<br>    <span class="hljs-comment">/* Local Identity Address(es) */</span><br>    <span class="hljs-type">bt_addr_le_t</span>            id_addr[CONFIG_BT_ID_MAX];<br>    <span class="hljs-type">uint8_t</span>                 id_count;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>可见最大的蓝牙身份数量由<code>CONFIG_BT_ID_MAX</code>决定，默认是1。</p>
 <h2 id="如何选择蓝牙身份"><a href="#如何选择蓝牙身份" class="headerlink" title="如何选择蓝牙身份"></a>如何选择蓝牙身份</h2><p>如果有多个蓝牙身份，需要在广播时选择自己用哪个身份进行广播。</p>
 <p>不论是普通广播还是扩展广播，在开启广播时都要使用<code>bt_le_adv_param</code>作为广播相关的配置参数。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** LE Advertising Parameters. */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">bt_le_adv_param</span> &#123;</span></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * @brief Local identity.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="type">uint8_t</span>  id;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/** LE Advertising Parameters. */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bt_le_adv_param</span> &#123;</span><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * @brief Local identity.</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-type">uint8_t</span>  id;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>结构体的第一个参数就是<code>id</code>。大多数例程的广播参数<code>id</code>都是0。</p>
 <p>可以通过在开启广播的时候，设置广播参数中的<code>id</code>来选择自己用哪个蓝牙地址。</p>
@@ -195,13 +663,13 @@
 <p> 实际开发中，需要先创建<strong>蓝牙地址</strong>结构体变量，再填充进<strong>蓝牙身份</strong>数组。</p>
 </blockquote>
 <p><code>#include &lt;zephyr/bluetooth/addr.h&gt;</code></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** </span></span><br><span class="line"><span class="comment">  * 检查随机地址的类型</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="comment">/** Check if a Bluetooth LE random address is resolvable private address. */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_IS_RPA(a)     (((a)-&gt;val[5] &amp; 0xc0) == 0x40)</span></span><br><span class="line"><span class="comment">/** Check if a Bluetooth LE random address is a non-resolvable private address.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_IS_NRPA(a)    (((a)-&gt;val[5] &amp; 0xc0) == 0x00)</span></span><br><span class="line"><span class="comment">/** Check if a Bluetooth LE random address is a static address. */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_IS_STATIC(a)  (((a)-&gt;val[5] &amp; 0xc0) == 0xc0)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** </span></span><br><span class="line"><span class="comment">  * 强制修改随机地址的类型</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="comment">/** Set a Bluetooth LE random address as a resolvable private address. */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_SET_RPA(a)    ((a)-&gt;val[5] = (((a)-&gt;val[5] &amp; 0x3f) | 0x40))</span></span><br><span class="line"><span class="comment">/** Set a Bluetooth LE random address as a non-resolvable private address. */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_SET_NRPA(a)   ((a)-&gt;val[5] &amp;= 0x3f)</span></span><br><span class="line"><span class="comment">/** Set a Bluetooth LE random address as a static address. */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BT_ADDR_SET_STATIC(a) ((a)-&gt;val[5] |= 0xc0)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 用随机数创建地址</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="comment">/** @brief Create a Bluetooth LE random non-resolvable private address. */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_addr_le_create_nrpa</span><span class="params">(<span class="type">bt_addr_le_t</span> *addr)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** @brief Create a Bluetooth LE random static address. */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_addr_le_create_static</span><span class="params">(<span class="type">bt_addr_le_t</span> *addr)</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 用字符串创建地址，如&quot;AA:BB:CC:DD:EE:FF&quot;</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/** @brief Create a Bluetooth LE random static address. */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_addr_from_str</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *str, <span class="type">bt_addr_t</span> *addr)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_addr_le_from_str</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *str, <span class="type">const</span> <span class="type">char</span> *type, <span class="type">bt_addr_le_t</span> *addr)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/** </span><br><span class="hljs-comment">  * 检查随机地址的类型</span><br><span class="hljs-comment">  */</span><br><span class="hljs-comment">/** Check if a Bluetooth LE random address is resolvable private address. */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_IS_RPA(a)     (((a)-&gt;val[5] &amp; 0xc0) == 0x40)</span><br><span class="hljs-comment">/** Check if a Bluetooth LE random address is a non-resolvable private address.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_IS_NRPA(a)    (((a)-&gt;val[5] &amp; 0xc0) == 0x00)</span><br><span class="hljs-comment">/** Check if a Bluetooth LE random address is a static address. */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_IS_STATIC(a)  (((a)-&gt;val[5] &amp; 0xc0) == 0xc0)</span><br><br><span class="hljs-comment">/** </span><br><span class="hljs-comment">  * 强制修改随机地址的类型</span><br><span class="hljs-comment">  */</span><br><span class="hljs-comment">/** Set a Bluetooth LE random address as a resolvable private address. */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_SET_RPA(a)    ((a)-&gt;val[5] = (((a)-&gt;val[5] &amp; 0x3f) | 0x40))</span><br><span class="hljs-comment">/** Set a Bluetooth LE random address as a non-resolvable private address. */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_SET_NRPA(a)   ((a)-&gt;val[5] &amp;= 0x3f)</span><br><span class="hljs-comment">/** Set a Bluetooth LE random address as a static address. */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BT_ADDR_SET_STATIC(a) ((a)-&gt;val[5] |= 0xc0)</span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * 用随机数创建地址</span><br><span class="hljs-comment">  */</span><br><span class="hljs-comment">/** @brief Create a Bluetooth LE random non-resolvable private address. */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">bt_addr_le_create_nrpa</span><span class="hljs-params">(<span class="hljs-type">bt_addr_le_t</span> *addr)</span>;<br><br><span class="hljs-comment">/** @brief Create a Bluetooth LE random static address. */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">bt_addr_le_create_static</span><span class="hljs-params">(<span class="hljs-type">bt_addr_le_t</span> *addr)</span>;<br><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * 用字符串创建地址，如&quot;AA:BB:CC:DD:EE:FF&quot;</span><br><span class="hljs-comment">  */</span><br><br><span class="hljs-comment">/** @brief Create a Bluetooth LE random static address. */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">bt_addr_from_str</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *str, <span class="hljs-type">bt_addr_t</span> *addr)</span>;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">bt_addr_le_from_str</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *str, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *type, <span class="hljs-type">bt_addr_le_t</span> *addr)</span>;<br></code></pre></td></tr></table></figure>
 
 <h2 id="Zephyr蓝牙身份常用API"><a href="#Zephyr蓝牙身份常用API" class="headerlink" title="Zephyr蓝牙身份常用API"></a>Zephyr蓝牙身份常用API</h2><blockquote>
 <p>把蓝牙地址填充到蓝牙身份，才能在广播时使用</p>
 </blockquote>
 <p><code>#include &lt;zephyr/bluetooth/bluetooth.h&gt;</code></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 读取蓝牙身份列表</span></span><br><span class="line"><span class="comment"> *  1. 传入数组首地址和数组长度进行读取。用于读取的数组本身的长度不能低于CONFIG_BT_ID_MAX</span></span><br><span class="line"><span class="comment"> *  2. addrs为NULL时，只读取蓝牙身份个数</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">bt_id_get</span><span class="params">(<span class="type">bt_addr_le_t</span> *addrs, <span class="type">size_t</span> *count)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 新建蓝牙身份</span></span><br><span class="line"><span class="comment"> *  1. 如果蓝牙身份数量小于 CONFIG_BT_ID_MAX，则创建一个身份到 bt_dev.id_addr[bt_dev.id_count]，然后bt_dev.id_count++</span></span><br><span class="line"><span class="comment"> *  2. 在Nordic平台上只能用于创建随机地址，不能用于创建公共地址</span></span><br><span class="line"><span class="comment"> *  3. 不用私有地址时（CONFIG_BT_PRIVACY=n），irk必须为NULL。也就是说静态随机地址设置为NULL即可</span></span><br><span class="line"><span class="comment"> *  4. 允许在bt_enable()前调用，这时可以创建id=0的身份</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_id_create</span><span class="params">(<span class="type">bt_addr_le_t</span> *addr, <span class="type">uint8_t</span> *irk)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 重置指定的蓝牙身份</span></span><br><span class="line"><span class="comment"> *  1. 指定一个具体的id，修改其蓝牙地址</span></span><br><span class="line"><span class="comment"> *  2. id == BT_ID_DEFAULT时，不能重置</span></span><br><span class="line"><span class="comment"> *  3. 重置时，所有与此id相关的连接都会被断开，所有绑定的密钥都会被删除</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_id_reset</span><span class="params">(<span class="type">uint8_t</span> id, <span class="type">bt_addr_le_t</span> *addr, <span class="type">uint8_t</span> *irk)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 删除蓝牙身份</span></span><br><span class="line"><span class="comment"> *  1. id == BT_ID_DEFAULT 不能删除</span></span><br><span class="line"><span class="comment"> *  3. 重置时，所有与此id相关的连接都会被断开，所有绑定的密钥都会被删除</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">bt_id_delete</span><span class="params">(<span class="type">uint8_t</span> id)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c"><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 读取蓝牙身份列表</span><br><span class="hljs-comment"> *  1. 传入数组首地址和数组长度进行读取。用于读取的数组本身的长度不能低于CONFIG_BT_ID_MAX</span><br><span class="hljs-comment"> *  2. addrs为NULL时，只读取蓝牙身份个数</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">bt_id_get</span><span class="hljs-params">(<span class="hljs-type">bt_addr_le_t</span> *addrs, <span class="hljs-type">size_t</span> *count)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 新建蓝牙身份</span><br><span class="hljs-comment"> *  1. 如果蓝牙身份数量小于 CONFIG_BT_ID_MAX，则创建一个身份到 bt_dev.id_addr[bt_dev.id_count]，然后bt_dev.id_count++</span><br><span class="hljs-comment"> *  2. 在Nordic平台上只能用于创建随机地址，不能用于创建公共地址</span><br><span class="hljs-comment"> *  3. 不用私有地址时（CONFIG_BT_PRIVACY=n），irk必须为NULL。也就是说静态随机地址设置为NULL即可</span><br><span class="hljs-comment"> *  4. 允许在bt_enable()前调用，这时可以创建id=0的身份</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">bt_id_create</span><span class="hljs-params">(<span class="hljs-type">bt_addr_le_t</span> *addr, <span class="hljs-type">uint8_t</span> *irk)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 重置指定的蓝牙身份</span><br><span class="hljs-comment"> *  1. 指定一个具体的id，修改其蓝牙地址</span><br><span class="hljs-comment"> *  2. id == BT_ID_DEFAULT时，不能重置</span><br><span class="hljs-comment"> *  3. 重置时，所有与此id相关的连接都会被断开，所有绑定的密钥都会被删除</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">bt_id_reset</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> id, <span class="hljs-type">bt_addr_le_t</span> *addr, <span class="hljs-type">uint8_t</span> *irk)</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 删除蓝牙身份</span><br><span class="hljs-comment"> *  1. id == BT_ID_DEFAULT 不能删除</span><br><span class="hljs-comment"> *  2. 删除时，所有与此id相关的连接都会被断开，所有绑定的密钥都会被删除</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">bt_id_delete</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> id)</span>;<br></code></pre></td></tr></table></figure>
 
 <h2 id="公共地址（Public-Address）设置API"><a href="#公共地址（Public-Address）设置API" class="headerlink" title="公共地址（Public Address）设置API"></a>公共地址（Public Address）设置API</h2><p>Zephyr中只能设置1个公共地址，且只能放到<code>id=0</code>的位置。</p>
 <blockquote>
@@ -211,7 +679,7 @@
 </blockquote>
 <p>Nordic平台上设置公共地址有2种方案：</p>
 <h3 id="方法一：Controller层直接设置"><a href="#方法一：Controller层直接设置" class="headerlink" title="方法一：Controller层直接设置"></a>方法一：Controller层直接设置</h3><p><code>#include &lt;zephyr/bluetooth/controller.h&gt;</code></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Controller 层直接设置公共地址，参数是6字节数组</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">bt_ctlr_set_public_addr</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *addr)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Controller 层直接设置公共地址，参数是6字节数组</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">bt_ctlr_set_public_addr</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">uint8_t</span> *addr)</span>;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p><strong>需要在<code>bt_enable()</code>之前调用</strong>，一定没问题。</p>
@@ -219,11 +687,11 @@
 <p>对于多核SoC，且Controller层单独位于网络核的情况（如nRF5340，nRF54H20）。需要单独修改网络核固件，在网络核程序开始时调用。在应用核调用无效。</p>
 </blockquote>
 <p>例如：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined2c117f3711ea646e63b21f2d1cc0359f.png" alt="image-20251026035904822"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede101f163b6e1a2dee42d8ccff3a62523.png" alt="image-20251026035843421"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined2c117f3711ea646e63b21f2d1cc0359f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026035904822"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede101f163b6e1a2dee42d8ccff3a62523.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026035843421"></p>
 <h3 id="方法二：Host层通过HCI命令设置"><a href="#方法二：Host层通过HCI命令设置" class="headerlink" title="方法二：Host层通过HCI命令设置"></a>方法二：Host层通过HCI命令设置</h3><p><code>#include &lt;zephyr/bluetooth/hci_vs.h&gt;</code></p>
 <p>这是一组厂商自定义HCI命令，复制以下函数到你的工程中：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">hci_set_public_addr</span><span class="params">(<span class="type">uint8_t</span> addr[<span class="number">6</span>])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> err = <span class="number">0</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">net_buf</span> *<span class="title">buf</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">net_buf</span> *<span class="title">rsp</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bt_hci_cp_vs_write_bd_addr</span> *<span class="title">cmd_params</span>;</span></span><br><span class="line"></span><br><span class="line">    buf = bt_hci_cmd_create(BT_HCI_OP_VS_WRITE_BD_ADDR, <span class="keyword">sizeof</span>(*cmd_params));</span><br><span class="line">    <span class="keyword">if</span> (!buf) &#123;</span><br><span class="line">        printk(<span class="string">&quot;Could not allocate command buffer\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cmd_params = (<span class="keyword">struct</span> bt_hci_cp_vs_write_bd_addr *)net_buf_add(buf, <span class="keyword">sizeof</span>(*cmd_params));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memcpy</span>(cmd_params-&gt;bdaddr.val, addr, <span class="number">6</span>);</span><br><span class="line"></span><br><span class="line">    err = bt_hci_cmd_send_sync(BT_HCI_OP_VS_WRITE_BD_ADDR, buf, &amp;rsp);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        printk(<span class="string">&quot;Failed to send HCI command to set public address (err %d)\n&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    net_buf_unref(rsp);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">hci_set_public_addr</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> addr[<span class="hljs-number">6</span>])</span><br>&#123;<br>    <span class="hljs-type">int</span> err = <span class="hljs-number">0</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">net_buf</span> *<span class="hljs-title">buf</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">net_buf</span> *<span class="hljs-title">rsp</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bt_hci_cp_vs_write_bd_addr</span> *<span class="hljs-title">cmd_params</span>;</span><br><br>    buf = bt_hci_cmd_create(BT_HCI_OP_VS_WRITE_BD_ADDR, <span class="hljs-keyword">sizeof</span>(*cmd_params));<br>    <span class="hljs-keyword">if</span> (!buf) &#123;<br>        printk(<span class="hljs-string">&quot;Could not allocate command buffer\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> -ENOMEM;<br>    &#125;<br><br>    cmd_params = (<span class="hljs-keyword">struct</span> bt_hci_cp_vs_write_bd_addr *)net_buf_add(buf, <span class="hljs-keyword">sizeof</span>(*cmd_params));<br><br>    <span class="hljs-built_in">memcpy</span>(cmd_params-&gt;bdaddr.val, addr, <span class="hljs-number">6</span>);<br><br>    err = bt_hci_cmd_send_sync(BT_HCI_OP_VS_WRITE_BD_ADDR, buf, &amp;rsp);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        printk(<span class="hljs-string">&quot;Failed to send HCI command to set public address (err %d)\n&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br>    net_buf_unref(rsp);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>必须开启厂商自定义（Vendor-Specific）HCI命令：<code>CONFIG_BT_HCI_VS=y</code>。</p>
@@ -232,15 +700,15 @@
 <p>如果<code>CONFIG_BT_SETTINGS=y</code>未被开启，<strong>此方法无法使用</strong>。因为<code>bt_enable()</code>之前，HCI没初始化用不了；而不开启Setting时，<code>bt_enable()</code>过程中就会创建id&#x3D;0的地址，因此那之后HCI命令就不能再创建一个id&#x3D;0的公共地址了。</p>
 </blockquote>
 <p>例如：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1622aec49af726e9b6f4aa0d90edefb7.png" alt="image-20251026042305502"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined81271df5d84b52a08238b6e9196fd767.png" alt="image-20251026042329656"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1622aec49af726e9b6f4aa0d90edefb7.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026042305502"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined81271df5d84b52a08238b6e9196fd767.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026042329656"></p>
 <h1 id="3-NCS蓝牙协议栈默认地址设置逻辑"><a href="#3-NCS蓝牙协议栈默认地址设置逻辑" class="headerlink" title="3. NCS蓝牙协议栈默认地址设置逻辑"></a>3. NCS蓝牙协议栈默认地址设置逻辑</h1><p><strong>如果你没有在<code>bt_enable()</code>之前用<code>bt_id_create()</code>创建蓝牙身份</strong>。那么，在NCS蓝牙协议栈启动过程中，协议栈会尝试自动创建<code>id=0</code>的蓝牙身份：</p>
 <ol>
 <li>优先从Controller层读取公共地址，并设置为<code>id=0</code>的蓝牙身份</li>
 <li>公共地址没有的情况下，设置随机静态地址作为<code>id=0</code>的蓝牙身份</li>
 </ol>
 <p>一个图解释，没有蓝牙身份时，不同配置下蓝牙协议栈初始化过程如何创建地址：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined86b8b9ca799cb01ab4a214a9ced19086.png" alt="image-20251027131513228"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined86b8b9ca799cb01ab4a214a9ced19086.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251027131513228"></p>
 <h3 id="Settings的影响"><a href="#Settings的影响" class="headerlink" title="Settings的影响"></a>Settings的影响</h3><blockquote>
 <p>Settings是Zephyr中的一个存储中间件，提供键值对存储接口。其中键是用”&#x2F;“分割的字符串，就像PC中的文件系统目录一样。</p>
 <p>Settings给应用层提供的前端API是基于回调函数的。当load时，把数据从持久化存储读到内存中；save时，把数据从内存保存到持久化存储中。</p>
@@ -250,29 +718,29 @@
 <li>调用 <code>settings_load()</code> 会遍历所有注册的 settings handler，通过 handler 的 <code>h_set</code> 回调将数据加载到内存，最后调用 <code>h_commit</code> 通知应用层设置已加载完成</li>
 <li>调用<code>settings_save()</code>会遍历所有注册的 settings handler，通过 handler 的 <code>h_export</code> 回调导出数据，然后通过后端写入存储。</li>
 </ul>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined67bd9c973f7eb4d6ca45c6615d2a3dd5.png" alt="image-20251024120532681"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined67bd9c973f7eb4d6ca45c6615d2a3dd5.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251024120532681"></p>
 <p>Settings的后端是NVS或者ZMS，也是键值对存储库，有磨损均衡、掉电安全、垃圾回收等功能。但是ZMS&#x2F;NVS的键是整数。</p>
 <ul>
 <li>NVS：在Flash的基础上提供存储服务</li>
 <li>ZMS：在RRAM&#x2F;MRAM的基础上提供存储服务，充分利用先进硬件的特性，支持无擦除覆盖写入</li>
 </ul>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8f4ff5af55ca04cd4b225fee0ebbbf53.png" alt="image-20251024120101359"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc289d111ae808adac4bdbb656cfd0b40.png" alt="image-20251024120118402"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8f4ff5af55ca04cd4b225fee0ebbbf53.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251024120101359"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc289d111ae808adac4bdbb656cfd0b40.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251024120118402"></p>
 <p>绝大多数情况下，工程都是会用到Settings系统的</p>
 </blockquote>
 <p><code>CONFIG_BT_SETTINGS=y</code>是依赖<code>CONFIG_SETTINGS=y</code>的。</p>
 <p>在多数蓝牙例程中，不要单独开关<code>CONFIG_BT_SETTINGS</code>或者<code>CONFIG_SETTINGS</code>。</p>
 <p>例如，在<code>peripheral_lbs</code>例程中，<code>CONFIG_BT_SETTINGS</code>和<code>CONFIG_SETTINGS</code>是由LBS的安全特性开启的：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb52d305fdc9bf063e2efb1e901a96178.png" alt="image-20251026045902003"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb52d305fdc9bf063e2efb1e901a96178.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026045902003"></p>
 <p>因此，在这个例程中，我们需要进行以下配置才能把settings关掉：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">CONFIG_BT_LBS_SECURITY_ENABLED=n</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">CONFIG_BT_LBS_SECURITY_ENABLED=n<br></code></pre></td></tr></table></figure>
 
 <p>如果是其他例程，自行搜索有没有其他Kconfig配置项用<code>select</code>开启Settings的情况。</p>
 <p>接下来讨论两种情况的初始化过程：</p>
 <h4 id="1-CONFIG-BT-SETTINGS-y"><a href="#1-CONFIG-BT-SETTINGS-y" class="headerlink" title="1. CONFIG_BT_SETTINGS=y"></a>1. <code>CONFIG_BT_SETTINGS=y</code></h4><p>当<code>CONFIG_BT_SETTINGS=y</code>的情况下，整个<code>bt_enable()</code>过程都不会创建蓝牙地址。还会打印日志提示你，后面一定要自己调用<code>settings_load()</code>。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (IS_ENABLED(CONFIG_BT_SETTINGS)) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!bt_dev.id_count) &#123;</span><br><span class="line">        LOG_INF(<span class="string">&quot;No ID address. App must call settings_load()&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    atomic_set_bit(bt_dev.flags, BT_DEV_PRESET_ID);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (IS_ENABLED(CONFIG_BT_SETTINGS)) &#123;<br>    <span class="hljs-keyword">if</span> (!bt_dev.id_count) &#123;<br>        LOG_INF(<span class="hljs-string">&quot;No ID address. App must call settings_load()&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    atomic_set_bit(bt_dev.flags, BT_DEV_PRESET_ID);<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedf9c29619e7d572f75aa713b6a145346c.png" alt="image-20251026044626675"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedf9c29619e7d572f75aa713b6a145346c.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026044626675"></p>
 <p>这是因为要考虑到之前保存过蓝牙地址的情况。要把之前的蓝牙地址加载到内存。同时，对于新的芯片刚烧录完，settings里面没有存地址的情况，也必须要兜底。</p>
 <p>当应用层<code>settings_load()</code>时，会有以下逻辑：位于<code>zephyr\subsys\bluetooth\host\settings.c</code></p>
 <ol>
@@ -282,7 +750,7 @@
 </ol>
 <h4 id="2-CONFIG-BT-SETTINGS-n"><a href="#2-CONFIG-BT-SETTINGS-n" class="headerlink" title="2. CONFIG_BT_SETTINGS=n"></a>2. <code>CONFIG_BT_SETTINGS=n</code></h4><p>当<code>CONFIG_BT_SETTINGS=n</code>的情况下，<code>bt_enable()</code>中就会自己创建地址了。调用的函数跟前面<code>commit_settings(void)</code>里面兜底的函数是一样的。</p>
 <h3 id="公共地址身份设置"><a href="#公共地址身份设置" class="headerlink" title="公共地址身份设置"></a>公共地址身份设置</h3><p>不论是否开启Settings，在设置<code>id=0</code>的身份时，都会先尝试从Controller层读取Public地址：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">bt_setup_public_id_addr();</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">bt_setup_public_id_addr();<br></code></pre></td></tr></table></figure>
 
 <p><strong>前面介绍的“公共地址设置API”，只是把公共地址设置到蓝牙Controller层，并没有创建蓝牙身份。</strong></p>
 <p>公共地址蓝牙身份的创建仅仅存在于<code>bt_setup_public_id_addr()</code>函数中。</p>
@@ -291,26 +759,26 @@
 <li>对于单核的SoC，最好在<code>bt_enable()</code>之前，直接用蓝牙Controller层的API，给Controller层设置公共地址</li>
 <li>对于双核的SoC，最好开启Settings，然后必须在<code>bt_enable()</code>之后，且<code>settings_load()</code>之前给Controller层设置公共地址<ul>
 <li>要求在<code>bt_enable()</code>之后，是因为蓝牙协议栈初始化之后才能用HCI命令</li>
-<li>要求在<code>settings_load()</code>之前，是因为要在Settings设置<code>id=0</code>的身份之前，提前把地址设置到Controler层</li>
+<li>要求在<code>settings_load()</code>之前，是因为要在Settings设置<code>id=0</code>的身份之前，提前把地址设置到Controller层</li>
 </ul>
 </li>
 </ul>
 <h3 id="随机静态地址身份设置"><a href="#随机静态地址身份设置" class="headerlink" title="随机静态地址身份设置"></a>随机静态地址身份设置</h3><p>前面公共地址设置失败时，继续尝试设置随机静态地址。</p>
 <p>在<code>bt_setup_random_id_addr()</code>中：</p>
 <p>如果开启了<code>CONFIG_BT_HCI_VS=y</code>，则会通过厂商自定义（Vendor-Specific）HCI命令，从Controller读取Random地址。Nordic SoftDevice会读取芯片的FICR寄存器中的设备地址来使用。因此<strong>每次上电它都是固定的</strong>：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedfea0f2f25923b4de95e8054da50b8261.png" alt="image-20251026050229779"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedfea0f2f25923b4de95e8054da50b8261.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026050229779"></p>
 <p>如果设置了<code>CONFIG_BT_HCI_VS=n</code>，最后就会用<code>bt_id_create(NULL, NULL)</code>来生成。这个最终得到的是随机数，<strong>每次上电地址都不一样</strong>：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined145580f60557b10d8c05d67fcf0da21b.png" alt="image-20251026050346392"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined145580f60557b10d8c05d67fcf0da21b.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20251026050346392"></p>
 <blockquote>
 <p>【注意】</p>
 <p>这里只是解释一下<code>CONFIG_BT_HCI_VS=n</code>的情况会变成每次上电都变化的随机静态地址，而不是推荐你关闭<code>CONFIG_BT_HCI_VS</code>。</p>
-<p>如果你的需求是“每次上电都变化的随机静态地址”，那么直接在<code>bt_enbale()</code>之前先用真随机数生成器生成一个地址，再用<code>bt_id_create()</code>设置即可。</p>
+<p>如果你的需求是“每次上电都变化的随机静态地址”，那么直接在<code>bt_enable()</code>之前先用真随机数生成器生成一个地址，再用<code>bt_id_create()</code>设置即可。</p>
 </blockquote>
 <h1 id="4-蓝牙地址烧录"><a href="#4-蓝牙地址烧录" class="headerlink" title="4. 蓝牙地址烧录"></a>4. 蓝牙地址烧录</h1><p>通过前面的介绍，我们知道蓝牙地址都是通过函数从RAM里设置的。</p>
 <p>如果想要实现产品出厂地址烧录，可以烧录到芯片的指定区域，比如UICR中。然后代码启动时读出对应区域的地址，再用前面介绍的API设置。</p>
-<p>对于nRF52系列可以烧录到<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ps_nrf52840/page/uicr.html#ariaid-title32">UICR的Customer区域</a>；对于nRF53, nRF54系列，可以烧录到<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/uicr.html#ariaid-title21">UCIR的OTP区域</a>。其实是一样的，换了个名字而已。</p>
+<p>对于nRF52系列可以烧录到<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ps_nrf52840/page/uicr.html#ariaid-title32">UICR的Customer区域</a>；对于nRF53, nRF54系列，可以烧录到<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/uicr.html#ariaid-title21">UICR的OTP区域</a>。其实是一样的，换了个名字而已。</p>
 <p>以nRF54L15为例，先用J-link指定区域烧录地址：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nrfutil device recover</span><br><span class="line">nrfutil device write --address 0x00FFD500 --value 0xCCDDEEFF</span><br><span class="line">nrfutil device write --address 0x00FFD504 --value 0x0000AABB</span><br><span class="line">nrfutil device <span class="built_in">read</span> --address 0x00FFD500 --bytes 8</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">nrfutil device recover<br>nrfutil device write --address 0x00FFD500 --value 0xCCDDEEFF<br>nrfutil device write --address 0x00FFD504 --value 0x0000AABB<br>nrfutil device <span class="hljs-built_in">read</span> --address 0x00FFD500 --bytes 8<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>注意不同芯片UICR地址不一样，用户可写的位置也不一样，要看芯片手册</p>
@@ -319,7 +787,7 @@
 <p>可以直接读取地址，也可以用相关API，例如flash的API和RRAM的API。此外，有TF-M的情况下，需要用的API不同。</p>
 <p>最后用前面介绍的API设置地址即可。</p>
 <h1 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h1><ol>
-<li>地址有2大类，<strong>公共地址</strong>和<strong>随机地址</strong>。它们之间的区别在于广播包的TxAdd和RxAdd字段；</li>
+<li>地址有2大类，<strong>公共地址</strong>和<strong>随机地址</strong>。它们之间的区别在于广播包的TxAdd和RxAdd字段。</li>
 <li>随机地址又分为随机静态地址和随机私有地址；随机私有地址又分为<strong>不可解析的</strong>和<strong>可解析的（RPA）</strong></li>
 <li>在Zephyr中，蓝牙地址是结构体数据对象，可以随意创建。但是使用时，需要把地址保存到蓝牙身份（bt_id）中</li>
 <li>广播时，在广播参数结构体中，可以选择要使用的蓝牙身份，从而实现蓝牙地址切换</li>
@@ -328,157 +796,434 @@
 <li>烧录地址需要先烧到UICR，再用前面介绍的API进行设置</li>
 </ol>
 
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2025/01/22618b91ecf6/" data-id="cmqop0nfx0005y8o5hs8ccrhw" data-title="NCS(Zephyr)中的蓝牙地址" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li></ul>
 
-    </footer>
-  </div>
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/Nordic/" class="category-chain-item">Nordic</a>
   
-    <a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          NCS 低功耗日志打印
-        
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Nordic/" class="print-no-link">#Nordic</a>
+      
+        <a href="/jayant97.github.io/tags/Bluetooth/" class="print-no-link">#Bluetooth</a>
+      
+        <a href="/jayant97.github.io/tags/BLE/" class="print-no-link">#BLE</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>NCS(Zephyr)中的蓝牙地址</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2025/01/22618b91ecf6/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年1月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/01/aeb1d94c5ebc/" title="NCS 低功耗日志打印">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">NCS 低功耗日志打印</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/01/5645a5cab10c/" title="NCS Matter例程详解">
+                        <span class="hidden-mobile">NCS Matter例程详解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2025/01/5645a5cab10c/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">NCS Matter例程详解</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>

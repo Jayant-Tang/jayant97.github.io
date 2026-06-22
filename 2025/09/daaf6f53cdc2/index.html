@@ -1,16 +1,29 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>Matter证书体系与量产设备证书烧录 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="1. 简介本文会详细介绍Matter的证书体系，以及如何在Nordic平台下量产最终设备时烧录factory data。 2. Matter证书体系阅读这部分前，确保你了解数字签名、对称与非对称加密、数字证书、证书链、CA等相关概念。 Matter证书体系是为了确保消费者买到的设备确实是经过Matter认证的供应商生产的，并且经过了各项测试，从而满足兼容性和安全性的要求。 在设备入网阶段有一个过程">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="1. 简介本文会详细介绍Matter的证书体系，以及如何在Nordic平台下量产最终设备时烧录factory data。 2. Matter证书体系阅读这部分前，确保你了解数字签名、对称与非对称加密、数字证书、证书链、CA等相关概念。 Matter证书体系是为了确保消费者买到的设备确实是经过Matter认证的供应商生产的，并且经过了各项测试，从而满足兼容性和安全性的要求。 在设备入网阶段有一个过程">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Matter证书体系与量产设备证书烧录">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2025/09/daaf6f53cdc2/index.html">
-<meta property="og:site_name" content="一苇万顷">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
 <meta property="og:description" content="1. 简介本文会详细介绍Matter的证书体系，以及如何在Nordic平台下量产最终设备时烧录factory data。 2. Matter证书体系阅读这部分前，确保你了解数字签名、对称与非对称加密、数字证书、证书链、CA等相关概念。 Matter证书体系是为了确保消费者买到的设备确实是经过Matter认证的供应商生产的，并且经过了各项测试，从而满足兼容性和安全性的要求。 在设备入网阶段有一个过程">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined42991b1f069e13231af0d66ea7a6a7aa.svg">
@@ -19,95 +32,550 @@
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb0f83932c27d65b3446794667e8139c0.svg">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede2ac0d4819036f689c75e2395730a388.svg">
 <meta property="article:published_time" content="2025-09-26T08:02:54.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.227Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.841Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="Matter">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined42991b1f069e13231af0d66ea7a6a7aa.svg">
   
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
   
   
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  <title>Matter证书体系与量产设备证书烧录 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
   
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
   
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-Matter证书体系与量产设备证书烧录" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/" class="article-date">
-  <time class="dt-published" datetime="2025-09-26T08:02:54.000Z" itemprop="datePublished">2025-09-26</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/jayant97.github.io/categories/Matter/">Matter</a>
-  </div>
+  
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Matter证书体系与量产设备证书烧录"></span>
+          
+        </div>
+
         
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      Matter证书体系与量产设备证书烧录
-    </h1>
-  
-
-      </header>
+          
+  <div class="mt-3">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-09-26 16:02" pubdate>
+          2025年9月26日
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          22k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          184 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>本文会详细介绍Matter的证书体系，以及如何在Nordic平台下量产最终设备时烧录factory data。</p>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Matter证书体系与量产设备证书烧录</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p>本文会详细介绍Matter的证书体系，以及如何在Nordic平台下量产最终设备时烧录factory data。</p>
 <h1 id="2-Matter证书体系"><a href="#2-Matter证书体系" class="headerlink" title="2. Matter证书体系"></a>2. Matter证书体系</h1><p>阅读这部分前，确保你了解数字签名、对称与非对称加密、数字证书、证书链、CA等相关概念。</p>
 <p>Matter证书体系是为了确保消费者买到的设备确实是经过Matter认证的供应商生产的，并且经过了各项测试，从而满足兼容性和安全性的要求。</p>
 <p>在设备入网阶段有一个过程叫做<strong>设备认证（Device Attestation）</strong>，就是Commissioner（如Apple HomePod音箱）来验证Commissionee（如Matter智能灯泡）是否经过认证的过程。</p>
@@ -118,7 +586,7 @@
 <li>DAC</li>
 </ul>
 <p>机构与证书之间的关系：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined42991b1f069e13231af0d66ea7a6a7aa.svg" alt="Device Attestation certification authorities"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined42991b1f069e13231af0d66ea7a6a7aa.svg" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Device Attestation certification authorities"></p>
 <h3 id="PAA-Certificate"><a href="#PAA-Certificate" class="headerlink" title="PAA Certificate"></a>PAA Certificate</h3><p>PAA（Product Attestation Authority，产品认证授权机构）是经过CSA审核授权的CA机构，它们往往是大型公司或组织，它们拥有PAA根证书。</p>
 <blockquote>
 <p>PAA是指机构，但是有时也用PAA代指PAA证书。</p>
@@ -132,19 +600,19 @@
 </ul>
 <p>Non-VID Scoped PAA的存在极大的降低了Matter的准入门槛，让中小型企业无需投入巨资和精力复杂审核去申请PAA，加快产品认证和上市流程。</p>
 <p>PAA证书的私钥被以最高安全规格（通常使用HSM硬件安全模块）保管在其安全设施中。而PAA的<strong>公钥证书</strong>则是公开的，分发到所有Matter控制器的信任库中。你的手机、智能音箱等控制器在出厂时就内置了这些PAA的根证书。</p>
-<h3 id="PAI-Certificate"><a href="#PAI-Certificate" class="headerlink" title="PAI Certificate"></a>PAI Certificate</h3><p>PAI Certificarte（Product Attestation Intermediate Certificarte，产品认证中间证书），简称PAI。是一个中间证书，通常来说一个系列的产品对应一个或多个PAI。</p>
+<h3 id="PAI-Certificate"><a href="#PAI-Certificate" class="headerlink" title="PAI Certificate"></a>PAI Certificate</h3><p>PAI Certificate（Product Attestation Intermediate Certificate，产品认证中间证书），简称PAI。是一个中间证书，通常来说一个系列的产品对应一个或多个PAI。</p>
 <p>PAI需要放置在Matter产品的出厂烧录工具中使用，为每一台出厂的Matter设备签发唯一的DAC。</p>
 <p>PAI的持有者是设备制造商。对于自己就是PAA的制造商，他们可以给自己签发PAI。对于中小型制造商，他们可以向PAA购买PAI。</p>
 <p>设备制造商可以拥有多个PAI，来给不同产品系列签发证书。</p>
-<h3 id="DAC"><a href="#DAC" class="headerlink" title="DAC"></a>DAC</h3><p>DAC（Device Attestation Certificates，设备认证证书），是烧录在每一台Matter中的唯一证书。包含了产品的特定信息（序列号、固件版本等）。</p>
-<p>在设备入网阶段，Matter Comissioner（负责管理设备入网，如Apple Homepod）会检查Comissionee（待入网设备）的DAC，确认它的证书链是来源于某个PAA的，就可以证明这确实是CSA成员公司制造的正品。</p>
+<h3 id="DAC"><a href="#DAC" class="headerlink" title="DAC"></a>DAC</h3><p>DAC（Device Attestation Certificates，设备认证证书），是烧录在每一台Matter设备中的唯一证书。包含了产品的特定信息（序列号、固件版本等）。</p>
+<p>在设备入网阶段，Matter Commissioner（负责管理设备入网，如Apple Homepod）会检查Commissionee（待入网设备）的DAC，确认它的证书链是来源于某个PAA的，就可以证明这确实是CSA成员公司制造的正品。</p>
 <blockquote>
 <p>注意，DAC只能证明设备身份。单靠DAC不能说明设备通过了Matter合规性认证。</p>
 </blockquote>
 <h3 id="PKI"><a href="#PKI" class="headerlink" title="PKI"></a>PKI</h3><p>以上的证书链构成了Matter世界中的<strong>PKI（Public Key Infrastructure，公钥基础设施）</strong>。对于任何一个设备的证书，都可以检查它的证书链（DAC-PAI-PAA），如果整个证书链的签名都是有效的，并且PAA是可信的，就可以认为这台Matter设备是可信的。<strong>PKI是一个概念，表示这一整套建立数字信任的规则和系统</strong>。</p>
-<h3 id="DCL"><a href="#DCL" class="headerlink" title="DCL"></a>DCL</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedbbfe5a8c17c982a849f14c67a2239fac.svg" alt="Device Attestation certification authorities with PKI and DCL"></p>
+<h3 id="DCL"><a href="#DCL" class="headerlink" title="DCL"></a>DCL</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedbbfe5a8c17c982a849f14c67a2239fac.svg" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Device Attestation certification authorities with PKI and DCL"></p>
 <p>DCL（Distributed Compliance Ledger，分布式合规账本）是CSA维护的一个全球数据库服务器，里面存储了PAA证书公钥，各个制造商的认证信息等。</p>
-<p>DCL的特殊之处在于，它是用区块链技术搭建的，有多个服务器分布在全球。因此它是去中心化的、不可被篡改的。他是Matter全局信任的基石。</p>
+<p>DCL的特殊之处在于，它是用区块链技术搭建的，有多个服务器分布在全球。因此它是去中心化的、不可被篡改的。它是Matter全局信任的基石。</p>
 <p>各大生态系统（iOS，Android）定期从DCL同步数据，更新设备内部的PAA信任库。最终手机就可以验证Matter设备是否经过认证。</p>
 <h3 id="Matter-SDK中的证书文件"><a href="#Matter-SDK中的证书文件" class="headerlink" title="Matter SDK中的证书文件"></a>Matter SDK中的证书文件</h3><blockquote>
 <p>【注意】</p>
@@ -156,7 +624,7 @@
 <p>指的是同一个仓库，也就是Matter SDK。只不过NCS已经fork并包含了此仓库，直接进入<code>$&#123;NCS&#125;/modules/lib/matter</code>即可</p>
 </blockquote>
 <p>在Matter SDK中，<code>credentials</code>路径下有很多证书文件：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">credentials/</span><br><span class="line">├── development/</span><br><span class="line">│   ├── attestation/</span><br><span class="line">│   ├── cd-certs/</span><br><span class="line">│   └── paa-root-certs/</span><br><span class="line">├── production/</span><br><span class="line">│   └── paa-root-certs/</span><br><span class="line">└── test/</span><br><span class="line">    ├── attestation/</span><br><span class="line">    ├── certification-declaration/</span><br><span class="line">    ├── operational-certificates/</span><br><span class="line">    └── operational-certificates-error-cases/</span><br></pre></td></tr></table></figure>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs nix">credentials<span class="hljs-symbol">/</span><br>├── development<span class="hljs-symbol">/</span><br>│   ├── attestation<span class="hljs-symbol">/</span><br>│   ├── cd-certs<span class="hljs-symbol">/</span><br>│   └── paa-root-certs<span class="hljs-symbol">/</span><br>├── production<span class="hljs-symbol">/</span><br>│   └── paa-root-certs<span class="hljs-symbol">/</span><br>└── test<span class="hljs-symbol">/</span><br>    ├── attestation<span class="hljs-symbol">/</span><br>    ├── certification-declaration<span class="hljs-symbol">/</span><br>    ├── operational-certificates<span class="hljs-symbol">/</span><br>    └── operational-certificates-error-cases<span class="hljs-operator">/</span><br></code></pre></td></tr></table></figure>
 
 <p>这些证书（Cert）和私钥（Key）基本都有两种格式：二进制的<code>.der</code>和文本的<code>.pem</code></p>
 <ul>
@@ -175,16 +643,16 @@
 <p>因此，还需要CD（Certification Declaration，认证声明）文件。</p>
 <p>CD是一个加密文档，当设备通过了Matter合规性认证后，制造商就可以获得CSA签发的CD文件。一系列产品使用相同的CD。</p>
 <p>把CD和PAI，DAC都烧录到产品中，这个产品就是Matter合规产品了。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede3cad0edf1ba3b5434470d83c8f988cc.svg" alt="Simplified view of Device Attestation information from manufacturer"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede3cad0edf1ba3b5434470d83c8f988cc.svg" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Simplified view of Device Attestation information from manufacturer"></p>
 <p>注意PAI和DAC在factory data中，是一个独立于固件的分区，而CD在固件内。因此，一台设备可以先携带测试用CD去做认证，认证通过后，通过OTA DFU的方式升级新的固件，并携带新的CD。</p>
 <blockquote>
 <ul>
 <li>VID：Vendor ID。标识制造商的唯一16位数字。当制造商成为CSA成员时，可以从CSA获得此ID。</li>
 <li>PID：Product ID。表示产品系列的唯一16位数字。制造商自己分配。同一个产品系列的所有设备PID都相同。</li>
 </ul>
-<p>Matter Comissioner会验证Comissionee的DAC和CD，查看两者的VID和PID是否一致。</p>
+<p>Matter Commissioner会验证Commissionee的DAC和CD，查看两者的VID和PID是否一致。</p>
 </blockquote>
-<h2 id="总框图"><a href="#总框图" class="headerlink" title="总框图"></a>总框图</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb0f83932c27d65b3446794667e8139c0.svg" alt="Device Attestation procedure overview"></p>
+<h2 id="总框图"><a href="#总框图" class="headerlink" title="总框图"></a>总框图</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb0f83932c27d65b3446794667e8139c0.svg" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Device Attestation procedure overview"></p>
 <h2 id="CD固化"><a href="#CD固化" class="headerlink" title="CD固化"></a>CD固化</h2><p>完成 Matter 认证流程，认证通过后，CSA 会为你的产品生成并颁发正式的 CD 文件。每次产品固件升级并重新认证后，都需要申请新的 CD 并替换设备上的旧 CD。</p>
 <p>要把CD存储到产品中，有两种方式：</p>
 <ol>
@@ -193,34 +661,34 @@
 </ol>
 <h3 id="方式1：CD直接写入到固件中"><a href="#方式1：CD直接写入到固件中" class="headerlink" title="方式1：CD直接写入到固件中"></a>方式1：CD直接写入到固件中</h3><p>这种方法最简单省事，因为一个系列产品的同一个固件版本的CD都是一样的，因此直接写到固件中即可。</p>
 <p>用Linux命令<code>xxd</code>把CD证书文件转换成十六进制数组：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cat</span> CD.der | xxd -i</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> CD.der | xxd -i<br></code></pre></td></tr></table></figure>
 
 <p>然后在<code>chip_project_config.h</code>中添加<code>CHIP_DEVICE_CONFIG_CERTIFICATION_DECLARATION</code>宏定义，加上大括号{}。我这里用测试CD来展示格式：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// test CD</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CHIP_DEVICE_CONFIG_CERTIFICATION_DECLARATION                                                                               \</span></span><br><span class="line"><span class="meta">    &#123;                                                                                                                              \</span></span><br><span class="line"><span class="meta">        0x30, 0x82, 0x02, 0x19, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x07, 0x02, 0xa0, 0x82, 0x02, 0x0a, 0x30,    \</span></span><br><span class="line"><span class="meta">            0x82, 0x02, 0x06, 0x02, 0x01, 0x03, 0x31, 0x0d, 0x30, 0x0b, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,      \</span></span><br><span class="line"><span class="meta">            0x02, 0x01, 0x30, 0x82, 0x01, 0x71, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x07, 0x01, 0xa0, 0x82,      \</span></span><br><span class="line"><span class="meta">            0x01, 0x62, 0x04, 0x82, 0x01, 0x5e, 0x15, 0x24, 0x00, 0x01, 0x25, 0x01, 0xf1, 0xff, 0x36, 0x02, 0x05, 0x00, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x01, 0x80, 0x05, 0x02, 0x80, 0x05, 0x03, 0x80, 0x05, 0x04, 0x80, 0x05, 0x05, 0x80, 0x05, 0x06, 0x80, 0x05,      \</span></span><br><span class="line"><span class="meta">            0x07, 0x80, 0x05, 0x08, 0x80, 0x05, 0x09, 0x80, 0x05, 0x0a, 0x80, 0x05, 0x0b, 0x80, 0x05, 0x0c, 0x80, 0x05, 0x0d,      \</span></span><br><span class="line"><span class="meta">            0x80, 0x05, 0x0e, 0x80, 0x05, 0x0f, 0x80, 0x05, 0x10, 0x80, 0x05, 0x11, 0x80, 0x05, 0x12, 0x80, 0x05, 0x13, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x14, 0x80, 0x05, 0x15, 0x80, 0x05, 0x16, 0x80, 0x05, 0x17, 0x80, 0x05, 0x18, 0x80, 0x05, 0x19, 0x80, 0x05,      \</span></span><br><span class="line"><span class="meta">            0x1a, 0x80, 0x05, 0x1b, 0x80, 0x05, 0x1c, 0x80, 0x05, 0x1d, 0x80, 0x05, 0x1e, 0x80, 0x05, 0x1f, 0x80, 0x05, 0x20,      \</span></span><br><span class="line"><span class="meta">            0x80, 0x05, 0x21, 0x80, 0x05, 0x22, 0x80, 0x05, 0x23, 0x80, 0x05, 0x24, 0x80, 0x05, 0x25, 0x80, 0x05, 0x26, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x27, 0x80, 0x05, 0x28, 0x80, 0x05, 0x29, 0x80, 0x05, 0x2a, 0x80, 0x05, 0x2b, 0x80, 0x05, 0x2c, 0x80, 0x05,      \</span></span><br><span class="line"><span class="meta">            0x2d, 0x80, 0x05, 0x2e, 0x80, 0x05, 0x2f, 0x80, 0x05, 0x30, 0x80, 0x05, 0x31, 0x80, 0x05, 0x32, 0x80, 0x05, 0x33,      \</span></span><br><span class="line"><span class="meta">            0x80, 0x05, 0x34, 0x80, 0x05, 0x35, 0x80, 0x05, 0x36, 0x80, 0x05, 0x37, 0x80, 0x05, 0x38, 0x80, 0x05, 0x39, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x3a, 0x80, 0x05, 0x3b, 0x80, 0x05, 0x3c, 0x80, 0x05, 0x3d, 0x80, 0x05, 0x3e, 0x80, 0x05, 0x3f, 0x80, 0x05,      \</span></span><br><span class="line"><span class="meta">            0x40, 0x80, 0x05, 0x41, 0x80, 0x05, 0x42, 0x80, 0x05, 0x43, 0x80, 0x05, 0x44, 0x80, 0x05, 0x45, 0x80, 0x05, 0x46,      \</span></span><br><span class="line"><span class="meta">            0x80, 0x05, 0x47, 0x80, 0x05, 0x48, 0x80, 0x05, 0x49, 0x80, 0x05, 0x4a, 0x80, 0x05, 0x4b, 0x80, 0x05, 0x4c, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x4d, 0x80, 0x05, 0x4e, 0x80, 0x05, 0x4f, 0x80, 0x05, 0x50, 0x80, 0x05, 0x51, 0x80, 0x05, 0x52, 0x80, 0x05,      \</span></span><br><span class="line"><span class="meta">            0x53, 0x80, 0x05, 0x54, 0x80, 0x05, 0x55, 0x80, 0x05, 0x56, 0x80, 0x05, 0x57, 0x80, 0x05, 0x58, 0x80, 0x05, 0x59,      \</span></span><br><span class="line"><span class="meta">            0x80, 0x05, 0x5a, 0x80, 0x05, 0x5b, 0x80, 0x05, 0x5c, 0x80, 0x05, 0x5d, 0x80, 0x05, 0x5e, 0x80, 0x05, 0x5f, 0x80,      \</span></span><br><span class="line"><span class="meta">            0x05, 0x60, 0x80, 0x05, 0x61, 0x80, 0x05, 0x62, 0x80, 0x05, 0x63, 0x80, 0x18, 0x24, 0x03, 0x16, 0x2c, 0x04, 0x13,      \</span></span><br><span class="line"><span class="meta">            0x5a, 0x49, 0x47, 0x32, 0x30, 0x31, 0x34, 0x32, 0x5a, 0x42, 0x33, 0x33, 0x30, 0x30, 0x30, 0x33, 0x2d, 0x32, 0x34,      \</span></span><br><span class="line"><span class="meta">            0x24, 0x05, 0x00, 0x24, 0x06, 0x00, 0x25, 0x07, 0x94, 0x26, 0x24, 0x08, 0x00, 0x18, 0x31, 0x7d, 0x30, 0x7b, 0x02,      \</span></span><br><span class="line"><span class="meta">            0x01, 0x03, 0x80, 0x14, 0x62, 0xfa, 0x82, 0x33, 0x59, 0xac, 0xfa, 0xa9, 0x96, 0x3e, 0x1c, 0xfa, 0x14, 0x0a, 0xdd,      \</span></span><br><span class="line"><span class="meta">            0xf5, 0x04, 0xf3, 0x71, 0x60, 0x30, 0x0b, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x30,      \</span></span><br><span class="line"><span class="meta">            0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x04, 0x03, 0x02, 0x04, 0x47, 0x30, 0x45, 0x02, 0x20, 0x24, 0xe5,      \</span></span><br><span class="line"><span class="meta">            0xd1, 0xf4, 0x7a, 0x7d, 0x7b, 0x0d, 0x20, 0x6a, 0x26, 0xef, 0x69, 0x9b, 0x7c, 0x97, 0x57, 0xb7, 0x2d, 0x46, 0x90,      \</span></span><br><span class="line"><span class="meta">            0x89, 0xde, 0x31, 0x92, 0xe6, 0x78, 0xc7, 0x45, 0xe7, 0xf6, 0x0c, 0x02, 0x21, 0x00, 0xf8, 0xaa, 0x2f, 0xa7, 0x11,      \</span></span><br><span class="line"><span class="meta">            0xfc, 0xb7, 0x9b, 0x97, 0xe3, 0x97, 0xce, 0xda, 0x66, 0x7b, 0xae, 0x46, 0x4e, 0x2b, 0xd3, 0xff, 0xdf, 0xc3, 0xcc,      \</span></span><br><span class="line"><span class="meta">            0xed, 0x7a, 0xa8, 0xca, 0x5f, 0x4c, 0x1a, 0x7c                                                                         \</span></span><br><span class="line"><span class="meta">    &#125;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// test CD</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CHIP_DEVICE_CONFIG_CERTIFICATION_DECLARATION                                                                               \</span><br><span class="hljs-meta">    &#123;                                                                                                                              \</span><br><span class="hljs-meta">        0x30, 0x82, 0x02, 0x19, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x07, 0x02, 0xa0, 0x82, 0x02, 0x0a, 0x30,    \</span><br><span class="hljs-meta">            0x82, 0x02, 0x06, 0x02, 0x01, 0x03, 0x31, 0x0d, 0x30, 0x0b, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04,      \</span><br><span class="hljs-meta">            0x02, 0x01, 0x30, 0x82, 0x01, 0x71, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x07, 0x01, 0xa0, 0x82,      \</span><br><span class="hljs-meta">            0x01, 0x62, 0x04, 0x82, 0x01, 0x5e, 0x15, 0x24, 0x00, 0x01, 0x25, 0x01, 0xf1, 0xff, 0x36, 0x02, 0x05, 0x00, 0x80,      \</span><br><span class="hljs-meta">            0x05, 0x01, 0x80, 0x05, 0x02, 0x80, 0x05, 0x03, 0x80, 0x05, 0x04, 0x80, 0x05, 0x05, 0x80, 0x05, 0x06, 0x80, 0x05,      \</span><br><span class="hljs-meta">            0x07, 0x80, 0x05, 0x08, 0x80, 0x05, 0x09, 0x80, 0x05, 0x0a, 0x80, 0x05, 0x0b, 0x80, 0x05, 0x0c, 0x80, 0x05, 0x0d,      \</span><br><span class="hljs-meta">            0x80, 0x05, 0x0e, 0x80, 0x05, 0x0f, 0x80, 0x05, 0x10, 0x80, 0x05, 0x11, 0x80, 0x05, 0x12, 0x80, 0x05, 0x13, 0x80,      \</span><br><span class="hljs-meta">            0x05, 0x14, 0x80, 0x05, 0x15, 0x80, 0x05, 0x16, 0x80, 0x05, 0x17, 0x80, 0x05, 0x18, 0x80, 0x05, 0x19, 0x80, 0x05,      \</span><br><span class="hljs-meta">            0x1a, 0x80, 0x05, 0x1b, 0x80, 0x05, 0x1c, 0x80, 0x05, 0x1d, 0x80, 0x05, 0x1e, 0x80, 0x05, 0x1f, 0x80, 0x05, 0x20,      \</span><br><span class="hljs-meta">            0x80, 0x05, 0x21, 0x80, 0x05, 0x22, 0x80, 0x05, 0x23, 0x80, 0x05, 0x24, 0x80, 0x05, 0x25, 0x80, 0x05, 0x26, 0x80,      \</span><br><span class="hljs-meta">            0x05, 0x27, 0x80, 0x05, 0x28, 0x80, 0x05, 0x29, 0x80, 0x05, 0x2a, 0x80, 0x05, 0x2b, 0x80, 0x05, 0x2c, 0x80, 0x05,      \</span><br><span class="hljs-meta">            0x2d, 0x80, 0x05, 0x2e, 0x80, 0x05, 0x2f, 0x80, 0x05, 0x30, 0x80, 0x05, 0x31, 0x80, 0x05, 0x32, 0x80, 0x05, 0x33,      \</span><br><span class="hljs-meta">            0x80, 0x05, 0x34, 0x80, 0x05, 0x35, 0x80, 0x05, 0x36, 0x80, 0x05, 0x37, 0x80, 0x05, 0x38, 0x80, 0x05, 0x39, 0x80,      \</span><br><span class="hljs-meta">            0x05, 0x3a, 0x80, 0x05, 0x3b, 0x80, 0x05, 0x3c, 0x80, 0x05, 0x3d, 0x80, 0x05, 0x3e, 0x80, 0x05, 0x3f, 0x80, 0x05,      \</span><br><span class="hljs-meta">            0x40, 0x80, 0x05, 0x41, 0x80, 0x05, 0x42, 0x80, 0x05, 0x43, 0x80, 0x05, 0x44, 0x80, 0x05, 0x45, 0x80, 0x05, 0x46,      \</span><br><span class="hljs-meta">            0x80, 0x05, 0x47, 0x80, 0x05, 0x48, 0x80, 0x05, 0x49, 0x80, 0x05, 0x4a, 0x80, 0x05, 0x4b, 0x80, 0x05, 0x4c, 0x80,      \</span><br><span class="hljs-meta">            0x05, 0x4d, 0x80, 0x05, 0x4e, 0x80, 0x05, 0x4f, 0x80, 0x05, 0x50, 0x80, 0x05, 0x51, 0x80, 0x05, 0x52, 0x80, 0x05,      \</span><br><span class="hljs-meta">            0x53, 0x80, 0x05, 0x54, 0x80, 0x05, 0x55, 0x80, 0x05, 0x56, 0x80, 0x05, 0x57, 0x80, 0x05, 0x58, 0x80, 0x05, 0x59,      \</span><br><span class="hljs-meta">            0x80, 0x05, 0x5a, 0x80, 0x05, 0x5b, 0x80, 0x05, 0x5c, 0x80, 0x05, 0x5d, 0x80, 0x05, 0x5e, 0x80, 0x05, 0x5f, 0x80,      \</span><br><span class="hljs-meta">            0x05, 0x60, 0x80, 0x05, 0x61, 0x80, 0x05, 0x62, 0x80, 0x05, 0x63, 0x80, 0x18, 0x24, 0x03, 0x16, 0x2c, 0x04, 0x13,      \</span><br><span class="hljs-meta">            0x5a, 0x49, 0x47, 0x32, 0x30, 0x31, 0x34, 0x32, 0x5a, 0x42, 0x33, 0x33, 0x30, 0x30, 0x30, 0x33, 0x2d, 0x32, 0x34,      \</span><br><span class="hljs-meta">            0x24, 0x05, 0x00, 0x24, 0x06, 0x00, 0x25, 0x07, 0x94, 0x26, 0x24, 0x08, 0x00, 0x18, 0x31, 0x7d, 0x30, 0x7b, 0x02,      \</span><br><span class="hljs-meta">            0x01, 0x03, 0x80, 0x14, 0x62, 0xfa, 0x82, 0x33, 0x59, 0xac, 0xfa, 0xa9, 0x96, 0x3e, 0x1c, 0xfa, 0x14, 0x0a, 0xdd,      \</span><br><span class="hljs-meta">            0xf5, 0x04, 0xf3, 0x71, 0x60, 0x30, 0x0b, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x30,      \</span><br><span class="hljs-meta">            0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x04, 0x03, 0x02, 0x04, 0x47, 0x30, 0x45, 0x02, 0x20, 0x24, 0xe5,      \</span><br><span class="hljs-meta">            0xd1, 0xf4, 0x7a, 0x7d, 0x7b, 0x0d, 0x20, 0x6a, 0x26, 0xef, 0x69, 0x9b, 0x7c, 0x97, 0x57, 0xb7, 0x2d, 0x46, 0x90,      \</span><br><span class="hljs-meta">            0x89, 0xde, 0x31, 0x92, 0xe6, 0x78, 0xc7, 0x45, 0xe7, 0xf6, 0x0c, 0x02, 0x21, 0x00, 0xf8, 0xaa, 0x2f, 0xa7, 0x11,      \</span><br><span class="hljs-meta">            0xfc, 0xb7, 0x9b, 0x97, 0xe3, 0x97, 0xce, 0xda, 0x66, 0x7b, 0xae, 0x46, 0x4e, 0x2b, 0xd3, 0xff, 0xdf, 0xc3, 0xcc,      \</span><br><span class="hljs-meta">            0xed, 0x7a, 0xa8, 0xca, 0x5f, 0x4c, 0x1a, 0x7c                                                                         \</span><br><span class="hljs-meta">    &#125;</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <ul>
 <li><p>宏定义数组记得加换行符<code>\</code>，且同一行的<code>\</code>之后不能有任何字符（包括空格），才能确保所有行都在同一个宏定义中</p>
 </li>
 <li><p><code>chip_project_config.h</code>的默认路径是<code>&quot;src/chip_project_config.h&quot;</code>，在<code>prj.conf</code>中可以设置：</p>
-  <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">CONFIG_CHIP_PROJECT_CONFIG=<span class="string">&quot;src/chip_project_config.h&quot;</span></span><br></pre></td></tr></table></figure></li>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">CONFIG_CHIP_PROJECT_CONFIG=<span class="hljs-string">&quot;src/chip_project_config.h&quot;</span><br></code></pre></td></tr></table></figure></li>
 </ul>
 </blockquote>
 <h3 id="方式2：CD写入Zephyr存储系统"><a href="#方式2：CD写入Zephyr存储系统" class="headerlink" title="方式2：CD写入Zephyr存储系统"></a>方式2：CD写入Zephyr存储系统</h3><p>此方法需要开启<code>CONFIG_CHIP_CERTIFICATION_DECLARATION_STORAGE=y</code></p>
 <p>这种方法比较复杂，一般没必要。厂商需要在自己的产测工具中开发把CD传入设备的功能（串口、USB、蓝牙等），然后设备中需要把数据存入Settings对应的Key的位置。这部分没有文档，需要阅读源码：</p>
 <p><code>v3.0.2/modules/lib/matter/src/platform/nrfconnect/FactoryDataProvider.cpp</code>，</p>
 <p>在此源码中，<code>GetCertificationDeclaration</code> 方法会优先尝试从 Zephyr 的配置存储（settings）读取 CD 数据：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (Internal::ZephyrConfig::<span class="built_in">ReadConfigValueBin</span>(Internal::ZephyrConfig::kConfigKey_CertificationDeclaration,</span><br><span class="line">                                               <span class="built_in">reinterpret_cast</span>&lt;<span class="type">uint8_t</span> *&gt;(outBuffer.<span class="built_in">data</span>()), outBuffer.<span class="built_in">size</span>(),</span><br><span class="line">                                               cdLen) == CHIP_NO_ERROR)</span><br><span class="line">&#123;</span><br><span class="line">    outBuffer.<span class="built_in">reduce_size</span>(cdLen);</span><br><span class="line">    <span class="keyword">return</span> CHIP_NO_ERROR;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">if</span> (Internal::ZephyrConfig::<span class="hljs-built_in">ReadConfigValueBin</span>(Internal::ZephyrConfig::kConfigKey_CertificationDeclaration,<br>                                               <span class="hljs-built_in">reinterpret_cast</span>&lt;<span class="hljs-type">uint8_t</span> *&gt;(outBuffer.<span class="hljs-built_in">data</span>()), outBuffer.<span class="hljs-built_in">size</span>(),<br>                                               cdLen) == CHIP_NO_ERROR)<br>&#123;<br>    outBuffer.<span class="hljs-built_in">reduce_size</span>(cdLen);<br>    <span class="hljs-keyword">return</span> CHIP_NO_ERROR;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>只有在存储中没有找到时，才会返回默认的 CD 数据（<code>CHIP_DEVICE_CONFIG_CERTIFICATION_DECLARATION</code>）。</p>
 <p>这段代码是用固定的Key来从文件系统中读取的：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> ZephyrConfig::Key ZephyrConfig::kConfigKey_CertificationDeclaration = <span class="built_in">CONFIG_KEY</span>(NAMESPACE_FACTORY <span class="string">&quot;cert-declaration&quot;</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> ZephyrConfig::Key ZephyrConfig::kConfigKey_CertificationDeclaration = <span class="hljs-built_in">CONFIG_KEY</span>(NAMESPACE_FACTORY <span class="hljs-string">&quot;cert-declaration&quot;</span>);<br></code></pre></td></tr></table></figure>
 
 <p>因此，开发者需要用自己的方式把CD传入，然后调用Zephyr Settings相关函数，把CD存储到这个Key的位置。</p>
 <blockquote>
 <p>其实NCS里实现了一种传入CD的方式，相关代码位于<code>v3.0.2/modules/lib/matter/src/platform/nrfconnect/OTAImageProcessorImpl.cpp</code>。可以参考。</p>
 <p>在这里，注册了一个<code>dfu_image_writer</code>，它包含一组DFU回调函数，它们是用lambda表达式编写的匿名函数：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_CHIP_CERTIFICATION_DECLARATION_STORAGE</span></span><br><span class="line">    dfu_image_writer cdWriter;</span><br><span class="line">    cdWriter.image_id = CONFIG_CHIP_CERTIFiCATION_DECLARATION_OTA_IMAGE_ID;</span><br><span class="line">    cdWriter.open     = [](<span class="type">int</span> id, <span class="type">size_t</span> size) &#123; <span class="keyword">return</span> size &lt;= <span class="built_in">sizeof</span>(sCdBuf) ? <span class="number">0</span> : -EFBIG; &#125;;</span><br><span class="line">    cdWriter.write    = [](<span class="type">const</span> <span class="type">uint8_t</span> * chunk, <span class="type">size_t</span> chunk_size) &#123;</span><br><span class="line">        <span class="built_in">memcpy</span>(&amp;sCdBuf[sCdSavedBytes], chunk, chunk_size);</span><br><span class="line">        sCdSavedBytes += chunk_size;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;;</span><br><span class="line">    cdWriter.close = [](<span class="type">bool</span> success) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">settings_save_one</span>(Internal::ZephyrConfig::kConfigKey_CertificationDeclaration, sCdBuf, sCdSavedBytes);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">ReturnErrorOnFailure</span>(System::<span class="built_in">MapErrorZephyr</span>(<span class="built_in">dfu_multi_image_register_writer</span>(&amp;cdWriter)));</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_CHIP_CERTIFICATION_DECLARATION_STORAGE</span><br>    dfu_image_writer cdWriter;<br>    cdWriter.image_id = CONFIG_CHIP_CERTIFiCATION_DECLARATION_OTA_IMAGE_ID;<br>    cdWriter.open     = [](<span class="hljs-type">int</span> id, <span class="hljs-type">size_t</span> size) &#123; <span class="hljs-keyword">return</span> size &lt;= <span class="hljs-built_in">sizeof</span>(sCdBuf) ? <span class="hljs-number">0</span> : -EFBIG; &#125;;<br>    cdWriter.write    = [](<span class="hljs-type">const</span> <span class="hljs-type">uint8_t</span> * chunk, <span class="hljs-type">size_t</span> chunk_size) &#123;<br>        <span class="hljs-built_in">memcpy</span>(&amp;sCdBuf[sCdSavedBytes], chunk, chunk_size);<br>        sCdSavedBytes += chunk_size;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;;<br>    cdWriter.close = [](<span class="hljs-type">bool</span> success) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">settings_save_one</span>(Internal::ZephyrConfig::kConfigKey_CertificationDeclaration, sCdBuf, sCdSavedBytes);<br>    &#125;;<br><br>    <span class="hljs-built_in">ReturnErrorOnFailure</span>(System::<span class="hljs-built_in">MapErrorZephyr</span>(<span class="hljs-built_in">dfu_multi_image_register_writer</span>(&amp;cdWriter)));<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
 
 <p>在OTA过程结束时，在<code>close</code>回调函数里执行了<code>settings_save_one()</code>，把CD存储到Settings子系统中。</p>
 <p>这一套代码的上层是Matter OTA流程（并非MCUMgr DFU）：</p>
@@ -235,12 +703,12 @@
 </blockquote>
 <h2 id="用PAI签发DAC"><a href="#用PAI签发DAC" class="headerlink" title="用PAI签发DAC"></a>用PAI签发DAC</h2><p>官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://project-chip.github.io/connectedhomeip-doc/src/tools/chip-cert/README.html#gen-att-cert">Matter&#x2F;CHIP Certificate Tool — gen-att-cert</a></p>
 <p>先查看自己要使用的PAI的内容：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ openssl x509 -<span class="keyword">in</span> credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem  -text -noout </span><br><span class="line"></span><br><span class="line">Certificate:</span><br><span class="line">    Data:</span><br><span class="line">        Version: 3 (0x2)</span><br><span class="line">        Serial Number: 6245791343685426020 (0x56ad8222ad945b64)</span><br><span class="line">        Signature Algorithm: ecdsa-with-SHA256</span><br><span class="line">        Issuer: CN = Matter Test PAA, 1.3.6.1.4.1.37244.2.1 = FFF1</span><br><span class="line">        Validity</span><br><span class="line">            Not Before: Feb  5 00:00:00 2022 GMT</span><br><span class="line">            Not After : Dec 31 23:59:59 9999 GMT</span><br><span class="line">        Subject: CN = Matter Dev PAI 0xFFF1 no PID, 1.3.6.1.4.1.37244.2.1 = FFF1</span><br><span class="line">        Subject Public Key Info:</span><br><span class="line">            Public Key Algorithm: id-ecPublicKey</span><br><span class="line">                Public-Key: (256 bit)</span><br><span class="line">                pub:</span><br><span class="line">                    04:41:9a:93:15:c2:17:3e:0c:8c:87:6d:03:cc:<span class="built_in">fc</span>:</span><br><span class="line">                    94:48:52:64:7f:7f:ec:5e:50:82:f4:05:99:28:ec:</span><br><span class="line">                    a8:94:c5:94:15:13:09:ac:63:1e:4c:b0:33:92:af:</span><br><span class="line">                    68:4b:0b:af:b7:e6:5b:3b:81:62:c2:f5:2b:f9:31:</span><br><span class="line">                    b8:e7:7a:aa:82</span><br><span class="line">                ASN1 OID: prime256v1</span><br><span class="line">                NIST CURVE: P-256</span><br><span class="line">        X509v3 extensions:</span><br><span class="line">            X509v3 Basic Constraints: critical</span><br><span class="line">                CA:TRUE, pathlen:0</span><br><span class="line">            X509v3 Key Usage: critical</span><br><span class="line">                Certificate Sign, CRL Sign</span><br><span class="line">            X509v3 Subject Key Identifier: </span><br><span class="line">                63:54:0E:47:F6:4B:1C:38:D1:38:84:A4:62:D1:6C:19:5D:8F:FB:3C</span><br><span class="line">            X509v3 Authority Key Identifier: </span><br><span class="line">                6A:FD:22:77:1F:51:1F:EC:BF:16:41:97:67:10:DC:DC:31:A1:71:7E</span><br><span class="line">    Signature Algorithm: ecdsa-with-SHA256</span><br><span class="line">    Signature Value:</span><br><span class="line">        30:45:02:21:00:b2:ef:27:f4:9a:e9:b5:0f:b9:1e:ea:c9:4c:</span><br><span class="line">        4d:0b:db:b8:d7:92:9c:6c:b8:8f:ac:e5:29:36:8d:12:05:4c:</span><br><span class="line">        0c:02:20:65:5d:c9:2b:86:bd:90:98:82:a6:c6:21:77:b8:25:</span><br><span class="line">        d7:d0:5e:db:e7:c2:2f:9f:ea:71:22:0e:7e:a7:03:f8:91</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ openssl x509 -<span class="hljs-keyword">in</span> credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem  -text -noout <br><br>Certificate:<br>    Data:<br>        Version: 3 (0x2)<br>        Serial Number: 6245791343685426020 (0x56ad8222ad945b64)<br>        Signature Algorithm: ecdsa-with-SHA256<br>        Issuer: CN = Matter Test PAA, 1.3.6.1.4.1.37244.2.1 = FFF1<br>        Validity<br>            Not Before: Feb  5 00:00:00 2022 GMT<br>            Not After : Dec 31 23:59:59 9999 GMT<br>        Subject: CN = Matter Dev PAI 0xFFF1 no PID, 1.3.6.1.4.1.37244.2.1 = FFF1<br>        Subject Public Key Info:<br>            Public Key Algorithm: id-ecPublicKey<br>                Public-Key: (256 bit)<br>                pub:<br>                    04:41:9a:93:15:c2:17:3e:0c:8c:87:6d:03:cc:<span class="hljs-built_in">fc</span>:<br>                    94:48:52:64:7f:7f:ec:5e:50:82:f4:05:99:28:ec:<br>                    a8:94:c5:94:15:13:09:ac:63:1e:4c:b0:33:92:af:<br>                    68:4b:0b:af:b7:e6:5b:3b:81:62:c2:f5:2b:f9:31:<br>                    b8:e7:7a:aa:82<br>                ASN1 OID: prime256v1<br>                NIST CURVE: P-256<br>        X509v3 extensions:<br>            X509v3 Basic Constraints: critical<br>                CA:TRUE, pathlen:0<br>            X509v3 Key Usage: critical<br>                Certificate Sign, CRL Sign<br>            X509v3 Subject Key Identifier: <br>                63:54:0E:47:F6:4B:1C:38:D1:38:84:A4:62:D1:6C:19:5D:8F:FB:3C<br>            X509v3 Authority Key Identifier: <br>                6A:FD:22:77:1F:51:1F:EC:BF:16:41:97:67:10:DC:DC:31:A1:71:7E<br>    Signature Algorithm: ecdsa-with-SHA256<br>    Signature Value:<br>        30:45:02:21:00:b2:ef:27:f4:9a:e9:b5:0f:b9:1e:ea:c9:4c:<br>        4d:0b:db:b8:d7:92:9c:6c:b8:8f:ac:e5:29:36:8d:12:05:4c:<br>        0c:02:20:65:5d:c9:2b:86:bd:90:98:82:a6:c6:21:77:b8:25:<br>        d7:d0:5e:db:e7:c2:2f:9f:ea:71:22:0e:7e:a7:03:f8:91<br></code></pre></td></tr></table></figure>
 
 <p>注意<code>Validity</code>对应的证书有效时间，这个是UTC时间，不是本地时间。</p>
 <p>使用PAI来签发DAC：</p>
 <p>测试路径<code>$&#123;NCS&#125;/modules/lib/matter/</code></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chip-cert gen-att-cert --<span class="built_in">type</span> d \</span><br><span class="line">--subject-cn <span class="string">&quot;Matter Development DAC 01&quot;</span> \</span><br><span class="line">--subject-vid FFF1 \</span><br><span class="line">--subject-pid 0123 \</span><br><span class="line">--valid-from <span class="string">&quot;2025-09-29 9:03:43&quot;</span> \</span><br><span class="line">--lifetime 7305 \</span><br><span class="line">--ca-key credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Key.pem \</span><br><span class="line">--ca-cert credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem \</span><br><span class="line">--out-key Matter-Development-PAI-FFF1-0123-Key.pem \</span><br><span class="line">--out Matter-Development-PAI-FFF1-0123-Cert.pem</span><br><span class="line"><span class="comment"># 文件将生成在当前目录下</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">chip-cert gen-att-cert --<span class="hljs-built_in">type</span> d \<br>--subject-cn <span class="hljs-string">&quot;Matter Development DAC 01&quot;</span> \<br>--subject-vid FFF1 \<br>--subject-pid 0123 \<br>--valid-from <span class="hljs-string">&quot;2025-09-29 9:03:43&quot;</span> \<br>--lifetime 7305 \<br>--ca-key credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Key.pem \<br>--ca-cert credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem \<br>--out-key Matter-Development-PAI-FFF1-0123-Key.pem \<br>--out Matter-Development-PAI-FFF1-0123-Cert.pem<br><span class="hljs-comment"># 文件将生成在当前目录下</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li><p><code>--subject-vid</code>与<code>--subject-pid</code>：如果你是自己的产品，VID和PID正常填写。如果你是用开发测试证书，会看到PAI证书上已经标明了VID，因此我们输入的VID要与其保持一致。</p>
@@ -253,7 +721,7 @@
 <p>因此考虑设置尽可能长的时间，或者能够OTA这个设备。<br>（NCS默认的factory data实现方式具有写保护，因此Factory data分区无法OTA 。需要自己实现factory data provider来实现OTA功能。）</p>
 </li>
 </ul>
-<h2 id="验证DAC的证书链"><a href="#验证DAC的证书链" class="headerlink" title="验证DAC的证书链"></a>验证DAC的证书链</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 执行无报错就是验证成功</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 用自己生成的DAC验证</span></span><br><span class="line">chip-cert validate-att-cert \</span><br><span class="line">--dac Matter-Development-PAI-FFF1-0123-Cert.pem \</span><br><span class="line">--pai credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem \</span><br><span class="line">--paa credentials/development/paa-root-certs/Chip-Test-PAA-FFF1-Cert.pem</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用SDK自带的DAC验证</span></span><br><span class="line">chip-cert validate-att-cert \</span><br><span class="line">--dac credentials/development/attestation/Matter-Development-DAC-FFF1-8000-Cert.pem \</span><br><span class="line">--pai credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem \</span><br><span class="line">--paa credentials/development/paa-root-certs/Chip-Test-PAA-FFF1-Cert.pem</span><br></pre></td></tr></table></figure>
+<h2 id="验证DAC的证书链"><a href="#验证DAC的证书链" class="headerlink" title="验证DAC的证书链"></a>验证DAC的证书链</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">## 执行无报错就是验证成功</span><br><br><span class="hljs-comment"># 用自己生成的DAC验证</span><br>chip-cert validate-att-cert \<br>--dac Matter-Development-PAI-FFF1-0123-Cert.pem \<br>--pai credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem \<br>--paa credentials/development/paa-root-certs/Chip-Test-PAA-FFF1-Cert.pem<br><br><span class="hljs-comment"># 用SDK自带的DAC验证</span><br>chip-cert validate-att-cert \<br>--dac credentials/development/attestation/Matter-Development-DAC-FFF1-8000-Cert.pem \<br>--pai credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.pem \<br>--paa credentials/development/paa-root-certs/Chip-Test-PAA-FFF1-Cert.pem<br></code></pre></td></tr></table></figure>
 
 <p>常见错误：</p>
 <ul>
@@ -261,7 +729,7 @@
 <li><code>Attestation Certificates Validation Failed with Error Code: 301</code>：校验失败。一般是DAC的起始时间比PAI的起始时间还要早导致。</li>
 </ul>
 <h2 id="DAC格式转换"><a href="#DAC格式转换" class="headerlink" title="DAC格式转换"></a>DAC格式转换</h2><p><code>.pem</code>证书转换为二进制<code>.der</code>证书：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./chip-cert convert-cert &lt;in-file&gt; &lt;out-file&gt; -d</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./chip-cert convert-cert &lt;in-file&gt; &lt;out-file&gt; -d<br></code></pre></td></tr></table></figure>
 
 
 
@@ -269,16 +737,16 @@
 <h2 id="固件配置"><a href="#固件配置" class="headerlink" title="固件配置"></a>固件配置</h2><p>默认情况下，Matter例程会自动生成测试版工厂数据，并把它和app, mcuboot固件编译在一起。</p>
 <p>要想烧录自己的工厂数据，需要修改配置：</p>
 <p><code>prj.conf</code>或<code>prj_release.conf</code></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用Nordic Factory Data Provider来存储和解析factory data</span></span><br><span class="line">CONFIG_CHIP_FACTORY_DATA=y</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译时不要自动生成测试factory data</span></span><br><span class="line">CONFIG_CHIP_FACTORY_DATA_BUILD=n</span><br><span class="line"></span><br><span class="line"><span class="comment"># 过认证时打开，量产时关闭</span></span><br><span class="line">CONFIG_NCS_SAMPLE_MATTER_TEST_EVENT_TRIGGERS_REGISTER_DEFAULTS=n</span><br><span class="line">CONFIG_NCS_SAMPLE_MATTER_TEST_EVENT_TRIGGERS=n</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 使用Nordic Factory Data Provider来存储和解析factory data</span><br>CONFIG_CHIP_FACTORY_DATA=y<br><br><span class="hljs-comment"># 编译时不要自动生成测试factory data</span><br>CONFIG_CHIP_FACTORY_DATA_BUILD=n<br><br><span class="hljs-comment"># 过认证时打开，量产时关闭</span><br>CONFIG_NCS_SAMPLE_MATTER_TEST_EVENT_TRIGGERS_REGISTER_DEFAULTS=n<br>CONFIG_NCS_SAMPLE_MATTER_TEST_EVENT_TRIGGERS=n<br></code></pre></td></tr></table></figure>
 
 <p><code>sysbuild.conf</code></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SB_CONFIG_MATTER_FACTORY_DATA_GENERATE=n</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">SB_CONFIG_MATTER_FACTORY_DATA_GENERATE=n<br></code></pre></td></tr></table></figure>
 
 
 
 <h2 id="工厂数据存储位置"><a href="#工厂数据存储位置" class="headerlink" title="工厂数据存储位置"></a>工厂数据存储位置</h2><p>NCS通过 Partition Manager 来配置MCU的非易失存储器分区，见<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17794813.html#7-%E5%AD%98%E5%82%A8%E5%99%A8%E5%88%86%E5%8C%BA%E6%96%87%E4%BB%B6partition-manager">《理解Zephyr编译与配置系统 - 存储器分区文件》</a>。</p>
 <p>你可以参考Matter例程的存储器分区文件，不同的MCU在例程里给的存储位置不同，例如：</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">factory_data:</span></span><br><span class="line">  <span class="attr">address:</span> <span class="number">0xf7000</span></span><br><span class="line">  <span class="attr">size:</span> <span class="number">0x1000</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">flash_primary</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">factory_data:</span><br>  <span class="hljs-attr">address:</span> <span class="hljs-number">0xf7000</span><br>  <span class="hljs-attr">size:</span> <span class="hljs-number">0x1000</span><br>  <span class="hljs-attr">region:</span> <span class="hljs-string">flash_primary</span><br></code></pre></td></tr></table></figure>
 
 <p>这里的存储位置就是0xf7000，长度4096Bytes。</p>
 <p>factory_data很小，不超过4kB，但是在分区时要占用存储器的一个完整的page。</p>
@@ -288,7 +756,7 @@
 <p><strong>写保护的BLOCK长度，取决于MCU上的硬件保护单元，和Flash的Page大小不一定相同</strong>。</p>
 <p>它的大小是<code>CONFIG_FPROTECT_BLOCK_SIZE</code>，它的值不能设置，因为它是一个隐性配置项，只取决于硬件：</p>
 <p><code>v3.0.2/nrf/lib/fprotect/Kconfig</code></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">config FPROTECT_BLOCK_SIZE</span><br><span class="line">    hex</span><br><span class="line">    default NRF_SPU_FLASH_REGION_SIZE if CPU_HAS_NRF_IDAU</span><br><span class="line">    default NRF_MPU_FLASH_REGION_SIZE if HAS_HW_NRF_MPU</span><br><span class="line">    default NRF_BPROT_FLASH_REGION_SIZE if HAS_HW_NRF_BPROT</span><br><span class="line">    default NRF_ACL_FLASH_REGION_SIZE if HAS_HW_NRF_ACL</span><br><span class="line">    default NRF_RRAM_REGION_SIZE_UNIT if SOC_SERIES_NRF54LX &amp;&amp; FLASH</span><br><span class="line">    default $(dt_node_int_prop_hex,$(DT_CHOSEN_ZEPHYR_FLASH),erase-block-size)</span><br></pre></td></tr></table></figure>
+<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mel">config FPROTECT_BLOCK_SIZE<br>    hex<br>    <span class="hljs-keyword">default</span> NRF_SPU_FLASH_REGION_SIZE <span class="hljs-keyword">if</span> CPU_HAS_NRF_IDAU<br>    <span class="hljs-keyword">default</span> NRF_MPU_FLASH_REGION_SIZE <span class="hljs-keyword">if</span> HAS_HW_NRF_MPU<br>    <span class="hljs-keyword">default</span> NRF_BPROT_FLASH_REGION_SIZE <span class="hljs-keyword">if</span> HAS_HW_NRF_BPROT<br>    <span class="hljs-keyword">default</span> NRF_ACL_FLASH_REGION_SIZE <span class="hljs-keyword">if</span> HAS_HW_NRF_ACL<br>    <span class="hljs-keyword">default</span> NRF_RRAM_REGION_SIZE_UNIT <span class="hljs-keyword">if</span> SOC_SERIES_NRF54LX &amp;&amp; FLASH<br>    <span class="hljs-keyword">default</span> $(dt_node_int_prop_hex,$(DT_CHOSEN_ZEPHYR_FLASH),erase-block-<span class="hljs-keyword">size</span>)<br></code></pre></td></tr></table></figure>
 
 <p>可以通过<code>build/&lt;application_name&gt;/zephyr/.config</code>查看具体值，这里给出一个表格：</p>
 <table>
@@ -335,7 +803,7 @@
 <blockquote>
 <p>Kconfig的default值匹配是采用第一个匹配上的值。这里nRF5340匹配上的是IDAU的16kB，因此就不再采用ACL的4kB。</p>
 </blockquote>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede2ac0d4819036f689c75e2395730a388.svg" alt="Factory data partition implementation criteria for fprotect"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede2ac0d4819036f689c75e2395730a388.svg" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Factory data partition implementation criteria for fprotect"></p>
 <p>一般来说factory_data在app固件的后面，而settings_storage在factory_data的后面。而factory_data和app开启写保护是没问题的；而settings存储器分区不能开启写保护。<strong>因此注意不要把factory_data和settings放到同一个FPROTECT Block里。</strong></p>
 <blockquote>
 <p>NCS中其他使用到FPROTECT的位置：</p>
@@ -424,7 +892,7 @@
 <td><code>hw_ver_str</code></td>
 <td>hardware version string</td>
 <td>&lt;1, 64&gt; B</td>
-<td>uint16</td>
+<td>ASCII string</td>
 <td><strong>必选</strong></td>
 <td>用户可读的制造商自定义的硬件版本号字符串</td>
 </tr>
@@ -490,7 +958,7 @@
 <td>4 B</td>
 <td>uint32</td>
 <td><em>可选</em></td>
-<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://datatracker.ietf.org/doc/rfc9383/">SPAKE2+</a> 是用于生成共享密钥的算法。用于设备配网期间的共享密钥生成。 passcode是在共享密钥生成之前，Comisioner和Comissionee之间的临时加密会话所使用的简单密钥。 范围1到99999998（并且以下数值不可以使用：<code>11111111</code>,<code>22222222</code>,<code>33333333</code>,<code>44444444</code>,<code>55555555</code>,<code>66666666</code>,<code>77777777</code>,<code>88888888</code>,<code>99999999</code>）默认值为20202021.。这个值最好随机生成且与产品序列号、生产日期等公开信息无关。<br>Passcode在设备中的存储应当与 SPAKE2+ verifier隔离，并且任何Matter命令都不能读到这个值。 因此在Factory Data中包含passcode不是必选的，一般只有debug log打印配网信息，或者NFC配网才需要把passcode放在factory data。反而包含passcode会导致违反“Passcode应当与SPAKE2+ verifier隔离”的规则。</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://datatracker.ietf.org/doc/rfc9383/">SPAKE2+</a> 是用于生成共享密钥的算法。用于设备配网期间的共享密钥生成。 passcode是在共享密钥生成之前，Comisioner和Commissionee之间的临时加密会话所使用的简单密钥。 范围1到99999998（并且以下数值不可以使用：<code>11111111</code>,<code>22222222</code>,<code>33333333</code>,<code>44444444</code>,<code>55555555</code>,<code>66666666</code>,<code>77777777</code>,<code>88888888</code>,<code>99999999</code>）默认值为20202021.。这个值最好随机生成且与产品序列号、生产日期等公开信息无关。<br>Passcode在设备中的存储应当与 SPAKE2+ verifier隔离，并且任何Matter命令都不能读到这个值。 因此在Factory Data中包含passcode不是必选的，一般只有debug log打印配网信息，或者NFC配网才需要把passcode放在factory data。反而包含passcode会导致违反“Passcode应当与SPAKE2+ verifier隔离”的规则。</td>
 </tr>
 <tr>
 <td><code>product_appearance</code></td>
@@ -680,14 +1148,14 @@
 <h2 id="工厂数据生成"><a href="#工厂数据生成" class="headerlink" title="工厂数据生成"></a>工厂数据生成</h2><p>官方文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/matter/end_product/factory_provisioning.html">Factory provisioning in Matter</a></p>
 <h3 id="生成工厂数据json和hex"><a href="#生成工厂数据json和hex" class="headerlink" title="生成工厂数据json和hex"></a>生成工厂数据json和hex</h3><p>打开nrfconnect命令行，进入<code>modules/lib/matter</code>:</p>
 <p>查看帮助：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python scripts/tools/nrfconnect/generate_nrfconnect_chip_factory_data.py -h</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">python scripts/tools/nrfconnect/generate_nrfconnect_chip_factory_data.py -h<br></code></pre></td></tr></table></figure>
 
 <p>示例：</p>
 <p>Linux 版本：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装生成二维码图片的依赖</span></span><br><span class="line">python -m pip install -r ./scripts/setup/requirements.nrfconnect.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建输出目录</span></span><br><span class="line"><span class="built_in">mkdir</span> build_fd</span><br><span class="line"></span><br><span class="line">python scripts/tools/nrfconnect/generate_nrfconnect_chip_factory_data.py \</span><br><span class="line">--sn <span class="string">&quot;11223344556677889900&quot;</span> \</span><br><span class="line">--vendor_id 65521 \</span><br><span class="line">--product_id 32774 \</span><br><span class="line">--vendor_name <span class="string">&quot;Nordic Semiconductor ASA&quot;</span> \</span><br><span class="line">--product_name <span class="string">&quot;not-specified&quot;</span> \</span><br><span class="line">--<span class="built_in">date</span> <span class="string">&quot;2022-02-02&quot;</span> \</span><br><span class="line">--hw_ver 1 \</span><br><span class="line">--hw_ver_str <span class="string">&quot;prerelase&quot;</span> \</span><br><span class="line">--dac_cert <span class="string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Cert.der&quot;</span> \</span><br><span class="line">--dac_key <span class="string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Key.der&quot;</span> \</span><br><span class="line">--pai_cert <span class="string">&quot;credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.der&quot;</span> \</span><br><span class="line">--spake2_it 1000 \</span><br><span class="line">--spake2_salt <span class="string">&quot;U1BBS0UyUCBLZXkgU2FsdA==&quot;</span> \</span><br><span class="line">--discriminator 0xF00 \</span><br><span class="line">--generate_rd_uid \</span><br><span class="line">--passcode 20202021 \</span><br><span class="line">--product_finish <span class="string">&quot;matte&quot;</span> \</span><br><span class="line">--product_color <span class="string">&quot;black&quot;</span> \</span><br><span class="line">--out <span class="string">&quot;build_fd/my_fd&quot;</span> \</span><br><span class="line">--schema <span class="string">&quot;scripts/tools/nrfconnect/nrfconnect_factory_data.schema&quot;</span> \</span><br><span class="line">--offset 0xf7000 \</span><br><span class="line">--size 0x1000 \</span><br><span class="line">--generate_onboarding \</span><br><span class="line">--overwrite</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 安装生成二维码图片的依赖</span><br>python -m pip install -r ./scripts/setup/requirements.nrfconnect.txt<br><br><span class="hljs-comment"># 创建输出目录</span><br><span class="hljs-built_in">mkdir</span> build_fd<br><br>python scripts/tools/nrfconnect/generate_nrfconnect_chip_factory_data.py \<br>--sn <span class="hljs-string">&quot;11223344556677889900&quot;</span> \<br>--vendor_id 65521 \<br>--product_id 32774 \<br>--vendor_name <span class="hljs-string">&quot;Nordic Semiconductor ASA&quot;</span> \<br>--product_name <span class="hljs-string">&quot;not-specified&quot;</span> \<br>--<span class="hljs-built_in">date</span> <span class="hljs-string">&quot;2022-02-02&quot;</span> \<br>--hw_ver 1 \<br>--hw_ver_str <span class="hljs-string">&quot;prerelease&quot;</span> \<br>--dac_cert <span class="hljs-string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Cert.der&quot;</span> \<br>--dac_key <span class="hljs-string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Key.der&quot;</span> \<br>--pai_cert <span class="hljs-string">&quot;credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.der&quot;</span> \<br>--spake2_it 1000 \<br>--spake2_salt <span class="hljs-string">&quot;U1BBS0UyUCBLZXkgU2FsdA==&quot;</span> \<br>--discriminator 0xF00 \<br>--generate_rd_uid \<br>--passcode 20202021 \<br>--product_finish <span class="hljs-string">&quot;matte&quot;</span> \<br>--product_color <span class="hljs-string">&quot;black&quot;</span> \<br>--out <span class="hljs-string">&quot;build_fd/my_fd&quot;</span> \<br>--schema <span class="hljs-string">&quot;scripts/tools/nrfconnect/nrfconnect_factory_data.schema&quot;</span> \<br>--offset 0xf7000 \<br>--size 0x1000 \<br>--generate_onboarding \<br>--overwrite<br></code></pre></td></tr></table></figure>
 
 <p>Windows Powershell版本：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">python scripts/tools/nrfconnect/generate_nrfconnect_chip_factory_data.py `</span><br><span class="line"><span class="literal">--sn</span> <span class="string">&quot;11223344556677889900&quot;</span> `</span><br><span class="line"><span class="literal">--vendor_id</span> <span class="number">65521</span> `</span><br><span class="line"><span class="literal">--product_id</span> <span class="number">32774</span> `</span><br><span class="line"><span class="literal">--vendor_name</span> <span class="string">&quot;Nordic Semiconductor ASA&quot;</span> `</span><br><span class="line"><span class="literal">--product_name</span> <span class="string">&quot;not-specified&quot;</span> `</span><br><span class="line"><span class="literal">--date</span> <span class="string">&quot;2022-02-02&quot;</span> `</span><br><span class="line"><span class="literal">--hw_ver</span> <span class="number">1</span> `</span><br><span class="line"><span class="literal">--hw_ver_str</span> <span class="string">&quot;prerelase&quot;</span> `</span><br><span class="line"><span class="literal">--dac_cert</span> <span class="string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Cert.der&quot;</span> `</span><br><span class="line"><span class="literal">--dac_key</span> <span class="string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Key.der&quot;</span> `</span><br><span class="line"><span class="literal">--pai_cert</span> <span class="string">&quot;credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.der&quot;</span> `</span><br><span class="line"><span class="literal">--spake2_it</span> <span class="number">1000</span> `</span><br><span class="line"><span class="literal">--spake2_salt</span> <span class="string">&quot;U1BBS0UyUCBLZXkgU2FsdA==&quot;</span> `</span><br><span class="line"><span class="literal">--discriminator</span> <span class="number">0</span>xF00 `</span><br><span class="line"><span class="literal">--generate_rd_uid</span> `</span><br><span class="line"><span class="literal">--passcode</span> <span class="number">20202021</span> `</span><br><span class="line"><span class="literal">--product_finish</span> <span class="string">&quot;matte&quot;</span> `</span><br><span class="line"><span class="literal">--product_color</span> <span class="string">&quot;black&quot;</span> `</span><br><span class="line"><span class="literal">--out</span> <span class="string">&quot;build_fd/my_fd&quot;</span> `</span><br><span class="line"><span class="literal">--schema</span> <span class="string">&quot;scripts/tools/nrfconnect/nrfconnect_factory_data.schema&quot;</span> `</span><br><span class="line"><span class="literal">--offset</span> <span class="number">0</span>xf7000 `</span><br><span class="line"><span class="literal">--size</span> <span class="number">0</span>x1000 `</span><br><span class="line"><span class="literal">--generate_onboarding</span> `</span><br><span class="line"><span class="literal">--overwrite</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs powershell">python scripts/tools/nrfconnect/generate_nrfconnect_chip_factory_data.py `<br><span class="hljs-literal">--sn</span> <span class="hljs-string">&quot;11223344556677889900&quot;</span> `<br><span class="hljs-literal">--vendor_id</span> <span class="hljs-number">65521</span> `<br><span class="hljs-literal">--product_id</span> <span class="hljs-number">32774</span> `<br><span class="hljs-literal">--vendor_name</span> <span class="hljs-string">&quot;Nordic Semiconductor ASA&quot;</span> `<br><span class="hljs-literal">--product_name</span> <span class="hljs-string">&quot;not-specified&quot;</span> `<br><span class="hljs-literal">--date</span> <span class="hljs-string">&quot;2022-02-02&quot;</span> `<br><span class="hljs-literal">--hw_ver</span> <span class="hljs-number">1</span> `<br><span class="hljs-literal">--hw_ver_str</span> <span class="hljs-string">&quot;prerelease&quot;</span> `<br><span class="hljs-literal">--dac_cert</span> <span class="hljs-string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Cert.der&quot;</span> `<br><span class="hljs-literal">--dac_key</span> <span class="hljs-string">&quot;credentials/development/attestation/Matter-Development-DAC-FFF1-8006-Key.der&quot;</span> `<br><span class="hljs-literal">--pai_cert</span> <span class="hljs-string">&quot;credentials/development/attestation/Matter-Development-PAI-FFF1-noPID-Cert.der&quot;</span> `<br><span class="hljs-literal">--spake2_it</span> <span class="hljs-number">1000</span> `<br><span class="hljs-literal">--spake2_salt</span> <span class="hljs-string">&quot;U1BBS0UyUCBLZXkgU2FsdA==&quot;</span> `<br><span class="hljs-literal">--discriminator</span> <span class="hljs-number">0</span>xF00 `<br><span class="hljs-literal">--generate_rd_uid</span> `<br><span class="hljs-literal">--passcode</span> <span class="hljs-number">20202021</span> `<br><span class="hljs-literal">--product_finish</span> <span class="hljs-string">&quot;matte&quot;</span> `<br><span class="hljs-literal">--product_color</span> <span class="hljs-string">&quot;black&quot;</span> `<br><span class="hljs-literal">--out</span> <span class="hljs-string">&quot;build_fd/my_fd&quot;</span> `<br><span class="hljs-literal">--schema</span> <span class="hljs-string">&quot;scripts/tools/nrfconnect/nrfconnect_factory_data.schema&quot;</span> `<br><span class="hljs-literal">--offset</span> <span class="hljs-number">0</span>xf7000 `<br><span class="hljs-literal">--size</span> <span class="hljs-number">0</span>x1000 `<br><span class="hljs-literal">--generate_onboarding</span> `<br><span class="hljs-literal">--overwrite</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>注意，示例中使用的是测试PAI和DAC证书，证书名包含了VID（0xFFF1, 65521）和PID（0x8006, 32774）.</p>
@@ -696,208 +1164,483 @@
 <p>填写步骤：</p>
 <ol>
 <li><p>填写必选项：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--sn --vendor_id, --product_id, --vendor_name, --product_name, --<span class="built_in">date</span>, --hw_ver, --hw_ver_str, --spake2_it, --spake2_salt, --discriminator</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">--sn --vendor_id, --product_id, --vendor_name, --product_name, --<span class="hljs-built_in">date</span>, --hw_ver, --hw_ver_str, --spake2_it, --spake2_salt, --discriminator<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>填写factory data在存储器分区中分配的地址和分区大小：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--offset &lt;offset&gt;</span><br><span class="line">--size &lt;size&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">--offset &lt;offset&gt;<br>--size &lt;size&gt;<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>填写输出路径与文件名前缀：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-o &lt;path_to_output_file&gt;</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">--out &lt;path_to_output_file&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">-o &lt;path_to_output_file&gt;<br><span class="hljs-comment"># 或者</span><br>--out &lt;path_to_output_file&gt;<br></code></pre></td></tr></table></figure>
 
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 记得确保路径是存在的，例如：</span></span><br><span class="line">--out <span class="string">&quot;build_fd/my_fd&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 则需要先存在该路径</span></span><br><span class="line"><span class="built_in">mkdir</span> build_fd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 最终将生成build_fd/my_fd.json, build_fd/my_fd.hex等等</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 记得确保路径是存在的，例如：</span><br>--out <span class="hljs-string">&quot;build_fd/my_fd&quot;</span><br><br><span class="hljs-comment"># 则需要先存在该路径</span><br><span class="hljs-built_in">mkdir</span> build_fd<br><br><span class="hljs-comment"># 最终将生成build_fd/my_fd.json, build_fd/my_fd.hex等等</span><br></code></pre></td></tr></table></figure>
 </li>
 <li><p>填写pascode或者SPAKE2 verifier</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 二选一</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.（推荐）直接填写passcode，脚本自动算出verifier</span></span><br><span class="line"><span class="comment">#   这里只是用passcode计算spake2_verifier，并不是把passcode包含到factory_data</span></span><br><span class="line">--passcode &lt;pass_code&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 用外部工具来计算出verifier，见 https://project-chip.github.io/connectedhomeip-doc/scripts/tools/spake2p/README.html</span></span><br><span class="line">--spake2_verifier &lt;verifier&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">## 二选一</span><br><br><span class="hljs-comment"># 1.（推荐）直接填写passcode，脚本自动算出verifier</span><br><span class="hljs-comment">#   这里只是用passcode计算spake2_verifier，并不是把passcode包含到factory_data</span><br>--passcode &lt;pass_code&gt;<br><br><span class="hljs-comment"># 2. 用外部工具来计算出verifier，见 https://project-chip.github.io/connectedhomeip-doc/scripts/tools/spake2p/README.html</span><br>--spake2_verifier &lt;verifier&gt;<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>填写DAC证书</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 二选一</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.（推荐）直接传入DAC证书，DAC私钥，PAI证书</span></span><br><span class="line"><span class="comment">#   每台设备的DAC都要确保不同，重新生成</span></span><br><span class="line">--dac_cert &lt;path to DAC certificate&gt;.der --dac_key &lt;path to DAC key&gt;.der --pai_cert &lt;path to PAI certificate&gt;.der</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. （仅测试用）用外部chip-cert工具自动生成DAC，这里用的是测试PAA自动生成PAI和PAA</span></span><br><span class="line">--chip_cert_path &lt;path to chip-cert executable&gt; --gen_certs</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">## 二选一</span><br><br><span class="hljs-comment"># 1.（推荐）直接传入DAC证书，DAC私钥，PAI证书</span><br><span class="hljs-comment">#   每台设备的DAC都要确保不同，重新生成</span><br>--dac_cert &lt;path to DAC certificate&gt;.der --dac_key &lt;path to DAC key&gt;.der --pai_cert &lt;path to PAI certificate&gt;.der<br><br><span class="hljs-comment"># 2. （仅测试用）用外部chip-cert工具自动生成DAC，这里用的是测试PAA自动生成PAI和PAA</span><br>--chip_cert_path &lt;path to chip-cert executable&gt; --gen_certs<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>（可选）同时生成二维码图片和手动配对码</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--generate_onboarding</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">--generate_onboarding<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>注意，这个功能需要安装依赖：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python -m pip install -r ./scripts/setup/requirements.nrfconnect.txt</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">python -m pip install -r ./scripts/setup/requirements.nrfconnect.txt<br></code></pre></td></tr></table></figure>
 </blockquote>
 </li>
 <li><p>（可选）为Amazon Frustration-Free Setup设置rotate-id</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 二选一</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.提供一个已有id</span></span><br><span class="line">--rd_uid &lt;rotating device ID unique ID&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2.生成一个id，生成时在日志中打印</span></span><br><span class="line">--generate_rd_uid </span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">## 二选一</span><br><br><span class="hljs-comment"># 1.提供一个已有id</span><br>--rd_uid &lt;rotating device ID unique ID&gt;<br><br><span class="hljs-comment"># 2.生成一个id，生成时在日志中打印</span><br>--generate_rd_uid <br></code></pre></td></tr></table></figure>
 </li>
 <li><p>（可选）用于验证json格式的schema路径：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--schema &lt;path to JSON Schema file&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">--schema &lt;path to JSON Schema file&gt;<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>（可选）把passcode包含在facory_data中:<br>只有debug log打印配网二维码，或者NFC配网才需要</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--include_passcode</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">--include_passcode<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>（可选）是否要覆盖上次脚本的输出</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--overwrite</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">--overwrite<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>（可选）产品外观材质与颜色</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--product_finish &lt;finish&gt; </span><br><span class="line">--product_color &lt;color&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">--product_finish &lt;finish&gt; <br>--product_color &lt;color&gt;<br></code></pre></td></tr></table></figure>
 </li>
 <li><p>（可选）（仅测试用）生成factory data时，用外部chip-cert工具自动生成一个测试用CD</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">--chip_cert_path &lt;path to chip-cert executable&gt; --gen_cd</span><br></pre></td></tr></table></figure></li>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">--chip_cert_path &lt;path to chip-cert executable&gt; --gen_cd<br></code></pre></td></tr></table></figure></li>
 </ol>
 <blockquote>
 <p>注意CD不属于factory data</p>
 </blockquote>
 <p>生成完毕后，可以在设置的<code>--out</code>路径中找到对应的文件：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">build_fd</span><br><span class="line">├── my_fd.bin</span><br><span class="line">├── my_fd.hex</span><br><span class="line">├── my_fd.json</span><br><span class="line">├── my_fd.png <span class="comment"># 配对二维码，可印刷在包装盒上</span></span><br><span class="line">└── my_fd.txt <span class="comment"># 手动配对码和二维码的payload</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">build_fd<br>├── my_fd.bin<br>├── my_fd.hex<br>├── my_fd.json<br>├── my_fd.png <span class="hljs-comment"># 配对二维码，可印刷在包装盒上</span><br>└── my_fd.txt <span class="hljs-comment"># 手动配对码和二维码的payload</span><br></code></pre></td></tr></table></figure>
 
-<h2 id="工厂数据烧写"><a href="#工厂数据烧写" class="headerlink" title="工厂数据烧写"></a>工厂数据烧写</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 烧录完matter固件后，再烧录factory data</span></span><br><span class="line">nrfutil device program --firmware my_fd.hex</span><br></pre></td></tr></table></figure>
+<h2 id="工厂数据烧写"><a href="#工厂数据烧写" class="headerlink" title="工厂数据烧写"></a>工厂数据烧写</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 烧录完matter固件后，再烧录factory data</span><br>nrfutil device program --firmware my_fd.hex<br></code></pre></td></tr></table></figure>
 
 
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2025/09/daaf6f53cdc2/" data-id="cmqop0nfy0007y8o561wocnon" data-title="Matter证书体系与量产设备证书烧录" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li></ul>
 
-    </footer>
-  </div>
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/Matter/" class="category-chain-item">Matter</a>
   
-    <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          Matter OTA固件升级
-        
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Nordic/" class="print-no-link">#Nordic</a>
+      
+        <a href="/jayant97.github.io/tags/Matter/" class="print-no-link">#Matter</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Matter证书体系与量产设备证书烧录</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2025/09/daaf6f53cdc2/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年9月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/" title="Matter OTA固件升级">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Matter OTA固件升级</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/09/6376457096fe/" title="在WSL2中搭建Matter CHIP Tool环境">
+                        <span class="hidden-mobile">在WSL2中搭建Matter CHIP Tool环境</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2025/09/6376457096fe/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">在WSL2中搭建Matter CHIP Tool环境</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>

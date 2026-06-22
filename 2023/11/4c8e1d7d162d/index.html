@@ -1,16 +1,29 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>Zephyr驱动与设备树实战——串口 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="2026.2.10更新：  NCS更新到 v3.2.1，USB协议栈切换到USB Device Stack (Next)。添加更详细的USB CDC ACM介绍。  2026.1.4更新：  新增54系列GPIO跨域使用配置，以及功耗测试  2025.7.26更新：  新增54L15串口硬件介绍 新增串口增强接收（Enhanced RX）的介绍。不再推荐使用PPI+Timer的形式进行接收数据计">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="2026.2.10更新：  NCS更新到 v3.2.1，USB协议栈切换到USB Device Stack (Next)。添加更详细的USB CDC ACM介绍。  2026.1.4更新：  新增54系列GPIO跨域使用配置，以及功耗测试  2025.7.26更新：  新增54L15串口硬件介绍 新增串口增强接收（Enhanced RX）的介绍。不再推荐使用PPI+Timer的形式进行接收数据计">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Zephyr驱动与设备树实战——串口">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2023/11/4c8e1d7d162d/index.html">
-<meta property="og:site_name" content="一苇万顷">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
 <meta property="og:description" content="2026.2.10更新：  NCS更新到 v3.2.1，USB协议栈切换到USB Device Stack (Next)。添加更详细的USB CDC ACM介绍。  2026.1.4更新：  新增54系列GPIO跨域使用配置，以及功耗测试  2025.7.26更新：  新增54L15串口硬件介绍 新增串口增强接收（Enhanced RX）的介绍。不再推荐使用PPI+Timer的形式进行接收数据计">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8065d44b86cceb9ff0e8b1ab1417eda2.png">
@@ -73,96 +86,552 @@
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/84d9a0ef48b1a62a92fc9cdc6e0c8552.png">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ce5532648d8bfa05cacd2db30d5963a6.png">
 <meta property="article:published_time" content="2023-11-12T09:48:56.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.231Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.842Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="Zephyr">
 <meta property="article:tag" content="DeviceTree">
-<meta name="twitter:card" content="summary">
+<meta property="article:tag" content="UART">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8065d44b86cceb9ff0e8b1ab1417eda2.png">
   
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
   
   
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  <title>Zephyr驱动与设备树实战——串口 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
   
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
   
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-Zephyr驱动与设备树实战——串口" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2023/11/4c8e1d7d162d/" class="article-date">
-  <time class="dt-published" datetime="2023-11-12T09:48:56.000Z" itemprop="datePublished">2023-11-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a>►<a class="article-category-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a>
-  </div>
+  
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Zephyr驱动与设备树实战——串口"></span>
+          
+        </div>
+
         
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      Zephyr驱动与设备树实战——串口
-    </h1>
-  
-
-      </header>
+          
+  <div class="mt-3">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-12 17:48" pubdate>
+          2023年11月12日
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          28k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          232 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <blockquote>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Zephyr驱动与设备树实战——串口</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
 <p>2026.2.10更新：</p>
 <ul>
 <li>NCS更新到 v3.2.1，USB协议栈切换到USB Device Stack (Next)。添加更详细的USB CDC ACM介绍。</li>
@@ -186,59 +655,59 @@
 <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>之前写了一篇详细的博文，详细介绍了Zephyr设备树（DeviceTree）的语法和Zephyr驱动模型的原理。但有些读者反馈，内容还是比较泛且杂，只感觉多了一些新的语法和规则，没有感受到这设备树和驱动模型的意义所在，希望能够结合实例来讲解。</p>
 <p>今天本文就通过串口这样一个最常见的外设，来实际感受一下Zephyr的驱动模型。本文将会以nRF Connect SDK中<code>zephyr/samples/hello_world</code>例程为基础。分别添加<strong>串口</strong>、<strong>USB CDC ACM</strong>、<strong>低功耗串口</strong>的功能。采用<strong>完全相同的应用层代码</strong>，只需要修改config和dts即可切换。</p>
 <h1 id="2-Hello-world解析—printk如何输出"><a href="#2-Hello-world解析—printk如何输出" class="headerlink" title="2. Hello world解析—printk如何输出"></a>2. Hello world解析—printk如何输出</h1><p>开发板我选择nRF52840DK。首先以<code>zephyr/samples/hello_world</code>例程为模板，创建一个新工程，我在这里把工程命名为<code>learning_zephyr_serial</code>。</p>
-<h2 id="工程目录结构"><a href="#工程目录结构" class="headerlink" title="工程目录结构"></a>工程目录结构</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">|--src</span><br><span class="line">|  |</span><br><span class="line">|  `--main.c</span><br><span class="line">|--CMakeLists.txt</span><br><span class="line">`--prj.conf</span><br></pre></td></tr></table></figure>
+<h2 id="工程目录结构"><a href="#工程目录结构" class="headerlink" title="工程目录结构"></a>工程目录结构</h2><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">|<span class="hljs-string">--src</span><br><span class="hljs-string"></span>|<span class="hljs-string">  </span>|<br>|<span class="hljs-string">  `--main.c</span><br><span class="hljs-string"></span>|<span class="hljs-string">--CMakeLists.txt</span><br><span class="hljs-string">`--prj.conf</span><br></code></pre></td></tr></table></figure>
 
 <p><code>CMakeLists.txt</code>中先把Zephyr作为包来导入，然后把main.c添加为源码。</p>
 <p><code>prj.conf</code>目前是空的，在这里可以写一些配置用来覆盖默认的Kconfig。</p>
 <p>例程默认没使用<code>Kconfig</code>菜单文件，是因为本工程太简单，没有自己的配置项，所以不需要自己的Kconfig文件。这种情况完全等价于Kconfig文件中只写了下面的内容：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">source &quot;Kconfig.zephyr&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">source</span> <span class="hljs-string">&quot;Kconfig.zephyr&quot;</span><br></code></pre></td></tr></table></figure>
 
 <p>相当于项目中只有Zephyr的菜单，可以让我们配置Zephyr系统的配置项，以及SDK中各个module的的配置项。选择板子，编译并烧录后，打开串口，reset一下，就能看到刚启动时串口输出的hello world了。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8065d44b86cceb9ff0e8b1ab1417eda2.png" alt="image-20231112183822534"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8065d44b86cceb9ff0e8b1ab1417eda2.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231112183822534"></p>
 <h2 id="printk输出配置"><a href="#printk输出配置" class="headerlink" title="printk输出配置"></a>printk输出配置</h2><p>很多新上手Zephyr的读者会有疑惑，这工程里几乎没什么代码，也没看到CONFIG和device tree文件，串口到底是怎么输出的？</p>
 <p>其实，在我们选择板子时，板子就已经自带了默认的device tree和config文件。因此编译时采用的全部是板子和Zephyr系统的默认值，我们的工程中并没有对这些默认值进行修改。</p>
 <p>我们可以在<code>build/zephyr/</code>目录下看到<code>.config</code>文件和<code>zephyr.dts</code>文件。这个就是项目最终编译采用的配置项和设备树。</p>
 <p>在<code>.config</code>中，我们可以看到：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_PRINTK=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">CONFIG_PRINTK=y<br></code></pre></td></tr></table></figure>
 
 <p>也就是启用了<code>printk()</code>输出的功能。</p>
 <p>我们把这一行复制到prj.conf中（这个行为本身没有意义，因为默认就是y），然后就可以用<strong>Ctrl+鼠标左键</strong>点击这个选项，跳转到这个配置项定义的地方，就可以看到这个配置项的说明：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/a2ee0a066378d3944f23bccfebfedc5f.png" alt="image-20231112184745524"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/a2ee0a066378d3944f23bccfebfedc5f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231112184745524"></p>
 <p>当然，你也可以在Kconfig GUI中找到这个配置项：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/09529eaa5aec7ff3197ab355163f7b47.png" alt="image-20231112184921595"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/09529eaa5aec7ff3197ab355163f7b47.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231112184921595"></p>
 <blockquote>
 <p>到这里，是否对“<code>Kconfig</code>定义了一个菜单，而<code>prj.conf</code>文件是对菜单中配置项的默认值进行修改”这句话有了一定的感受呢？</p>
 </blockquote>
 <h2 id="console设备与console驱动"><a href="#console设备与console驱动" class="headerlink" title="console设备与console驱动"></a>console设备与console驱动</h2><p>根据此配置项的说明，我们知道<code>printk()</code>是Zephyr的一个内核服务，它可以让通过<code>printk()</code>函数打印的内容通过”console”输出。这里的console指的是一个设备，可以让Zephyr系统输入和输出字节流。</p>
 <p>通过查看<code>build/zephyr/zephyr.dts</code>，可以看到：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/&#123;</span><br><span class="line">   ...</span><br><span class="line">    chosen &#123;</span><br><span class="line">        ...</span><br><span class="line">        zephyr,console = &amp;uart0;</span><br><span class="line">        ...</span><br><span class="line">    &#125;;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-title class_">/</span><span class="hljs-punctuation">&#123;</span><br>   ...<br>    <span class="hljs-title class_">chosen</span> <span class="hljs-punctuation">&#123;</span><br>        ...<br>        <span class="hljs-attr">zephyr,console</span> <span class="hljs-operator">=</span> <span class="hljs-variable">&amp;uart0</span><span class="hljs-punctuation">;</span><br>        ...<br>    <span class="hljs-punctuation">&#125;;</span><br>    ...<br><span class="hljs-punctuation">&#125;</span><br><br></code></pre></td></tr></table></figure>
 
 <p>在<code>/chosen</code>节点下，有很多<strong>属性</strong>。Zephyr系统内核的代码在运行一些功能时，并不在乎底层的硬件具体是什么，它只从<code>/chosen</code>节点下找到对应的硬件。只要这个硬件已经在RTOS初始化之前就被驱动程序初始化了，具有Zephyr标准外设接口，那么Zephyr内核就可以操作这个硬件。</p>
 <p>例如，要想获得这里的console设备的DeviceTree Node ID，就可以用<code>DT_CHOSEN(zephyr_console)</code>。</p>
 <p>我们自然可以联想到，可以把console换成其他<strong>串口设备</strong>，就可以让日志从其他串口输出了。这里，可以参考我的另一篇随笔<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/p/17784156.html">《Zephyr重定向日志打印到USB串口》</a>。</p>
 <p>如果你只是修改设备树中的console设备，那么不管如何修改，输出日志的设备都必须是一个“串口”（在Zephyr中USB CDC ACM设备也是串口，后文会解释）。在<code>build/zephyr/.config</code>中，我们还可以看到：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_UART_CONSOLE=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">CONFIG_UART_CONSOLE=y<br></code></pre></td></tr></table></figure>
 
 <p>原来，在当前配置下，Zephyr默认的console后端都必须是“串口”设备。</p>
 <p>我们可以尝试把console后端改成RTT，在<code>prj.conf</code>中，添加：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_UART_CONSOLE=n</span><br><span class="line">CONFIG_RTT_CONSOLE=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">CONFIG_UART_CONSOLE=n<br>CONFIG_RTT_CONSOLE=y<br></code></pre></td></tr></table></figure>
 
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/551a9a209c0745054d3342e2217c28c8.png" alt="image-20231112191457497"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/551a9a209c0745054d3342e2217c28c8.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231112191457497"></p>
 <p>然后就可以看到，printk()的日志从RTT中打印出来了。</p>
 <p>对于探究心强的读者，到这里肯定又会有疑问：为什么把console后端改成了RTT，只改了config，设备树就不用改了？</p>
 <p>关于这个问题，我想先传达出一个观点，那就是一个系统无论使用了什么样的框架，<strong>最终一定要落实到代码</strong>。通过在NCS中全局搜索<code>CONFIG_RTT_CONSOLE</code>和<code>CONFIG_UART_CONSOLE</code>，我们最终能找到这样的一个文件，<code>$&#123;NCS&#125;/zephyr/drivers/console/CMakeLists.txt</code>：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">zephyr_library_sources_ifdef(CONFIG_RTT_CONSOLE rtt_console.c)</span><br><span class="line">zephyr_library_sources_ifdef(CONFIG_UART_CONSOLE uart_console.c)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cmake">...<br>zephyr_library_sources_ifdef(CONFIG_RTT_CONSOLE rtt_console.c)<br>zephyr_library_sources_ifdef(CONFIG_UART_CONSOLE uart_console.c)<br>...<br></code></pre></td></tr></table></figure>
 
 <p>console本身作为一个中间件，也是要通过驱动程序向Zephyr提供标准console API的。在这里，CMake根据不同的CONFIG配置项，添加了不同的console驱动源码进入系统之中，进行编译。</p>
 <p>在uart_console.c中，我们明显能看到，此驱动代码需要通过device tree来找到标准的串口设备，然后调用标准的串口API来通信。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">const</span> <span class="title">uart_console_dev</span> =</span></span><br><span class="line">    DEVICE_DT_GET(DT_CHOSEN(zephyr_console));</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">const</span> <span class="hljs-title">uart_console_dev</span> =</span><br>    DEVICE_DT_GET(DT_CHOSEN(zephyr_console));<br></code></pre></td></tr></table></figure>
 
 <p>而在rtt_console.c中，我们可以看到此代码不需要获取任何device tree的信息。因此，当我们选择RTT作为后端时，无论device tree中的<code>/chosen</code>节点中如何选择<code>zephyr,console</code>，对于RTT console驱动代码来说都是没有意义的。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>经过前面的分析，我们可以有以下结论：</p>
 <p>首先，在Zephyr系统中有许多功能，我们可以用Kconfig的方式进行配置或裁减。</p>
 <p>此外，Zephyr中有非常明显的“分层设计”，例如，Nordic提交nrf系列串口驱动代码，提供Zephyr标准串口API；Zephyr有console驱动代码，向更上层提供标准console API；如果console是串口驱动，它还会调用标准串口 API来把日志输出到底层串口中；由于API是标准的，因此console驱动代码并不在乎底层到底是物理串口还是USB CDC ACM设备。</p>
 <p>前面分析了Hello world是如何通过console输出的。在Zephyr中，console主要是用来做一些字节流的传输，用来实现一些更上层的服务，例如自定义<code>shell</code>命令。而用户要开发自己的程序，肯定是需要自己直接操作串口，而不是用什么printf。</p>
-<h1 id="3-Nordic串口硬件"><a href="#3-Nordic串口硬件" class="headerlink" title="3. Nordic串口硬件"></a>3. Nordic串口硬件</h1><h2 id="UART"><a href="#UART" class="headerlink" title="UART"></a>UART</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/47b66b8aa6839171773ff5e5abf53fb5.png" alt="image-20250505231527537"></p>
+<h1 id="3-Nordic串口硬件"><a href="#3-Nordic串口硬件" class="headerlink" title="3. Nordic串口硬件"></a>3. Nordic串口硬件</h1><h2 id="UART"><a href="#UART" class="headerlink" title="UART"></a>UART</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/47b66b8aa6839171773ff5e5abf53fb5.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250505231527537"></p>
 <p>UART是最简单的硬件串口功能。图中小正方形为对外的硬件引脚，而箭头代表串口在MCU内部的输入、输出信号。</p>
 <ul>
 <li><p><strong>接收</strong>：在串口接收已经使能（STARTRX）的状态下，从RX线来的数据会被放入RXD寄存器，并产生RXDRDY事件。​</p>
@@ -249,12 +718,12 @@
 </ul>
 <p>这些事件都能用来触发中断，或者作为PPI信号触发其他外设的task。</p>
 <h2 id="UARTE"><a href="#UARTE" class="headerlink" title="UARTE"></a>UARTE</h2><p>UARTE和UART是不同的外设，但是共用了部分寄存器和电路。在使用时，这种具有相同地址的外设被称为同一个<strong>实例（Instance）</strong>，<strong>不能同时使能</strong>。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/fc3805662646766f565b4b9f4c4e2c3b.png" alt="image-20250505232121430"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/fc3805662646766f565b4b9f4c4e2c3b.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250505232121430"></p>
 <p>他们的ENABLE寄存器地址是相同的，但是使能所用的bit不同：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/fcca18a4a9b88168f161c24e7088e1cc.png" alt="image-20250505232133627"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/fcca18a4a9b88168f161c24e7088e1cc.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250505232133627"></p>
 <p>UARTE (UART with EasyDMA) 功能和UART是类似的，只不过有了EasyDMA的帮助，可以自动从RAM中取出数据发出；也可以把收到的数据直接存入RAM。无需CPU参与单个字节的收发处理，提升了效率，降低了功耗。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/0a3a5712a20c3b9b9dda64a66061394e.png" alt="image-20250505232323499"></p>
-<h3 id="UARTE发送逻辑"><a href="#UARTE发送逻辑" class="headerlink" title="UARTE发送逻辑"></a>UARTE发送逻辑</h3><p> <img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3b12c40231d46b93b26dffabd1d6874c.png" alt="image-20250505232526893"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/0a3a5712a20c3b9b9dda64a66061394e.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250505232323499"></p>
+<h3 id="UARTE发送逻辑"><a href="#UARTE发送逻辑" class="headerlink" title="UARTE发送逻辑"></a>UARTE发送逻辑</h3><p> <img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3b12c40231d46b93b26dffabd1d6874c.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250505232526893"></p>
 <ol>
 <li>TXD.PTR填入数据在RAM中的首地址，TXD.MAXCNT填入要发送的数据长度（nRF52840最大65535，nRF52832最大255）.</li>
 <li>使用STARTTX来启动自动的传输</li>
@@ -268,9 +737,9 @@
 <li>EasyDMA只能在RAM和外设之间传输数据，不能在RAM之间传输，也不能有FLASH参与。</li>
 </ul>
 </blockquote>
-<h3 id="UARTE接收逻辑"><a href="#UARTE接收逻辑" class="headerlink" title="UARTE接收逻辑"></a>UARTE接收逻辑</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/4a1b1a2b4f6c7d42deed43321b23e45f.png" alt="image-20250505232812582"></p>
+<h3 id="UARTE接收逻辑"><a href="#UARTE接收逻辑" class="headerlink" title="UARTE接收逻辑"></a>UARTE接收逻辑</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/4a1b1a2b4f6c7d42deed43321b23e45f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250505232812582"></p>
 <ol>
-<li>RXD.PTR填入数据首地址，RXD.MAXCNT填入要发送的数据长度（nRF52840最大65535，nRF52832最大255）.</li>
+<li>RXD.PTR填入数据首地址，RXD.MAXCNT填入要接收的数据长度（nRF52840最大65535，nRF52832最大255）.</li>
 <li>使用STARTRX来启动自动的接收</li>
 <li>传输完毕后（指RAM中存的数据长度已经达到了MAXCNT），有ENDRX事件提示</li>
 <li>中间每个字节的RXDRDY事件，无需再使能中断（从而降低功耗，提高CPU效率）</li>
@@ -285,23 +754,23 @@
 </blockquote>
 <h2 id="nRF54系列UARTE硬件新功能"><a href="#nRF54系列UARTE硬件新功能" class="headerlink" title="nRF54系列UARTE硬件新功能"></a>nRF54系列UARTE硬件新功能</h2><p>以nRF54L15为例，有以下功能更新：</p>
 <h3 id="（1）-4Mbps串口"><a href="#（1）-4Mbps串口" class="headerlink" title="（1） 4Mbps串口"></a>（1） 4Mbps串口</h3><p>在默认低频时钟域（16MHz）的情况下，串口的波特率可以由寄存器设置，如下最高为1Mbps。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/894689018edad6a0629abdbdda936465.png" alt="image-20250726225627521"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/894689018edad6a0629abdbdda936465.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250726225627521"></p>
 <p>但是，nRF54L15的 <strong>UARTE00</strong> 位于MCU PowerDomain，其时钟频率为128MHz：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/32231108676d0bbe54cf8b10b61a32ea.png" alt="image-20250726225904621"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/32231108676d0bbe54cf8b10b61a32ea.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250726225904621"></p>
 <p>这时，串口的实际波特率就和寄存器中的定义不相同，实际的公式手册中已经给出。</p>
 <p>但是我们做软件开发时无需关心这部分，因为在54L15芯片的原始设备树dtsi中：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">uart00: uart@4a000 &#123;</span><br><span class="line">    compatible = &quot;nordic,nrf-uarte&quot;;</span><br><span class="line">    reg = &lt;0x4a000 0x1000&gt;;</span><br><span class="line">    interrupts = &lt;74 NRF_DEFAULT_IRQ_PRIORITY&gt;;</span><br><span class="line">    clocks = &lt;&amp;hfpll&gt;;</span><br><span class="line">    status = &quot;disabled&quot;;</span><br><span class="line">    endtx-stoptx-supported;</span><br><span class="line">    frame-timeout-supported;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">uart00: uart<span class="hljs-meta">@4a000</span> &#123;<br>    compatible = <span class="hljs-string">&quot;nordic,nrf-uarte&quot;</span>;<br>    reg = <span class="hljs-variable">&lt;0x4a000 0x1000&gt;</span>;<br>    interrupts = <span class="hljs-variable">&lt;74 NRF_DEFAULT_IRQ_PRIORITY&gt;</span>;<br>    clocks = <span class="hljs-variable">&lt;&amp;hfpll&gt;</span>;<br>    status = <span class="hljs-string">&quot;disabled&quot;</span>;<br>    endtx-stoptx-supported;<br>    frame-timeout-supported;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>其已经指明了使用的是hfpll时钟。</p>
 <p>然后，在最新（目前为NCS v3.0.2）的UARTE的驱动代码<code>uart_nrfx_uarte.c</code>中，已经自动考虑了低频时钟和高频时钟的情况：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* When calculating baudrate we need to take into account that high speed instances</span></span><br><span class="line"><span class="comment"> * must have baudrate adjust to the ratio between UARTE clocking frequency and 16 MHz.</span></span><br><span class="line"><span class="comment"> * Additionally, &gt;1Mbaud speeds are calculated using a formula.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> UARTE_GET_BAUDRATE2(f_pclk, current_speed)                    \</span></span><br><span class="line"><span class="meta">    ((f_pclk &gt; NRF_UARTE_BASE_FREQUENCY_16MHZ) &amp;&amp; (current_speed &gt; 1000000)) ?	\</span></span><br><span class="line"><span class="meta">        UARTE_GET_CUSTOM_BAUDRATE(f_pclk, current_speed) :			\</span></span><br><span class="line"><span class="meta">        (NRF_BAUDRATE(current_speed) / UARTE_GET_BAUDRATE_DIV(f_pclk))</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* When calculating baudrate we need to take into account that high speed instances</span><br><span class="hljs-comment"> * must have baudrate adjust to the ratio between UARTE clocking frequency and 16 MHz.</span><br><span class="hljs-comment"> * Additionally, &gt;1Mbaud speeds are calculated using a formula.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UARTE_GET_BAUDRATE2(f_pclk, current_speed)                    \</span><br><span class="hljs-meta">    ((f_pclk &gt; NRF_UARTE_BASE_FREQUENCY_16MHZ) &amp;&amp; (current_speed &gt; 1000000)) ?	\</span><br><span class="hljs-meta">        UARTE_GET_CUSTOM_BAUDRATE(f_pclk, current_speed) :			\</span><br><span class="hljs-meta">        (NRF_BAUDRATE(current_speed) / UARTE_GET_BAUDRATE_DIV(f_pclk))</span><br></code></pre></td></tr></table></figure>
 
 <p>因此我们在软件上是感知不到这个差别的，只需正常配置我们需要的波特率即可。需要4M就配置<code>current-speed = &lt;4000000&gt;</code>；需要115200就配置<code>current-speed = &lt;115200&gt;</code>。</p>
-<h3 id="（2）支持4至9bits-帧"><a href="#（2）支持4至9bits-帧" class="headerlink" title="（2）支持4至9bits 帧"></a>（2）支持4至9bits 帧</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/6567df1a02e316811b9c173667ee9705.png" alt="image-20250726231953984"></p>
+<h3 id="（2）支持4至9bits-帧"><a href="#（2）支持4至9bits-帧" class="headerlink" title="（2）支持4至9bits 帧"></a>（2）支持4至9bits 帧</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/6567df1a02e316811b9c173667ee9705.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250726231953984"></p>
 <p>数据帧支持被配置为4bit ~ 9bit。</p>
 <p>其中，当配置为9bit时，第9个bit是地址位。当其为1时，代表前8个bits是地址；当其为0时，代表前8个是数据。</p>
 <p>且9bit模式下，只有先收到地址和ADDRESS寄存器匹配的第一个地址包时，才会接收后面的数据包。否则忽略所有收到的串口数据。</p>
-<h3 id="（3）帧超时中断"><a href="#（3）帧超时中断" class="headerlink" title="（3）帧超时中断"></a>（3）帧超时中断</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/b893b6f7b506da554c2fb02217dda58c.png" alt="image-20250726232649715"></p>
+<h3 id="（3）帧超时中断"><a href="#（3）帧超时中断" class="headerlink" title="（3）帧超时中断"></a>（3）帧超时中断</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/b893b6f7b506da554c2fb02217dda58c.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250726232649715"></p>
 <p>帧超时中断，或者说空闲帧中断，指的是：</p>
 <ul>
 <li>当连续一定时间没有收到串口数据时，就认为传输已经结束</li>
@@ -310,15 +779,15 @@
 </ul>
 <p>之前的nRF52和53系列是没有这个功能的，需要操作系统软定时器进行计时，把一个timeout分成5份设定k_timer周期。如果每次软定时器到期，串口已经收到的数据量没有增长，那么就说明串口空闲了。这时由驱动层软件主动结束串口接收。这就不如nRF54系列UARTE硬件自带空闲帧超时来的方便。</p>
 <p>只有<strong>异步串口</strong>才需要这个功能。因为<strong>阻塞</strong>和<strong>基于中断</strong>的串口都是按字节实时同步接收串口数据的。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/54c73f2e0da701646bbed68f13480de9.png" alt="image-20250726233308626"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/54c73f2e0da701646bbed68f13480de9.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250726233308626"></p>
 <p>空闲帧中断最大超时时间为 2^10 - 1&#x3D; 1023 bits。在115200波特率下，大约是8.88ms。而使用软定时器的方式，可以设置更长时间。</p>
 <p>nRF54L15的设备树默认开启了空闲帧的功能：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;uart20 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    frame-timeout-supported;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs puppet">&amp;<span class="hljs-keyword">uart20</span> &#123;<br>    <span class="hljs-literal">status</span> = <span class="hljs-string">&quot;okay&quot;</span>;<br>    frame-timeout-supported;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>对于支持帧超时中断的串口外设，就直接使用这个功能即可。不要删除这个属性。</p>
 <p>异步串口初始化时，通过<code>uart_rx_enable(dev, buf, len, timeout)</code>打开RX时，传入的timeout值（单位：微秒）会经过如下处理：</p>
 <ul>
-<li>如果开启了空闲帧中断，则取应用层传入的 timeout 和 1023 bits 之中，取时间更短的一个，会被设置到FRAMETIMEOUT寄存器中</li>
+<li>如果开启了空闲帧中断，则在应用层传入的 timeout 和 1023 bits 之中选取时间更短的一个，设置到 FRAMETIMEOUT 寄存器中</li>
 <li>如果没开启空闲帧中断，则用k_timer实现此功能，超时值为函数传入的timeout</li>
 </ul>
 <h1 id="4-Zephyr标准串口API"><a href="#4-Zephyr标准串口API" class="headerlink" title="4. Zephyr标准串口API"></a>4. Zephyr标准串口API</h1><p>上一节以nRF52系列的串口外设为例介绍了硬件部分，Nordic其他产品的串口基本也是一致的。</p>
@@ -352,7 +821,7 @@
 </ul>
 </blockquote>
 <h2 id="异步"><a href="#异步" class="headerlink" title="异步"></a>异步</h2><p>异步API是本文介绍的重点，它带有DMA，因此可以让数据传输时，不影响CPU的运行。但是它的配置最复杂，功能最强大。</p>
-<h3 id="异步发送"><a href="#异步发送" class="headerlink" title="异步发送"></a>异步发送</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/b161ff61daac34105ac418a0d8ff86b4.png" alt="image-20250506000430849"></p>
+<h3 id="异步发送"><a href="#异步发送" class="headerlink" title="异步发送"></a>异步发送</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/b161ff61daac34105ac418a0d8ff86b4.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250506000430849"></p>
 <p>调用<code>uart_tx(dev, *buf, len, timeout)</code>，给定首地址和长度即可，函数不阻塞。Timeout是给流控用的，如果输出被对方的流控阻止，自己能等待多久，如果没有流控就不用在意。</p>
 <p>发送过程由驱动层和硬件自动处理。</p>
 <p>发送完毕后，回调函数里会收到<strong>UART_TX_DONE</strong>事件。</p>
@@ -360,14 +829,14 @@
 <p>注意：</p>
 <ol>
 <li>注意发送数据buffer的生命周期，不能是局部变量</li>
-<li>如果buffer的地址不属于于RAM，Nordic的驱动程序会先自动执行一个拷贝到RAM中的动作。因为硬件不支持RAM以外的地方到外设的DMA。</li>
+<li>如果buffer的地址不属于RAM，Nordic的驱动程序会先自动执行一个拷贝到RAM中的动作。因为硬件不支持RAM以外的地方到外设的DMA。</li>
 <li>uart_tx这个行为是低功耗的。只要不在发送，就没有发送行为相关的功耗。无需disable串口。</li>
 </ol>
 </blockquote>
 <p>在DMA传输期间，如果再次执行uart_tx()，函数会返回<code>-EBUSY</code>错误码：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/0c8c3cc39029da6d8d7da1eeafbabc38.png" alt="image-20250727000130872"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/0c8c3cc39029da6d8d7da1eeafbabc38.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250727000130872"></p>
 <p>后续例程会展示如何实现发送缓冲线程。</p>
-<h3 id="异步接收"><a href="#异步接收" class="headerlink" title="异步接收"></a>异步接收</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/617d9c8e5b5060c0dcc1e9f741850e20.png" alt="image-20250506000958480"></p>
+<h3 id="异步接收"><a href="#异步接收" class="headerlink" title="异步接收"></a>异步接收</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/617d9c8e5b5060c0dcc1e9f741850e20.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250506000958480"></p>
 <ol>
 <li>用<code>uart_rx_enable(dev, *buf, len, timeout_us)</code>来首次使能接收。给定Buffer和长度。Buffer收满以后会产生UART_RX_RDY事件。</li>
 <li>Timeout是空闲超时机制。在至少收到1个字节之后，即使buffer未满，如果超时，也会产生<code>UART_RX_RDY</code>事件。这是为了方便收取一个小于buffer长度的包的情况。单位是微秒。timeout时间设为SYS_FOREVER_US会关闭这个机制。</li>
@@ -378,43 +847,43 @@
 </ul>
 </li>
 </ol>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/5d9b9ad4db0201e8f1dc44ae7342d418.png" alt="image-20250506000854098"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/5d9b9ad4db0201e8f1dc44ae7342d418.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250506000854098"></p>
 <h2 id="Zephyr串口驱动"><a href="#Zephyr串口驱动" class="headerlink" title="Zephyr串口驱动"></a>Zephyr串口驱动</h2><p>无论是阻塞、基于中断、还是异步API。它们都是由Nordic的驱动程序提供的。</p>
 <p>当<code>CONFIG_SERIAL=y</code>，就使能了Zephyr的串口驱动。Zephyr系统内的CMake规则会自动把相关MCU的串口驱动编译进去。</p>
 <p>而Nordic是提供了三种驱动的：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/2d16fa1b03901a6cfd6347d0d8b5208b.png" alt="image-20250506001935633"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/2d16fa1b03901a6cfd6347d0d8b5208b.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250506001935633"></p>
 <p>使用时，注意在device tree中设置正确的compatible，来选择正确的驱动。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/2753bd1faeeebb2e7251143b27988756.png" alt="image-20250506001833817"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/2753bd1faeeebb2e7251143b27988756.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250506001833817"></p>
 <blockquote>
 <p><strong>设备树的compatible和驱动程序是如何对应的？</strong></p>
 <p>​    设备树的compatible属性，在编译阶段会被转换成C语言命名规范允许的形式（特殊符号全变为下划线），如<code>nordic_nrf_uarte</code>。</p>
 <p>​    每个驱动程序会用自己的方法遍历设备树中所有compatible与自己相匹配的节点。然后基于这个节点的信息来初始化硬件外设。</p>
 <p><strong>uarte和uarte2有什么区别？</strong></p>
 <p>​    见<code>zephyr/driver/serial/CMakeLists.txt</code></p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (CONFIG_UART_NRFX_UARTE)</span><br><span class="line">  <span class="keyword">if</span> (CONFIG_UART_NRFX_UARTE_LEGACY_SHIM)</span><br><span class="line">    zephyr_library_sources(uart_nrfx_uarte.c)</span><br><span class="line">  <span class="keyword">else</span>()</span><br><span class="line">    <span class="keyword">message</span>(DEPRECATION</span><br><span class="line">        <span class="string">&quot;Do not set CONFIG_UART_NRFX_UARTE_LEGACY_SHIM=n as this option is deprecated.&quot;</span>)</span><br><span class="line">    zephyr_library_sources(uart_nrfx_uarte2.c)</span><br><span class="line">  <span class="keyword">endif</span>()</span><br><span class="line"><span class="keyword">endif</span>()</span><br></pre></td></tr></table></figure>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-keyword">if</span> (CONFIG_UART_NRFX_UARTE)<br>  <span class="hljs-keyword">if</span> (CONFIG_UART_NRFX_UARTE_LEGACY_SHIM)<br>    zephyr_library_sources(uart_nrfx_uarte.c)<br>  <span class="hljs-keyword">else</span>()<br>    <span class="hljs-keyword">message</span>(DEPRECATION<br>        <span class="hljs-string">&quot;Do not set CONFIG_UART_NRFX_UARTE_LEGACY_SHIM=n as this option is deprecated.&quot;</span>)<br>    zephyr_library_sources(uart_nrfx_uarte2.c)<br>  <span class="hljs-keyword">endif</span>()<br><span class="hljs-keyword">endif</span>()<br></code></pre></td></tr></table></figure>
 </blockquote>
 <h1 id="5-异步串口代码示例"><a href="#5-异步串口代码示例" class="headerlink" title="5. 异步串口代码示例"></a>5. 异步串口代码示例</h1><p>示例代码：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/Jayant-Tang/learning_zephyr_serial">Jayant-Tang&#x2F;learning_zephyr_serial: An example that shows how to use zephyr Async UART</a></p>
 <p>读者可以下载示例代码后，对照阅读本文</p>
 <blockquote>
 <p>【注意】<br>本文基于NCS v3.0.2。若读者使用v2.4.2或以下版本，代码中的</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">case</span> UART_RX_BUF_RELEASED:</span><br><span class="line">    k_mem_slab_free(&amp;uart_slab, (<span class="type">void</span> *)evt-&gt;data.rx_buf.buf);</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">case</span> UART_RX_BUF_RELEASED:<br>    k_mem_slab_free(&amp;uart_slab, (<span class="hljs-type">void</span> *)evt-&gt;data.rx_buf.buf);<br>    <span class="hljs-keyword">break</span>;<br></code></pre></td></tr></table></figure>
 
 <p>需要改回：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">case</span> UART_RX_BUF_RELEASED:</span><br><span class="line">    k_mem_slab_free(&amp;uart_slab, (<span class="type">void</span> **)&amp;evt-&gt;data.rx_buf.buf);</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">case</span> UART_RX_BUF_RELEASED:<br>    k_mem_slab_free(&amp;uart_slab, (<span class="hljs-type">void</span> **)&amp;evt-&gt;data.rx_buf.buf);<br>    <span class="hljs-keyword">break</span>;<br></code></pre></td></tr></table></figure>
 <p>因为版本升级后<code>k_mem_slab_free</code>的实现不同，参数从二级指针变为了一级指针。</p>
 </blockquote>
 <h2 id="src-app-uart-app-uart-c"><a href="#src-app-uart-app-uart-c" class="headerlink" title="src&#x2F;app_uart&#x2F;app_uart.c"></a>src&#x2F;app_uart&#x2F;app_uart.c</h2><h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>首先是获得device，这里的方法是用aliases别名来获取：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* serial device */</span> </span><br><span class="line"><span class="meta">#<span class="keyword">define</span> UART_INST DT_ALIAS(learning_serial)</span></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">uart_dev</span> =</span> DEVICE_DT_GET(UART_INST);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* serial device */</span> <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART_INST DT_ALIAS(learning_serial)</span><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">uart_dev</span> =</span> DEVICE_DT_GET(UART_INST);<br></code></pre></td></tr></table></figure>
 
 <p>因为在不同板子的设备树中，都已经选好了对应的串口：</p>
 <p><code>nrf54l15dk_nrf54l15_cpuapp.overlay</code>:</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/&#123;</span><br><span class="line">    aliases&#123;</span><br><span class="line">        learning-serial = &amp;uart20;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-title class_">/</span><span class="hljs-punctuation">&#123;</span><br>    aliases<span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">learning-serial</span> <span class="hljs-operator">=</span> <span class="hljs-variable">&amp;uart20</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-punctuation">&#125;;</span><br><span class="hljs-punctuation">&#125;;</span><br></code></pre></td></tr></table></figure>
 
 <p><code>nrf52840dk_nrf52840.overlay</code>:</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/&#123;</span><br><span class="line">    aliases&#123;</span><br><span class="line">        learning-serial = &amp;uart0;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-title class_">/</span><span class="hljs-punctuation">&#123;</span><br>    aliases<span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">learning-serial</span> <span class="hljs-operator">=</span> <span class="hljs-variable">&amp;uart0</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-punctuation">&#125;;</span><br><span class="hljs-punctuation">&#125;;</span><br></code></pre></td></tr></table></figure>
 
 <p>然后是初始化时，注册异步回调函数，并开启串口接收。这里除了device结构体指针之外，还有两组配置。一个是接收缓存及其长度、一个是超时时间：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">uart_rx_enable(uart_dev, buf, BUF_SIZE, RX_INACTIVE_TIMEOUT_US);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">uart_rx_enable(uart_dev, buf, BUF_SIZE, RX_INACTIVE_TIMEOUT_US);<br></code></pre></td></tr></table></figure>
 
 <p>接收缓存用的是Zephyr的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/kernel/memory_management/slabs.html#memory-slabs">memory slab</a>功能。代码中用<code>K_MEM_SLAB_DEFINE</code>定义了几块静态的缓存区域，可以用allocate和free来进行内存块的分配和释放操作。相当于是一个私有的动态内存区域。在<code>main()</code>函数中，先取出了一块内存，然后传入<code>rx_enable</code>作为接收缓存。</p>
 <p>超时时间，指的是串口空闲一定时间，没有新数据来，就直接认为接收完毕。即使DMA接收缓存还未满，也要产生空闲事件，并直接调用callback。<strong>这里为了演示，设置为1秒超时</strong>。</p>
@@ -423,17 +892,17 @@
 <p>但是，对于nRF54L15这种串口硬件本身支持超时帧中断的情况，会使用硬件本身的超时功能。这时，超时时间的最大值就是UARTE硬件帧中断支持的最大时间。比如54l15的串口，空闲帧的最大值为10个bit宽度，在115200波特率下大约为8.9ms。因此，这种情况下设置所有超过8.9ms的时间都会被缩短到8.9ms。</p>
 </blockquote>
 <h3 id="串口回调"><a href="#串口回调" class="headerlink" title="串口回调"></a>串口回调</h3><p>在回调函数中，每次接收缓存已满，或者达到了超时时间，就会产生<code>UART_RX_RDY</code>事件。在事件结构体中，<code>buf</code>是缓存的首地址，<code>offset</code>是本次收到的数据在缓存中的位置，<code>len</code>是本次收到的数据的长度。因此，本次接收到的数据的真实首地址为：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">uint8_t</span> *p = &amp;(evt-&gt;data.rx.buf[evt-&gt;data.rx.offset]);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">uint8_t</span> *p = &amp;(evt-&gt;data.rx.buf[evt-&gt;data.rx.offset]);<br></code></pre></td></tr></table></figure>
 
 <p>每次接收缓存满时，串口rx驱动代码会向应用层申请新的接收缓存，即<code>UART_RX_BUF_REQUEST</code>事件。这时我们从memory slab中分配一块新的内存给它即可。</p>
 <p>当串口驱动获得了新的接收缓存时，它也会向应用层申请释放掉旧的接收缓存，即<code>UART_RX_BUF_RELEASED</code>事件。这时我们用memory slab的free函数将其释放即可。</p>
 <blockquote>
 <p>这里有一些小细节：</p>
 <ol>
-<li><p>回调函数的形参evt，在call stack中上一层的驱动代码里是一个局部变量。在回调函数返回后，evt会被释放。因此这里如果要实现回环，需要拷贝一份到静态内中。即<code>static uint8_t buf[128]</code>。</p>
+<li><p>回调函数的形参evt，在call stack中上一层的驱动代码里是一个局部变量。在回调函数返回后，evt会被释放。因此这里如果要实现回环，需要拷贝一份到静态内存中。即<code>static uint8_t buf[128]</code>。</p>
 </li>
 <li><p>如果某一次接收到了很多数据，超出了buffer的剩余空间。那么这次收到的数据就会被分成两部分，产生两次接收回调。这也意味着，我们必须把接收到的数据看作是“字节流”而不是“包”。开发者应该自己实现字节流解包处理函数，例如：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; evt-&gt;data.rx.len; i++)&#123;</span><br><span class="line">    bytes_to_packet(p[i]); <span class="comment">// 开发者自行实现解包函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; evt-&gt;data.rx.len; i++)&#123;<br>    bytes_to_packet(p[i]); <span class="hljs-comment">// 开发者自行实现解包函数</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>main.c中已经实现了这一点。</p>
 </li>
@@ -447,32 +916,32 @@
 <p>要发送数据时，执行<code>app_uart_tx()</code>。此函数不阻塞且会拷贝数据。因此可以从ISR或Thread中调用，也可以传入局部变量。</p>
 <p>收到的串口数据是字节流而不是包。因此通过有限状态机实现了串口数据流解包函数，以连续的CRLF（<code>\r\n</code>）为分界，进行数据的解包。</p>
 <h2 id="异步串口配置"><a href="#异步串口配置" class="headerlink" title="异步串口配置"></a>异步串口配置</h2><p><code>prj.conf</code></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">use RTT as console</span></span><br><span class="line">CONFIG_USE_SEGGER_RTT=y</span><br><span class="line">CONFIG_RTT_CONSOLE=y</span><br><span class="line">CONFIG_UART_CONSOLE=n</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">enable</span> logging</span></span><br><span class="line">CONFIG_LOG=y</span><br><span class="line">CONFIG_LOG_BACKEND_RTT=y</span><br><span class="line">CONFIG_LOG_MODE_DEFERRED=y</span><br><span class="line"></span><br><span class="line">CONFIG_SEGGER_RTT_MODE_NO_BLOCK_SKIP=y</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">use ASYNC uart API</span></span><br><span class="line">CONFIG_SERIAL=y</span><br><span class="line">CONFIG_UART_ASYNC_API=y</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">need k_malloc</span></span><br><span class="line">CONFIG_HEAP_MEM_POOL_SIZE=4096</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">use RTT as console</span><br>CONFIG_USE_SEGGER_RTT=y<br>CONFIG_RTT_CONSOLE=y<br>CONFIG_UART_CONSOLE=n<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">enable</span> logging</span><br>CONFIG_LOG=y<br>CONFIG_LOG_BACKEND_RTT=y<br>CONFIG_LOG_MODE_DEFERRED=y<br><br>CONFIG_SEGGER_RTT_MODE_NO_BLOCK_SKIP=y<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">use ASYNC uart API</span><br>CONFIG_SERIAL=y<br>CONFIG_UART_ASYNC_API=y<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">need k_malloc</span><br>CONFIG_HEAP_MEM_POOL_SIZE=4096<br></code></pre></td></tr></table></figure>
 
 <p>首先，把console改为RTT，防止日志和我们的串口数据混在一起。</p>
 <p><code>CONFIG_SERIAL=y</code>的作用是，使能Zephyr标准串口驱动；<code>CONFIG_UART_ASYNC_API=y</code>使能了异步API。这两项都是Zephyr的串口配置项，来自于<code>$&#123;NCS&#125;/zephyr/drivers/serial/Kconfig</code>。</p>
 <p>由于我们需要用到动态内存分配，因此这里要设置HEAP大小<code>CONFIG_HEAP_MEM_POOL_SIZE=4096</code>。</p>
 <p><code>boards/&lt;board&gt;.conf</code>：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_UART_xx_ASYNC=y</span><br><span class="line">CONFIG_UART_NRFX_UARTE_ENHANCED_RX=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_UART_xx_ASYNC</span>=y<br><span class="hljs-attr">CONFIG_UART_NRFX_UARTE_ENHANCED_RX</span>=y<br></code></pre></td></tr></table></figure>
 
 <p><code>CONFIG_UART_xx_ASYNC=y</code>来自于Nordic的配置<code>$&#123;NCS&#125;/zephyr/drivers/serial/Kconfig.nrfx</code>。Zephyr只提供了全局的串口API选择（异步、中断、阻塞）。但是Nordic允许开发者给不同的串口使用不同的API。因此这里需要给特定的串口实例单独启用ASYNC API。</p>
 <h2 id="强化RX功能"><a href="#强化RX功能" class="headerlink" title="强化RX功能"></a>强化RX功能</h2><p>上述第二配置，<strong>对性能和功耗影响很大</strong>。虽说串口API是异步的，但底层驱动的实现却有很多变化。当一个外设通过DMA传输数据时，通常来说是DMA缓存写满了，才产生中断，然后把整个缓存传给应用层。但别忘了，我们的异步串口有<strong>空闲超时功能</strong>，如果DMA缓存还没有写满，但因为串口一直没有收到新的数据，超时了，需要立即把目前已经收到的数据传到应用层。这种情况下，<strong>如何才能知道目前已经接收了多少个字节数据呢？</strong></p>
 <p>纯软件的方法就是，每收到一个字节就产生中断，在中断服务函数里，通过软件的方式+1，这也是大多数普通的单片机的做法。<strong>如果你不添加最后两行CONFIG配置，那么<code>uart_nrfx_uarte.c</code>驱动就会采用这种方法</strong>。但是当串口速率很高时（如1Mbps），每一个字节都产生中断一定会大量占用CPU资源，效率极低。</p>
-<p>因此这里需要强化版RX（Enhanced RX）功能。在底层驱动代码中，当<code>CONFIG_UART_NRFX_UARTE_ENHANCED_RX</code>开启时，单个字节的中断不会被使能：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/fe23eea8c563759f1a57c14b8ab88644.png" alt="image-20250727044332567"></p>
+<p>因此这里需要增强版RX（Enhanced RX）功能。在底层驱动代码中，当<code>CONFIG_UART_NRFX_UARTE_ENHANCED_RX</code>开启时，单个字节的中断不会被使能：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/fe23eea8c563759f1a57c14b8ab88644.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250727044332567"></p>
 <p>这就确保了不会产生单个字节的中断，从而影响CPU性能。</p>
 <p>另一方面，在底层驱动的RX enable函数中，使能了连接FRAMETIMEOUT event和 STOP_RX task的SHORT寄存器：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/1bd7e9bcb8d16788c65066091e036adc.png" alt="image-20250727044930863"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/1bd7e9bcb8d16788c65066091e036adc.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250727044930863"></p>
 <blockquote>
 <p>SHORT寄存器（意为短路）就是可以让一个外设的event自动触发该外设的一个task，无需CPU参与。当FRAME_TIMEOUT发生时，外设自动执行STOP_RX。</p>
 </blockquote>
 <p>对于nRF52系列这种不支持FRAME_TIMEOUT的老系列。超时是靠k_timer软定时器实现的，在rx enable的函数内，把超时时间分成了5份：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">async_rx-&gt;timeout_us = timeout;</span><br><span class="line">async_rx-&gt;timeout_slab = timeout / RX_TIMEOUT_DIV; <span class="comment">// RX_TIMEOUT_DIV = 5</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">async_rx-&gt;timeout_us = timeout;<br>async_rx-&gt;timeout_slab = timeout / RX_TIMEOUT_DIV; <span class="hljs-comment">// RX_TIMEOUT_DIV = 5</span><br></code></pre></td></tr></table></figure>
 
 <p>底层驱动在RX Started中断里，开始计时：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3237942a0bf438792701ab9bc7ae34b0.png" alt="image-20250727045514187"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3237942a0bf438792701ab9bc7ae34b0.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250727045514187"></p>
 <p>如果连续5次都超时，则软件触发STOPRX中断：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (async_rx-&gt;idle_cnt == (RX_TIMEOUT_DIV - <span class="number">1</span>)) &#123;</span><br><span class="line">    nrf_uarte_task_trigger(uarte, NRF_UARTE_TASK_STOPRX);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (async_rx-&gt;idle_cnt == (RX_TIMEOUT_DIV - <span class="hljs-number">1</span>)) &#123;<br>    nrf_uarte_task_trigger(uarte, NRF_UARTE_TASK_STOPRX);<br>    <span class="hljs-keyword">return</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>这和前面的SHORT寄存器是一个思路。</p>
 <p>不论是前面二者中的哪种情况，当STOP RX中断发生时，就会进入底层驱动的<code>endrx_isr()</code>。在这里读取DMA的AMOUNT寄存器，就可以在DMA缓存区未满的情况下，获取串口已经收到的字节数了。</p>
@@ -481,18 +950,18 @@
 <p>而PPI可以把两个不同外设的event寄存器和task寄存器连接起来，实现<strong>自动联动，而无需CPU处理</strong>。</p>
 <p>如此一来，Nordic串口驱动可以把一个Timer配置为计数器模式（Counter Mode），并且把他的COUNT TASK与串口的接收到单个字节的EVENT通过PPI连接起来。这样计数器就可以自动记录收到了多少个字节。当接收超时的时候，直接从counter中读取计数即可。</p>
 <p>在nRF52840上，可以这样配置，将timer2用作uart0的计数器：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_UART_0_ASYNC=y</span><br><span class="line"></span><br><span class="line">CONFIG_UART_NRFX_UARTE_ENHANCED_RX=n</span><br><span class="line"></span><br><span class="line">CONFIG_UART_0_NRF_HW_ASYNC=y</span><br><span class="line">CONFIG_UART_0_NRF_HW_ASYNC_TIMER=2</span><br><span class="line"></span><br><span class="line">CONFIG_NRFX_TIMER2=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_UART_0_ASYNC</span>=y<br><br><span class="hljs-attr">CONFIG_UART_NRFX_UARTE_ENHANCED_RX</span>=n<br><br><span class="hljs-attr">CONFIG_UART_0_NRF_HW_ASYNC</span>=y<br><span class="hljs-attr">CONFIG_UART_0_NRF_HW_ASYNC_TIMER</span>=<span class="hljs-number">2</span><br><br><span class="hljs-attr">CONFIG_NRFX_TIMER2</span>=y<br></code></pre></td></tr></table></figure>
 
 <p>在nRF54L15上，不推荐用硬件计数，请直接使用<code>CONFIG_UART_NRFX_UARTE_ENHANCED_RX=y</code>，这里也不给出配置，经过我实测：</p>
 <ul>
-<li>54L15使用硬件计数，开启FRAMTIMEOUT时。出现bug，FRAMETIMEOUT不生效，必须收到大于DMA长度的包才能产生中断；</li>
-<li>54L15使用硬件计数，关闭FRAMTIMEOUT，k_timer实现超时功能。出现bug，收到的数据包最后2个字节完全错误，且尾部还会再增加一个随机错误字节。</li>
+<li>54L15使用硬件计数，开启FRAMETIMEOUT时，出现bug，FRAMETIMEOUT不生效，必须收到大于DMA长度的包才能产生中断；</li>
+<li>54L15使用硬件计数，关闭FRAMETIMEOUT，k_timer实现超时功能。出现bug，收到的数据包最后2个字节完全错误，且尾部还会再增加一个随机错误字节。</li>
 </ul>
 <h2 id="异步串口设备树"><a href="#异步串口设备树" class="headerlink" title="异步串口设备树"></a>异步串口设备树</h2><p>我们并不需要额外修改设备树，直接采用默认值即可。我们这里只是给串口起一个别名，方便不同MCU平台统一代码：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/&#123;</span><br><span class="line">    aliases&#123;</span><br><span class="line">        learning-serial = &amp;uart20;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;uart20 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-title class_">/</span><span class="hljs-punctuation">&#123;</span><br>    aliases<span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">learning-serial</span> <span class="hljs-operator">=</span> <span class="hljs-variable">&amp;uart20</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-punctuation">&#125;;</span><br><span class="hljs-punctuation">&#125;;</span><br><br><span class="hljs-variable">&amp;uart20</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">status</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;okay&quot;</span><span class="hljs-punctuation">;</span><br><span class="hljs-punctuation">&#125;;</span><br><br></code></pre></td></tr></table></figure>
 
 <p>至于这个串口的具体配置，我们可以直接查看编译后的完整设备树，位于<code>build/&lt;application_name&gt;/zephyr/zephyr.dts</code>：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">uart0: uart@40002000 &#123;</span><br><span class="line">            compatible = &quot;nordic,nrf-uarte&quot;;</span><br><span class="line">            reg = &lt; 0x40002000 0x1000 &gt;;</span><br><span class="line">            interrupts = &lt; 0x2 0x1 &gt;;</span><br><span class="line">            status = &quot;okay&quot;;</span><br><span class="line">            current-speed = &lt; 0x1c200 &gt;;</span><br><span class="line">            pinctrl-0 = &lt; &amp;uart0_default &gt;;</span><br><span class="line">            pinctrl-1 = &lt; &amp;uart0_sleep &gt;;</span><br><span class="line">            pinctrl-names = &quot;default&quot;, &quot;sleep&quot;;</span><br><span class="line">        &#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">uart0: uart<span class="hljs-meta">@40002000</span> &#123;<br>            compatible = <span class="hljs-string">&quot;nordic,nrf-uarte&quot;</span>;<br>            reg = <span class="hljs-variable">&lt; 0x40002000 0x1000 &gt;</span>;<br>            interrupts = <span class="hljs-variable">&lt; 0x2 0x1 &gt;</span>;<br>            status = <span class="hljs-string">&quot;okay&quot;</span>;<br>            current-speed = <span class="hljs-variable">&lt; 0x1c200 &gt;</span>;<br>            pinctrl-0 = <span class="hljs-variable">&lt; &amp;uart0_default &gt;</span>;<br>            pinctrl-1 = <span class="hljs-variable">&lt; &amp;uart0_sleep &gt;</span>;<br>            pinctrl-names = <span class="hljs-string">&quot;default&quot;</span>, <span class="hljs-string">&quot;sleep&quot;</span>;<br>        &#125;;<br></code></pre></td></tr></table></figure>
 
 <p>主要属性介绍：</p>
 <ul>
@@ -505,19 +974,19 @@
 <li><p><code>current-speed = &lt; 0x1c200 &gt;</code>：波特率，也就是写十进制<code>current-speed = &lt; 115200 &gt;</code></p>
 </li>
 </ul>
-<h2 id="硬件连接"><a href="#硬件连接" class="headerlink" title="硬件连接"></a>硬件连接</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/e1f8ca33f0a8e621f288179dd9ab2173.png" alt="image-20221209144123203"></p>
+<h2 id="硬件连接"><a href="#硬件连接" class="headerlink" title="硬件连接"></a>硬件连接</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/e1f8ca33f0a8e621f288179dd9ab2173.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221209144123203"></p>
 <p>Nordic开发板的串口0默认GPIO都是在板子上直接连接到Jlink上，然后Jlink把串口转发到USB上，因此电脑上看到的是Jlink的USB串口。</p>
 <p>右上角开关，nRF Only是只给单片机核心电路供电，外围LED、Jlink等都不供电，用于测量功耗。因此应该拨到DEFAULT档位。</p>
 <p>板载Jlink，USB插左边即可。左下角电源开关打开。</p>
 <h2 id="异步串口代码运行"><a href="#异步串口代码运行" class="headerlink" title="异步串口代码运行"></a>异步串口代码运行</h2><p>烧录好程序后，分别打开RTT和串口。从串口发送hello（包含回车+换行），串口就会把hello回环打印出来。并且RTT的日志中会显示收到了7字节，发送了7字节：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/d4f6f910dc63966549e3cda4036916b6.png" alt="image-20250727053522774"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/d4f6f910dc63966549e3cda4036916b6.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250727053522774"></p>
 <blockquote>
 <ul>
 <li>不要用VS Code里面nRF插件提供的这个串口终端。在里面按下回车不是<code>\r\n</code>，无法形成完整数据包。可以用nRF Connect for Desktop里面的串口助手。</li>
 <li>如果是52840，前面设置了1s超时，hello就会在发送后1s回环打印出来。如果是54L15，不采用这个超时，而是采用空闲帧中断，hello会在1023个bit时间内打印出来（约8.9ms）。</li>
 </ul>
 </blockquote>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/befde71fdc0717db731e044fb030feb6.png" alt="image-20250727054355433"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/befde71fdc0717db731e044fb030feb6.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250727054355433"></p>
 <p>如果一次性发送大量数据，则我们可以看到产生了多个接收完毕中断。由于我们的<code>CONFIG_APP_UART_RX_DMA_BLOCK_SIZE</code>设置的是64，因此每收到64字节，串口驱动就会重新申请一块新的内存。</p>
 <p>而应用层<code>main.c</code>中，已经实现了解包函数，因此最终是按照一整包回环发送回来的。</p>
 <h1 id="6-休眠与串口低功耗"><a href="#6-休眠与串口低功耗" class="headerlink" title="6. 休眠与串口低功耗"></a>6. 休眠与串口低功耗</h1><p>要实现系统低功耗的本质就两件事：</p>
@@ -533,10 +1002,10 @@
 <h2 id="Zephyr设备电源管理（PM-DEVICE）"><a href="#Zephyr设备电源管理（PM-DEVICE）" class="headerlink" title="Zephyr设备电源管理（PM_DEVICE）"></a>Zephyr设备电源管理（PM_DEVICE）</h2><p>Zephyr的外设是被驱动程序自动初始化的，这发生在main()函数之前。因此我们基本上看不到Zephyr驱动提供<code>init</code>或者<code>uninit</code>这种函数。因为我们不需要在应用层初始化或者关闭某个外设。</p>
 <p>取而代之的是Zephyr提供了一套电源管理机制，需要使能:<code>CONFIG_PM_DEVICE=y</code>。可以操作每个外设的device指针，使其挂起或者恢复。</p>
 <p>比如说，用串口打印日志时，这个串口是被console驱动管理的。console并没有开放API给应用层开启或者关闭串口。但是，应用层可以用Zephyr的设备电源管理来控制这个串口：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/devicetree.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/pm/device.h&gt;</span></span></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">console_dev</span> =</span> DEVICE_DT_GET(DT_CHOSEN(zephyr_console));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 关闭串口</span></span><br><span class="line">    pm_device_action_run(console_dev, PM_DEVICE_ACTION_SUSPEND);</span><br><span class="line">    ...</span><br><span class="line">        </span><br><span class="line">    <span class="comment">// 打开串口</span></span><br><span class="line">    pm_device_action_run(console_dev, PM_DEVICE_ACTION_RESUME);</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/device.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/devicetree.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/pm/device.h&gt;</span></span><br><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">console_dev</span> =</span> DEVICE_DT_GET(DT_CHOSEN(zephyr_console));<br><br>    <span class="hljs-comment">// 关闭串口</span><br>    pm_device_action_run(console_dev, PM_DEVICE_ACTION_SUSPEND);<br>    ...<br>        <br>    <span class="hljs-comment">// 打开串口</span><br>    pm_device_action_run(console_dev, PM_DEVICE_ACTION_RESUME);<br>    ...<br></code></pre></td></tr></table></figure>
 
 <p>休眠时，首先Zephyr驱动会负责把外设本身关闭。其次，Zephyr驱动还会把外设分配的GPIO配置成提前预设好的Sleep模式，也就是设备树里预设好的模式：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;uart0 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    current-speed = &lt;115200&gt;;</span><br><span class="line">    /delete-property/ hw-flow-control;</span><br><span class="line">    zephyr,pm-device-runtime-auto;</span><br><span class="line">    pinctrl-0 = &lt;&amp;uart0_default&gt;;</span><br><span class="line">    pinctrl-1 = &lt;&amp;uart0_sleep&gt;;</span><br><span class="line">    pinctrl-names = &quot;default&quot;, &quot;sleep&quot;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// write pinctrl again to remove RTS and CTS pin</span><br><span class="line">&amp;pinctrl &#123;</span><br><span class="line">    uart0_default &#123;</span><br><span class="line">        group1 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(UART_TX, 0, 6)&gt;;</span><br><span class="line">        &#125;;</span><br><span class="line">        group2 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(UART_RX, 0, 8)&gt;;</span><br><span class="line">            bias-pull-up;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    uart0_sleep &#123;</span><br><span class="line">        group1 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(UART_TX, 0, 6)&gt;,</span><br><span class="line">                &lt;NRF_PSEL(UART_RX, 0, 8)&gt;;</span><br><span class="line">            low-power-enable;</span><br><span class="line">            // bias-pull-up;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs dsconfig">&amp;<span class="hljs-string">uart0</span> &#123;<br>    <span class="hljs-string">status</span> = <span class="hljs-string">&quot;okay&quot;</span>;<br>    <span class="hljs-string">current-speed</span> = &lt;<span class="hljs-string">115200</span>&gt;;<br>    /<span class="hljs-built_in">delete-property/</span> <span class="hljs-string">hw-flow-control</span>;<br>    <span class="hljs-string">zephyr</span>,<span class="hljs-string">pm-device-runtime-auto</span>;<br>    <span class="hljs-string">pinctrl-0</span> = &lt;&amp;<span class="hljs-string">uart0_default</span>&gt;;<br>    <span class="hljs-string">pinctrl-1</span> = &lt;&amp;<span class="hljs-string">uart0_sleep</span>&gt;;<br>    <span class="hljs-string">pinctrl-names</span> = <span class="hljs-string">&quot;default&quot;</span>, <span class="hljs-string">&quot;sleep&quot;</span>;<br>&#125;;<br><br>// <span class="hljs-string">write</span> <span class="hljs-string">pinctrl</span> <span class="hljs-string">again</span> <span class="hljs-string">to</span> <span class="hljs-string">remove</span> <span class="hljs-string">RTS</span> <span class="hljs-string">and</span> <span class="hljs-string">CTS</span> <span class="hljs-string">pin</span><br>&amp;<span class="hljs-string">pinctrl</span> &#123;<br>    <span class="hljs-string">uart0_default</span> &#123;<br>        <span class="hljs-string">group1</span> &#123;<br>            <span class="hljs-string">psels</span> = &lt;<span class="hljs-string">NRF_PSEL</span>(<span class="hljs-string">UART_TX</span>, <span class="hljs-string">0</span>, <span class="hljs-string">6</span>)&gt;;<br>        &#125;;<br>        <span class="hljs-string">group2</span> &#123;<br>            <span class="hljs-string">psels</span> = &lt;<span class="hljs-string">NRF_PSEL</span>(<span class="hljs-string">UART_RX</span>, <span class="hljs-string">0</span>, <span class="hljs-string">8</span>)&gt;;<br>            <span class="hljs-string">bias-pull-up</span>;<br>        &#125;;<br>    &#125;;<br><br>    <span class="hljs-string">uart0_sleep</span> &#123;<br>        <span class="hljs-string">group1</span> &#123;<br>            <span class="hljs-string">psels</span> = &lt;<span class="hljs-string">NRF_PSEL</span>(<span class="hljs-string">UART_TX</span>, <span class="hljs-string">0</span>, <span class="hljs-string">6</span>)&gt;,<br>                &lt;<span class="hljs-string">NRF_PSEL</span>(<span class="hljs-string">UART_RX</span>, <span class="hljs-string">0</span>, <span class="hljs-string">8</span>)&gt;;<br>            <span class="hljs-string">low-power-enable</span>;<br>            // <span class="hljs-string">bias-pull-up</span>;<br>        &#125;;<br>    &#125;;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>当你想控制串口空闲态是低电平还是高电平时，就是在pinctrl的sleep引脚组配置。</p>
@@ -544,14 +1013,14 @@
 <p>我们可以看出，PM_DEVICE的设计目标是提供API，<strong>让应用层负责管理</strong>外设的开启或者关闭。</p>
 <h2 id="Zephyr运行时设备电源管理"><a href="#Zephyr运行时设备电源管理" class="headerlink" title="Zephyr运行时设备电源管理"></a>Zephyr运行时设备电源管理</h2><p>Zephyr还提供了自动的外设功耗管理，即<code>PM_DEVICE_RUNTIME</code>。需要通过<code>CONFIG_PM_DEVICE_RUNTIME=y</code>开启。</p>
 <p>这种情况下，就不需要应用层来控制外设的开关了。每次应用层要操作外设时，驱动层会利用PM子系统对引用计数+1；操作完毕后，引用计数-1。当引用计数等于0时，PM子系统会负责执行 <code>PM_DEVICE_ACTION_SUSPEND</code> 或者 <code>PM_DEVICE_ACTION_RESUME</code>。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c8ba696e6e8be37c5dbf85f12198c08a.png" alt="image-20250802145845580"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c8ba696e6e8be37c5dbf85f12198c08a.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250802145845580"></p>
 <p>除了要开启<code>CONFIG_PM_DEVICE_RUNTIME=y</code>之外，还要给对应的设备初始化运行时电源管理的功能，以下两种方法二选一：</p>
 <ul>
 <li>给对应的device执行<code>pm_device_runtime_enable()</code></li>
 <li>在设备树节点内增加一条<code>zephyr,pm-device-runtime-auto;</code>的属性。</li>
 </ul>
 <h2 id="例程低功耗代码解析"><a href="#例程低功耗代码解析" class="headerlink" title="例程低功耗代码解析"></a>例程低功耗代码解析</h2><p><code>app_uart.c</code>里面提供了两个休眠相关的函数：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">app_uart_sleep</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line">    err = uart_rx_disable(uart_dev);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;Failed to disable RX: %d&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> !IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME)</span></span><br><span class="line">    <span class="comment">// give some time for UART callback</span></span><br><span class="line">    k_sleep(K_MSEC(<span class="number">10</span>)); </span><br><span class="line">    err = pm_device_action_run(uart_dev, PM_DEVICE_ACTION_SUSPEND);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;Failed to suspend device: %d&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">/* !CONFIG_PM_DEVICE_RUNTIME */</span> </span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">app_uart_wakeup</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">uint8_t</span> *buf;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> !IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME)</span></span><br><span class="line">    err = pm_device_action_run(uart_dev, PM_DEVICE_ACTION_RESUME);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;Failed to resume device: %d&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">/* !CONFIG_PM_DEVICE_RUNTIME */</span></span></span><br><span class="line"></span><br><span class="line">    err = k_mem_slab_alloc(&amp;uart_slab, (<span class="type">void</span> **)&amp;buf, K_NO_WAIT);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;Failed to allocate RX buffer: %d&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    err = uart_rx_enable(uart_dev, buf, BUF_SIZE, RX_INACTIVE_TIMEOUT_US);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;Failed to enable RX: %d&quot;</span>, err);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">app_uart_sleep</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> err;<br>    err = uart_rx_disable(uart_dev);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to disable RX: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> !IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME)</span><br>    <span class="hljs-comment">// give some time for UART callback</span><br>    k_sleep(K_MSEC(<span class="hljs-number">10</span>)); <br>    err = pm_device_action_run(uart_dev, PM_DEVICE_ACTION_SUSPEND);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to suspend device: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* !CONFIG_PM_DEVICE_RUNTIME */</span> </span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">app_uart_wakeup</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">uint8_t</span> *buf;<br>    <span class="hljs-type">int</span> err;<br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> !IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME)</span><br>    err = pm_device_action_run(uart_dev, PM_DEVICE_ACTION_RESUME);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to resume device: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* !CONFIG_PM_DEVICE_RUNTIME */</span></span><br><br>    err = k_mem_slab_alloc(&amp;uart_slab, (<span class="hljs-type">void</span> **)&amp;buf, K_NO_WAIT);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to allocate RX buffer: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br>    err = uart_rx_enable(uart_dev, buf, BUF_SIZE, RX_INACTIVE_TIMEOUT_US);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to enable RX: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>我们先考虑<code>CONFIG_PM_DEVICE_RUNTIME=n</code>的情况。</p>
 <p>休眠时：</p>
@@ -568,17 +1037,17 @@
 <p>然后，讨论开启<code>CONFIG_PM_DEVICE_RUNTIME=y</code>的情况。这种情况下只需要开关RX就好了，因为当RX被关闭，同时又没有在TX的时候，PM Device Runtime系统会自动挂起串口的，因此我们应用层没必要再调用<code>pm_device_action_run()</code>函数了。</p>
 <h2 id="实测串口低功耗休眠功能"><a href="#实测串口低功耗休眠功能" class="headerlink" title="实测串口低功耗休眠功能"></a>实测串口低功耗休眠功能</h2><p>本工程是否开启<code>CONFIG_PM_DEVICE_RUNTIME</code>没有影响，结果相同。</p>
 <p>nRF52840DK连接方式：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ec0b40219d3dbfbf8a00641f44938b10.png" alt="image-20250802152806259"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ec0b40219d3dbfbf8a00641f44938b10.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250802152806259"></p>
 <p>nRF54L15DK连接方式：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/61f16d8b88bc7f7528d0b1820e9cd02f.png" alt="image-20250802153317606"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/61f16d8b88bc7f7528d0b1820e9cd02f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250802153317606"></p>
 <p><strong>52840DK：</strong></p>
 <ul>
 <li>按button1进入休眠</li>
 <li>按button2退出休眠</li>
 </ul>
 <p>功耗：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/450a17004249ea1bcc33e0f08d5fe6f2.png" alt="image-20250802153612494"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/5edac99904281fc12335f46cb7f48f03.png" alt="image-20250802153653735"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/450a17004249ea1bcc33e0f08d5fe6f2.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250802153612494"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/5edac99904281fc12335f46cb7f48f03.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250802153653735"></p>
 <blockquote>
 <p>注：52840手册标注system ON, CPU IDLE的电流为2.35uA</p>
 </blockquote>
@@ -588,13 +1057,13 @@
 <li>按button1退出休眠</li>
 </ul>
 <p>功耗：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3ad100bad01b9ef6436c5fcb9ad7d7e8.png" alt="image-20250802153818504"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/4f75d321684bb78231cf558b8602bb37.png" alt="image-20250802153859464"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/3ad100bad01b9ef6436c5fcb9ad7d7e8.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250802153818504"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/4f75d321684bb78231cf558b8602bb37.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250802153859464"></p>
 <blockquote>
 <p>注：54L15手册标注，3V条件下，System ON, Wake on pin, 256 KB RAM retained情况下CPU IDLE的电流为3uA.</p>
 </blockquote>
 <h1 id="7-nRF54系列GPIO跨域使用"><a href="#7-nRF54系列GPIO跨域使用" class="headerlink" title="7. nRF54系列GPIO跨域使用"></a>7. nRF54系列GPIO跨域使用</h1><h2 id="电源时钟域"><a href="#电源时钟域" class="headerlink" title="电源时钟域"></a>电源时钟域</h2><p>以nRF54L15为例：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/b103504c883e6aad2064cc56ba55db14.png" alt="image-20260104003405320"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/b103504c883e6aad2064cc56ba55db14.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104003405320"></p>
 <p>nRF54系列片上有多个电源时钟域：</p>
 <ul>
 <li><strong>MCU Power Domain</strong>：时钟频率最高（128MHz），拥有高速外设（SPI 32MHz）和高速GPIO（P2）</li>
@@ -605,7 +1074,7 @@
 <p>在每个时钟域内部，外设基本上可以任意选取GPIO使用，就像nRF52系列一样。</p>
 <h2 id="GPIO跨域引脚选择"><a href="#GPIO跨域引脚选择" class="headerlink" title="GPIO跨域引脚选择"></a>GPIO跨域引脚选择</h2><p>我们会发现 PERI PD 中需要GPIO的外设非常多，而 MCU PD 中需要 GPIO 的外设非常少。这会导致有时候 GPIO P1 上的引脚数量不够用，而 GPIO P2 上的引脚有空余。</p>
 <p>因此，nRF54 系列允许一部分PERI PD的外设使用 MCU PD 的 P2 口，即跨域使用。这种情况下，需严格按照 datasheet 中规定的引脚分配，例如：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ae28c3e3bbf43ae3501aeb7c56783b06.png" alt="image-20260104012415611"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ae28c3e3bbf43ae3501aeb7c56783b06.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104012415611"></p>
 <blockquote>
 <p>nRF54系列跨域的其他要求：</p>
 <ol>
@@ -613,7 +1082,7 @@
 <li>GPIO P2没有输入中断的能力</li>
 </ol>
 </blockquote>
-<h2 id="GPIO跨域软件配置"><a href="#GPIO跨域软件配置" class="headerlink" title="GPIO跨域软件配置"></a>GPIO跨域软件配置</h2><p>跨域使用时，还需要显式配置CPU的电源模式为<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/pmu.html#ariaid-title3">Constant Laytency</a> 。</p>
+<h2 id="GPIO跨域软件配置"><a href="#GPIO跨域软件配置" class="headerlink" title="GPIO跨域软件配置"></a>GPIO跨域软件配置</h2><p>跨域使用时，还需要显式配置CPU的电源模式为<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/pmu.html#ariaid-title3">Constant Latency</a>。</p>
 <blockquote>
 <p>System ON模式下，有两个子电源模式：</p>
 <ul>
@@ -624,49 +1093,49 @@
 </blockquote>
 <p>原始文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/app_dev/device_guides/nrf54l/pinmap.html">nRF54L pin mapping</a></p>
 <p>首先开启配置：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_NRF_SYS_EVENT=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">CONFIG_NRF_SYS_EVENT=y<br></code></pre></td></tr></table></figure>
 
-<p>然后，在需要Constant Laytency模式的代码部分，申请此电源模式：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;nrf_sys_event.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">        <span class="comment">/* Request constlat. The API is reference counted. */</span></span><br><span class="line">        nrf_sys_event_request_global_constlat();</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Use peripherals which have pins mapped across power-domains */</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Release constlat */</span></span><br><span class="line">        nrf_sys_event_release_global_constlat();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>然后，在需要Constant Latency模式的代码部分，申请此电源模式：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;nrf_sys_event.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>        <span class="hljs-comment">/* Request constlat. The API is reference counted. */</span><br>        nrf_sys_event_request_global_constlat();<br><br>        <span class="hljs-comment">/* Use peripherals which have pins mapped across power-domains */</span><br><br>        <span class="hljs-comment">/* Release constlat */</span><br>        nrf_sys_event_release_global_constlat();<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
-<p>这个API采用的是“引用计数器”。也就是说有多个线程同时申请此模式时，usage+1；释放此模式时，usage-1。只要usage不为0，那么CPU就会处于Constant Laytency电源模式。</p>
+<p>这个API采用的是“引用计数器”。也就是说有多个线程同时申请此模式时，usage+1；释放此模式时，usage-1。只要usage不为0，那么CPU就会处于Constant Latency电源模式。</p>
 <blockquote>
 <p>注：以上介绍的是NCS v3.1.x之后的最新API。</p>
 <p>NCS v3.0.x需要使用以下API：</p>
 <p><code>CONFIG_NRFX_POWER=y</code></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;nrfx_power.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">        <span class="comment">/* Request constlat. The API is reference counted. */</span></span><br><span class="line">        nrfx_power_constlat_mode_request();</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Use peripherals which have pins mapped across power-domains */</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Release constlat */</span></span><br><span class="line">        nrfx_power_constlat_mode_free();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;nrfx_power.h&gt;</span></span><br><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>        <span class="hljs-comment">/* Request constlat. The API is reference counted. */</span><br>        nrfx_power_constlat_mode_request();<br><br>        <span class="hljs-comment">/* Use peripherals which have pins mapped across power-domains */</span><br><br>        <span class="hljs-comment">/* Release constlat */</span><br>        nrfx_power_constlat_mode_free();<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 </blockquote>
 <h2 id="例程测试"><a href="#例程测试" class="headerlink" title="例程测试"></a>例程测试</h2><p>在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/Jayant-Tang/learning_zephyr_serial">我的例程</a>中也有跨域使用的案例。</p>
 <p>首先把<code>prj.conf</code>中注释的配置打开：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/32d7169c90040d23b4a3d8d5684c17bd.png" alt="image-20260104014017195"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/32d7169c90040d23b4a3d8d5684c17bd.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104014017195"></p>
 <p>开发者需要明确的知道自己正在使用跨域GPIO，因此我做了一个应用层配置项：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c0db7fa1430b3959706938be019ca895.png" alt="image-20260104014637600"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c0db7fa1430b3959706938be019ca895.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104014637600"></p>
 <p>开启<code>CONFIG_APP_UART_GPIO_CROSS_DOMAIN=y</code>之后，会自动通过<code>select</code>的方式连锁开启<code>CONFIG_NRF_SYS_EVENT=y</code></p>
 <p>然后在<code>boards/nrf54l15dk_nrf54l15_cpuapp.overlay</code>中，注释掉原本的引脚分配，并把跨域的引脚分配打开：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/99c0e6210032fb9a481e6027a7565fa2.png" alt="image-20260104014855545"></p>
-<p>实际代码在刚初始化完毕时就开启了Constant Laytency，并在后续根据按钮情况开启或关闭：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/806e6b1966b9f065d0f7bc6b0e34622a.png" alt="image-20260104021927532"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/bc0dc820ffa9baa96ecad56581e5bebf.png" alt="image-20260104022006350"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/99c0e6210032fb9a481e6027a7565fa2.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104014855545"></p>
+<p>实际代码在刚初始化完毕时就开启了Constant Latency，并在后续根据按钮情况开启或关闭：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/806e6b1966b9f065d0f7bc6b0e34622a.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104021927532"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/bc0dc820ffa9baa96ecad56581e5bebf.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104022006350"></p>
 <p>重新编译，软件部分就完成了。</p>
 <p>至于硬件部分，<strong>由于P2.0-P2.5在开发板上被分配给了外部Flash，因此需要一定调整</strong>：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/4d06e3b2f79acb4cb92c71706c78b318.png" alt="image-20260104015113052"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/4d06e3b2f79acb4cb92c71706c78b318.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104015113052"></p>
 <p>对于较老的开发板（如0.9.1, 0.9.2），需要割开SPI Flash附近的焊盘。</p>
 <p>对于最新的开发板（1.0.0），是 Interface MCU（也就是J-Link Debugger）来控制电子开关。通过nRF Connect for Desktop中的Board Configurator控制：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/220f03bebfc0477f6bd4fd6a5928138f.png" alt="image-20260104015421288"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/e23d2d541e8635b77dc6d30e36de3bf0.png" alt="image-20260104015656307"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/220f03bebfc0477f6bd4fd6a5928138f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104015421288"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/e23d2d541e8635b77dc6d30e36de3bf0.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104015656307"></p>
 <p>首先把外部存储器（External Memory）关掉；然后把GPIO电源改为3.3V，因为我们修改了串口引脚，就不能继续使用 J-link 自带的USB转串口了。</p>
 <blockquote>
 <p>配置完毕后一定要写入配置，<strong>然后一定要退出Board Configurator，否则功耗测量会有问题。</strong></p>
 </blockquote>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/41430ac4deaa16d89842ca6c1cad6913.png" alt="image-20260104020140622"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/41430ac4deaa16d89842ca6c1cad6913.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104020140622"></p>
 <p>测试：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/2500a838cf23326fc398aff5dd2cc902.png" alt="image-20260104020726626"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/2500a838cf23326fc398aff5dd2cc902.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104020726626"></p>
 <p>功能正常回环。后面长文本断开，是因为超出了应用层按照<code>\r\n</code>进行解包函数的Buffer长度（256Bytes），实际上接收是没问题的：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/b2b8619f476ae9d2188a0b1521588a1c.png" alt="image-20260104020919891"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/b2b8619f476ae9d2188a0b1521588a1c.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104020919891"></p>
 <p>RX接收开启时，54L15跨域使用功耗约为400uA，比前面章节测得不跨域使用（150uA）要高250uA：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/41f075076c571639ba332a9e26909faf.png" alt="image-20260104021813610"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/41f075076c571639ba332a9e26909faf.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104021813610"></p>
 <p>串口休眠时，无变化（因为代码里在关闭串口时也关闭了constant laytency模式）：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/35bfdbd5619f847490626739a4a11e44.png" alt="image-20260104021722458"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/35bfdbd5619f847490626739a4a11e44.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260104021722458"></p>
 <h1 id="8-USB-CDC-ACM-串口（USBD-Stack-Next）"><a href="#8-USB-CDC-ACM-串口（USBD-Stack-Next）" class="headerlink" title="8. USB CDC ACM 串口（USBD Stack Next）"></a>8. USB CDC ACM 串口（USBD Stack Next）</h1><p>前面介绍了硬件串口的异步API，接下来我们介绍USB CDC ACM串口。</p>
 <blockquote>
 <p> 由于nRF54L15 不带 USB，后续用 nRF52840DK 继续。你也可以选择nRF54LM20DK，nRF5340DK，nRF52833DK等。</p>
@@ -674,58 +1143,58 @@
 <p>仍然使用之前的GitHub项目。应用层代码无需改动，只需修改一些配置就可以把前面的异步串口代码变为USB CDC ACM串口代码。</p>
 <p>示例代码：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/Jayant-Tang/learning_zephyr_serial">Jayant-Tang&#x2F;learning_zephyr_serial: An example that shows how to use zephyr Async UART</a></p>
 <h2 id="编译USB串口例程"><a href="#编译USB串口例程" class="headerlink" title="编译USB串口例程"></a>编译USB串口例程</h2><p>编译时选好配置文件和设备树：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/21c0f60e92f9c7c12f8b683136600469.png" alt="image-20260210212128497"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/21c0f60e92f9c7c12f8b683136600469.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260210212128497"></p>
 <p>或者用命令编译：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">west build <span class="literal">-d</span> build_usb <span class="literal">-p</span> <span class="literal">-b</span> nrf52840dk/nrf52840 <span class="literal">--sysbuild</span> <span class="literal">--</span> <span class="literal">-DCONF_FILE</span>=<span class="string">&quot;prj_usb.conf&quot;</span> <span class="literal">-DEXTRA_DTC_OVERLAY_FILE</span>=<span class="string">&quot;boards/nrf52840dk_nrf52840.overlay&quot;</span> <span class="literal">-DDTC_OVERLAY_FILE</span>=<span class="string">&quot;usb.overlay&quot;</span> </span><br></pre></td></tr></table></figure>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">west build <span class="hljs-literal">-d</span> build_usb <span class="hljs-literal">-p</span> <span class="hljs-literal">-b</span> nrf52840dk/nrf52840 <span class="hljs-literal">--sysbuild</span> <span class="hljs-literal">--</span> <span class="hljs-literal">-DCONF_FILE</span>=<span class="hljs-string">&quot;prj_usb.conf&quot;</span> <span class="hljs-literal">-DEXTRA_DTC_OVERLAY_FILE</span>=<span class="hljs-string">&quot;boards/nrf52840dk_nrf52840.overlay&quot;</span> <span class="hljs-literal">-DDTC_OVERLAY_FILE</span>=<span class="hljs-string">&quot;usb.overlay&quot;</span> <br></code></pre></td></tr></table></figure>
 
 <p>或者用命令编译：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west build -p -d build_usb -b nrf52840dk/nrf52840 -- -DCONF_FILE=<span class="string">&quot;prj_usb.conf&quot;</span> -DDTC_OVERLAY_FILE=<span class="string">&quot;usb.overlay&quot;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">west build -p -d build_usb -b nrf52840dk/nrf52840 -- -DCONF_FILE=<span class="hljs-string">&quot;prj_usb.conf&quot;</span> -DDTC_OVERLAY_FILE=<span class="hljs-string">&quot;usb.overlay&quot;</span><br></code></pre></td></tr></table></figure>
 
-<h2 id="运行并测试USB串口"><a href="#运行并测试USB串口" class="headerlink" title="运行并测试USB串口"></a>运行并测试USB串口</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8ada0b901ff5c008dd17acc90971ae89.png" alt="image-20231113111154639"></p>
+<h2 id="运行并测试USB串口"><a href="#运行并测试USB串口" class="headerlink" title="运行并测试USB串口"></a>运行并测试USB串口</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8ada0b901ff5c008dd17acc90971ae89.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20231113111154639"></p>
 <p>左侧是Jlink USB，下方是nRF52840的USB Device接口。在串口助手里选中USB串口：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/a193007588cb8eb0477e7058cbb42c45.png" alt="image-20250727063204480"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/a193007588cb8eb0477e7058cbb42c45.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250727063204480"></p>
 <p>可以看到功能和前面的异步串口完全相同：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ffaa699ebd81acdad4bfbc16e3758957.png" alt="image-20250727063250261"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ffaa699ebd81acdad4bfbc16e3758957.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250727063250261"></p>
 <h2 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h2><h3 id="1-USB-CDC-ACM-设备树"><a href="#1-USB-CDC-ACM-设备树" class="headerlink" title="1) USB CDC ACM 设备树"></a>1) USB CDC ACM 设备树</h3><p>在<code>usb.overlay</code>中，有如下配置：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/&#123;</span><br><span class="line">    aliases &#123;</span><br><span class="line">        my-usb-serial = &amp;usb_serial0;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;zephyr_udc0 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    usb_serial0: cdc_acm_uart0 &#123;</span><br><span class="line">        compatible = &quot;zephyr,cdc-acm-uart&quot;;</span><br><span class="line">        status = &quot;okay&quot;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-title class_">/</span><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-title class_">aliases</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">my-usb-serial</span> <span class="hljs-operator">=</span> <span class="hljs-variable">&amp;usb_serial0</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-punctuation">&#125;;</span><br><span class="hljs-punctuation">&#125;;</span><br><br><span class="hljs-variable">&amp;zephyr_udc0</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">status</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;okay&quot;</span><span class="hljs-punctuation">;</span><br><span class="hljs-symbol">    usb_serial0:</span> <span class="hljs-title class_">cdc_acm_uart0</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">compatible</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;zephyr,cdc-acm-uart&quot;</span><span class="hljs-punctuation">;</span><br>        <span class="hljs-attr">status</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;okay&quot;</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-punctuation">&#125;;</span><br><span class="hljs-punctuation">&#125;;</span><br></code></pre></td></tr></table></figure>
 
 <p>这里我们给 usbd 节点新增了一个子节点<code>/soc/usbd@4002700/cdc_acm_uart0</code>，并且也给其添加了一个label：<code>usb_serial0</code>。</p>
 <p>这就是后续我们要操作的“异步串口”。</p>
 <h3 id="2-USB-CDC-ACM-配置"><a href="#2-USB-CDC-ACM-配置" class="headerlink" title="2) USB CDC ACM 配置"></a>2) USB CDC ACM 配置</h3><p>在<code>prj_usb.conf</code>中，和<code>prj.conf</code>相比增加了以下内容：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># enable USB Device Next Stack</span></span><br><span class="line">CONFIG_USB_DEVICE_STACK_NEXT=y</span><br><span class="line">CONFIG_USBD_CDC_ACM_CLASS=y</span><br><span class="line"></span><br><span class="line">CONFIG_APP_USB=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># enable USB Device Next Stack</span><br>CONFIG_USB_DEVICE_STACK_NEXT=y<br>CONFIG_USBD_CDC_ACM_CLASS=y<br><br>CONFIG_APP_USB=y<br></code></pre></td></tr></table></figure>
 
 <p>前两项开启了 Zephyr USB Device Stack (Next) 和对应的 USB CDC ACM 类。</p>
 <blockquote>
-<p>注：老的USB协议栈将会被抛弃，开启方式为<code>CONFIG_USB_DEVICE_STACK=y</code>。</p>
+<p>注：老的USB协议栈将被废弃，开启方式为<code>CONFIG_USB_DEVICE_STACK=y</code>。</p>
 <p>Next 协议栈与 Legacy 协议栈的区别：</p>
 <ul>
-<li>Next 支持 USB High Speed (480MHz)，而Legacy只支持Full-Speed（12MHz）。nRF54LM20&#x2F;54H20 等需要Next栈来支持HS-USB。</li>
+<li>Next 支持 USB High Speed (480MHz)，而 Legacy 只支持 Full-Speed（12MHz）。nRF54LM20&#x2F;54H20 等需要Next栈来支持HS-USB。</li>
 <li>Legacy stack 通过大量的 Kconfig 选项进行配置（如 <code>CONFIG_USB_DEVICE_MANUFACTURER</code>、<code>CONFIG_USB_DEVICE_PID</code> 等）；Next stack 的设备标识符通过代码API配置，而HID 实例通过 Devicetree 节点配置</li>
 <li>Next 可在运行时注册多个 class&#x2F;function 实例，支持多控制器、Full&#x2F;High-Speed，并提供 HID、CDC ACM、MSC、Audio、UVC 等内建类</li>
 </ul>
 </blockquote>
 <p>最后一项是我自己写的一个软件模块，通过 Kconfig 定义了一个开关。只要开启就会导入USB相关代码。</p>
 <h3 id="3-异步串口代码"><a href="#3-异步串口代码" class="headerlink" title="3) 异步串口代码"></a>3) 异步串口代码</h3><p>代码和前面的异步串口代码几乎一样。只是换了一个串口设备：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ce7b967296bc2bc2cc37c7f8cdece211.png" alt="image-20260210214319992"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ce7b967296bc2bc2cc37c7f8cdece211.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260210214319992"></p>
 <p>USB栈已经初始化好了驱动，因此我们可以像使用硬件串口一样使用USB CDC ACM。</p>
 <p>另外，在初始化阶段使用了 <code>uart_async_adapter</code>:</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/760f0bc41b7e442267c764a841458fe2.png" alt="image-20260210214431729"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/760f0bc41b7e442267c764a841458fe2.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260210214431729"></p>
 <blockquote>
 <p>USB CDC ACM 驱动提供的虚拟 UART 设备只支持 <strong>Interrupt API</strong>。而<code>uart_async_adapter</code>的作用就是在其之上封装一层异步 API。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">enable</span> USB ASYNC Adapter</span></span><br><span class="line">CONFIG_UART_ASYNC_ADAPTER=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">enable</span> USB ASYNC Adapter</span><br>CONFIG_UART_ASYNC_ADAPTER=y<br></code></pre></td></tr></table></figure>
 </blockquote>
 <p>其他部分的代码完全不用动，和前面介绍的异步API逻辑完全一样。</p>
 <h3 id="4-USB初始化与标识符配置"><a href="#4-USB初始化与标识符配置" class="headerlink" title="4) USB初始化与标识符配置"></a>4) USB初始化与标识符配置</h3><p>在<code>app_usb.c</code>中，我配置了自己的USB设备，这个配置和NCS中的示例模板<strong>绝大部分</strong>都是一样的：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/bd0a721e93c14d41bf5786dfd5286b34.png" alt="image-20260210220116774"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/bd0a721e93c14d41bf5786dfd5286b34.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260210220116774"></p>
 <blockquote>
 <p>SDK中提供了现成的USB配置参考模板，有两个可以选择。</p>
 <p>第一个是通过开启<code>CONFIG_CDC_ACM_SERIAL_INITIALIZE_AT_BOOT=y</code>，就可以导入SDK中的配置代码：<code>zephyr\subsys\usb\device_next\app\cdc_acm_serial.c</code>。</p>
 <p>然后就可以用相关 config 进行快速的配置。</p>
 <p>第二个模板，可以模仿例程<code>zephyr\samples\subsys\usb\cdc_acm</code>，在 CMakeLists.txt中添加：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">include</span>(<span class="variable">$&#123;ZEPHYR_BASE&#125;</span>/samples/subsys/usb/common/common.cmake)</span><br></pre></td></tr></table></figure>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-keyword">include</span>(<span class="hljs-variable">$&#123;ZEPHYR_BASE&#125;</span>/samples/subsys/usb/common/common.cmake)<br></code></pre></td></tr></table></figure>
 
 <p>同时，在Kconfig中添加：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">source &quot;samples/subsys/usb/common/Kconfig.sample_usbd&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">source</span> <span class="hljs-string">&quot;samples/subsys/usb/common/Kconfig.sample_usbd&quot;</span><br></code></pre></td></tr></table></figure>
 
 <p>就可以添加类似的配置USB参考模板了。</p>
 </blockquote>
@@ -735,28 +1204,28 @@
 <li>注册了一个USB事件回调函数，根据具体的USB事件再使能USB。</li>
 </ul>
 <h3 id="5-USB事件回调"><a href="#5-USB事件回调" class="headerlink" title="5) USB事件回调"></a>5) USB事件回调</h3><p>在<code>app_usb.c</code>中注册了自己的USB事件回调函数：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">err = usbd_msg_register_cb(usbd_ctx, app_usb_msg_cb);</span><br><span class="line"><span class="keyword">if</span> (err) &#123;</span><br><span class="line">    LOG_ERR(<span class="string">&quot;Failed to register message callback (%d)&quot;</span>, err);</span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">err = usbd_msg_register_cb(usbd_ctx, app_usb_msg_cb);<br><span class="hljs-keyword">if</span> (err) &#123;<br>    LOG_ERR(<span class="hljs-string">&quot;Failed to register message callback (%d)&quot;</span>, err);<br>    <span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>在<code>app_usb_callback.c</code>中，我维护了一个状态机。使用了Zephyr的状态机框架 (<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/services/smf/index.html">State Machine Framework — Zephyr Project Documentation</a>)。</p>
 <p>这个框架能方便的注册每个状态的 entry, run, exit函数，还能处理复合状态。类似这样：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">demo_state</span> &#123;</span> S0, S1, S2 &#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">smf_state</span> <span class="title">demo_states</span>[] =</span> &#123;</span><br><span class="line">   [S0] = SMF_CREATE_STATE(s0_entry, s0_run, s0_exit, parent_s0, <span class="literal">NULL</span>),</span><br><span class="line">   [S1] = SMF_CREATE_STATE(s1_entry, s1_run, s1_exit, parent_s12, <span class="literal">NULL</span>),</span><br><span class="line">   [S2] = SMF_CREATE_STATE(s2_entry, s2_run, s2_exit, parent_s12, <span class="literal">NULL</span>)</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">demo_state</span> &#123;</span> S0, S1, S2 &#125;;<br><br><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">smf_state</span> <span class="hljs-title">demo_states</span>[] =</span> &#123;<br>   [S0] = SMF_CREATE_STATE(s0_entry, s0_run, s0_exit, parent_s0, <span class="hljs-literal">NULL</span>),<br>   [S1] = SMF_CREATE_STATE(s1_entry, s1_run, s1_exit, parent_s12, <span class="hljs-literal">NULL</span>),<br>   [S2] = SMF_CREATE_STATE(s2_entry, s2_run, s2_exit, parent_s12, <span class="hljs-literal">NULL</span>)<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>我这里定义了4个状态：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/d5301b9ad10dc810dc630d97415986e4.png" alt="image-20260210220641564"></p>
-<p>其中 <code>CONNECTED </code>状态有两个子状态<code>CONFIGURED</code>和<code>SUSPENDED</code>：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/84d9a0ef48b1a62a92fc9cdc6e0c8552.png" alt="image-20260210221049592"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/d5301b9ad10dc810dc630d97415986e4.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260210220641564"></p>
+<p>其中 <code>CONNECTED</code> 状态有两个子状态<code>CONFIGURED</code>和<code>SUSPENDED</code>：</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/84d9a0ef48b1a62a92fc9cdc6e0c8552.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260210221049592"></p>
 <blockquote>
 <p>注意：</p>
 <ol>
-<li>理论上，四个状态作为平等的状态来设计也是可以的。但是，USB拔出在任何情况下都可以发生。如果作为平等状态，就要在<code>CONNECTED</code>, <code>CONFIGURED</code>, <code>SUSPENDED</code>状态中都处理USB拔出的事件，有点重复。而恰好 Zephyr 状态机支持复合状态，直接把<code>CONNECTED</code>作为一个父状态即可。</li>
+<li>理论上，四个状态作为平等的状态来设计也是可以的。但是，USB断开在任何情况下都可能发生。如果作为平等状态，就要在<code>CONNECTED</code>, <code>CONFIGURED</code>, <code>SUSPENDED</code>状态中都处理USB拔出的事件，有点重复。而恰好 Zephyr 状态机支持复合状态，直接把<code>CONNECTED</code>作为一个父状态即可。</li>
 <li>我这里没有注册<code>entry</code>和<code>exit</code>函数，只注册了<code>run</code>函数。因为<code>entry</code>和<code>exit</code>函数主要还是用于状态切换时，本地必须执行的初始化或清理等动作。这个状态机还是以USB事件驱动为主，为了突出USB事件，这里就只在run函数中进行事件处理和状态切换。</li>
 </ol>
 </blockquote>
 <p>当产生 USB 事件时，会保存 <code>msg</code> 并执行当前状态的 <code>_run</code> 函数：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">app_usb_msg_cb</span><span class="params">(<span class="keyword">struct</span> usbd_context *<span class="type">const</span> ctx, <span class="type">const</span> <span class="keyword">struct</span> usbd_msg *<span class="type">const</span> msg)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line"></span><br><span class="line">    LOG_DBG(<span class="string">&quot;USBD MSG: %s&quot;</span>, usbd_msg_type_string(msg-&gt;type));</span><br><span class="line"></span><br><span class="line">    __ASSERT(ctx != <span class="literal">NULL</span>, <span class="string">&quot;usbd context is NULL&quot;</span>);</span><br><span class="line">    usbd_ctx = ctx;</span><br><span class="line"></span><br><span class="line">    usb_smf.msg = msg;</span><br><span class="line">    err = smf_run_state(SMF_CTX(&amp;usb_smf));</span><br><span class="line">    usb_smf.msg = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        LOG_ERR(<span class="string">&quot;USB SMF terminated (%d)&quot;</span>, err);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">app_usb_msg_cb</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> usbd_context *<span class="hljs-type">const</span> ctx, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> usbd_msg *<span class="hljs-type">const</span> msg)</span><br>&#123;<br>    <span class="hljs-type">int</span> err;<br><br>    LOG_DBG(<span class="hljs-string">&quot;USBD MSG: %s&quot;</span>, usbd_msg_type_string(msg-&gt;type));<br><br>    __ASSERT(ctx != <span class="hljs-literal">NULL</span>, <span class="hljs-string">&quot;usbd context is NULL&quot;</span>);<br>    usbd_ctx = ctx;<br><br>    usb_smf.msg = msg;<br>    err = smf_run_state(SMF_CTX(&amp;usb_smf));<br>    usb_smf.msg = <span class="hljs-literal">NULL</span>;<br><br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;USB SMF terminated (%d)&quot;</span>, err);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>在<code>DISCONNECTED</code>状态下收到<code>USBD_MSG_VBUS_READY</code>事件，就说明 USB 插入，于是就调用<code>usbd_enable(usbd_ctx)</code>来使能USB；在<code>CONNECTED</code>状态下收到 <code>USBD_MSG_VBUS_REMOVED</code> 事件，就说明 USB 拔出。于是就调用<code>usbd_disable(usbd_ctx)</code>来关闭USB。<strong>从而实现了拔出USB状态下的低功耗</strong>：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ce5532648d8bfa05cacd2db30d5963a6.png" alt="image-20260210221933309"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ce5532648d8bfa05cacd2db30d5963a6.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260210221933309"></p>
 <blockquote>
 <p>Zephyr SMF，复合状态的<code>_run</code>函数的机制：</p>
 <ul>
@@ -766,9 +1235,9 @@
 </blockquote>
 <h1 id="9-开发自己的程序"><a href="#9-开发自己的程序" class="headerlink" title="9. 开发自己的程序"></a>9. 开发自己的程序</h1><h2 id="串口API的兼容"><a href="#串口API的兼容" class="headerlink" title="串口API的兼容"></a>串口API的兼容</h2><p>我们前面提到，异步API和基于中断的API是完全不同的两套API。如果有的串口想用异步API，有的串口想用中断API（如Shell等）怎么办？</p>
 <p>在串口驱动目录下的<code>Kconfig.nrfx</code>中可以看到：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">config UART_1_ASYNC</span><br><span class="line">    bool &quot;Asynchronous API support on port 1&quot;</span><br><span class="line">    depends on UART_ASYNC_API &amp;&amp; !UART_1_INTERRUPT_DRIVEN</span><br><span class="line">    default y</span><br><span class="line">    help</span><br><span class="line">      This option enables UART Asynchronous API support on port 1.</span><br></pre></td></tr></table></figure>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">config UART_1_ASYNC<br>    <span class="hljs-type">bool</span> &quot;Asynchronous API support on port 1&quot;<br>    <span class="hljs-keyword">depends</span> <span class="hljs-keyword">on</span> UART_ASYNC_API &amp;&amp; !UART_1_INTERRUPT_DRIVEN<br>    <span class="hljs-keyword">default</span> y<br>    help<br>      This <span class="hljs-keyword">option</span> enables UART Asynchronous API support <span class="hljs-keyword">on</span> port <span class="hljs-number">1.</span><br></code></pre></td></tr></table></figure>
 <p>要使用异步API，必须单独禁用这个串口的中断API。<br>如果你要使用USB CDC ACM（需要中断API）的同时使用串口0的异步API，则需要这样配置：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_UART_INTERRUPT_DRIVEN=y</span><br><span class="line"></span><br><span class="line">CONFIG_UART_0_INTERRUPT_DRIVEN=n</span><br><span class="line">CONFIG_UART_1_INTERRUPT_DRIVEN=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">CONFIG_UART_INTERRUPT_DRIVEN=y<br><br>CONFIG_UART_0_INTERRUPT_DRIVEN=n<br>CONFIG_UART_1_INTERRUPT_DRIVEN=y<br></code></pre></td></tr></table></figure>
 <p>以上配置的意思是，对于<strong>整个串口驱动</strong>来说，启用中断API（这个配置项来源于Zephyr串口驱动目录下的Kconfig）。<br>但是对于串口0来说，关闭中断API（这个配置项来源于Zephyr串口驱动目录下的Kconfig.nrfx）。如此一来，就实现了每个串口的单独配置，互不干扰。</p>
 <h2 id="把串口程序集成到自己的应用中"><a href="#把串口程序集成到自己的应用中" class="headerlink" title="把串口程序集成到自己的应用中"></a>把串口程序集成到自己的应用中</h2><p>本例程已经非常完善，把<code>app_uart</code>文件夹拷贝到自己的工程中，然后在Kconfig和CMakeLists.txt中引用即可。这也是模块化开发的思想。而且本工程思路还是比较清晰的，开发者想增加自己的代码也会非常容易。</p>
 <p>并且，发送和接收都是在线程中处理，本例程提供的API都可以放心在各种地方调用。</p>
@@ -778,157 +1247,436 @@
 <li>要想通过GPIO来控制RX是否开启，直接使能<code>CONFIG_PM_DEVICE_RUNTIME=y</code>，然后在GPIO中断内调用<code>app_uart_sleep()</code>和<code>app_uart_wakeup()</code>即可（开启能<code>CONFIG_PM_DEVICE_RUNTIME=y</code>之后，这两个API只影响RX，不影响TX）。</li>
 </ol>
 
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2023/11/4c8e1d7d162d/" data-id="cmqop0ng30013y8o5baapdmn6" data-title="Zephyr驱动与设备树实战——串口" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li></ul>
 
-    </footer>
-  </div>
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/Zephyr/" class="category-chain-item">Zephyr</a>
   
-    <a href="/jayant97.github.io/2023/11/1349f878e408/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          在NCS中使用NRFX外设驱动库——以I2C为例
-        
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Nordic/" class="print-no-link">#Nordic</a>
+      
+        <a href="/jayant97.github.io/tags/Zephyr/" class="print-no-link">#Zephyr</a>
+      
+        <a href="/jayant97.github.io/tags/DeviceTree/" class="print-no-link">#DeviceTree</a>
+      
+        <a href="/jayant97.github.io/tags/UART/" class="print-no-link">#UART</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Zephyr驱动与设备树实战——串口</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2023/11/4c8e1d7d162d/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2023/11/1349f878e408/" title="在NCS中使用NRFX外设驱动库——以I2C为例">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">在NCS中使用NRFX外设驱动库——以I2C为例</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2023/08/045cdc9c9b10/" title="在nRF7002开发板上运行MQTT例程">
+                        <span class="hidden-mobile">在nRF7002开发板上运行MQTT例程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2023/08/045cdc9c9b10/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">在nRF7002开发板上运行MQTT例程</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>

@@ -1,16 +1,29 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>一文了解Nordic边缘AI方案 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="本文以手势识别遥控器为例，介绍如何使用 Nordic Edge AI 方案，从零开始完成数据采集、模型训练到 MCU 部署的完整流程。 1. Nordic Edge AI 简介什么是 AI 和机器学习？AI（人工智能） 是一个很大的概念，泛指让计算机完成需要人类智能才能完成的任务。而机器学习（Machine Learning） 是 AI 的一个重要子集，它的核心思想是：不给计算机编写明确的规则，而">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="本文以手势识别遥控器为例，介绍如何使用 Nordic Edge AI 方案，从零开始完成数据采集、模型训练到 MCU 部署的完整流程。 1. Nordic Edge AI 简介什么是 AI 和机器学习？AI（人工智能） 是一个很大的概念，泛指让计算机完成需要人类智能才能完成的任务。而机器学习（Machine Learning） 是 AI 的一个重要子集，它的核心思想是：不给计算机编写明确的规则，而">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一文了解Nordic边缘AI方案">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2026/04/b19b485a13d3/index.html">
-<meta property="og:site_name" content="一苇万顷">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
 <meta property="og:description" content="本文以手势识别遥控器为例，介绍如何使用 Nordic Edge AI 方案，从零开始完成数据采集、模型训练到 MCU 部署的完整流程。 1. Nordic Edge AI 简介什么是 AI 和机器学习？AI（人工智能） 是一个很大的概念，泛指让计算机完成需要人类智能才能完成的任务。而机器学习（Machine Learning） 是 AI 的一个重要子集，它的核心思想是：不给计算机编写明确的规则，而">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined07af174f67d7fc5f0fe3efb5307f0778.png">
@@ -64,111 +77,566 @@
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined5dd2e1cbfe3eef56d61ba0469807b8ef.png">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8dbec64baa1993fee9cb0752e0c236b6.png">
 <meta property="article:published_time" content="2026-04-03T08:02:54.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.233Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.842Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="AI">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined07af174f67d7fc5f0fe3efb5307f0778.png">
   
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
   
   
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  <title>一文了解Nordic边缘AI方案 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
   
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
   
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-一文了解 Nordic Edge AI 方案" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2026/04/b19b485a13d3/" class="article-date">
-  <time class="dt-published" datetime="2026-04-03T08:02:54.000Z" itemprop="datePublished">2026-04-03</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/jayant97.github.io/categories/AI/">AI</a>
-  </div>
+  
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="一文了解Nordic边缘AI方案"></span>
+          
+        </div>
+
         
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      一文了解Nordic边缘AI方案
-    </h1>
-  
-
-      </header>
+          
+  <div class="mt-3">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-04-03 16:02" pubdate>
+          2026年4月3日
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          120 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <p>本文以<strong>手势识别遥控器</strong>为例，介绍如何使用 Nordic Edge AI 方案，从零开始完成数据采集、模型训练到 MCU 部署的完整流程。</p>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">一文了解Nordic边缘AI方案</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>本文以<strong>手势识别遥控器</strong>为例，介绍如何使用 Nordic Edge AI 方案，从零开始完成数据采集、模型训练到 MCU 部署的完整流程。</p>
 <h1 id="1-Nordic-Edge-AI-简介"><a href="#1-Nordic-Edge-AI-简介" class="headerlink" title="1. Nordic Edge AI 简介"></a>1. Nordic Edge AI 简介</h1><h2 id="什么是-AI-和机器学习？"><a href="#什么是-AI-和机器学习？" class="headerlink" title="什么是 AI 和机器学习？"></a>什么是 AI 和机器学习？</h2><p><strong>AI（人工智能）</strong> 是一个很大的概念，泛指让计算机完成需要人类智能才能完成的任务。而<strong>机器学习（Machine Learning）</strong> 是 AI 的一个重要子集，它的核心思想是：不给计算机编写明确的规则，而是让它<strong>从数据中自动学习规律</strong>。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined07af174f67d7fc5f0fe3efb5307f0778.png" alt="image-20260403155723613"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined07af174f67d7fc5f0fe3efb5307f0778.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260403155723613"></p>
 <p>以手势识别为例：</p>
 <ul>
 <li><strong>传统方法</strong>：工程师手动设计规则，例如”当 X 轴速度先增大再减小时，判断为向右滑动”。这种方法需要大量人工调参，且很难覆盖所有情况。</li>
 <li><strong>机器学习方法</strong>：收集大量带标签的传感器数据（”这段数据是向右滑动”），让算法自动从中学习特征，训练出一个可以识别手势的<strong>模型（Model）</strong>。</li>
 </ul>
 <p>机器学习中最常见的一类是<strong>神经网络（Neural Network）</strong>，它由多层”神经元”组成，能够学习复杂的非线性特征。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8a93ca1c53ee299ba6642202d0d40018.png" alt="image-20260403161024491"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8a93ca1c53ee299ba6642202d0d40018.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260403161024491"></p>
 <h2 id="机器学习模型的运行"><a href="#机器学习模型的运行" class="headerlink" title="机器学习模型的运行"></a>机器学习模型的运行</h2><p>在<strong>推理阶段</strong>，神经网络的输入就是传感器数据（视为一组向量），通过线性运算（矩阵乘法、偏置）与非线性变换（激活函数）得到下一层的神经元数值。</p>
 <blockquote>
 <p>以上示意图为神经网络中线性代数运算部分的可视化：</p>
 <p>每一层神经元都是一组中间变量，暂时存储运算结果。图中相邻神经元之间的连线代表<strong>权重（Weight）</strong>，相邻两层之间所有的连线数值构成了<strong>权重矩阵</strong>。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefineda385ebb4951ac9cf75a2e2d249c6506b.jpg"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefineda385ebb4951ac9cf75a2e2d249c6506b.jpg" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload></p>
 <p>实际上，每一层神经元向量（<em><strong>x</strong></em>）到下一层神经元向量（<em><strong>y</strong></em>）之间不只是线性计算：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined73142a8a19cd7fd2b6fc6bfc488c7534.png" alt="image-20260403162624632"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined73142a8a19cd7fd2b6fc6bfc488c7534.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260403162624632"></p>
 <p><em><strong>W</strong></em>：上文介绍的权重矩阵，代表上一层对下一层的影响力。</p>
 <p><em><strong>b</strong></em>：偏置向量，代表神经元的固有偏好，确保模型在无输入或低输入时也能灵活调整。</p>
 <p><strong>σ</strong>：激活函数，常见的如ReLU，tanh等。如果没有激活函数，再多层权重矩阵和偏置向量都只会等价成一次线性计算。有了激活函数，才能让模型拟合现实中复杂的非线性问题。</p>
@@ -184,7 +652,7 @@
 <blockquote>
 <p>实际上，我们不会把所有数据都投入训练。我们会预留一部分数据作为<strong>测试集</strong>，不参与训练过程。训练结束后，用测试集来检验模型的真实水平。这能有效发现模型是否出现了<strong>过拟合（Overfitting）</strong>——即模型只是死记硬背住了训练题目的答案，却并没有真正学会解题的逻辑（泛化能力差）。</p>
 </blockquote>
-<p>在嵌入式端，我们往往在训练完成后还会进行<strong>量化（Quantization）</strong>，把普通的 32 位浮点数（FP32）权重压缩成 8 位整数（INT8）。这样模型虽然损失了一点点精度，但在 MCU上的运行速度会大幅提升，功耗也会显著降低。</p>
+<p>在嵌入式端，我们往往在训练完成后还会进行<strong>量化（Quantization）</strong>，把普通的 32 位浮点数（FP32）权重压缩成 8 位整数（INT8）。这样模型虽然损失了一点点精度，但在 MCU 上的运行速度会大幅提升，功耗也会显著降低。</p>
 <blockquote>
 <p>如果你想更详细地了解机器学习的数学本质，可以参考这个视频：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.bilibili.com/video/BV1bx411M7Zx/?share_source=copy_web&vd_source=5b30c59b8b35af4478df0c81135c53e6">《【3b1b】深度学习之神经网络的结构 Part 1 ver 2.》</a></p>
 </blockquote>
@@ -194,14 +662,14 @@
 <li>Axon NPU：Nordic 部分芯片（如 nRF54LM20B）内置了 Axon <strong>NPU</strong> 硬件加速器，可进一步提升模型推理速度和能效。适合处理音频流、小型视频流等较高数据量的时间序列数据。</li>
 </ul>
 <h3 id="CPU方案：Neuton神经网络框架"><a href="#CPU方案：Neuton神经网络框架" class="headerlink" title="CPU方案：Neuton神经网络框架"></a>CPU方案：Neuton神经网络框架</h3><p>与传统的全连接神经网络不同，Neuton 会从零开始逐个神经元地生长网络结构，<strong>自动找到最紧凑的模型，无需手动调节网络层数、学习率等超参数</strong>。训练后的模型可以非常小，适合在 Cortex-M 系列 MCU 上部署。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined49f3503571bffc93a65d1ec8a09f35a4.png" alt="image-20260410121033726"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined49f3503571bffc93a65d1ec8a09f35a4.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260410121033726"></p>
 <p>相比于结构冗余的传统全连接网络，Neuton 神经网络有极高的效率：它在生长过程中会自动剔除不重要的神经元与权重，并支持跨层连接。这种特性使得模型不再是死板的层级堆叠，而是一个高度精简、按需连接的稀疏拓扑结构。</p>
 <p>Neuton神经网络体积小，功耗低，直接在CPU上运行，支持Nordic目前所有的SoC平台。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1f20b2c8d03d9e25b7f9f8b5bf779fa4.png" alt="image-20260403172247347"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1f20b2c8d03d9e25b7f9f8b5bf779fa4.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260403172247347"></p>
 <h3 id="NPU方案：Axon-NPU"><a href="#NPU方案：Axon-NPU" class="headerlink" title="NPU方案：Axon NPU"></a>NPU方案：Axon NPU</h3><p>Nordic 部分 SoC，如 nRF54LM20B 支持 Axon NPU 硬件加速单元，可以运行更大的TensorFlow Lite（LiteRT）模型。相比于CPU能提升15倍的速度和10倍的能效。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined9be405513e4558c04c3371a0ea1c3755.png" alt="image-20260409140308948"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined9be405513e4558c04c3371a0ea1c3755.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409140308948"></p>
 <p>Axon NPU框图：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1a440eb9e39d3629141cf0817ec91a2b.svg" alt="Block diagram"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined1a440eb9e39d3629141cf0817ec91a2b.svg" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Block diagram"></p>
 <ol>
 <li>硬件提供常见的神经网络运算单元（卷积、全连接、加法、池化等），支持8bit量化模型，支持32bit输出。也支持int24 DSP矢量运算，平方根，自然对数和FFT。</li>
 <li>Nordic提供配套编译器和驱动，可以将TensorFlow Lite模型转换为Axon可以运行的模型。</li>
@@ -216,48 +684,48 @@
 </ul>
 <p>Axon NPU非常适合做”需要持续听，但不常触发“的功能。如<strong>语音关键词唤醒</strong>。相关文档请参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/edge-ai-lab/page/doc/wake_word.html">Wake Word Detection</a></p>
 </blockquote>
-<h3 id="Nordic-Edge-AI-Lab"><a href="#Nordic-Edge-AI-Lab" class="headerlink" title="Nordic Edge AI Lab"></a>Nordic Edge AI Lab</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedfd64a04ce1322997e414bbbace0fd049.png" alt="image-20260403171114612"></p>
+<h3 id="Nordic-Edge-AI-Lab"><a href="#Nordic-Edge-AI-Lab" class="headerlink" title="Nordic Edge AI Lab"></a>Nordic Edge AI Lab</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedfd64a04ce1322997e414bbbace0fd049.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260403171114612"></p>
 <p>Nordic Edge AI 是一个在线的模型训练平台（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://ai.lab.nordicsemi.com/">ai.lab.nordicsemi.com</a>），无需本地 GPU 环境，上传 CSV 表格数据集即可自动完成特征提取、模型训练和导出。支持Neuton模型和Axon模型。</p>
 <p>文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/edge-ai-lab/page/index.html">Welcome to the Nordic Edge AI Lab</a></p>
-<h3 id="Edge-AI-Add-on"><a href="#Edge-AI-Add-on" class="headerlink" title="Edge AI Add-on"></a>Edge AI Add-on</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd03960cac105131b0329531980f09e96.png" alt="image-20260409143359937"></p>
-<p>NCS（nRF Connect SDK）的插件（Add-On），提供完整的手势识别、异常检测等参考应用，以及将训练好的模型集成进固件的工程框架，包含推理引擎，数据预处理等。</p>
+<h3 id="Edge-AI-Add-on"><a href="#Edge-AI-Add-on" class="headerlink" title="Edge AI Add-on"></a>Edge AI Add-on</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd03960cac105131b0329531980f09e96.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409143359937"></p>
+<p>NCS（nRF Connect SDK）的插件（Add-on），提供完整的手势识别、异常检测等参考应用，以及将训练好的模型集成进固件的工程框架，包含推理引擎，数据预处理等。</p>
 <p>文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/addon-edge-ai_latest/page/index.html">Welcome to the Edge AI Add-on for nRF Connect SDK</a></p>
 <h1 id="2-环境准备"><a href="#2-环境准备" class="headerlink" title="2. 环境准备"></a>2. 环境准备</h1><h2 id="硬件准备"><a href="#硬件准备" class="headerlink" title="硬件准备"></a>硬件准备</h2><p>本教程使用 <strong>Nordic Thingy:53</strong>（基于 nRF5340 SoC）。Thingy:53 内置了加速度计和陀螺仪，非常适合用于手势识别。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedde13331a58492941b58473a0dffc2d93.png" alt="image-20260409144204939"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedde13331a58492941b58473a0dffc2d93.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409144204939"></p>
 <blockquote>
 <p>例程也支持：</p>
 <ul>
-<li>nRF54L15 TAG<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined4be331182d147c0564def3313f3a5ce6.webp" alt="img"></li>
-<li>nRF54LM20DK + nRF Sensor EB<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined867c526571b5e35cc6a75a6ca6d7e008.png" alt="image-20260413115559025"></li>
+<li>nRF54L15 TAG<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined4be331182d147c0564def3313f3a5ce6.webp" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="img"></li>
+<li>nRF54LM20DK + nRF Sensor EB<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined867c526571b5e35cc6a75a6ca6d7e008.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260413115559025"></li>
 </ul>
 </blockquote>
 <h2 id="软件环境"><a href="#软件环境" class="headerlink" title="软件环境"></a>软件环境</h2><p>每次安装一个nRF Connect SDK Add-on都需要从GitHub拉取一个完整的SDK，对于国内网络不太友好。<strong>如果你的网络能稳定访问GitHub</strong>，你可以按照<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/addon-edge-ai_latest/page/setting_up/sdk_setup.html">Edge AI Add-on的文档</a> 来安装。</p>
 <blockquote>
 <p><strong>标准全量安装方式</strong></p>
 <p>拉取Edge AI Add-on 和对应的SDK：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined870029657c507902c501290429dca842.png" alt="image-20260409144415855"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined2d3a715f4aed12e1d5e585c7caab0dcd.png" alt="image-20260409144519959"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc0c5bca153553afce6789a9104b47580.png" alt="image-20260409144559217"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined38083d19669a5e82469d02875564358c.png" alt="image-20260409144630789"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined870029657c507902c501290429dca842.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409144415855"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined2d3a715f4aed12e1d5e585c7caab0dcd.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409144519959"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc0c5bca153553afce6789a9104b47580.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409144559217"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined38083d19669a5e82469d02875564358c.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409144630789"></p>
 <p>你<strong>也可以</strong>通过命令行的方式安装：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 首先通过VS Code打开 nRF Connect命令行，或者通过以下 nrfutil 命令打开nRF Connect 命令行</span></span><br><span class="line"><span class="comment"># Windows</span></span><br><span class="line">nrfutil toolchain-manager launch --ncs-version v3.2.0 -- powershell</span><br><span class="line"><span class="comment"># Linux</span></span><br><span class="line">nrfutil toolchain-manager launch --ncs-version v3.2.0 --shell</span><br><span class="line"></span><br><span class="line"><span class="comment">## 在合适的目录下创建west工作区并拉取</span></span><br><span class="line">west init -m <span class="string">&quot;https://github.com/nrfconnect/sdk-edge-ai&quot;</span> --mr v2.0.0</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">## 首先通过VS Code打开 nRF Connect命令行，或者通过以下 nrfutil 命令打开nRF Connect 命令行</span><br><span class="hljs-comment"># Windows</span><br>nrfutil toolchain-manager launch --ncs-version v3.2.0 -- powershell<br><span class="hljs-comment"># Linux</span><br>nrfutil toolchain-manager launch --ncs-version v3.2.0 --shell<br><br><span class="hljs-comment">## 在合适的目录下创建west工作区并拉取</span><br>west init -m <span class="hljs-string">&quot;https://github.com/nrfconnect/sdk-edge-ai&quot;</span> --mr v2.0.0<br></code></pre></td></tr></table></figure>
 </blockquote>
 <p><strong>本文在这里提供一个方案，可以直接在本地已经安装的NCS的基础上，增量拉取Nordic Edge AI Add-on，成功率会大大提高：</strong></p>
 <p>根据 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nrfconnect/sdk-edge-ai/blob/v2.0.0/west.yml">Nordic Edge AI的west配置</a>，我们目前需要NCS v3.3.0-preview2：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8115305e677adc4c141e79b253e1326a.png" alt="image-20260409161641885"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8115305e677adc4c141e79b253e1326a.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409161641885"></p>
 <p>以下博客介绍了<strong>国内镜像服务器加速下载</strong>NCS的方法，我们去下载目前和v3.3.0-preview2最接近的正式版 v3.2.4：</p>
 <ul>
 <li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17794804.html">nRF Connect SDK(NCS) 安装与入门 - jayant97</a></li>
 </ul>
 <p>根据NCS根目录下<code>.west/config</code>文件下的配置，我们可以看到NCS原本的manifest是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nrfconnect/sdk-nrf">nrf仓库</a>：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[manifest]</span><br><span class="line">path = nrf</span><br><span class="line">file = west.yml</span><br><span class="line"></span><br><span class="line">[zephyr]</span><br><span class="line">base = zephyr</span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[manifest]</span><br><span class="hljs-attr">path</span> = nrf<br><span class="hljs-attr">file</span> = west.yml<br><br><span class="hljs-section">[zephyr]</span><br><span class="hljs-attr">base</span> = zephyr<br></code></pre></td></tr></table></figure>
 
 <p>我们只需要把 manifest 切换成<code>https://github.com/nrfconnect/sdk-edge-ai</code>，再更新west工作区，即可增量拉取：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">## 首先通过VS Code打开 nRF Connect命令行，或者通过以下nrfutil命令打开nRF Connect 命令行</span></span><br><span class="line"><span class="comment"># Windows</span></span><br><span class="line">nrfutil toolchain-manager launch --ncs-version v3.2.4 -- powershell</span><br><span class="line"><span class="comment"># Linux</span></span><br><span class="line">nrfutil toolchain-manager launch --ncs-version v3.2.4 --shell</span><br><span class="line"></span><br><span class="line"><span class="comment">## 拉取Nordic Edge AI SDK仓库</span></span><br><span class="line"><span class="built_in">cd</span> D:/ncs/v3.2.4</span><br><span class="line">git <span class="built_in">clone</span> -b v2.0.0 https://github.com/nrfconnect/sdk-edge-ai edge-ai</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把manifest切换成Nordic Edge AI Add-on</span></span><br><span class="line">west config manifest.path edge-ai</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取完整工作区，如果由于网络问题拉取失败，重复执行此命令直到不报错</span></span><br><span class="line">west update</span><br><span class="line"></span><br><span class="line"><span class="comment">## 拉取完毕后，可以把v3.2.4文件夹重命名为其他名称，例如edge-ai-sdk，以和标准的NCS v3.2.4做区分</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">## 首先通过VS Code打开 nRF Connect命令行，或者通过以下nrfutil命令打开nRF Connect 命令行</span><br><span class="hljs-comment"># Windows</span><br>nrfutil toolchain-manager launch --ncs-version v3.2.4 -- powershell<br><span class="hljs-comment"># Linux</span><br>nrfutil toolchain-manager launch --ncs-version v3.2.4 --shell<br><br><span class="hljs-comment">## 拉取Nordic Edge AI SDK仓库</span><br><span class="hljs-built_in">cd</span> D:/ncs/v3.2.4<br>git <span class="hljs-built_in">clone</span> -b v2.0.0 https://github.com/nrfconnect/sdk-edge-ai edge-ai<br><br><span class="hljs-comment"># 把manifest切换成Nordic Edge AI Add-on</span><br>west config manifest.path edge-ai<br><br><span class="hljs-comment"># 拉取完整工作区，如果由于网络问题拉取失败，重复执行此命令直到不报错</span><br>west update<br><br><span class="hljs-comment">## 拉取完毕后，可以把v3.2.4文件夹重命名为其他名称，例如edge-ai-sdk，以和标准的NCS v3.2.4做区分</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>可能你在west update时会遇到一些其他报错：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined140feacef6b78a73f623f14704f91101.png" alt="image-20260409162727245"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined140feacef6b78a73f623f14704f91101.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409162727245"></p>
 <p>这是因为Windows的NTFS文件系统是不区分大小写的。这些文件名在windows里是大写，但是git仓库中只记录了小写的，于是认为大写的文件是新的文件，在git checkout的时候报警不让更新。</p>
 <p>可以在zephyr仓库目录下单独执行<code>git config core.ignorecase true</code>来忽略。如果其他仓库也有这个问题，单独执行这个命令即可。</p>
 </blockquote>
@@ -265,23 +733,23 @@
 <p>如果你没有这个硬件，或者不想花时间自己采集数据。Nordic也提供了测试用的数据集，可以跳过这一章节，参考后续内容。</p>
 <h2 id="编译并烧录数据采集固件"><a href="#编译并烧录数据采集固件" class="headerlink" title="编译并烧录数据采集固件"></a>编译并烧录数据采集固件</h2><p>Edge AI Add-on 中提供了 <code>edge-ai/applications/gesture_recognition</code> 参考工程。在烧录之前，需要开启数据采集模式。</p>
 <p>你可以在<code>edge-ai\applications\gesture_recognition\configuration\thingy53_nrf5340_cpuapp\</code>中，拷贝一份<code>prj.conf</code>，命名为<code>prj_dc.conf</code>，增加以下内容：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CONFIG_DATA_COLLECTION_MODE=y</span><br><span class="line">CONFIG_BLE_MODE_NONE=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_DATA_COLLECTION_MODE</span>=y<br><span class="hljs-attr">CONFIG_BLE_MODE_NONE</span>=y<br></code></pre></td></tr></table></figure>
 
 <p>然后编译：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> edge-ai\applications\gesture_recognition</span><br><span class="line">west build -d build_dc  --pristine --board thingy53/nrf5340/cpuapp -- -DCONF_FILE=<span class="string">&quot;prj_dc.conf&quot;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> edge-ai\applications\gesture_recognition<br>west build -d build_dc  --pristine --board thingy53/nrf5340/cpuapp -- -DCONF_FILE=<span class="hljs-string">&quot;prj_dc.conf&quot;</span><br></code></pre></td></tr></table></figure>
 
 <p>Nordic 的其他开发板支持J-link对外输出，使用标准10pin JTAG接口：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7a1721467e73c5ea1cf9248a8904c7ed.png" alt="image-20260409165716292"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined861be2842b4ad20879e6d0c57da187a7.png" alt="image-20260409165836877"></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">west flash -d build_dc/</span><br></pre></td></tr></table></figure>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7a1721467e73c5ea1cf9248a8904c7ed.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409165716292"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined861be2842b4ad20879e6d0c57da187a7.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409165836877"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">west flash -d build_dc/<br></code></pre></td></tr></table></figure>
 
 
 
 <p>使用 <strong>nRF Connect for Desktop</strong> 中的 <strong>Serial Terminal</strong> 工具连接设备串口（波特率 115200）。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined997a2a34fb8446813afa96030cf4a76d.png" alt="image-20260409171339566"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined822701712b54023ae47e1363fe7ac795.png" alt="image-20260409173015737"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined997a2a34fb8446813afa96030cf4a76d.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409171339566"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined822701712b54023ae47e1363fe7ac795.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409173015737"></p>
 <p>设备会通过串口以 100 Hz 的频率持续输出传感器原始数据，格式如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;acc_x&gt;,&lt;acc_y&gt;,&lt;acc_z&gt;,&lt;gyro_x&gt;,&lt;gyro_y&gt;,&lt;gyro_z&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">acc_x</span>&gt;</span>,<span class="hljs-tag">&lt;<span class="hljs-name">acc_y</span>&gt;</span>,<span class="hljs-tag">&lt;<span class="hljs-name">acc_z</span>&gt;</span>,<span class="hljs-tag">&lt;<span class="hljs-name">gyro_x</span>&gt;</span>,<span class="hljs-tag">&lt;<span class="hljs-name">gyro_y</span>&gt;</span>,<span class="hljs-tag">&lt;<span class="hljs-name">gyro_z</span>&gt;</span><br></code></pre></td></tr></table></figure>
 
 <p>数据为 16 位整数，每行代表一个采样点，采样率默认 100 Hz（即每秒 100 行）。</p>
 <h2 id="决定目标动作"><a href="#决定目标动作" class="headerlink" title="决定目标动作"></a>决定目标动作</h2><p>在采集数据之前，要决定自己要识别哪些动作。默认动作有6种。</p>
@@ -294,31 +762,31 @@
 </thead>
 <tbody><tr>
 <td>右滑</td>
-<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined27561188700558709fa50e0c832735fb.gif" alt="swipe_right_thingy"></td>
+<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined27561188700558709fa50e0c832735fb.gif" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="swipe_right_thingy"></td>
 </tr>
 <tr>
 <td>左滑</td>
-<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc44c08279333127f74764c32be288d4f.gif" alt="swipe_left_thingy"></td>
+<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedc44c08279333127f74764c32be288d4f.gif" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="swipe_left_thingy"></td>
 </tr>
 <tr>
 <td>双击</td>
-<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined99ee925e96e4bf94f5984ce94cd331e1.gif" alt="double_shake_thingy"></td>
+<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined99ee925e96e4bf94f5984ce94cd331e1.gif" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="double_shake_thingy"></td>
 </tr>
 <tr>
 <td>拇指双击</td>
-<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefineda2dcb659014e35cd80840abbe0aa7550.gif" alt="double_tap_thingy"></td>
+<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefineda2dcb659014e35cd80840abbe0aa7550.gif" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="double_tap_thingy"></td>
 </tr>
 <tr>
 <td>顺时针旋转</td>
-<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefineda65e91e049be4e8a429845e4f23bf001.gif" alt="rotation_right_thingy"></td>
+<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefineda65e91e049be4e8a429845e4f23bf001.gif" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="rotation_right_thingy"></td>
 </tr>
 <tr>
 <td>逆时针旋转</td>
-<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined53ac32f5340c8afcfb77598080534ecb.gif" alt="rotation_left_thingy"></td>
+<td><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined53ac32f5340c8afcfb77598080534ecb.gif" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="rotation_left_thingy"></td>
 </tr>
 </tbody></table>
 <p>除此之外，还要确保一个初始位置，并将其定义为<strong>静止（idle）</strong>：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined64f0e5b1cb925201178263bb7d0b09dd.png" alt="image-20260409174350984"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined64f0e5b1cb925201178263bb7d0b09dd.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260409174350984"></p>
 <p>再加上<strong>其他动作（UNKNOWN）</strong>，总共有6+1+1&#x3D;8种动作。</p>
 <blockquote>
 <p>你可以自己设计其他6种动作，来替换原本的动作。因为应用层代码就只定义了6种动作+静止+未知动作。只需要修改模型，就能改为识别你自己定义的其他6种动作。</p>
@@ -332,7 +800,7 @@
 <li>适当变换速度、方向和力度，增强模型泛化能力</li>
 <li>每个手势类别采集约 5 分钟的数据</li>
 </ul>
-<p>采集完成后，在串口助手中点击 <strong>Write to File</strong>，将数据保存为 CSV表格 文件。</p>
+<p>采集完成后，在串口助手中点击 <strong>Write to File</strong>，将数据保存为 CSV 表格文件。</p>
 <blockquote>
 <p><code>idle</code>（静止）和 <code>unknown</code>（未知手势）这两类数据非常重要！它们可以防止模型在用户做其他动作时产生误触发。</p>
 </blockquote>
@@ -388,11 +856,11 @@
 </tr>
 </tbody></table>
 <p>标注后的文件示例（IDLE 类别）：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">acc_x,acc_y,acc_z,gyro_x,gyro_y,gyro_z,class</span><br><span class="line">-10,5,980,2,1,0,0</span><br><span class="line">-20,50,970,4,5,2,0</span><br><span class="line">-30,60,970,5,6,3,0</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs csv">acc_x,acc_y,acc_z,gyro_x,gyro_y,gyro_z,class<br>-10,5,980,2,1,0,0<br>-20,50,970,4,5,2,0<br>-30,60,970,5,6,3,0<br></code></pre></td></tr></table></figure>
 
 <h2 id="数据窗口与数据分割（Segmentation）"><a href="#数据窗口与数据分割（Segmentation）" class="headerlink" title="数据窗口与数据分割（Segmentation）"></a>数据窗口与数据分割（Segmentation）</h2><p>如果你的数据，表格中的每一行就是一个完整的带标签的训练样本，则没有数据窗口的概念。</p>
 <p>但是，<strong>传感器数据</strong>是<strong>连续的</strong>，连续很多行才代表1个训练样本，模型的输入是一段窗口内的数据。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined2b7dbe438dbf9aad2fa0589af917399f.png" alt="image-20260410103011279"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined2b7dbe438dbf9aad2fa0589af917399f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260410103011279"></p>
 <p>随着时间推移，把传感器数据分割为一个个窗口输入给模型，模型在一个计算周期（Shift）内给出这段数据对应的结果。窗口之间可以有重叠（Overlap），也可以没有。</p>
 <p>但是我们要识别的<strong>动作</strong>本身是有连续和非连续的区别：</p>
 <ul>
@@ -400,11 +868,11 @@
 <li>非连续的，<strong>有明确的起止点</strong>。如左滑、右滑、双击。</li>
 </ul>
 <p>对于<strong>连续的动作</strong>，我们可以<strong>直接用连续的原始数据去训练</strong>。Nordic Edge AI平台上可以设置滑动窗口的大小和偏移，自动生成训练数据。</p>
-<p>对于<strong>非连续的动作</strong>，我们需要进行剪裁，必须把波形放到每个窗口的中间：<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined0a3e9405014ed1b6d8801c7dcb4ef668.png" alt="image-20260410145452340"></p>
+<p>对于<strong>非连续的动作</strong>，我们需要进行剪裁，必须把波形放到每个窗口的中间：<br><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined0a3e9405014ed1b6d8801c7dcb4ef668.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260410145452340"></p>
 <p>注意，<strong>训练时</strong>的滑动窗口设置和<strong>推理时</strong>的滑动窗口设置是可以不一样的。上图展示了推理时的滑动窗口：我们可以用较长的窗口（1-2秒）来确保动作的完整性；用较短（0.3s）的滑动偏移来确保动作识别的响应速度。</p>
 <p>而在训练时，<strong>如果你的训练数据包含非连续动作</strong>，我们<strong>必须</strong>设置<strong>窗口大小（Window Size）</strong>等于<strong>滑动偏移（Shift）</strong>，确保窗口之间没有重叠（Overlap）。</p>
 <p>最终所有的训练数据合并在一起，应该类似这样：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb6bcec2960b9dc950c32fd379e9f296f.png" alt="image-20260410114043257"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb6bcec2960b9dc950c32fd379e9f296f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260410114043257"></p>
 <p>这样一来，训练服务器在读取数据时才能正确把每个非连续动作置于窗口中心。</p>
 <p>以本例来说：最长手势约 1 秒，采样率 100 Hz，因此<strong>窗口大小（Window Size）为 100 个采样点</strong>。分割的目标是让每段窗口的中心对应手势的最大幅值处。</p>
 <blockquote>
@@ -413,14 +881,14 @@
 <blockquote>
 <p> Nordic 提供了一个开源的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nordicsemi-neuton/segment-center-signal">自动分割脚本</a>，来帮你分割<strong>非连续动作</strong>的数据。只需指定最长手势的时长（秒），脚本会自动完成分割和数据清洗（删除头尾噪声数据）。</p>
 <p> 你可以单独对<strong>非连续动作</strong>的CSV表格来执行这个脚本：</p>
- <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装依赖</span></span><br><span class="line">pip install -r requirements.txt</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">处理数据(读取同目录下的名称为<span class="string">&quot;sample_data.csv&quot;</span>的文件)</span></span><br><span class="line">python segment_data_around_peaks.py</span><br></pre></td></tr></table></figure>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">安装依赖</span><br>pip install -r requirements.txt<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">处理数据(读取同目录下的名称为<span class="hljs-string">&quot;sample_data.csv&quot;</span>的文件)</span><br>python segment_data_around_peaks.py<br></code></pre></td></tr></table></figure>
 
 <p> 这个脚本比较粗糙，很多内容是硬编码的，<strong>你需要修改脚本内容来符合你的要求</strong>：</p>
 <p> 输入文件：</p>
 <ul>
 <li><code>sample_data.csv</code>：输入数据文件名</li>
 </ul>
- <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># read data with one non-continuous gesture samples</span></span><br><span class="line">df = pd.read_csv(<span class="string">&#x27;sample_data.csv&#x27;</span>, on_bad_lines=<span class="string">&#x27;skip&#x27;</span>)</span><br></pre></td></tr></table></figure>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># read data with one non-continuous gesture samples</span><br>df = pd.read_csv(<span class="hljs-string">&#x27;sample_data.csv&#x27;</span>, on_bad_lines=<span class="hljs-string">&#x27;skip&#x27;</span>)<br></code></pre></td></tr></table></figure>
 
 <p> 数据处理参数：</p>
 <ul>
@@ -428,20 +896,20 @@
 <li><code>gesture</code>：输出文件名</li>
 <li><code>nrows_to_remove</code>：忽略输入数据的前多少行</li>
 </ul>
- <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Define the desired training window size</span></span><br><span class="line">TRAINING_WINDOW_SIZE = <span class="number">100</span></span><br><span class="line">gesture = <span class="string">&#x27;swipe_right&#x27;</span></span><br><span class="line">nrows_to_remove = <span class="number">400</span></span><br></pre></td></tr></table></figure>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Define the desired training window size</span><br>TRAINING_WINDOW_SIZE = <span class="hljs-number">100</span><br>gesture = <span class="hljs-string">&#x27;swipe_right&#x27;</span><br>nrows_to_remove = <span class="hljs-number">400</span><br></code></pre></td></tr></table></figure>
 
 <p> 数据集结构定义：</p>
 <ul>
 <li>输入数据有6列+1列标签。每一列的名称就是输出数据的表头。</li>
 </ul>
- <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df.columns = [<span class="string">&#x27;aX&#x27;</span>, <span class="string">&#x27;aY&#x27;</span>, <span class="string">&#x27;aZ&#x27;</span>, <span class="string">&#x27;gX&#x27;</span>, <span class="string">&#x27;gY&#x27;</span>, <span class="string">&#x27;gZ&#x27;</span>, <span class="string">&#x27;target&#x27;</span>]</span><br></pre></td></tr></table></figure>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">df.columns = [<span class="hljs-string">&#x27;aX&#x27;</span>, <span class="hljs-string">&#x27;aY&#x27;</span>, <span class="hljs-string">&#x27;aZ&#x27;</span>, <span class="hljs-string">&#x27;gX&#x27;</span>, <span class="hljs-string">&#x27;gY&#x27;</span>, <span class="hljs-string">&#x27;gZ&#x27;</span>, <span class="hljs-string">&#x27;target&#x27;</span>]<br></code></pre></td></tr></table></figure>
 
 <p> 峰值检测算法参数：</p>
 <ul>
 <li><code>work_axis</code>：选择要基于哪个轴做峰值检测</li>
 <li><code>threshold_coef</code>：阈值系数</li>
 </ul>
- <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">config = &#123;</span><br><span class="line">    <span class="string">&#x27;work_axis&#x27;</span> : <span class="string">&#x27;aY&#x27;</span>, <span class="comment"># tunable parameter</span></span><br><span class="line">    <span class="string">&#x27;work_wind_size&#x27;</span>: <span class="built_in">int</span>(TRAINING_WINDOW_SIZE * <span class="number">0.95</span>), <span class="comment"># tunable parameter</span></span><br><span class="line">    <span class="string">&#x27;total_wind_size&#x27;</span>: TRAINING_WINDOW_SIZE,</span><br><span class="line">    <span class="string">&#x27;threshold_coef&#x27;</span>: <span class="number">0.5</span>, <span class="comment"># tunable parameter</span></span><br><span class="line">    <span class="string">&#x27;step&#x27;</span>: <span class="number">1</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">config = &#123;<br>    <span class="hljs-string">&#x27;work_axis&#x27;</span> : <span class="hljs-string">&#x27;aY&#x27;</span>, <span class="hljs-comment"># tunable parameter</span><br>    <span class="hljs-string">&#x27;work_wind_size&#x27;</span>: <span class="hljs-built_in">int</span>(TRAINING_WINDOW_SIZE * <span class="hljs-number">0.95</span>), <span class="hljs-comment"># tunable parameter</span><br>    <span class="hljs-string">&#x27;total_wind_size&#x27;</span>: TRAINING_WINDOW_SIZE,<br>    <span class="hljs-string">&#x27;threshold_coef&#x27;</span>: <span class="hljs-number">0.5</span>, <span class="hljs-comment"># tunable parameter</span><br>    <span class="hljs-string">&#x27;step&#x27;</span>: <span class="hljs-number">1</span><br>    &#125;<br></code></pre></td></tr></table></figure>
 
 <p> 算法解释：</p>
 <ol>
@@ -452,11 +920,11 @@
 <li>相邻的一个上升沿和下降沿之间的部分就捕捉到了一个波峰。把这个波峰放置在一个窗口中心，剪裁并记录到输出数据中。</li>
 </ol>
 <p> 原始示例数据，用Excel绘制图像，开头有一段时间静止，13873行（138秒）：</p>
-<p> <img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8f1222c4ff25aaf6ba37afe1fa25faf2.png" alt="image-20260413142342841"></p>
+<p> <img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8f1222c4ff25aaf6ba37afe1fa25faf2.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260413142342841"></p>
 <p> 处理后的示例数据，只截取3000条（对应30秒），可以看到波峰是对齐大小为100的窗口的：</p>
-<p> <img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined690969361ec0ed752794b8984f13d8c0.png" alt="image-20260413142929358"></p>
+<p> <img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined690969361ec0ed752794b8984f13d8c0.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260413142929358"></p>
 <p> 其中有一些误识别的，可能是阈值设置的太低了，将<code>threshold_coef</code>改为<code>1.2</code>再测试一下：</p>
-<p> <img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedcb02162a759789399fe3095e4b223622.png" alt="image-20260413143927726"></p>
+<p> <img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedcb02162a759789399fe3095e4b223622.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260413143927726"></p>
 <p> 基本上就符合我们的需求了</p>
 </blockquote>
 <h2 id="合并数据集"><a href="#合并数据集" class="headerlink" title="合并数据集"></a>合并数据集</h2><blockquote>
@@ -467,7 +935,7 @@
 </ul>
 </blockquote>
 <p>将所有标注并分割好的 CSV 文件合并为一个总数据集：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Windows PowerShell</span></span><br><span class="line"><span class="built_in">Get-Content</span> idle.csv, swipe_right.csv, swipe_left.csv, rotation_clockwise.csv, rotation_counterclockwise.csv, double_knock.csv, double_thumb_tap.csv, unknown_gestures.csv | <span class="built_in">Set-Content</span> dataset.csv</span><br></pre></td></tr></table></figure>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># Windows PowerShell</span><br><span class="hljs-built_in">Get-Content</span> idle.csv, swipe_right.csv, swipe_left.csv, rotation_clockwise.csv, rotation_counterclockwise.csv, double_knock.csv, double_thumb_tap.csv, unknown_gestures.csv | <span class="hljs-built_in">Set-Content</span> dataset.csv<br></code></pre></td></tr></table></figure>
 
 <p>最终得到一个包含所有手势类别数据的 <code>dataset.csv</code>，即可用于训练。</p>
 <p>最终合并完成之后，再添加表头。</p>
@@ -476,7 +944,7 @@
 <li>在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://ai.lab.nordicsemi.com/">Edge AI Lab</a> 注册账户并登录</li>
 <li>点击 <strong>Add New Solution</strong> 创建新项目</li>
 </ol>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined3346b1b3ed25a6b3d21a5e819149d657.png" alt="New solution"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined3346b1b3ed25a6b3d21a5e819149d657.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="New solution"></p>
 <blockquote>
 <p>这里有三个选项：</p>
 <ul>
@@ -490,16 +958,16 @@
 <li>填写项目名称，点击 <strong>Next</strong></li>
 <li>上传 <code>dataset.csv</code>，点击 <strong>OK</strong></li>
 </ol>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb903a997f845e4ea7e7c2eff3ef5e878.png" alt="Dataset upload"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb903a997f845e4ea7e7c2eff3ef5e878.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Dataset upload"></p>
 <ol start="6">
 <li>将 <strong>Target Column</strong> 设置为 <code>class</code>，点击 <strong>Next</strong></li>
 </ol>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd584315fd7f13cddeeafb5bce609ee38.png" alt="Dataset upload"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedd584315fd7f13cddeeafb5bce609ee38.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Dataset upload"></p>
 <h2 id="数据预处理配置"><a href="#数据预处理配置" class="headerlink" title="数据预处理配置"></a>数据预处理配置</h2><h3 id="窗口选择"><a href="#窗口选择" class="headerlink" title="窗口选择"></a>窗口选择</h3><p>刚刚进入页面时，会看到一个”Signal Processing”页面。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefineded41e003e60f419a738fdf66ff93d9a9.png" alt="Signal Processing Activation"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefineded41e003e60f419a738fdf66ff93d9a9.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Signal Processing Activation"></p>
 <p>这里如果直接开始训练，模型会把<strong>每一行</strong>数据当成<strong>一个</strong>单独的训练样本，不会进行窗口化、特征提取等操作。由于我们每一行只是一条加速度计数据，需要连续100行才是1秒的数据，因此我们<strong>必须开启Signal Processing。</strong></p>
 <p>开启后，就可以进行数据预处理的配置：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined07f0468eaf6fea4a2079815190d8e007.png" alt="Windowing"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined07f0468eaf6fea4a2079815190d8e007.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Windowing"></p>
 <p>首先选择窗口大小，该平台的数据窗口大小范围为<code>10</code>到<code>1000</code>个。</p>
 <ul>
 <li>Time Interval：输入窗口时间和采样频率，平台自动计算一个窗口有多少行数据</li>
@@ -507,14 +975,14 @@
 <li>Auto Determination：平台自动选择</li>
 </ul>
 <p>由于我们前面已经把数据分割好，因此直接选择窗口大小为100行：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined13eb901030254f928b3d0aec6cd249e4.png" alt="image-20260413153916531"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined13eb901030254f928b3d0aec6cd249e4.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260413153916531"></p>
 <ul>
 <li>“Window Size” 和 “Sliding shift for training” 必须相等，这样训练数据的窗口之间没有重叠也没有缝隙。因为我们前面分割好的数据就是这样准备的。</li>
 <li>“Sliding shift for inference”是模型在运行时的输入滑动步长。 在运行时，让窗口之间有重叠，可以防止部分动作数据被截断到前后两个窗口，导致丢失。Sliding Shift 越小，推理时生成的样本越密集，响应越快，但 CPU 占用越高。</li>
 </ul>
 <h3 id="特征提取（Feature-Extraction）"><a href="#特征提取（Feature-Extraction）" class="headerlink" title="特征提取（Feature Extraction）"></a>特征提取（Feature Extraction）</h3><p>如果我们直接把一个窗口内的所有数据当作一个训练样本向量，它的维度将是（6轴 × 100行 &#x3D; 600）。要把一个600维的向量输入一个神经网络，结合前面介绍的神经网络的结构，可想而知，最终模型将会非常大。</p>
 <p>我们可以用一些统计学的方法，先从传感器数据中提取一些统计特征，将原始的600维向量数据降低到每个轴十几维。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedbc7e5842d64be89a830632afaec7c090.png" alt="Feature extraction"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedbc7e5842d64be89a830632afaec7c090.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Feature extraction"></p>
 <p>可选的特征有：</p>
 <table>
 <thead>
@@ -741,9 +1209,9 @@
 <li>和其他特征的相关度是1.00</li>
 <li>特征对模型最终的贡献重要性小于0.875%</li>
 </ol>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedf0139ff7e50cf91c03610ab04b9e947f.png" alt="Feature Selection"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedf0139ff7e50cf91c03610ab04b9e947f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Feature Selection"></p>
 <h3 id="原始数据训练（Raw-Data）"><a href="#原始数据训练（Raw-Data）" class="headerlink" title="原始数据训练（Raw Data）"></a>原始数据训练（Raw Data）</h3><p>如果你有特殊的需求，可以不使用特征值，而是全部使用原始数据：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8bcbe8b211314e4ee43c4fa5540ef725.png" alt="image-20260413172936341"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8bcbe8b211314e4ee43c4fa5540ef725.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260413172936341"></p>
 <p>这种情况下，正如前面所说，会把6维×100条数据全部当作模型的一条训练数据，作为输入向量。</p>
 <p>使用原始数据训练时：</p>
 <ul>
@@ -752,7 +1220,7 @@
 <li>不能开启频域特征</li>
 </ul>
 <h3 id="子窗口"><a href="#子窗口" class="headerlink" title="子窗口"></a>子窗口</h3><p>子窗口将信号分割成更小的片段，以更好地捕捉局部峰值、凹陷和模式。该平台不是将整个信号分析为一个长序列，而是将其处理成更小的块，并从每个块中提取更详细的特征。这对于手势和活动识别特别有用。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7da99574800245322e01ee8e175495e3.png" alt="image-20260413173332993"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined7da99574800245322e01ee8e175495e3.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260413173332993"></p>
 <p>可以分割2到10个子窗口，每个子窗口至少要有10个样本数据。</p>
 <p>使用子窗口时：</p>
 <ul>
@@ -761,7 +1229,7 @@
 <li>特征选择会自动启用，但也可以手动关闭</li>
 <li>不能开启原始数据功能</li>
 </ul>
-<h3 id="输入数据类型"><a href="#输入数据类型" class="headerlink" title="输入数据类型"></a>输入数据类型</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede932d0660b185e00d8e7c7049ac867f2.png" alt="Input data type"></p>
+<h3 id="输入数据类型"><a href="#输入数据类型" class="headerlink" title="输入数据类型"></a>输入数据类型</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede932d0660b185e00d8e7c7049ac867f2.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Input data type"></p>
 <p>数据类型代表的是神经网络参数的类型。位数越多则模型精度越高，但运算会更困难。</p>
 <ul>
 <li>8-bit Integer: -128 to 127 </li>
@@ -773,7 +1241,7 @@
 <li>Unique scale for each feature：每个特征有自己的取值范围，会提高精度，但也可能导致模型变大</li>
 <li>Unified scale for all features：把所有特征值都统一缩放到同样的取值范围，可能降低模型精度和大小</li>
 </ul>
-<h3 id="评价指标"><a href="#评价指标" class="headerlink" title="评价指标"></a>评价指标</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined9ec191da24d6db15c97ab568d9260c8e.png" alt="image-20260413174732318"></p>
+<h3 id="评价指标"><a href="#评价指标" class="headerlink" title="评价指标"></a>评价指标</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined9ec191da24d6db15c97ab568d9260c8e.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20260413174732318"></p>
 <p>选择在训练过程中，该使用什么指标来判断模型输出质量的好坏。详细说明见 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.nordicsemi.com/bundle/edge-ai-lab/page/doc/model_creating_pipeline/data_preprocessing.html#task_type_and_evaluation_metric">文档</a>。</p>
 <h2 id="模型训练"><a href="#模型训练" class="headerlink" title="模型训练"></a>模型训练</h2><ol>
 <li>点击 <strong>New Session</strong> 开始一个新的训练会话</li>
@@ -804,7 +1272,7 @@
 <td>达到目标精度后自动停止，节省训练时间</td>
 </tr>
 </tbody></table>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined5dd2e1cbfe3eef56d61ba0469807b8ef.png" alt="Results tab"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined5dd2e1cbfe3eef56d61ba0469807b8ef.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Results tab"></p>
 <ol start="4">
 <li>点击 <strong>Start New Training</strong>，等待训练完成。训练完成后平台会发送邮件通知</li>
 </ol>
@@ -817,7 +1285,7 @@
 <li><strong>模型资源占用</strong>：RAM 和 Flash 的使用量，可按目标硬件切换查看</li>
 <li><strong>混淆矩阵（Confusion Matrix）</strong>：直观显示各手势类别的识别正确率和混淆情况（仅用于分类任务）</li>
 </ul>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8dbec64baa1993fee9cb0752e0c236b6.png" alt="Analytics tools"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined8dbec64baa1993fee9cb0752e0c236b6.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Analytics tools"></p>
 <ul>
 <li><strong>特征重要性矩阵（FIM）</strong>：显示各特征对模型预测的贡献度</li>
 </ul>
@@ -832,7 +1300,7 @@
 </li>
 </ul>
 <h2 id="集成到-NCS-工程"><a href="#集成到-NCS-工程" class="headerlink" title="集成到 NCS 工程"></a>集成到 NCS 工程</h2><p>以 <code>edge-ai/applications/gesture_recognition</code> 为基础工程，将下载的 <code>nrf_edgeai_generated/</code> 目录替换工程中 <code>src/nrf_edgeai_generated/</code> 目录：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">gesture_recognition/</span><br><span class="line">└── src/</span><br><span class="line">    ├── nrf_edgeai_generated/    ← 用下载包中的文件替换此目录</span><br><span class="line">    ├── main.c</span><br><span class="line">    ├── inference_postprocessing.c</span><br><span class="line">    └── inference_postprocessing.h</span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs stylus">gesture_recognition/<br>└── <span class="hljs-attribute">src</span>/<br>    ├── nrf_edgeai_generated/    ← 用下载包中的文件替换此目录<br>    ├── <span class="hljs-selector-tag">main</span><span class="hljs-selector-class">.c</span><br>    ├── inference_postprocessing<span class="hljs-selector-class">.c</span><br>    └── inference_postprocessing.h<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>如果你训练的手势类别与示例工程不同，还需要同步修改 <code>main.c</code> 和 <code>inference_postprocessing.c/h</code> 中的类别定义和后处理逻辑。</p>
@@ -840,7 +1308,7 @@
 <p>替换完成后，重新编译并烧录固件即可。</p>
 <h2 id="运行效果"><a href="#运行效果" class="headerlink" title="运行效果"></a>运行效果</h2><p>烧录推理固件后，设备通过 BLE 广播为 HID 设备，可直接与 PC 配对。配对成功后，设备会根据识别到的手势发送对应的键盘快捷键：</p>
 <p>串口日志示例：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Predicted class: SWIPE RIGHT, with probability 99 %</span><br><span class="line">BLE HID Key 32 sent successfully</span><br><span class="line">Predicted class: ROTATION RIGHT, with probability 93 %</span><br><span class="line">BLE HID Key 1 sent successfully</span><br></pre></td></tr></table></figure>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs angelscript">Predicted <span class="hljs-keyword">class</span>: <span class="hljs-symbol">SWIPE</span> <span class="hljs-symbol">RIGHT, <span class="hljs-symbol">with</span></span> <span class="hljs-symbol">probability</span> <span class="hljs-symbol">99</span> %<br><span class="hljs-symbol">BLE</span> <span class="hljs-symbol">HID</span> <span class="hljs-symbol">Key</span> <span class="hljs-symbol">32</span> <span class="hljs-symbol">sent</span> <span class="hljs-symbol">successfully</span><br><span class="hljs-symbol">Predicted</span> <span class="hljs-symbol">class: <span class="hljs-symbol">ROTATION</span></span> <span class="hljs-symbol">RIGHT, <span class="hljs-symbol">with</span></span> <span class="hljs-symbol">probability</span> <span class="hljs-symbol">93</span> %<br><span class="hljs-symbol">BLE</span> <span class="hljs-symbol">HID</span> <span class="hljs-symbol">Key</span> <span class="hljs-symbol">1</span> <span class="hljs-symbol">sent</span> <span class="hljs-symbol">successfully</span><br></code></pre></td></tr></table></figure>
 
 <h2 id="迭代优化"><a href="#迭代优化" class="headerlink" title="迭代优化"></a>迭代优化</h2><p>第一版模型通常不够完善，最常见的问题是<strong>误触发</strong>（做其他动作时模型错误地识别为某个手势）。优化流程如下：</p>
 <ol>
@@ -860,157 +1328,432 @@
 <li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/jayant97/articles/17794804.html">nRF Connect SDK(NCS) 安装与入门 - jayant97</a></li>
 </ul>
 
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2026/04/b19b485a13d3/" data-id="cmqop0ng3000zy8o5brgt2gtt" data-title="一文了解Nordic边缘AI方案" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li></ul>
 
-    </footer>
-  </div>
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/AI/" class="category-chain-item">AI</a>
   
-    <a href="/jayant97.github.io/2026/04/40898fb9360c/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          nRF Connect SDK Add-ons介绍与国内安装实践
-        
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Nordic/" class="print-no-link">#Nordic</a>
+      
+        <a href="/jayant97.github.io/tags/AI/" class="print-no-link">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>一文了解Nordic边缘AI方案</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2026/04/b19b485a13d3/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年4月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2026/04/40898fb9360c/" title="nRF Connect SDK Add-ons介绍与国内安装实践">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">nRF Connect SDK Add-ons介绍与国内安装实践</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/10/1b3f41652d5d/" title="在Matter中添加自己的蓝牙广播与服务">
+                        <span class="hidden-mobile">在Matter中添加自己的蓝牙广播与服务</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2025/10/1b3f41652d5d/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">在Matter中添加自己的蓝牙广播与服务</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>

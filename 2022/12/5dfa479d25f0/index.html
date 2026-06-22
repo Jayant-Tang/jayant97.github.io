@@ -1,123 +1,591 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>使用Ubuntu进行WiFi抓包 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="1. 前言​	在之前的文章里，我介绍了如何在Windows中使用NPCAP把无线网卡变为monitor模式，并用Wireshark进行抓包。但是Windows下支持monitor的无线网卡实在是太少了，笔记本自带的PCIE无线网卡更是无法支持。	 ​	本文介绍如何在Linux系统下进行WiFi的抓包，并且在本地或者用另一台Windows电脑的Wireshark进行实时分析。 ​	本文使用的硬件环境">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="1. 前言​	在之前的文章里，我介绍了如何在Windows中使用NPCAP把无线网卡变为monitor模式，并用Wireshark进行抓包。但是Windows下支持monitor的无线网卡实在是太少了，笔记本自带的PCIE无线网卡更是无法支持。	 ​	本文介绍如何在Linux系统下进行WiFi的抓包，并且在本地或者用另一台Windows电脑的Wireshark进行实时分析。 ​	本文使用的硬件环境">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用Ubuntu进行WiFi抓包">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2022/12/5dfa479d25f0/index.html">
-<meta property="og:site_name" content="一苇万顷">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
 <meta property="og:description" content="1. 前言​	在之前的文章里，我介绍了如何在Windows中使用NPCAP把无线网卡变为monitor模式，并用Wireshark进行抓包。但是Windows下支持monitor的无线网卡实在是太少了，笔记本自带的PCIE无线网卡更是无法支持。	 ​	本文介绍如何在Linux系统下进行WiFi的抓包，并且在本地或者用另一台Windows电脑的Wireshark进行实时分析。 ​	本文使用的硬件环境">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216162542858.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216232607399.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221223152925995.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216165935706.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221223160719938.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221217162609725.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221217163934869.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221223155547191.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194013150.png">
-<meta property="og:image" content="https://jayant-tang.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194117135.png">
-<meta property="og:image" content="https://jayant-tang.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194137684.png">
-<meta property="og:image" content="https://jayant-tang.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194206105.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194235505.png">
-<meta property="og:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194816124.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined673ba0bba6312c44b4e1697da2277dcd.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedbcb6bb98ddb3ab80e12e0a5f4c1244c6.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb45aad3fd993cc008a9bb32b1db7283e.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede451900723a4608995d58e0916bc94a4.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined9539f245a20863780e7671303997e322.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined62bfd38ccd114609e65b7237d6fd1840.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined43c2d9475c66ac1082054008980ad3b7.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined5233c6123366a1f3ccb916c48909e167.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined60cee0d7d8f786c383c57f5bdab3003a.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined3f607d351bdd92c0eea8cac7209571b6.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined47a330e31feab485bfd2d258666e987e.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined45ca389ca70b5981018bc67449654501.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined77039a13629e1af6594c1d1eaf0c5647.png">
+<meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined6a1b37e83b150b671f2d363f080da319.png">
 <meta property="article:published_time" content="2022-12-16T08:12:28.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.233Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.842Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Wireshark">
-<meta property="article:tag" content="WiFi">
+<meta property="article:tag" content="WiFi6">
 <meta property="article:tag" content="Linux">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://jayant-tang.github.io/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216162542858.png">
-  
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined673ba0bba6312c44b4e1697da2277dcd.png">
   
   
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+  <title>使用Ubuntu进行WiFi抓包 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
+  
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-使用Ubuntu进行WiFi6抓包" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2022/12/5dfa479d25f0/" class="article-date">
-  <time class="dt-published" datetime="2022-12-16T08:12:28.000Z" itemprop="datePublished">2022-12-16</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a>►<a class="article-category-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a>
-  </div>
+  
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="使用Ubuntu进行WiFi抓包"></span>
+          
+        </div>
+
         
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      使用Ubuntu进行WiFi抓包
-    </h1>
-  
-
-      </header>
+          
+  <div class="mt-3">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-12-16 16:12" pubdate>
+          2022年12月16日
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          93 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>​	在之前的文章里，我介绍了如何在Windows中使用NPCAP把无线网卡变为monitor模式，并用Wireshark进行抓包。但是Windows下支持monitor的无线网卡实在是太少了，笔记本自带的PCIE无线网卡更是无法支持。	</p>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">使用Ubuntu进行WiFi抓包</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h1><p>​	在之前的文章里，我介绍了如何在Windows中使用NPCAP把无线网卡变为monitor模式，并用Wireshark进行抓包。但是Windows下支持monitor的无线网卡实在是太少了，笔记本自带的PCIE无线网卡更是无法支持。	</p>
 <p>​	本文介绍如何在Linux系统下进行WiFi的抓包，并且在本地或者用另一台Windows电脑的Wireshark进行实时分析。</p>
 <p>​	本文使用的硬件环境：</p>
 <ul>
@@ -132,19 +600,19 @@
 <li>Windows笔记本电脑（可选）</li>
 </ul>
 <p>​	示意图如下，虚线内容是可选的：</p>
-<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216162542858.png" alt="image-20221216162542858"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined673ba0bba6312c44b4e1697da2277dcd.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221216162542858"></p>
 <blockquote>
 <p>在linux下查看自己的WiFi网卡是否支持抓包：</p>
 <p><strong>网卡驱动已经安装的情况</strong>：</p>
 <ol>
 <li><p>查看自己电脑上的所有网卡，并查看其驱动：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">sudo</span> lshw -C network                                                            </span><br><span class="line">   [<span class="built_in">sudo</span>] password <span class="keyword">for</span> jayant:</span><br><span class="line">  *-network</span><br><span class="line">       description: Wireless interface</span><br><span class="line">       product: Alder Lake-P PCH CNVi WiFi</span><br><span class="line">       vendor: Intel Corporation</span><br><span class="line">      ...</span><br><span class="line">       logical name: wlp0s20f3mon</span><br><span class="line">      ...</span><br><span class="line">      ...</span><br><span class="line">       configuration: broadcast=<span class="built_in">yes</span> driver=iwlwifi driverversion=5.15.0-56-generic firmware=64.97bbee0a.0 so-a0-gf-a0-64.uc latency=0 <span class="built_in">link</span>=<span class="built_in">yes</span> multicast=<span class="built_in">yes</span> wireless=IEEE 802.11</span><br><span class="line">       resources: iomemory:600-5ff irq:16 memory:601d1cc000-601d1cffff</span><br></pre></td></tr></table></figure></li>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> lshw -C network                                                            <br>   [<span class="hljs-built_in">sudo</span>] password <span class="hljs-keyword">for</span> jayant:<br>  *-network<br>       description: Wireless interface<br>       product: Alder Lake-P PCH CNVi WiFi<br>       vendor: Intel Corporation<br>      ...<br>       logical name: wlp0s20f3mon<br>      ...<br>      ...<br>       configuration: broadcast=<span class="hljs-built_in">yes</span> driver=iwlwifi driverversion=5.15.0-56-generic firmware=64.97bbee0a.0 so-a0-gf-a0-64.uc latency=0 <span class="hljs-built_in">link</span>=<span class="hljs-built_in">yes</span> multicast=<span class="hljs-built_in">yes</span> wireless=IEEE 802.11<br>       resources: iomemory:600-5ff irq:16 memory:601d1cc000-601d1cffff<br></code></pre></td></tr></table></figure></li>
 </ol>
 <p>  可以看到 在configuration中，<code>driver=iwlwifi</code>，说明wifi网卡的驱动是<code>iwlwifi</code>。</p>
 <ol start="2">
 <li>在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://wireless.wiki.kernel.org/en/users/drivers">Linux Wireless</a>网站中搜索这个驱动，可以看到这个驱动是支持monitor模式的，说明可以用来抓包：</li>
 </ol>
-<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216232607399.png" alt="image-20221216232607399"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedbcb6bb98ddb3ab80e12e0a5f4c1244c6.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221216232607399"></p>
 <p><strong>网卡驱动未安装的情况</strong></p>
 <ol>
 <li>如果<code>ifconfig</code>和<code>iwconfig</code>看不到无线网卡，则可能是没有驱动</li>
@@ -153,63 +621,63 @@
 </ol>
 </blockquote>
 <h1 id="2-在Linux环境下进行抓包"><a href="#2-在Linux环境下进行抓包" class="headerlink" title="2. 在Linux环境下进行抓包"></a>2. 在Linux环境下进行抓包</h1><p>​	本节参考的文章：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.aneasystone.com/archives/2016/08/wireless-analysis-one-monitoring.html">实战无线网络分析（篇一）无线监听 - aneasystone’s blog</a></p>
-<h2 id="2-1-安装工具"><a href="#2-1-安装工具" class="headerlink" title="2.1. 安装工具"></a>2.1. 安装工具</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">sudo</span> apt install -y wireshark net-tools wireless-tools aircrack-ng</span><br></pre></td></tr></table></figure>
+<h2 id="2-1-安装工具"><a href="#2-1-安装工具" class="headerlink" title="2.1. 安装工具"></a>2.1. 安装工具</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> apt install -y wireshark net-tools wireless-tools aircrack-ng<br></code></pre></td></tr></table></figure>
 
 <h2 id="2-2-无线网卡改为Monitor模式"><a href="#2-2-无线网卡改为Monitor模式" class="headerlink" title="2.2. 无线网卡改为Monitor模式"></a>2.2. 无线网卡改为Monitor模式</h2><blockquote>
 <p>注意，在Linux系统中，当一个无线网卡被改为Monitor模式后，就无法用来上网了。</p>
 </blockquote>
 <p>​	查看无线网卡名称：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ iwconfig</span><br><span class="line">lo        no wireless extensions.</span><br><span class="line"></span><br><span class="line">wlp0s20f3  IEEE 802.11  ESSID:off/any</span><br><span class="line">          Mode:Managed  Access Point: Not-Associated   Tx-Power=-2147483648 dBm</span><br><span class="line">          Retry short <span class="built_in">limit</span>:7   RTS thr:off   Fragment thr:off</span><br><span class="line">          Power Management:on</span><br><span class="line"></span><br><span class="line">enx000ec6259ae4  no wireless extensions.</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ iwconfig<br>lo        no wireless extensions.<br><br>wlp0s20f3  IEEE 802.11  ESSID:off/any<br>          Mode:Managed  Access Point: Not-Associated   Tx-Power=-2147483648 dBm<br>          Retry short <span class="hljs-built_in">limit</span>:7   RTS thr:off   Fragment thr:off<br>          Power Management:on<br><br>enx000ec6259ae4  no wireless extensions.<br></code></pre></td></tr></table></figure>
 
 <p>​	可以看到网卡名称是<code>wlp0s20f3</code></p>
 <p>​	将网卡改为Monitor模式：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">sudo</span> airmon-ng start wlp0s20f3        </span><br><span class="line"></span><br><span class="line">PHY    Interface	Driver		Chipset</span><br><span class="line"></span><br><span class="line">phy0    wlp0s20f3	iwlwifi		Intel Corporation Alder Lake-P PCH CNVi WiFi (rev 01)</span><br><span class="line">        (mac80211 monitor mode vif enabled <span class="keyword">for</span> [phy0]wlp0s20f3 on [phy0]wlp0s20f3mon)</span><br><span class="line">        (mac80211 station mode vif disabled <span class="keyword">for</span> [phy0]wlp0s20f3)</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> airmon-ng start wlp0s20f3        <br><br>PHY    Interface	Driver		Chipset<br><br>phy0    wlp0s20f3	iwlwifi		Intel Corporation Alder Lake-P PCH CNVi WiFi (rev 01)<br>        (mac80211 monitor mode vif enabled <span class="hljs-keyword">for</span> [phy0]wlp0s20f3 on [phy0]wlp0s20f3mon)<br>        (mac80211 station mode vif disabled <span class="hljs-keyword">for</span> [phy0]wlp0s20f3)<br></code></pre></td></tr></table></figure>
 
 <p>​	这时使用<code>iwconfig</code>查看，会出现一个新的网卡，<strong>网卡名称也发生了改变</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">~$ iwconfig</span><br><span class="line">lo        no wireless extensions.</span><br><span class="line"></span><br><span class="line">enx000ec6259ae4  no wireless extensions.</span><br><span class="line"></span><br><span class="line">wlp0s20f3mon  IEEE 802.11  Mode:Monitor  Frequency:2.457 GHz  Tx-Power=-2147483648 dBm</span><br><span class="line">          Retry short <span class="built_in">limit</span>:7   RTS thr:off   Fragment thr:off</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">~$ iwconfig<br>lo        no wireless extensions.<br><br>enx000ec6259ae4  no wireless extensions.<br><br>wlp0s20f3mon  IEEE 802.11  Mode:Monitor  Frequency:2.457 GHz  Tx-Power=-2147483648 dBm<br>          Retry short <span class="hljs-built_in">limit</span>:7   RTS thr:off   Fragment thr:off<br></code></pre></td></tr></table></figure>
 
 <p>可以看到名称变为<code>wlp0s20f3mon</code>，并且Mode变为了Monitor</p>
 <blockquote>
 <p>注意：</p>
 <p>​	有些教程会让你使用<code>sudo airmon-ng check kill</code>来自动杀死一些会影响Monitor网卡的守护进程，这些进程可能会导致网卡的信道被切换，也可能把网卡切回Managed模式。</p>
 <p>​	但是这样直接杀死 Network Manager，会导致其他的网卡（比如有线网络）在拔掉后也无法自动连回。目前比较好的解决方法是：使用<code>nmtui</code>命令（NetworkManager的图形菜单），在Edit Connection中，把你要抓包的这张网卡记住的WiFi都改成“不自动连接”，这样你的网卡就不会被Network Manager改回Manged模式了。</p>
-<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221223152925995.png" alt="image-20221223152925995"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinedb45aad3fd993cc008a9bb32b1db7283e.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221223152925995"></p>
 </blockquote>
 <h2 id="2-3-在Linux中进行抓包"><a href="#2-3-在Linux中进行抓包" class="headerlink" title="2.3. 在Linux中进行抓包"></a>2.3. 在Linux中进行抓包</h2><p>首先，以root权限打开Wireshark</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> wireshark</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> wireshark<br></code></pre></td></tr></table></figure>
 
 <p>然后，在”Capture –&gt; Options…”窗口中，可以看到<code>wlp0s20f3mon</code>网卡：</p>
-<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216165935706.png" alt="image-20221216165935706"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefinede451900723a4608995d58e0916bc94a4.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221216165935706"></p>
 <blockquote>
 <p>注意到Monitor Mode栏并不能打勾，但是没关系，网卡本身已经是Monitor模式了</p>
 </blockquote>
 <p>​	</p>
 <h2 id="2-4-设置要抓包的信道"><a href="#2-4-设置要抓包的信道" class="headerlink" title="2.4. 设置要抓包的信道"></a>2.4. 设置要抓包的信道</h2><p>​	本节参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://netbeez.net/blog/linux-channel-hopping-wifi-packet-capturing/">Linux for Network Engineers: How to do channel hopping during WiFi packet capturing | NetBeez</a></p>
-<h3 id="2-4-1-信道与带宽介绍"><a href="#2-4-1-信道与带宽介绍" class="headerlink" title="2.4.1. 信道与带宽介绍"></a>2.4.1. 信道与带宽介绍</h3><p>​	在Monitor模式下，只能扫描<strong>固定的信道和带宽</strong>。为了能够找到自己想要抓的设备到底在哪个信道进行通信，需要先进行<strong>跳频Channel Hopping）</strong>。跳频时，不可避免的会扫不到一些包，但是等找到自己想要监听的信道之后，再切回固定信道的方式即可。</p>
+<h3 id="2-4-1-信道与带宽介绍"><a href="#2-4-1-信道与带宽介绍" class="headerlink" title="2.4.1. 信道与带宽介绍"></a>2.4.1. 信道与带宽介绍</h3><p>​	在Monitor模式下，只能扫描<strong>固定的信道和带宽</strong>。为了能够找到自己想要抓的设备到底在哪个信道进行通信，需要先进行<strong>跳频（Channel Hopping）</strong>。跳频时，不可避免的会扫不到一些包，但是等找到自己想要监听的信道之后，再切回固定信道的方式即可。</p>
 <blockquote>
 <p>什么是WiFi的信道和带宽？</p>
 <p>​	不同版本的WiFi协议，其无线电载波工作在不同的频率上，常见的如2.4 GHz和5 GHz。但这都不是指一个频率的值，而是指一个范围。因为固定频率的波是无法承载信息的，只有能切换频率的波才能承载信息。把这个频率范围分成很多份，就是<strong>信道</strong>，每个信道的频率宽度称为<strong>带宽</strong>。</p>
 <p>例如：2.4 GHz （802.11 b&#x2F;g&#x2F;n）频段分配，共有14个信道</p>
-<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221223160719938.png" alt="image-20221223160719938"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined9539f245a20863780e7671303997e322.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221223160719938"></p>
 <p>​	如果每个信道的带宽是22MHz，那么2.4G最多只能同时使用三个信道（1，6和11）。14信道是特殊的，大多数国家不允许使用。<br>​	如果信道带宽是20MHz，那么最多可以同时使用四个信道（1，5，9，13）.</p>
 <p>​	同理，5GHz频段，信道从5.000GHz（信道0）开始编码，每5MHz一个信道。但FCC开放的频率从5.150GHz开始，故实际使用的信道是从36开始的，频宽20MHz，可用信道每次+4，如36，40，44，48 … 64 。</p>
 <p>​	每个国家可用的信道，可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%97%A0%E7%BA%BF%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BF%A1%E9%81%93%E5%88%97%E8%A1%A8">无线局域网信道列表 - 维基百科，自由的百科全书 (wikipedia.org)</a></p>
 </blockquote>
 <p>​	</p>
 <p>​	查看自己无线网卡<strong>支持</strong>的信道：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以下命令将输出大量信息</span></span><br><span class="line">$ iw list</span><br><span class="line">Wiphy phy0</span><br><span class="line">        ... </span><br><span class="line">        Available Antennas: TX 0x3 RX 0x3   <span class="comment"># 天线数量</span></span><br><span class="line">        Configured Antennas: TX 0x3 RX 0x3</span><br><span class="line">        Supported interface modes:          <span class="comment"># 网卡支持的模式</span></span><br><span class="line">                 * IBSS</span><br><span class="line">                 * managed</span><br><span class="line">                 * AP</span><br><span class="line">                 * AP/VLAN</span><br><span class="line">                 * monitor   <span class="comment"># 支持 monitor</span></span><br><span class="line">                 * P2P-client</span><br><span class="line">                 * P2P-GO</span><br><span class="line">                 * P2P-device</span><br><span class="line">        Band 1:</span><br><span class="line">                ...</span><br><span class="line">                Frequencies: <span class="comment"># 2.4 GHz 信道，disabled为不可用</span></span><br><span class="line">                        * 2412 MHz [1] (22.0 dBm)</span><br><span class="line">                        * 2417 MHz [2] (22.0 dBm)</span><br><span class="line">                        * 2422 MHz [3] (22.0 dBm)</span><br><span class="line">                        * 2427 MHz [4] (22.0 dBm)</span><br><span class="line">                        * 2432 MHz [5] (22.0 dBm)</span><br><span class="line">                        * 2437 MHz [6] (22.0 dBm)</span><br><span class="line">                        * 2442 MHz [7] (22.0 dBm)</span><br><span class="line">                        * 2447 MHz [8] (22.0 dBm)</span><br><span class="line">                        * 2452 MHz [9] (22.0 dBm)</span><br><span class="line">                        * 2457 MHz [10] (22.0 dBm)</span><br><span class="line">                        * 2462 MHz [11] (22.0 dBm)</span><br><span class="line">                        * 2467 MHz [12] (22.0 dBm)</span><br><span class="line">                        * 2472 MHz [13] (22.0 dBm)</span><br><span class="line">                        * 2484 MHz [14] (disabled)</span><br><span class="line">        Band 2:</span><br><span class="line">               ...</span><br><span class="line">                Frequencies: <span class="comment"># 5 GHz 信道，disabled为不可用</span></span><br><span class="line">                        * 5180 MHz [36] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5200 MHz [40] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5220 MHz [44] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5240 MHz [48] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5260 MHz [52] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        * 5280 MHz [56] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        * 5300 MHz [60] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        * 5320 MHz [64] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        * 5340 MHz [68] (disabled)</span><br><span class="line">                        ...</span><br><span class="line">                        * 5480 MHz [96] (disabled)</span><br><span class="line">                        * 5500 MHz [100] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        ...</span><br><span class="line">                        * 5720 MHz [144] (22.0 dBm) (no IR, radar detection)</span><br><span class="line">                        * 5745 MHz [149] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5765 MHz [153] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5785 MHz [157] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5805 MHz [161] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5825 MHz [165] (22.0 dBm) (no IR)</span><br><span class="line">                        * 5845 MHz [169] (disabled)</span><br><span class="line">                        ...</span><br><span class="line">                        * 5905 MHz [181] (disabled)</span><br><span class="line">        Band 4:</span><br><span class="line">                ...</span><br><span class="line">                Frequencies:  <span class="comment"># 6 GHz 信道，中国不可用</span></span><br><span class="line">                        * 5955 MHz [1] (disabled)</span><br><span class="line">                        ...</span><br><span class="line">                        ...</span><br><span class="line">                        * 7115 MHz [233] (disabled)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 以下命令将输出大量信息</span><br>$ iw list<br>Wiphy phy0<br>        ... <br>        Available Antennas: TX 0x3 RX 0x3   <span class="hljs-comment"># 天线数量</span><br>        Configured Antennas: TX 0x3 RX 0x3<br>        Supported interface modes:          <span class="hljs-comment"># 网卡支持的模式</span><br>                 * IBSS<br>                 * managed<br>                 * AP<br>                 * AP/VLAN<br>                 * monitor   <span class="hljs-comment"># 支持 monitor</span><br>                 * P2P-client<br>                 * P2P-GO<br>                 * P2P-device<br>        Band 1:<br>                ...<br>                Frequencies: <span class="hljs-comment"># 2.4 GHz 信道，disabled为不可用</span><br>                        * 2412 MHz [1] (22.0 dBm)<br>                        * 2417 MHz [2] (22.0 dBm)<br>                        * 2422 MHz [3] (22.0 dBm)<br>                        * 2427 MHz [4] (22.0 dBm)<br>                        * 2432 MHz [5] (22.0 dBm)<br>                        * 2437 MHz [6] (22.0 dBm)<br>                        * 2442 MHz [7] (22.0 dBm)<br>                        * 2447 MHz [8] (22.0 dBm)<br>                        * 2452 MHz [9] (22.0 dBm)<br>                        * 2457 MHz [10] (22.0 dBm)<br>                        * 2462 MHz [11] (22.0 dBm)<br>                        * 2467 MHz [12] (22.0 dBm)<br>                        * 2472 MHz [13] (22.0 dBm)<br>                        * 2484 MHz [14] (disabled)<br>        Band 2:<br>               ...<br>                Frequencies: <span class="hljs-comment"># 5 GHz 信道，disabled为不可用</span><br>                        * 5180 MHz [36] (22.0 dBm) (no IR)<br>                        * 5200 MHz [40] (22.0 dBm) (no IR)<br>                        * 5220 MHz [44] (22.0 dBm) (no IR)<br>                        * 5240 MHz [48] (22.0 dBm) (no IR)<br>                        * 5260 MHz [52] (22.0 dBm) (no IR, radar detection)<br>                        * 5280 MHz [56] (22.0 dBm) (no IR, radar detection)<br>                        * 5300 MHz [60] (22.0 dBm) (no IR, radar detection)<br>                        * 5320 MHz [64] (22.0 dBm) (no IR, radar detection)<br>                        * 5340 MHz [68] (disabled)<br>                        ...<br>                        * 5480 MHz [96] (disabled)<br>                        * 5500 MHz [100] (22.0 dBm) (no IR, radar detection)<br>                        ...<br>                        * 5720 MHz [144] (22.0 dBm) (no IR, radar detection)<br>                        * 5745 MHz [149] (22.0 dBm) (no IR)<br>                        * 5765 MHz [153] (22.0 dBm) (no IR)<br>                        * 5785 MHz [157] (22.0 dBm) (no IR)<br>                        * 5805 MHz [161] (22.0 dBm) (no IR)<br>                        * 5825 MHz [165] (22.0 dBm) (no IR)<br>                        * 5845 MHz [169] (disabled)<br>                        ...<br>                        * 5905 MHz [181] (disabled)<br>        Band 4:<br>                ...<br>                Frequencies:  <span class="hljs-comment"># 6 GHz 信道，中国不可用</span><br>                        * 5955 MHz [1] (disabled)<br>                        ...<br>                        ...<br>                        * 7115 MHz [233] (disabled)<br><br><br></code></pre></td></tr></table></figure>
 
 <p>​	</p>
 <p>​	查看无线网卡<strong>当前</strong>的信道和带宽：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ iw wlp0s20f3mon info</span><br><span class="line">Interface wlp0s20f3mon</span><br><span class="line">        ifindex 4</span><br><span class="line">        wdev 0x3</span><br><span class="line">        addr 00:93:37:90:08:3a</span><br><span class="line">        <span class="built_in">type</span> monitor</span><br><span class="line">        wiphy 0</span><br><span class="line">        channel 10 (2457 MHz), width: 20 MHz (no HT), center1: 2457 MHz</span><br><span class="line">        txpower 0.00 dBm</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ iw wlp0s20f3mon info<br>Interface wlp0s20f3mon<br>        ifindex 4<br>        wdev 0x3<br>        addr 00:93:37:90:08:3a<br>        <span class="hljs-built_in">type</span> monitor<br>        wiphy 0<br>        channel 10 (2457 MHz), width: 20 MHz (no HT), center1: 2457 MHz<br>        txpower 0.00 dBm<br></code></pre></td></tr></table></figure>
 
 <p>​	可以看到，当前使用信道10，带宽20MHz，这与Wireshark中的信息是一致的，说明我们目前只能抓到信道10、带宽20MHz的包：</p>
-<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221217162609725.png" alt="image-20221217162609725"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined62bfd38ccd114609e65b7237d6fd1840.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221217162609725"></p>
 <h3 id="2-4-2-修改信道与带宽"><a href="#2-4-2-修改信道与带宽" class="headerlink" title="2.4.2.  修改信道与带宽"></a>2.4.2.  修改信道与带宽</h3><p>​	由于Wireshark不提供切换信道的功能。我们只能自己手动切换信道和带宽，以下为设置信道和带宽的命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">sudo</span> iw dev wlp0s20f3mon <span class="built_in">set</span> channel 149 80MHz</span><br><span class="line"><span class="comment"># 网卡名：wlp0s20f3mon</span></span><br><span class="line"><span class="comment"># 频道：149</span></span><br><span class="line"><span class="comment"># 带宽：可选的参数有</span></span><br><span class="line"><span class="comment">#     NOHT  : 不使用802.11n，基本很少用</span></span><br><span class="line"><span class="comment">#     HT20  : 802.11n/ac/ax 20MHz频宽</span></span><br><span class="line"><span class="comment">#     HT40+ : 802.11n/ac/ax 双20MHz，控制信道比扩展信道频率高</span></span><br><span class="line"><span class="comment">#     HT40- : 802.11n/ac/ax 双20MHz，控制信道比扩展信道频率低</span></span><br><span class="line"><span class="comment">#    5MHz  : 5MHz，基本很少用</span></span><br><span class="line"><span class="comment">#     10MHz : 10MHz，基本很少用</span></span><br><span class="line"><span class="comment">#    80MHz : 802.11ac/ax</span></span><br><span class="line"><span class="comment">#     160MHz: 802.11ac/ax</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> iw dev wlp0s20f3mon <span class="hljs-built_in">set</span> channel 149 80MHz<br><span class="hljs-comment"># 网卡名：wlp0s20f3mon</span><br><span class="hljs-comment"># 频道：149</span><br><span class="hljs-comment"># 带宽：可选的参数有</span><br><span class="hljs-comment">#     NOHT  : 不使用802.11n，基本很少用</span><br><span class="hljs-comment">#     HT20  : 802.11n/ac/ax 20MHz频宽</span><br><span class="hljs-comment">#     HT40+ : 802.11n/ac/ax 双20MHz，控制信道比扩展信道频率高</span><br><span class="hljs-comment">#     HT40- : 802.11n/ac/ax 双20MHz，控制信道比扩展信道频率低</span><br><span class="hljs-comment">#    5MHz  : 5MHz，基本很少用</span><br><span class="hljs-comment">#     10MHz : 10MHz，基本很少用</span><br><span class="hljs-comment">#    80MHz : 802.11ac/ax</span><br><span class="hljs-comment">#     160MHz: 802.11ac/ax</span><br></code></pre></td></tr></table></figure>
 
 <p>​	以上命令，是可以在抓包时<strong>实时</strong>执行的，无需重启Wireshark，可以看到信道立即发生了改变：</p>
-<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221217163934869.png" alt="image-20221217163934869"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined43c2d9475c66ac1082054008980ad3b7.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221217163934869"></p>
 <h3 id="2-4-3-实时跳频"><a href="#2-4-3-实时跳频" class="headerlink" title="2.4.3. 实时跳频"></a>2.4.3. 实时跳频</h3><p>​	<strong>信道×带宽</strong>的排列组合选项太多，我们不知道哪些组合是合法的，以及自己的网卡是否支持这些组合。我们需要2个脚本，来自动帮我们完成一些工作：</p>
 <ul>
 <li>配置识别：自动识别出当前网卡哪些<strong>信道</strong>+<strong>带宽</strong>的排列组合是合法的，并记录下来</li>
@@ -217,18 +685,18 @@
 </ul>
 <p>第一个脚本，<strong>配置识别</strong>：</p>
 <p><code>test-channels.sh</code></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># Make sure that the wifi adapter below is in Monitor mode.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Wi-Fi Adapter</span></span><br><span class="line">DEFAULT_INTERFACE=<span class="string">&quot;wlp0s20f3mon&quot;</span></span><br><span class="line"></span><br><span class="line">channels_24=<span class="string">&quot;1 2 3 4 5 6 7 8 9 10 11 12 13 14&quot;</span></span><br><span class="line">channels_50=<span class="string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 165&quot;</span></span><br><span class="line"></span><br><span class="line">widths=<span class="string">&quot;HT20 HT40+ HT40- 80MHz 160MHz&quot;</span></span><br><span class="line"></span><br><span class="line">result_2g4=<span class="string">&quot;&quot;</span></span><br><span class="line">result_5g=<span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">current_user=$(<span class="built_in">whoami</span>)</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$current_user</span>&quot;</span> != <span class="string">&quot;root&quot;</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;[Error] Please run this script with sudo!&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> width <span class="keyword">in</span> <span class="variable">$&#123;widths&#125;</span>;<span class="keyword">do</span></span><br><span class="line"></span><br><span class="line">    valid_channels=<span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> channel <span class="keyword">in</span> <span class="variable">$&#123;channels_24&#125;</span>; <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">if</span> iw dev <span class="variable">$&#123;DEFAULT_INTERFACE&#125;</span> <span class="built_in">set</span> channel <span class="string">&quot;<span class="variable">$&#123;channel&#125;</span>&quot;</span> <span class="string">&quot;<span class="variable">$&#123;width&#125;</span>&quot;</span>; <span class="keyword">then</span></span><br><span class="line">            <span class="keyword">if</span> iw <span class="variable">$&#123;DEFAULT_INTERFACE&#125;</span> info | grep <span class="string">&quot;channel <span class="variable">$&#123;channel&#125;</span>&quot;</span>; <span class="keyword">then</span></span><br><span class="line">                valid_channels=<span class="string">&quot;<span class="variable">$&#123;valid_channels&#125;</span>&quot;</span><span class="string">&quot;<span class="variable">$&#123;channel&#125;</span> &quot;</span></span><br><span class="line">            <span class="keyword">fi</span>    </span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">    result_2g4=<span class="string">&quot;<span class="variable">$&#123;result_2g4&#125;</span>&quot;</span><span class="string">&quot;Width:<span class="variable">$&#123;width&#125;</span>, Valid Channels:<span class="variable">$&#123;valid_channels&#125;</span>\n&quot;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> width <span class="keyword">in</span> <span class="variable">$&#123;widths&#125;</span>;<span class="keyword">do</span></span><br><span class="line"></span><br><span class="line">    valid_channels=<span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> channel <span class="keyword">in</span> <span class="variable">$&#123;channels_50&#125;</span>; <span class="keyword">do</span></span><br><span class="line">        <span class="keyword">if</span> iw dev <span class="variable">$&#123;DEFAULT_INTERFACE&#125;</span> <span class="built_in">set</span> channel <span class="string">&quot;<span class="variable">$&#123;channel&#125;</span>&quot;</span> <span class="string">&quot;<span class="variable">$&#123;width&#125;</span>&quot;</span>; <span class="keyword">then</span></span><br><span class="line">            <span class="keyword">if</span> iw <span class="variable">$&#123;DEFAULT_INTERFACE&#125;</span> info | grep <span class="string">&quot;channel <span class="variable">$&#123;channel&#125;</span>&quot;</span>; <span class="keyword">then</span></span><br><span class="line">                valid_channels=<span class="string">&quot;<span class="variable">$&#123;valid_channels&#125;</span>&quot;</span><span class="string">&quot;<span class="variable">$&#123;channel&#125;</span> &quot;</span></span><br><span class="line">            <span class="keyword">fi</span>    </span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">    result_5g=<span class="string">&quot;<span class="variable">$&#123;result_5g&#125;</span>&quot;</span><span class="string">&quot;Width:<span class="variable">$&#123;width&#125;</span>, Valid Channels:<span class="variable">$&#123;valid_channels&#125;</span>\n&quot;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;  &quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;===================================================&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;2.4G:&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;result_2g4&#125;</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; &quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;5G:&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;<span class="variable">$&#123;result_5g&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br><span class="hljs-comment"># Make sure that the wifi adapter below is in Monitor mode.</span><br><br><span class="hljs-comment"># Wi-Fi Adapter</span><br>DEFAULT_INTERFACE=<span class="hljs-string">&quot;wlp0s20f3mon&quot;</span><br><br>channels_24=<span class="hljs-string">&quot;1 2 3 4 5 6 7 8 9 10 11 12 13 14&quot;</span><br>channels_50=<span class="hljs-string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 165&quot;</span><br><br>widths=<span class="hljs-string">&quot;HT20 HT40+ HT40- 80MHz 160MHz&quot;</span><br><br>result_2g4=<span class="hljs-string">&quot;&quot;</span><br>result_5g=<span class="hljs-string">&quot;&quot;</span><br><br>current_user=$(<span class="hljs-built_in">whoami</span>)<br><span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;<span class="hljs-variable">$current_user</span>&quot;</span> != <span class="hljs-string">&quot;root&quot;</span> ]<br><span class="hljs-keyword">then</span><br>    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;[Error] Please run this script with sudo!&quot;</span><br>    <span class="hljs-built_in">exit</span> 1<br><span class="hljs-keyword">fi</span><br><br><span class="hljs-keyword">for</span> width <span class="hljs-keyword">in</span> <span class="hljs-variable">$&#123;widths&#125;</span>;<span class="hljs-keyword">do</span><br><br>    valid_channels=<span class="hljs-string">&quot;&quot;</span><br>    <span class="hljs-keyword">for</span> channel <span class="hljs-keyword">in</span> <span class="hljs-variable">$&#123;channels_24&#125;</span>; <span class="hljs-keyword">do</span><br>        <span class="hljs-keyword">if</span> iw dev <span class="hljs-variable">$&#123;DEFAULT_INTERFACE&#125;</span> <span class="hljs-built_in">set</span> channel <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;channel&#125;</span>&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;width&#125;</span>&quot;</span>; <span class="hljs-keyword">then</span><br>            <span class="hljs-keyword">if</span> iw <span class="hljs-variable">$&#123;DEFAULT_INTERFACE&#125;</span> info | grep <span class="hljs-string">&quot;channel <span class="hljs-variable">$&#123;channel&#125;</span>&quot;</span>; <span class="hljs-keyword">then</span><br>                valid_channels=<span class="hljs-string">&quot;<span class="hljs-variable">$&#123;valid_channels&#125;</span>&quot;</span><span class="hljs-string">&quot;<span class="hljs-variable">$&#123;channel&#125;</span> &quot;</span><br>            <span class="hljs-keyword">fi</span>    <br>        <span class="hljs-keyword">fi</span><br>    <span class="hljs-keyword">done</span><br>    result_2g4=<span class="hljs-string">&quot;<span class="hljs-variable">$&#123;result_2g4&#125;</span>&quot;</span><span class="hljs-string">&quot;Width:<span class="hljs-variable">$&#123;width&#125;</span>, Valid Channels:<span class="hljs-variable">$&#123;valid_channels&#125;</span>\n&quot;</span><br><span class="hljs-keyword">done</span><br><br><span class="hljs-keyword">for</span> width <span class="hljs-keyword">in</span> <span class="hljs-variable">$&#123;widths&#125;</span>;<span class="hljs-keyword">do</span><br><br>    valid_channels=<span class="hljs-string">&quot;&quot;</span><br>    <span class="hljs-keyword">for</span> channel <span class="hljs-keyword">in</span> <span class="hljs-variable">$&#123;channels_50&#125;</span>; <span class="hljs-keyword">do</span><br>        <span class="hljs-keyword">if</span> iw dev <span class="hljs-variable">$&#123;DEFAULT_INTERFACE&#125;</span> <span class="hljs-built_in">set</span> channel <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;channel&#125;</span>&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;width&#125;</span>&quot;</span>; <span class="hljs-keyword">then</span><br>            <span class="hljs-keyword">if</span> iw <span class="hljs-variable">$&#123;DEFAULT_INTERFACE&#125;</span> info | grep <span class="hljs-string">&quot;channel <span class="hljs-variable">$&#123;channel&#125;</span>&quot;</span>; <span class="hljs-keyword">then</span><br>                valid_channels=<span class="hljs-string">&quot;<span class="hljs-variable">$&#123;valid_channels&#125;</span>&quot;</span><span class="hljs-string">&quot;<span class="hljs-variable">$&#123;channel&#125;</span> &quot;</span><br>            <span class="hljs-keyword">fi</span>    <br>        <span class="hljs-keyword">fi</span><br>    <span class="hljs-keyword">done</span><br>    result_5g=<span class="hljs-string">&quot;<span class="hljs-variable">$&#123;result_5g&#125;</span>&quot;</span><span class="hljs-string">&quot;Width:<span class="hljs-variable">$&#123;width&#125;</span>, Valid Channels:<span class="hljs-variable">$&#123;valid_channels&#125;</span>\n&quot;</span><br><span class="hljs-keyword">done</span><br><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;  &quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;===================================================&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;2.4G:&quot;</span><br><span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;result_2g4&#125;</span>&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot; &quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;5G:&quot;</span><br><span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;result_5g&#125;</span>&quot;</span><br></code></pre></td></tr></table></figure>
 
 <p>给这个脚本添加执行权限，修改脚本中的网卡名，并用sudo执行：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">chmod</span> +x ./test-channels.sh</span><br><span class="line">$ <span class="built_in">sudo</span> ./test-channels.sh</span><br><span class="line">...</span><br><span class="line">===================================================</span><br><span class="line">2.4G:</span><br><span class="line">Width:HT20, Valid Channels:1 2 3 4 5 6 7 8 9 10 11 12 13 </span><br><span class="line">Width:HT40+, Valid Channels:1 2 3 4 5 6 7 8 9 </span><br><span class="line">Width:HT40-, Valid Channels:5 6 7 8 9 10 11 12 13 </span><br><span class="line">Width:80MHz, Valid Channels:</span><br><span class="line">Width:160MHz, Valid Channels:</span><br><span class="line"></span><br><span class="line"> </span><br><span class="line">5G:</span><br><span class="line">Width:HT20, Valid Channels:36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 165 </span><br><span class="line">Width:HT40+, Valid Channels:36 44 52 60 100 108 116 124 132 140 149 157 </span><br><span class="line">Width:HT40-, Valid Channels:40 48 56 64 104 112 120 128 136 144 153 161 </span><br><span class="line">Width:80MHz, Valid Channels:36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 </span><br><span class="line">Width:160MHz, Valid Channels:36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 </span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">chmod</span> +x ./test-channels.sh<br>$ <span class="hljs-built_in">sudo</span> ./test-channels.sh<br>...<br>===================================================<br>2.4G:<br>Width:HT20, Valid Channels:1 2 3 4 5 6 7 8 9 10 11 12 13 <br>Width:HT40+, Valid Channels:1 2 3 4 5 6 7 8 9 <br>Width:HT40-, Valid Channels:5 6 7 8 9 10 11 12 13 <br>Width:80MHz, Valid Channels:<br>Width:160MHz, Valid Channels:<br><br> <br>5G:<br>Width:HT20, Valid Channels:36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 165 <br>Width:HT40+, Valid Channels:36 44 52 60 100 108 116 124 132 140 149 157 <br>Width:HT40-, Valid Channels:40 48 56 64 104 112 120 128 136 144 153 161 <br>Width:80MHz, Valid Channels:36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 <br>Width:160MHz, Valid Channels:36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 <br></code></pre></td></tr></table></figure>
 
 <p>可以看出此脚本列举出了5G、2.4G频段下，各个带宽下支持的扫描信道。</p>
 <p>第二个脚本，<strong>自动跳频</strong>：</p>
 <p>自动跳频的脚本内记录了每种带宽下，网卡可以支持的信道。这些数据来源是前一个脚本的输出结果。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">DEFAULT_INTERFACE=<span class="string">&quot;wlp0s20f3mon&quot;</span></span><br><span class="line"></span><br><span class="line">channels_2G4_HT20=<span class="string">&quot;1 2 3 4 5 6 7 8 9 10 11 12 13&quot;</span></span><br><span class="line">channels_2G4_HT40p=<span class="string">&quot;1 2 3 4 5 6 7 8 9&quot;</span></span><br><span class="line">channels_2G4_HT40m=<span class="string">&quot;5 6 7 8 9 10 11 12 13&quot;</span></span><br><span class="line"></span><br><span class="line">channels_5G_HT20=<span class="string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 165&quot;</span></span><br><span class="line">channels_5G_HT40p=<span class="string">&quot;36 44 52 60 100 108 116 124 132 140 149 157&quot;</span></span><br><span class="line">channels_5G_HT40m=<span class="string">&quot;40 48 56 64 104 112 120 128 136 144 153 161&quot;</span></span><br><span class="line">channels_5G_80MHz=<span class="string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161&quot;</span></span><br><span class="line">channels_5G_160MHz=<span class="string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128&quot;</span></span><br><span class="line"></span><br><span class="line">current_user=$(<span class="built_in">whoami</span>)</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$current_user</span>&quot;</span> != <span class="string">&quot;root&quot;</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;[Error] Please run this script with sudo!&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ -n <span class="variable">$1</span> ] </span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="keyword">case</span> <span class="variable">$1</span> <span class="keyword">in</span></span><br><span class="line">    <span class="string">&quot;HT20&quot;</span>)</span><br><span class="line">        channels=<span class="string">&quot;<span class="variable">$channels_2G4_HT20</span>&quot;</span><span class="string">&quot; &quot;</span><span class="string">&quot;<span class="variable">$channels_5G_HT20</span>&quot;</span></span><br><span class="line">        ;;</span><br><span class="line">    <span class="string">&quot;HT40+&quot;</span>)</span><br><span class="line">        channels=<span class="string">&quot;<span class="variable">$channels_2G4_HT40p</span>&quot;</span><span class="string">&quot; &quot;</span><span class="string">&quot;<span class="variable">$channels_5G_HT40p</span>&quot;</span></span><br><span class="line">        ;;</span><br><span class="line">    <span class="string">&quot;HT40-&quot;</span>)</span><br><span class="line">        channels=<span class="string">&quot;<span class="variable">$channels_2G4_HT40m</span>&quot;</span><span class="string">&quot; &quot;</span><span class="string">&quot;<span class="variable">$channels_5G_HT40m</span>&quot;</span></span><br><span class="line">        ;;</span><br><span class="line">    <span class="string">&quot;80MHz&quot;</span>)</span><br><span class="line">        channels=<span class="string">&quot;<span class="variable">$channels_5G_80MHz</span>&quot;</span></span><br><span class="line">        ;;</span><br><span class="line">    <span class="string">&quot;160MHz&quot;</span>)</span><br><span class="line">        channels=<span class="string">&quot;<span class="variable">$channels_5G_160MHz</span>&quot;</span></span><br><span class="line">        ;;</span><br><span class="line">    *)</span><br><span class="line">        echp <span class="string">&quot;Invalid Bandwidth: <span class="variable">$1</span>&quot;</span></span><br><span class="line">        <span class="built_in">exit</span> 1</span><br><span class="line">        ;;</span><br><span class="line">    <span class="keyword">esac</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;no bandwidth set! i.e. &#x27;sudo channel-hopping.sh HT20&#x27;&quot;</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">width=<span class="variable">$&#123;1&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> channel <span class="keyword">in</span> <span class="variable">$&#123;channels&#125;</span>; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Setting channel <span class="variable">$&#123;channel&#125;</span>, <span class="variable">$&#123;width&#125;</span>&quot;</span></span><br><span class="line">    iw dev <span class="variable">$&#123;DEFAULT_INTERFACE&#125;</span> <span class="built_in">set</span> channel <span class="string">&quot;<span class="variable">$&#123;channel&#125;</span>&quot;</span> <span class="string">&quot;<span class="variable">$&#123;width&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">sleep</span> 0.5</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br><br>DEFAULT_INTERFACE=<span class="hljs-string">&quot;wlp0s20f3mon&quot;</span><br><br>channels_2G4_HT20=<span class="hljs-string">&quot;1 2 3 4 5 6 7 8 9 10 11 12 13&quot;</span><br>channels_2G4_HT40p=<span class="hljs-string">&quot;1 2 3 4 5 6 7 8 9&quot;</span><br>channels_2G4_HT40m=<span class="hljs-string">&quot;5 6 7 8 9 10 11 12 13&quot;</span><br><br>channels_5G_HT20=<span class="hljs-string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 165&quot;</span><br>channels_5G_HT40p=<span class="hljs-string">&quot;36 44 52 60 100 108 116 124 132 140 149 157&quot;</span><br>channels_5G_HT40m=<span class="hljs-string">&quot;40 48 56 64 104 112 120 128 136 144 153 161&quot;</span><br>channels_5G_80MHz=<span class="hljs-string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161&quot;</span><br>channels_5G_160MHz=<span class="hljs-string">&quot;36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128&quot;</span><br><br>current_user=$(<span class="hljs-built_in">whoami</span>)<br><span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;<span class="hljs-variable">$current_user</span>&quot;</span> != <span class="hljs-string">&quot;root&quot;</span> ]<br><span class="hljs-keyword">then</span><br>    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;[Error] Please run this script with sudo!&quot;</span><br>    <span class="hljs-built_in">exit</span> 1<br><span class="hljs-keyword">fi</span><br><br><span class="hljs-keyword">if</span> [ -n <span class="hljs-variable">$1</span> ] <br><span class="hljs-keyword">then</span><br>    <span class="hljs-keyword">case</span> <span class="hljs-variable">$1</span> <span class="hljs-keyword">in</span><br>    <span class="hljs-string">&quot;HT20&quot;</span>)<br>        channels=<span class="hljs-string">&quot;<span class="hljs-variable">$channels_2G4_HT20</span>&quot;</span><span class="hljs-string">&quot; &quot;</span><span class="hljs-string">&quot;<span class="hljs-variable">$channels_5G_HT20</span>&quot;</span><br>        ;;<br>    <span class="hljs-string">&quot;HT40+&quot;</span>)<br>        channels=<span class="hljs-string">&quot;<span class="hljs-variable">$channels_2G4_HT40p</span>&quot;</span><span class="hljs-string">&quot; &quot;</span><span class="hljs-string">&quot;<span class="hljs-variable">$channels_5G_HT40p</span>&quot;</span><br>        ;;<br>    <span class="hljs-string">&quot;HT40-&quot;</span>)<br>        channels=<span class="hljs-string">&quot;<span class="hljs-variable">$channels_2G4_HT40m</span>&quot;</span><span class="hljs-string">&quot; &quot;</span><span class="hljs-string">&quot;<span class="hljs-variable">$channels_5G_HT40m</span>&quot;</span><br>        ;;<br>    <span class="hljs-string">&quot;80MHz&quot;</span>)<br>        channels=<span class="hljs-string">&quot;<span class="hljs-variable">$channels_5G_80MHz</span>&quot;</span><br>        ;;<br>    <span class="hljs-string">&quot;160MHz&quot;</span>)<br>        channels=<span class="hljs-string">&quot;<span class="hljs-variable">$channels_5G_160MHz</span>&quot;</span><br>        ;;<br>    *)<br>        <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Invalid Bandwidth: <span class="hljs-variable">$1</span>&quot;</span><br>        <span class="hljs-built_in">exit</span> 1<br>        ;;<br>    <span class="hljs-keyword">esac</span><br><span class="hljs-keyword">else</span><br>    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;no bandwidth set! i.e. &#x27;sudo channel-hopping.sh HT20&#x27;&quot;</span><br><span class="hljs-keyword">fi</span><br><br>width=<span class="hljs-variable">$&#123;1&#125;</span><br><br><span class="hljs-keyword">for</span> channel <span class="hljs-keyword">in</span> <span class="hljs-variable">$&#123;channels&#125;</span>; <span class="hljs-keyword">do</span><br>    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Setting channel <span class="hljs-variable">$&#123;channel&#125;</span>, <span class="hljs-variable">$&#123;width&#125;</span>&quot;</span><br>    iw dev <span class="hljs-variable">$&#123;DEFAULT_INTERFACE&#125;</span> <span class="hljs-built_in">set</span> channel <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;channel&#125;</span>&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;width&#125;</span>&quot;</span><br>    <span class="hljs-built_in">sleep</span> 0.5<br><span class="hljs-keyword">done</span><br></code></pre></td></tr></table></figure>
 
 <p>给这个脚本添加执行权限，修改脚本中的网卡名，并用sudo执行：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">chmod</span> +x channel-hopping.sh</span><br><span class="line">$ <span class="built_in">sudo</span> ./channel-hopping.sh HT20</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">chmod</span> +x channel-hopping.sh<br>$ <span class="hljs-built_in">sudo</span> ./channel-hopping.sh HT20<br></code></pre></td></tr></table></figure>
 
 <p>执行脚本时，指定要使用的带宽，脚本将会每 0.5s 切换一次信道。</p>
 <p>脚本只会循环执行一次，之后你可以手动指定信道和带宽。</p>
@@ -236,27 +704,27 @@
 <p><strong>显示过滤器</strong>语法：</p>
 <p><strong>Source Address:</strong> <code>wlan.sa==XX:XX:XX:XX:XX:XX</code><br><strong>Destination Address:</strong> <code>wlan.da==XX:XX:XX:XX:XX:XX</code><br><strong>Receiver Address:</strong>  <code>wlan.ra==XX:XX:XX:XX:XX:XX</code><br><strong>Transmitter Address:</strong>  <code>wlan.ta==XX:XX:XX:XX:XX:XX</code></p>
 <p>例如，可以在手机上查看MAC地址，然后输入到wireshark中</p>
-<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221223155547191.png" alt="image-20221223155547191"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined5233c6123366a1f3ccb916c48909e167.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221223155547191"></p>
 <p>可以看到，成功抓到了手机的WiFi6包（802.11ax）</p>
-<h2 id="2-5-关闭monitor模式的方法"><a href="#2-5-关闭monitor模式的方法" class="headerlink" title="2.5. 关闭monitor模式的方法"></a>2.5. 关闭monitor模式的方法</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">sudo</span> airmon-ng stop wlp0s20f3mon</span><br></pre></td></tr></table></figure>
+<h2 id="2-5-关闭monitor模式的方法"><a href="#2-5-关闭monitor模式的方法" class="headerlink" title="2.5. 关闭monitor模式的方法"></a>2.5. 关闭monitor模式的方法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> airmon-ng stop wlp0s20f3mon<br></code></pre></td></tr></table></figure>
 
 <p>注意网卡名是变为monitor之后的网卡名。</p>
-<h1 id="3-在Windows上远程抓包"><a href="#3-在Windows上远程抓包" class="headerlink" title="3. 在Windows上远程抓包"></a>3. 在Windows上远程抓包</h1><h2 id="3-1-确保Ubuntu上安装了ssh服务"><a href="#3-1-确保Ubuntu上安装了ssh服务" class="headerlink" title="3.1. 确保Ubuntu上安装了ssh服务"></a>3.1. 确保Ubuntu上安装了ssh服务</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install openssh-server</span><br></pre></td></tr></table></figure>
+<h1 id="3-在Windows上远程抓包"><a href="#3-在Windows上远程抓包" class="headerlink" title="3. 在Windows上远程抓包"></a>3. 在Windows上远程抓包</h1><h2 id="3-1-确保Ubuntu上安装了ssh服务"><a href="#3-1-确保Ubuntu上安装了ssh服务" class="headerlink" title="3.1. 确保Ubuntu上安装了ssh服务"></a>3.1. 确保Ubuntu上安装了ssh服务</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt install openssh-server<br></code></pre></td></tr></table></figure>
 
-<h2 id="3-2-让用户执行sudo命令不用输入密码"><a href="#3-2-让用户执行sudo命令不用输入密码" class="headerlink" title="3.2. 让用户执行sudo命令不用输入密码"></a>3.2. 让用户执行sudo命令不用输入密码</h2><p>​	抓包需要root权限，并且我们用wireshark远程抓包的时候无法输入sudo密码。网上会有两种不太推荐的方法解决问题：</p>
+<h2 id="3-2-让用户执行sudo命令不用输入密码"><a href="#3-2-让用户执行sudo命令不用输入密码" class="headerlink" title="3.2. 让用户执行sudo命令不用输入密码"></a>3.2. 让用户执行sudo命令不用输入密码</h2><p>​	抓包需要root权限，并且我们用wireshark远程抓包的时候无法输入sudo密码。网上有两种不太推荐的方法可以解决这个问题：</p>
 <ul>
 <li>直接打开root的ssh登陆权限，后续Windows电脑的Wireshark直接通过root登录</li>
 <li>让自己的用户执行sudo时不需要密码</li>
 </ul>
 <p>​	但是以上两种方法是很不安全的，下面介绍一种通过改sudo配置的方式，让你的linux用户只在执行一些指定的命令的时候不需要输入sudo密码，而其他时候还是要密码。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 用visudo编辑器，在/etc/sudoers.d/下创建个人的sudo配置</span></span><br><span class="line"><span class="built_in">sudo</span> visudo </span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 用visudo编辑器，在/etc/sudoers.d/下创建个人的sudo配置</span><br><span class="hljs-built_in">sudo</span> visudo <br></code></pre></td></tr></table></figure>
 
 <p>​	填入以下内容，然后保存：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">jayant ALL=(root)NOPASSWD:/usr/bin/tcpdump</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">jayant ALL=(root)NOPASSWD:/usr/bin/tcpdump<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>释义：</p>
-<pre><code>- jayant：用户名或组名，如果是组名，前面加`%`
+<pre><code class="hljs">- jayant：用户名或组名，如果是组名，前面加`%`
 - ALL：主机名，多服务器才有用，这里设置ALL即可
 - (root)：完整写法是(用户名:组名)，这里只写了用户名。这里指jayant可以作为root运行后面的指令。如果只有组名，写`(:组名)`
 - NOPASSWD:/usr/bin/tcpdump ：指定的命令，前面`NOPASSWD:`指不需要密码。这里需要填命令的绝对地址，如果你不知道绝对地址，可以输入`which tcpdump `查看。
@@ -267,174 +735,451 @@
 </blockquote>
 <p>测试一下<code>sudo tcpdump</code>是不是已经不需要输入密码了。</p>
 <h2 id="3-3-按照第二节的做法，把网卡设为monitor模式"><a href="#3-3-按照第二节的做法，把网卡设为monitor模式" class="headerlink" title="3.3. 按照第二节的做法，把网卡设为monitor模式"></a>3.3. 按照第二节的做法，把网卡设为monitor模式</h2><p>​	请参考第2节的内容</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> airmon-ng check <span class="built_in">kill</span></span><br><span class="line"><span class="built_in">sudo</span> airmon-ng start &lt;网卡名&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> airmon-ng check <span class="hljs-built_in">kill</span><br><span class="hljs-built_in">sudo</span> airmon-ng start &lt;网卡名&gt;<br></code></pre></td></tr></table></figure>
 
 <h2 id="3-4-在Windows上安装sshdump"><a href="#3-4-在Windows上安装sshdump" class="headerlink" title="3.4. 在Windows上安装sshdump"></a>3.4. 在Windows上安装sshdump</h2><p>​	安装Wireshark时勾选即可</p>
-<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194013150.png" alt="image-20221216194013150"></p>
-<h2 id="3-5-在Windows上设置Wireshark"><a href="#3-5-在Windows上设置Wireshark" class="headerlink" title="3.5. 在Windows上设置Wireshark"></a>3.5. 在Windows上设置Wireshark</h2><img src="/imgs/使用Ubuntu进行WiFi6抓包.assets/image-20221216194117135.png" alt="image-20221216194117135" style="zoom: 50%;">
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined60cee0d7d8f786c383c57f5bdab3003a.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221216194013150"></p>
+<h2 id="3-5-在Windows上设置Wireshark"><a href="#3-5-在Windows上设置Wireshark" class="headerlink" title="3.5. 在Windows上设置Wireshark"></a>3.5. 在Windows上设置Wireshark</h2><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined3f607d351bdd92c0eea8cac7209571b6.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221216194117135" style="zoom: 50%;">
 
 <p>设置远程主机地址和ssh端口：</p>
-<img src="/imgs/使用Ubuntu进行WiFi6抓包.assets/image-20221216194137684.png" alt="image-20221216194137684" style="zoom: 50%;">
+<img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined47a330e31feab485bfd2d258666e987e.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221216194137684" style="zoom: 50%;">
 
 <p>我这里使用密钥登录，也可以使用密码：</p>
-<img src="/imgs/使用Ubuntu进行WiFi6抓包.assets/image-20221216194206105.png" alt="image-20221216194206105" style="zoom:50%;">
+<img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined45ca389ca70b5981018bc67449654501.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221216194206105" style="zoom:50%;">
 
 <p>设置网卡名：</p>
-<p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194235505.png" alt="image-20221216194235505"></p>
-<h2 id="3-6-开始抓包"><a href="#3-6-开始抓包" class="headerlink" title="3.6. 开始抓包"></a>3.6. 开始抓包</h2><p><img src="/jayant97.github.io/imgs/%E4%BD%BF%E7%94%A8Ubuntu%E8%BF%9B%E8%A1%8CWiFi6%E6%8A%93%E5%8C%85.assets/image-20221216194816124.png" alt="image-20221216194816124"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined77039a13629e1af6594c1d1eaf0c5647.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221216194235505"></p>
+<h2 id="3-6-开始抓包"><a href="#3-6-开始抓包" class="headerlink" title="3.6. 开始抓包"></a>3.6. 开始抓包</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/undefined6a1b37e83b150b671f2d363f080da319.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20221216194816124"></p>
 <p>​	</p>
 
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2022/12/5dfa479d25f0/" data-id="cmqop0ng40019y8o5ejdff1sm" data-title="使用Ubuntu进行WiFi抓包" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li></ul>
 
-    </footer>
-  </div>
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/WiFi/" class="category-chain-item">WiFi</a>
   
-    <a href="/jayant97.github.io/2023/03/4b274a50e575/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          详解Zephyr设备树（DeviceTree）与驱动模型
-        
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Wireshark/" class="print-no-link">#Wireshark</a>
+      
+        <a href="/jayant97.github.io/tags/WiFi6/" class="print-no-link">#WiFi6</a>
+      
+        <a href="/jayant97.github.io/tags/Linux/" class="print-no-link">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>使用Ubuntu进行WiFi抓包</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2022/12/5dfa479d25f0/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年12月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2023/03/4b274a50e575/" title="详解Zephyr设备树（DeviceTree）与驱动模型">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">详解Zephyr设备树（DeviceTree）与驱动模型</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2022/12/66c35f484401/" title="在Windows上使用Wireshark和Npcap进行WiFi嗅探">
+                        <span class="hidden-mobile">在Windows上使用Wireshark和Npcap进行WiFi嗅探</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2022/12/66c35f484401/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">在Windows上使用Wireshark和Npcap进行WiFi嗅探</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>

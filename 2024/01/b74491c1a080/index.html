@@ -1,16 +1,29 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/head.png">
+  <link rel="icon" href="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/favicon.webp">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>Nordic GPIO硬件原理与NCS应用详解 | 一苇万顷</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="本文主题 Nordic MCU的GPIO硬件简介、GPIOTE是什么、PPI是什么 Zephyr中GPIO的使用、与外设引脚复用的方法（pinctrl）   声明：本文在解释硬件方面会比较详细，其目的是让读者在遇到问题时方便查阅，并debug底层寄存器信号。并非是推荐开发者直接进行寄存器开发，大多数情况下直接使用Nordic提供的外设API进行开发即可，可参考本文第3、4、5章。  1. GPIO">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Jayant Tang">
+  <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
+  
+    <meta name="description" content="本文主题 Nordic MCU的GPIO硬件简介、GPIOTE是什么、PPI是什么 Zephyr中GPIO的使用、与外设引脚复用的方法（pinctrl）   声明：本文在解释硬件方面会比较详细，其目的是让读者在遇到问题时方便查阅，并debug底层寄存器信号。并非是推荐开发者直接进行寄存器开发，大多数情况下直接使用Nordic提供的外设API进行开发即可，可参考本文第3、4、5章。  1. GPIO">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Nordic GPIO硬件原理与NCS应用详解">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2024/01/b74491c1a080/index.html">
-<meta property="og:site_name" content="一苇万顷">
+<meta property="og:site_name" content="Jayant&#39;s Blog">
 <meta property="og:description" content="本文主题 Nordic MCU的GPIO硬件简介、GPIOTE是什么、PPI是什么 Zephyr中GPIO的使用、与外设引脚复用的方法（pinctrl）   声明：本文在解释硬件方面会比较详细，其目的是让读者在遇到问题时方便查阅，并debug底层寄存器信号。并非是推荐开发者直接进行寄存器开发，大多数情况下直接使用Nordic提供的外设API进行开发即可，可参考本文第3、4、5章。  1. GPIO">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c7d1ed9cc5d16e4daa3597d494a60c89.png">
@@ -42,7 +55,7 @@
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/1d81a68b42f00bc6dbe719bb476a1883.png">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/fbb3c06dc66d64e255569adf6696fe9c.webp">
 <meta property="article:published_time" content="2024-01-22T08:21:43.000Z">
-<meta property="article:modified_time" content="2026-06-22T03:18:34.230Z">
+<meta property="article:modified_time" content="2026-06-22T09:23:23.841Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="Zephyr">
@@ -50,91 +63,546 @@
 <meta property="article:tag" content="GPIO">
 <meta property="article:tag" content="GPIOTE">
 <meta property="article:tag" content="PPI">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c7d1ed9cc5d16e4daa3597d494a60c89.png">
   
-    <link rel="alternate" href="/jayant97.github.io/atom.xml" title="一苇万顷" type="application/atom+xml">
   
   
-    <link rel="shortcut icon" href="/jayant97.github.io/favicon.png">
+  <title>Nordic GPIO硬件原理与NCS应用详解 - Jayant&#39;s Blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link rel="stylesheet" href="/jayant97.github.io/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/jayant97.github.io/css/highlight.css">
   
+    <link id="highlight-css-dark" rel="stylesheet" href="/jayant97.github.io/css/highlight-dark.css">
   
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"jayant-tang.github.io","root":"/jayant97.github.io/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"|","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/jayant97.github.io/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/jayant97.github.io/js/utils.js"></script>
+  <script src="/jayant97.github.io/js/color-schema.js"></script>
   
-<link rel="stylesheet" href="/jayant97.github.io/css/style.css">
+
 
   
-    
-<link rel="stylesheet" href="/jayant97.github.io/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/jayant97.github.io/" id="logo">一苇万顷</a>
-      </h1>
-      
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/jayant97.github.io/">
+      <strong>Jayant&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/" target="_self">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Nordic/" target="_self">
+                    
+                    <span>Nordic</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                    
+                    <span>Zephyr</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Matter/" target="_self">
+                    
+                    <span>Matter</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/WiFi/" target="_self">
+                    
+                    <span>WiFi</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/Linux/" target="_self">
+                    
+                    <span>Linux</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/AI/" target="_self">
+                    
+                    <span>AI</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                    
+                    <span>博客</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/jayant97.github.io/link/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
     </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
         
-          <a class="main-nav-link" href="/jayant97.github.io/">Home</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
         
-          <a class="main-nav-link" href="/jayant97.github.io/archives">Archives</a>
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
         
-      </nav>
-      <nav id="sub-nav">
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-category-fill"></i>
+              <span>分类</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-category-fill"></i>
+                    <span>全部</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Nordic/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Nordic</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Zephyr/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Zephyr</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Matter/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Matter</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/WiFi/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>WiFi</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/Linux/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>Linux</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/AI/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>AI</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/jayant97.github.io/categories/%E5%8D%9A%E5%AE%A2/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-link-fill"></i>
+                    <span>博客</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/jayant97.github.io/link/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
         
         
-          <a class="nav-icon" href="/jayant97.github.io/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
         
-        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://jayant-tang.github.io/jayant97.github.io"></form>
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn" data-label-light="开灯" data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
       </div>
     </div>
   </div>
-</header>
+</div>
 
-      <div class="outer">
-        <section id="main"><article id="post-Nordic GPIO硬件原理与NCS应用详解" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/jayant97.github.io/2024/01/b74491c1a080/" class="article-date">
-  <time class="dt-published" datetime="2024-01-22T08:21:43.000Z" itemprop="datePublished">2024-01-22</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a>
-  </div>
+  
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+<div id="banner" class="banner" parallax="true" style="background: url('https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/banner.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Nordic GPIO硬件原理与NCS应用详解"></span>
+          
+        </div>
+
         
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      Nordic GPIO硬件原理与NCS应用详解
-    </h1>
-  
-
-      </header>
+          
+  <div class="mt-3">
     
-    <div class="e-content article-entry" itemprop="articleBody">
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        Jayant Tang
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-22 16:21" pubdate>
+          2024年1月22日
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          22k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          183 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <h1 id="本文主题"><a href="#本文主题" class="headerlink" title="本文主题"></a>本文主题</h1><ol>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Nordic GPIO硬件原理与NCS应用详解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="本文主题"><a href="#本文主题" class="headerlink" title="本文主题"></a>本文主题</h1><ol>
 <li>Nordic MCU的GPIO硬件简介、GPIOTE是什么、PPI是什么</li>
 <li>Zephyr中GPIO的使用、与外设引脚复用的方法（pinctrl）</li>
 </ol>
@@ -144,10 +612,10 @@
 <h1 id="1-GPIO硬件介绍"><a href="#1-GPIO硬件介绍" class="headerlink" title="1. GPIO硬件介绍"></a>1. GPIO硬件介绍</h1><p>在介绍NCS中的GPIO和引脚复用（pinctrl）之前，有必要先介绍Nordic平台的GPIO相关硬件。</p>
 <h2 id="1-1-GPIO编号与分配表"><a href="#1-1-GPIO编号与分配表" class="headerlink" title="1.1. GPIO编号与分配表"></a>1.1. GPIO编号与分配表</h2><p>每个Port上最多有32个GPIO，编号为0 ～ 31。Port从0开始，根据芯片封装的不同，可能还会有Port 1。<strong>例如，在代码中，P0.12对应的引脚编号就是12，而P1.12对应的引脚编号就是32+12，也就是44。</strong></p>
 <p>在每个手册的“Hardware and layout”章节，有不同MCU封装的GPIO功能说明，我们点进去可以看到每个引脚的用途。不仅是GPIO，还有一些电源和晶振引脚也包含其中：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c7d1ed9cc5d16e4daa3597d494a60c89.png" alt="image-20240122163623759"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/07e201fb13fbc90479ad9d52e035c82f.png" alt="image-20240122164712134"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/4bdab7ecda1cfd8cbff65cccb054fe8f.png" alt="image-20240122164636172"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/98dc18fa7eef5779f5eef71b2f429f51.png" alt="image-20240122164939613"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c7d1ed9cc5d16e4daa3597d494a60c89.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240122163623759"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/07e201fb13fbc90479ad9d52e035c82f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240122164712134"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/4bdab7ecda1cfd8cbff65cccb054fe8f.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240122164636172"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/98dc18fa7eef5779f5eef71b2f429f51.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240122164939613"></p>
 <blockquote>
 <p>这里面值得一提的一些信息有：</p>
 <ol>
@@ -157,12 +625,12 @@
 </ol>
 </blockquote>
 <h2 id="1-2-GPIO硬件"><a href="#1-2-GPIO硬件" class="headerlink" title="1.2. GPIO硬件"></a>1.2. GPIO硬件</h2><p>下图来自于nRF52833 Product Specification。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c5c177122aeb8695fe5b1b51a48bed68.png" alt="image-20240122162605569"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c5c177122aeb8695fe5b1b51a48bed68.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240122162605569"></p>
 <p>从框图可以看出，GPIO可以作为模拟输入，也可以作为数字输入和输出。</p>
 <blockquote>
 <p>只有部分GPIO可以作为模拟输入，见1.2小节</p>
 </blockquote>
-<h3 id="寄存器介绍"><a href="#寄存器介绍" class="headerlink" title="寄存器介绍"></a>寄存器介绍</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/efbf5d9684190fc343c964608cd7b612.png" alt="image-20240130104903444"></p>
+<h3 id="寄存器介绍"><a href="#寄存器介绍" class="headerlink" title="寄存器介绍"></a>寄存器介绍</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/efbf5d9684190fc343c964608cd7b612.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240130104903444"></p>
 <p>Nordic平台的GPIO，每个port最多有32个引脚。</p>
 <ul>
 <li>OUT：32bit寄存器，bit写1使对应的GPIO输出高，写0使对应的GPIO输出低</li>
@@ -176,7 +644,7 @@
 <li>DETECTMODE：与休眠唤醒配置有关，见下方</li>
 <li>PIN_CONF：32个32bit寄存器。单独配置每个GPIO的输入输出（可覆盖DIR寄存器），输出模式、输出驱动能力、内部上下拉。</li>
 </ul>
-<h3 id="GPIO输出状态与驱动能力配置"><a href="#GPIO输出状态与驱动能力配置" class="headerlink" title="GPIO输出状态与驱动能力配置"></a>GPIO输出状态与驱动能力配置</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8d88eaf30211c26cfc8593ea9b89dec9.png" alt="Introduction to GPIO - General Purpose I/O - NerdyElectronics"></p>
+<h3 id="GPIO输出状态与驱动能力配置"><a href="#GPIO输出状态与驱动能力配置" class="headerlink" title="GPIO输出状态与驱动能力配置"></a>GPIO输出状态与驱动能力配置</h3><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8d88eaf30211c26cfc8593ea9b89dec9.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="Introduction to GPIO - General Purpose I/O - NerdyElectronics"></p>
 <p>我们知道GPIO的<strong>输出电路</strong>内部是两个MOS管作为开关，也就是说，GPIO其实有三种状态：</p>
 <ul>
 <li>输出高电平：上管导通、下管关断。通常代表逻辑1。</li>
@@ -184,7 +652,7 @@
 <li>输出高阻态：上下管均关断。可以代表逻辑0或逻辑1，取决于电路设计者自身的定义。</li>
 </ul>
 <p>但我们控制GPIO时，代码中只会写0和1两种状态。这就要求我们提前配置好GPIO的输出模式（推挽、漏极开路、源极开路），每一种都代表不同的高、低电平或高阻态的组合：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/e3efd7b8077d02e8abc1bfb9fdd58201.png" alt="image-20240122170147234"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/e3efd7b8077d02e8abc1bfb9fdd58201.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240122170147234"></p>
 <p>以上8种状态，包含了推挽、漏极开路、源极开路的状态。此外，当GPIO输出高电平或低电平时，还有标准驱动能力（Standard）和高驱动能力（High drive）两种选择。</p>
 <p>举例来说，S0S1就是推挽（Push-Pull）输出；而S0D1就是开漏（Open-Drain）输出。我们知道开漏输出是为了做“线与”操作的，I2C协议就需要这种配置。同理，D0S1就是源极开路输出，可以实现“线或”操作。</p>
 <blockquote>
@@ -192,7 +660,7 @@
 <p>线或：相连的GPIO中只要有一个输出高电平，则整个线保持高电平，且不能出现短路。 </p>
 </blockquote>
 <p>这里除了标准驱动能力（Standard）之外，还有高驱动能力（High drive）可以选择。它相比于Standard可以输出更高的电流：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/26bc6c2789100c12be754ac9bcf7d667.png" alt="image-20240122171447781"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/26bc6c2789100c12be754ac9bcf7d667.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240122171447781"></p>
 <p>上图中，GPIO的Electrical specification章节记录了GPIO的电气特性。可以看到标准输出和高驱输出时，拉电流与灌电流的承受范围。</p>
 <blockquote>
 <p>GPIO输出电压的变化，本质是给线上的等效电容充电或放电。因此GPIO输入输出电流的能力越强，则输出高频信号的能力越强。</p>
@@ -200,26 +668,26 @@
 <h3 id="GPIO数字输入"><a href="#GPIO数字输入" class="headerlink" title="GPIO数字输入"></a>GPIO数字输入</h3><p>关于输入，值得一提的是Nordic的输入是可以断开的（从框图中也能看出）。因此只要不使能输入和输出，GPIO内部就是断开的，不用担心漏电导致功耗问题。</p>
 <h3 id="GPIO内部上拉-下拉电阻"><a href="#GPIO内部上拉-下拉电阻" class="headerlink" title="GPIO内部上拉&#x2F;下拉电阻"></a>GPIO内部上拉&#x2F;下拉电阻</h3><p>导线高低电平的电磁学本质，是把导线和地平面之间看作一个微小的电容。输出高电平即为给电容充电，输出低电平即为给电容放电。</p>
 <p>上&#x2F;下拉电阻的作用是，当导线上的所有GPIO都处于高阻态时，通过这个上&#x2F;下拉电阻给导线充、放电，使得导线的电平处于一个确定的状态。</p>
-<p>例如I2C总线，线路上所有的IO都是开漏输出，因此需要一个上拉电阻。当所有IO都输出逻辑1（高阻态）时，能通过这个上拉电阻给导线电容充电，使的线路电平被拉高。</p>
+<p>例如I2C总线，线路上所有的IO都是开漏输出，因此需要一个上拉电阻。当所有IO都输出逻辑1（高阻态）时，能通过这个上拉电阻给导线电容充电，使得线路电平被拉高。</p>
 <p>如果PCB上没有上拉电阻，就需要MCU配置内部上拉。配置相关的寄存器如下：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/516447374f263597522004f29a6374b5.png" alt="image-20240130111651505"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/516447374f263597522004f29a6374b5.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240130111651505"></p>
 <p>使用内部上拉时，需要注意电阻的阻值，典型值为13千欧。线路上的RC值影响线路上电平变化的速度。当无外挂电容，只考虑线路寄生电容时，使用此内部上拉电阻，I2C总线<strong>最高只能配置为100kbps</strong>。若想要配置到400kbps，请使用外部4.7千欧或更低的上拉电阻。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/f696dc3aaa43ff01ebc7f81daa7dcefc.png" alt="image-20240130111825537"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/f696dc3aaa43ff01ebc7f81daa7dcefc.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240130111825537"></p>
 <blockquote>
 <p>除了有提高电平变化速度的场景，还有需要降低电平变化速度的场景。例如，一些通过边沿触发的GPIO中断、或者Reset引脚的触发等。<strong>不要认为有了上拉电阻，线路的电压就会稳定不受干扰</strong>。因为如果线路上电容值很小，微小的电荷变化就会引起巨大的电压变化。因此线路要保持稳定的电平与上拉电阻关系不太大，反而与线路上的电容关系很大。</p>
 </blockquote>
 <h2 id="1-3-GPIO复用"><a href="#1-3-GPIO复用" class="headerlink" title="1.3. GPIO复用"></a>1.3. GPIO复用</h2><p>Nordic平台的外设配置GPIO时，基本上是可以任意选择的。并且，<strong>外设的配置可以自动覆盖（Override）GPIO的输入输出方向、输出值等配置</strong>。见本文1.2.小节框图中的几个OVERRIDE信号。但是，GPIO的上下拉、输出模式等配置，还是要在GPIO的寄存器中进行配置。</p>
 <h3 id="数字复用"><a href="#数字复用" class="headerlink" title="数字复用"></a>数字复用</h3><p>要配置一个外设所使用的GPIO，只需直接在这个外设对应的寄存器中进行配置。例如，下图是PWM外设中的PSEL（Pin Select）寄存器，就是可以选择任意一个port的任意一个pin作为输出引脚。当你在PWM外设的寄存器中配置引脚之后，会自动按照本文1.2小节框图中的OVERRIDE信号来覆盖对应GPIO的。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8910ba2d07720eb2d40103d0419da2c5.png" alt="image-20240130114131417"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8910ba2d07720eb2d40103d0419da2c5.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240130114131417"></p>
 <h3 id="模拟复用"><a href="#模拟复用" class="headerlink" title="模拟复用"></a>模拟复用</h3><p>模拟复用不能选择任意的GPIO，只能选择具有Analog Input功能的GPIO。以SAADC为例，这里只能选择AINx或者内部VDD、内部VDD&#x2F;5作为输入，而不是GPIO的引脚编号。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/a0f1293e228846b7f2129632e8ea8f0a.png" alt="image-20240130114325318"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/a0f1293e228846b7f2129632e8ea8f0a.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240130114325318"></p>
 <h3 id="特殊GPIO（RESET和NFC-Tag）"><a href="#特殊GPIO（RESET和NFC-Tag）" class="headerlink" title="特殊GPIO（RESET和NFC Tag）"></a>特殊GPIO（RESET和NFC Tag）</h3><p>Nordic平台具有UICR寄存器，这是一个flash之外的掉电不丢失区域，用于存储一些用户配置，可擦写。其中具有RESET和NFC Tag引脚的配置，以52840为例：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/bdc2e489f13bd9d613cbfff44bfb00cc.png" alt="image-20240131100105700"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/bdc2e489f13bd9d613cbfff44bfb00cc.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240131100105700"></p>
 <blockquote>
 <p>nRF54L15的reset pin没有被分配GPIO编号。因此54L15的reset pin不能当作普通GPIO使用。</p>
 </blockquote>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/6d91c86599c6fc1fabb633700ea0b46e.png" alt="image-20240131100201965"></p>
-<p>对于reset引脚来说，<code>PSELRESET[0]</code>和<code>PSELREET[1]</code>的值都是PIN&#x3D;18，PORT&#x3D;0，CONNECT&#x3D;0的情况下，P0.18才会作为Reset引脚使用。否则，P0.18作为普通GPIO使用。<strong>Reset信号无法映射到其他GPIO</strong>。</p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/6d91c86599c6fc1fabb633700ea0b46e.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240131100201965"></p>
+<p>对于reset引脚来说，<code>PSELRESET[0]</code>和<code>PSELRESET[1]</code>的值都是PIN&#x3D;18，PORT&#x3D;0，CONNECT&#x3D;0的情况下，P0.18才会作为Reset引脚使用。否则，P0.18作为普通GPIO使用。<strong>Reset信号无法映射到其他GPIO</strong>。</p>
 <blockquote>
 <p>软件控制reset引脚作为普通GPIO使用：</p>
 <ul>
@@ -228,7 +696,7 @@
 <li><p>在NCS v2.5.0之后，需要在设备树overlay中增加：</p>
 </li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;uicr&#123;</span><br><span class="line">    // Pin used as GPIO, not nRESET</span><br><span class="line">    /delete-property/ gpio-as-nreset;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;gpio0 &#123;</span><br><span class="line">    /delete-property/ gpio-reserved-ranges;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs dsconfig">&amp;<span class="hljs-string">uicr</span>&#123;<br>    // <span class="hljs-string">Pin</span> <span class="hljs-string">used</span> <span class="hljs-string">as</span> <span class="hljs-string">GPIO</span>, <span class="hljs-string">not</span> <span class="hljs-string">nRESET</span><br>    /<span class="hljs-built_in">delete-property/</span> <span class="hljs-string">gpio-as-nreset</span>;<br>&#125;;<br><br>&amp;<span class="hljs-string">gpio0</span> &#123;<br>    /<span class="hljs-built_in">delete-property/</span> <span class="hljs-string">gpio-reserved-ranges</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>（在老版本NCS中是直接设置<code>CONFIG_GPIO_AS_PINRESET=n</code>）</p>
 </blockquote>
@@ -237,15 +705,15 @@
 <p>软件控制NFC引脚作为普通GPIO使用：</p>
 <ul>
 <li>在nRF5 SDK中，在Keil&#x2F;SES&#x2F;Makefile中设置全局宏定义<code>CONFIG_NFCT_PINS_AS_GPIOS</code></li>
-<li>在NCS v2.5.0之后，需要在设备树overlay中增加：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;uicr&#123;</span><br><span class="line">    // Pin used as GPIO, not NFC</span><br><span class="line">    nfct-pins-as-gpios;</span><br><span class="line">&#125;;</span><br><span class="line">    </span><br><span class="line">&amp;gpio0 &#123;</span><br><span class="line">    /delete-property/ gpio-reserved-ranges;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li>在NCS v2.5.0之后，需要在设备树overlay中增加：<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs dsconfig">&amp;<span class="hljs-string">uicr</span>&#123;<br>    // <span class="hljs-string">Pin</span> <span class="hljs-string">used</span> <span class="hljs-string">as</span> <span class="hljs-string">GPIO</span>, <span class="hljs-string">not</span> <span class="hljs-string">NFC</span><br>    <span class="hljs-string">nfct-pins-as-gpios</span>;<br>&#125;;<br>    <br>&amp;<span class="hljs-string">gpio0</span> &#123;<br>    /<span class="hljs-built_in">delete-property/</span> <span class="hljs-string">gpio-reserved-ranges</span>;<br>&#125;;<br></code></pre></td></tr></table></figure></li>
 </ul>
 <p>添加后，系统启动时会自动擦写UICR并重启。</p>
 <p>（在老版本NCS中是直接设置&#96;CONFIG_NFCT_PINS_AS_GPIOS&#x3D;y）</p>
 </blockquote>
 <p>至于其他型号的MCU，注意看对应的uicr设备树compatible中规定了哪些值即可。</p>
-<h2 id="1-4-GPIO的Sense机制"><a href="#1-4-GPIO的Sense机制" class="headerlink" title="1.4. GPIO的Sense机制"></a>1.4. GPIO的Sense机制</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/6f5774a43c1dd4420a207aca001b74b0.png" alt="image-20240415155234948"></p>
+<h2 id="1-4-GPIO的Sense机制"><a href="#1-4-GPIO的Sense机制" class="headerlink" title="1.4. GPIO的Sense机制"></a>1.4. GPIO的Sense机制</h2><p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/6f5774a43c1dd4420a207aca001b74b0.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240415155234948"></p>
 <p>从GPIO的框图中我们可以看出，每个GPIO在处于输入模式的情况下，有一个SENSE信号。它可以被每个引脚的PIN_CNF寄存器中对应的bit位控制。可以配置为高电平触发或低电平触发。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c239182986954ff8f53ebab7fd37b8e5.png" alt="image-20240415155410982"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c239182986954ff8f53ebab7fd37b8e5.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240415155410982"></p>
 <p><strong>所有引脚的Sense信号会汇聚成一个DETECT信号。这个DETECT信号有两种作用：</strong></p>
 <ul>
 <li><strong>使系统从System Off模式中唤醒（也就是GPIO唤醒休眠）</strong></li>
@@ -256,17 +724,17 @@
 <p>另一种是在逻辑或之前加了一个锁存器（Latch），当PINx.DETECT置1时，相当于RS锁存器的Set端写1，LATCH寄存器中的对应Bit会被写1；当PINx.DETECT置0时，LATCH寄存器中的对应Bit会被锁存，不会变化。LATCH寄存器中对应的bit只有被CPU显式地写1时才会清0，相当于RS锁存器的Clear端写1。这个叫做LDETCT信号。</p>
 <h1 id="2-GPIOTE与PPI介绍"><a href="#2-GPIOTE与PPI介绍" class="headerlink" title="2. GPIOTE与PPI介绍"></a>2. GPIOTE与PPI介绍</h1><p>对于第一次接触Nordic平台的开发者，首先要明白一个概念：GPIOTE和GPIO是完全不同的外设。要理解为什么是这样，需要先理解Nordic外设接口（Peripheral interface）。</p>
 <h2 id="2-1-外设接口（Peripheral-interface）"><a href="#2-1-外设接口（Peripheral-interface）" class="headerlink" title="2.1. 外设接口（Peripheral interface）"></a>2.1. 外设接口（Peripheral interface）</h2><p>在Nordic平台中，无论是什么外设，都遵循类似的外设接口，其框图如下：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/216025fa4203288e7e2b4af6d5c5e99e.png" alt="image-20240415161448616"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/216025fa4203288e7e2b4af6d5c5e99e.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240415161448616"></p>
 <p>整个框图代表外设，这个外设可以是Timer、串口、ADC等等。接下来详细解释内部框图的意思，框图中展示的都是所有外设都有的共通的部分。</p>
 <h3 id="TASK寄存器"><a href="#TASK寄存器" class="headerlink" title="TASK寄存器"></a>TASK寄存器</h3><p>TASK寄存器代表这个外设的输入。例如Timer计时的开始、结束、清零；ADC采样的开始、结束；串口的发送开始、结束等等。<strong>只要CPU给对应的TASK寄存器写1，外设就会去执行对应的动作。</strong></p>
 <h3 id="EVENT寄存器与INTEN寄存器"><a href="#EVENT寄存器与INTEN寄存器" class="headerlink" title="EVENT寄存器与INTEN寄存器"></a>EVENT寄存器与INTEN寄存器</h3><p>EVENT寄存器代表这个外设的输出。例如串口DMA缓存接收满、ADC采样完成等等。这些事件（EVENT）可以用来触发CPU中断，只需要在INTEN寄存器中使能某个EVENT对应的中断，那么这个EVENT就能触发IRQ信号到NVIC模块。</p>
 <h3 id="SHORTS寄存器"><a href="#SHORTS寄存器" class="headerlink" title="SHORTS寄存器"></a>SHORTS寄存器</h3><p>Shorts意为短路。它可以让某个外设的EVENT自动触发自己的TASK，从而实现自动循环执行，无需CPU的干预。</p>
 <p>这个短路路径是预设好的，固定的几条，不能自由搭配。以定时器为例：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/b8959c71d6d864b6e3bf53dc3b4e8918.png" alt="image-20240415162841413"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/b8959c71d6d864b6e3bf53dc3b4e8918.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240415162841413"></p>
 <p>定时器最多有6个比较（Compare）通道。当定时器中的count值增长到某个通道的compare值时，触发compare事件。这里可以通过使能对应的SHORT寄存器，让这个COMPARE EVENT去触发定时器的CLEAR TASK，从而实现自动循环计数。也可以让这个COMPARE EVENT去触发定时器的STOP TASK，从而实现单次计数。</p>
 <p>这里是无法把compare event连接到start task的（虽然这种连接本身没有意义），因为SHORTS寄存器里的路径是预设好的。</p>
 <h2 id="2-2-PPI-Programmable-Peripheral-Interconnect"><a href="#2-2-PPI-Programmable-Peripheral-Interconnect" class="headerlink" title="2.2.  PPI (Programmable Peripheral Interconnect)"></a>2.2.  PPI (Programmable Peripheral Interconnect)</h2><p>在2.1章节中我们了解了外设的接口。从框图中可以看到TASK和EVENT寄存器上，还连接了PPI。这个PPI本身也是一个外设，它可以让你<strong>把一个外设的EVENT寄存器直接连接到另一个外设的TASK寄存器上，从而实现外设之间的自动联动，无需CPU参与处理</strong>。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/7b60a3e4ebe3381524cb85bac71489b3.png" alt="image-20240415164008994"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/7b60a3e4ebe3381524cb85bac71489b3.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240415164008994"></p>
 <p>图中的竖线，代表PPI的通道（Channel），nRF52833共有32条通道，其中前20条可以自由配置。<strong>每个通道可以连接1个EVENT，和2个TASK。</strong>（把EVENT寄存器的地址写入到CH[n].EEP寄存器；然后把想触发的TASK写到CH[n].TEP或者FORK[n].TEP中即可）。</p>
 <blockquote>
 <p>举一个实际的例子，就是<a href="https://jayant-tang.github.io/jayant97.github.io/2023/11/4c8e1d7d162d/">《Zephyr驱动与设备树实战——串口》</a>中的提到高速异步串口：首先，Nordic的串口硬件具有DMA的功能，可以直接把数据从串口搬运到内存；然后，Nordic的串口驱动软件具有空闲计时的功能，当一定时间没有收到数据，DMA缓存还没存满的时候，就直接不等DMA中断了，直接产生串口回调函数，让CPU提前处理。</p>
@@ -277,11 +745,11 @@
 </blockquote>
 <h3 id="PPI的使能与分组"><a href="#PPI的使能与分组" class="headerlink" title="PPI的使能与分组"></a>PPI的使能与分组</h3><p>PPI每个通道可以单独使能或关闭。通过CHEN寄存器写1使能，写0关闭。或者通过CHENSET和CHENCLR寄存器这种类似于SR锁存器的操作方式进行使能或关闭。</p>
 <p>nRF52833的PPI外设还有6个通道组。每个通道组有32个bit，对应32条通道。只要某个Bit置1，那么对应的通道就会被包含在这个通道组里：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/52f9072930d77cd88eb0cf1c159d79fc.png" alt="image-20240415171821442"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/f1269abbf3a3c12964bd6adc5df92432.png" alt="image-20240415171810227"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/52f9072930d77cd88eb0cf1c159d79fc.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240415171821442"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/f1269abbf3a3c12964bd6adc5df92432.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240415171810227"></p>
 <p>通道组的作用仅仅只是让你可以同时使能或者关闭一组通道。</p>
 <h3 id="固定的PPI通道"><a href="#固定的PPI通道" class="headerlink" title="固定的PPI通道"></a>固定的PPI通道</h3><p>对于nRF52833来说，20～31号通道是不可编程的，它的连接是固定的。通常用于连接RADIO、加密、RTC等外设。Nordic提供的无线协议栈（例如SoftDevice蓝牙低功耗协议栈）内部会用到这些PPI。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/e861a9069b8b9eed6a86a3437816baef.png" alt="image-20240415172000272"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/e861a9069b8b9eed6a86a3437816baef.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240415172000272"></p>
 <h3 id="分布式PPI（DPPI）"><a href="#分布式PPI（DPPI）" class="headerlink" title="分布式PPI（DPPI）"></a>分布式PPI（DPPI）</h3><p>从nRF5340、nRF9160开始，Nordic内部的PPI升级为DPPI。从而把1对2的PPI通道升级为多对多的PPI通道。</p>
 <p>每个外设的TASK寄存器会有对应的SUBSCRIBE（订阅）寄存器；EVENT寄存器会有对应的PUBLISH（发布）寄存器。通过发布-订阅不同的DPPI通道，实现了多对多的外设事件传输。</p>
 <p>具体可以参考nRF5340或nRF9160的手册。</p>
@@ -290,7 +758,7 @@
 <li>NCS中无论是PPI还是DPPI，都被封装为gppi接口，因此开发者无需关注它们的区别；</li>
 <li>永远不要自己指定某个具体的通道号来使用。因为Nordic的很多驱动代码里都用到了PPI，如果自己指定，很有可能和驱动中已经使用的通道冲突。因此我们应该用API来自动分配PPI通道，而不是自己指定。</li>
 </ol>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;helpers/nrfx_gppi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;nrfx_timer.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;nrfx_gpiote.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">    </span><br><span class="line"><span class="comment">// 分别获取两个外设的特定EVENT和TASK地址</span></span><br><span class="line"><span class="type">uint32_t</span> EVENT = nrfx_timer_compare_event_address_get(&amp;timer_inst, NRF_TIMER_CC_CHANNEL0);</span><br><span class="line"><span class="type">uint32_t</span> TASK = nrfx_gpiote_out_task_address_get(&amp;gpiote_inst, OUTPUT_PIN));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自动分配一个空闲的PPI通道</span></span><br><span class="line"><span class="type">uint8_t</span> gppi_channel;</span><br><span class="line">nrfx_gppi_channel_alloc(&amp;gppi_channel);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用此通道连接一个EVENT寄存器和一个TASK寄存器</span></span><br><span class="line">nrfx_gppi_channel_endpoints_setup(gppi_channel, EVENT, TASK);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使能通道</span></span><br><span class="line">nrfx_gppi_channels_enable(BIT(gppi_channel));</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;helpers/nrfx_gppi.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;nrfx_timer.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;nrfx_gpiote.h&gt;</span></span><br><br>...<br>    <br><span class="hljs-comment">// 分别获取两个外设的特定EVENT和TASK地址</span><br><span class="hljs-type">uint32_t</span> EVENT = nrfx_timer_compare_event_address_get(&amp;timer_inst, NRF_TIMER_CC_CHANNEL0);<br><span class="hljs-type">uint32_t</span> TASK = nrfx_gpiote_out_task_address_get(&amp;gpiote_inst, OUTPUT_PIN));<br><br><span class="hljs-comment">// 自动分配一个空闲的PPI通道</span><br><span class="hljs-type">uint8_t</span> gppi_channel;<br>nrfx_gppi_channel_alloc(&amp;gppi_channel);<br><br><span class="hljs-comment">// 使用此通道连接一个EVENT寄存器和一个TASK寄存器</span><br>nrfx_gppi_channel_endpoints_setup(gppi_channel, EVENT, TASK);<br><br><span class="hljs-comment">// 使能通道</span><br>nrfx_gppi_channels_enable(BIT(gppi_channel));<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>PPI例程位置：${NCS}&#x2F;modules&#x2F;hal&#x2F;nordic&#x2F;nrfx&#x2F;samples&#x2F;src&#x2F;nrfx_gppi</p>
@@ -308,20 +776,20 @@
 <p>要查看具体的代码，同样可以查看${NCS}&#x2F;modules&#x2F;hal&#x2F;nordic&#x2F;nrfx&#x2F;samples&#x2F;src&#x2F;nrfx_gppi例程。注意到GPIOTE的通道也是一种可以分配的资源。和PPI类似，使用时，不要自己指定具体的通道号，而应该用<code>nrfx_gpiote_channel_alloc()</code>函数来申请一个空闲的通道，以免和Nordic驱动代码中已经使用的GPIOTE通道冲突。</p>
 </blockquote>
 <h3 id="GPIOTE-Port-Event"><a href="#GPIOTE-Port-Event" class="headerlink" title="GPIOTE: Port Event"></a>GPIOTE: Port Event</h3><p>GPIOTE还有一个EVENT寄存器叫做EVENTS_PORT。在第一章节讲述GPIO时，提到GPIO有一个SENSE机制，全体GPIO的SENSE信号进行或运算后，会得到DETECT信号。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c5c177122aeb8695fe5b1b51a48bed68.png" alt="image-20240122162605569"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/c5c177122aeb8695fe5b1b51a48bed68.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240122162605569"></p>
 <p>这里GPIOTE的EVENTS_PORT就是用来把这个DETECT信号变成一个Events寄存器，从而可以用来产生中断，或者连接PPI。</p>
 <blockquote>
 <p>注意，DETCT信号虽然不是一个EVENT，但是DETECT信号本身就能把CPU从System Off模式唤醒，无需GPIOTE。</p>
 </blockquote>
 <h1 id="3-在Zephyr系统中使用GPIO"><a href="#3-在Zephyr系统中使用GPIO" class="headerlink" title="3. 在Zephyr系统中使用GPIO"></a>3. 在Zephyr系统中使用GPIO</h1><p>前面两章详细介绍了GPIO、GPIOTE和PPI的硬件，目的是让开发者在遇到问题时可以知道该从哪里去Debug，该看什么寄存器。但在一开始软件开发时，不需要关心这么多细节。只需调用现成的驱动API即可。</p>
 <h2 id="3-1-在Zephyr-DeviceTree中配置GPIO"><a href="#3-1-在Zephyr-DeviceTree中配置GPIO" class="headerlink" title="3.1. 在Zephyr DeviceTree中配置GPIO"></a>3.1. 在Zephyr DeviceTree中配置GPIO</h2><p>由于Zephyr所有硬件操作都在DeviceTree中完成，故需要先配置DeviceTree。下图演示了如何在一个node中写gpio：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">n: node &#123;</span><br><span class="line">   foo-gpios = &lt;&amp;gpio0 <span class="number">1</span> GPIO_ACTIVE_LOW&gt;,</span><br><span class="line">               &lt;&amp;gpio1 <span class="number">2</span> GPIO_ACTIVE_LOW&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">n: node &#123;<br>   foo-gpios = &lt;&amp;gpio0 <span class="hljs-number">1</span> GPIO_ACTIVE_LOW&gt;,<br>               &lt;&amp;gpio1 <span class="hljs-number">2</span> GPIO_ACTIVE_LOW&gt;;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>首先，由于GPIO的配置是一个<strong>属性</strong>，因此必须写在一个节点（Node）内，例如<code>led_0</code>内。</p>
 <blockquote>
 <p>在<a href="https://jayant-tang.github.io/jayant97.github.io/2023/03/4b274a50e575/">《详解Zephyr设备树（DeviceTree）与驱动模型》</a>一文中，我们知道DeviceTree的节点不能自己随便添加，每个节点都有对应的compatible，而compatible又必须有对应的Device Binding yaml文件，以及对应的驱动文件。现在问题是，<strong>如果我只想单纯的添加一个自由的GPIO，不使用任何led或者button驱动程序，该如何做？</strong></p>
 <p>你可以把gpio放在<code>/zephyr,user</code>节点下。这是一个自由的节点，就是用来绕过Device Binding，专门放开发者一些自由的device tree属性的，想在里面写什么都可以。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">/&#123;</span><br><span class="line">    zephyr,user&#123;</span><br><span class="line">        my-gpios = &lt;&amp;gpio0 <span class="number">12</span> (GPIO_ACTIVE_HIGH|GPIO_PUSH_PULL|GPIO_PULL_DOWN)&gt;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">/&#123;<br>    zephyr,user&#123;<br>        my-gpios = &lt;&amp;gpio0 <span class="hljs-number">12</span> (GPIO_ACTIVE_HIGH|GPIO_PUSH_PULL|GPIO_PULL_DOWN)&gt;;<br>    &#125;;<br>&#125;;<br></code></pre></td></tr></table></figure>
 </blockquote>
 <p>然后是属性的名字，<strong>属性的名称必须以<code>gpios</code>结尾</strong>，也可以只写<code>gpios</code>。这样它才能被编译系统识别。</p>
 <p>然后是属性的值，这是一个phandle-array类型的属性，可以写很多组。每个元素都是由三个部分组成：</p>
@@ -337,13 +805,13 @@
 </blockquote>
 <p>更多GPIO配置的参数选项，请参考文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/hardware/peripherals/gpio.html">https://docs.zephyrproject.org/latest/hardware/peripherals/gpio.html</a></p>
 <h2 id="3-2-在代码中控制GPIO"><a href="#3-2-在代码中控制GPIO" class="headerlink" title="3.2. 在代码中控制GPIO"></a>3.2. 在代码中控制GPIO</h2><p>首先，需要在conf文件中使能GPIO的驱动（大多数例程都是默认使能的）：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">CONFIG_GPIO=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">CONFIG_GPIO=y<br></code></pre></td></tr></table></figure>
 
 <p>在代码中，首先包含头文件：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/devicetree.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/drivers/gpio.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/devicetree.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/device.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/drivers/gpio.h&gt;</span></span><br></code></pre></td></tr></table></figure>
 
 <h3 id="方式一：以gpio-pin为对象进行控制"><a href="#方式一：以gpio-pin为对象进行控制" class="headerlink" title="方式一：以gpio pin为对象进行控制"></a>方式一：以gpio pin为对象进行控制</h3><p>在main函数中创建一个<code>gpio_dt_sepc</code>结构体，这个是操作一个单独GPIO的句柄：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">gpio_dt_spec</span> <span class="title">my_gpio</span> =</span> GPIO_DT_SPEC_GET(DT_PATH(zephyr_user), my_gpios);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">gpio_dt_spec</span> <span class="hljs-title">my_gpio</span> =</span> GPIO_DT_SPEC_GET(DT_PATH(zephyr_user), my_gpios);<br></code></pre></td></tr></table></figure>
 
 <ol>
 <li>device tree中的内容都不可更改，故用cosnt变量存储最好</li>
@@ -352,20 +820,20 @@
 <li>第二个参数是device tree的属性，也就是<code>my-gpios</code>。在C语言中，<code>-</code>需要变成下划线。</li>
 </ol>
 <p>然后就可以配置、读写该GPIO</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// write</span></span><br><span class="line">gpio_pin_configure_dt(&amp;my_gpio, GPIO_OUTPUT);</span><br><span class="line">gpio_pin_set_dt(&amp;my_gpio, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//read</span></span><br><span class="line">gpio_pin_configure_dt(&amp;my_gpio, GPIO_INPUT);</span><br><span class="line"><span class="type">int</span> val = gpio_pin_get_dt(&amp;my_gpio);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// write</span><br>gpio_pin_configure_dt(&amp;my_gpio, GPIO_OUTPUT);<br>gpio_pin_set_dt(&amp;my_gpio, <span class="hljs-number">1</span>);<br><br><span class="hljs-comment">//read</span><br>gpio_pin_configure_dt(&amp;my_gpio, GPIO_INPUT);<br><span class="hljs-type">int</span> val = gpio_pin_get_dt(&amp;my_gpio);<br></code></pre></td></tr></table></figure>
 
 <h3 id="方式二：以gpio-port为对象进行控制"><a href="#方式二：以gpio-port为对象进行控制" class="headerlink" title="方式二：以gpio port为对象进行控制"></a>方式二：以gpio port为对象进行控制</h3><p>使用port控制不需要像前面一样给单独的pin编写device tree，适合快速写一些测试用的代码。<strong>但它的缺点是，你使用的所有GPIO都不会在DeviceTree中有提示，如果有GPIO使用冲突，编译时无法帮你检查出来。</strong></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//获取GPIO Port的句柄</span></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">device</span> *<span class="title">dev_gpio0</span> =</span> DEVICE_DT_GET(DT_NODELABEL(gpio0));</span><br><span class="line"></span><br><span class="line">gpio_pin_configure(dev_gpio0, <span class="number">12</span>, GPIO_OUTPUT);</span><br><span class="line">gpio_pin_set(dev_gpio0, <span class="number">12</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">gpio_pin_configure(dev_gpio0, <span class="number">12</span>, GPIO_INPUT);</span><br><span class="line"><span class="type">int</span> val = gpio_pin_get(dev_gpio0, <span class="number">12</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//获取GPIO Port的句柄</span><br><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">dev_gpio0</span> =</span> DEVICE_DT_GET(DT_NODELABEL(gpio0));<br><br>gpio_pin_configure(dev_gpio0, <span class="hljs-number">12</span>, GPIO_OUTPUT);<br>gpio_pin_set(dev_gpio0, <span class="hljs-number">12</span>, <span class="hljs-number">1</span>);<br><br>gpio_pin_configure(dev_gpio0, <span class="hljs-number">12</span>, GPIO_INPUT);<br><span class="hljs-type">int</span> val = gpio_pin_get(dev_gpio0, <span class="hljs-number">12</span>);<br></code></pre></td></tr></table></figure>
 
 <p>更多API，请参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.zephyrproject.org/latest/hardware/peripherals/gpio.html">Zephyr GPIO文档</a>。</p>
 <h3 id="配置GPIO的电流驱动能力"><a href="#配置GPIO的电流驱动能力" class="headerlink" title="配置GPIO的电流驱动能力"></a>配置GPIO的电流驱动能力</h3><p>从第1章我们知道，Nordic MCU的IO口驱动能力是可以配置的，这个是Nordic独有的功能，与Zephyr无关，具体参数为：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** Standard drive for &#x27;0&#x27; (default, used with GPIO_OPEN_DRAIN) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_S0    (0U &lt;&lt; 8U)</span></span><br><span class="line"><span class="comment">/** High drive for &#x27;0&#x27; (used with GPIO_OPEN_DRAIN) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_H0    (1U &lt;&lt; 8U)</span></span><br><span class="line"><span class="comment">/** Standard drive for &#x27;1&#x27; (default, used with GPIO_OPEN_SOURCE) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_S1    (0U &lt;&lt; 9U)</span></span><br><span class="line"><span class="comment">/** High drive for &#x27;1&#x27; (used with GPIO_OPEN_SOURCE) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_H1    (1U &lt;&lt; 9U)</span></span><br><span class="line"><span class="comment">/** Standard drive for &#x27;0&#x27; and &#x27;1&#x27; (default) */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_S0S1    (NRF_GPIO_DRIVE_S0 | NRF_GPIO_DRIVE_S1)</span></span><br><span class="line"><span class="comment">/** Standard drive for &#x27;0&#x27; and high for &#x27;1&#x27; */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_S0H1    (NRF_GPIO_DRIVE_S0 | NRF_GPIO_DRIVE_H1)</span></span><br><span class="line"><span class="comment">/** High drive for &#x27;0&#x27; and standard for &#x27;1&#x27; */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_H0S1    (NRF_GPIO_DRIVE_H0 | NRF_GPIO_DRIVE_S1)</span></span><br><span class="line"><span class="comment">/** High drive for &#x27;0&#x27; and &#x27;1&#x27; */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NRF_GPIO_DRIVE_H0H1    (NRF_GPIO_DRIVE_H0 | NRF_GPIO_DRIVE_H1)</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/** Standard drive for &#x27;0&#x27; (default, used with GPIO_OPEN_DRAIN) */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NRF_GPIO_DRIVE_S0    (0U &lt;&lt; 8U)</span><br><span class="hljs-comment">/** High drive for &#x27;0&#x27; (used with GPIO_OPEN_DRAIN) */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NRF_GPIO_DRIVE_H0    (1U &lt;&lt; 8U)</span><br><span class="hljs-comment">/** Standard drive for &#x27;1&#x27; (default, used with GPIO_OPEN_SOURCE) */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NRF_GPIO_DRIVE_S1    (0U &lt;&lt; 9U)</span><br><span class="hljs-comment">/** High drive for &#x27;1&#x27; (used with GPIO_OPEN_SOURCE) */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NRF_GPIO_DRIVE_H1    (1U &lt;&lt; 9U)</span><br><span class="hljs-comment">/** Standard drive for &#x27;0&#x27; and &#x27;1&#x27; (default) */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NRF_GPIO_DRIVE_S0S1    (NRF_GPIO_DRIVE_S0 | NRF_GPIO_DRIVE_S1)</span><br><span class="hljs-comment">/** Standard drive for &#x27;0&#x27; and high for &#x27;1&#x27; */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NRF_GPIO_DRIVE_S0H1    (NRF_GPIO_DRIVE_S0 | NRF_GPIO_DRIVE_H1)</span><br><span class="hljs-comment">/** High drive for &#x27;0&#x27; and standard for &#x27;1&#x27; */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NRF_GPIO_DRIVE_H0S1    (NRF_GPIO_DRIVE_H0 | NRF_GPIO_DRIVE_S1)</span><br><span class="hljs-comment">/** High drive for &#x27;0&#x27; and &#x27;1&#x27; */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NRF_GPIO_DRIVE_H0H1    (NRF_GPIO_DRIVE_H0 | NRF_GPIO_DRIVE_H1)</span><br></code></pre></td></tr></table></figure>
 
 <p><strong>需要包含头文件，才可以使用这些参数</strong></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/dt-bindings/gpio/nordic-nrf-gpio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">gpio_pin_configure_dt(&amp;my_gpio, GPIO_OUTPUT | GPIO_OPEN_DRAIN | NRF_GPIO_DRIVE_H0);</span><br><span class="line"><span class="comment">// 开漏输出，且低电平为高电流驱动能力</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/dt-bindings/gpio/nordic-nrf-gpio.h&gt;</span></span><br><br>...<br><br>gpio_pin_configure_dt(&amp;my_gpio, GPIO_OUTPUT | GPIO_OPEN_DRAIN | NRF_GPIO_DRIVE_H0);<br><span class="hljs-comment">// 开漏输出，且低电平为高电流驱动能力</span><br></code></pre></td></tr></table></figure>
 
 <h2 id="3-3-使用GPIO输入中断"><a href="#3-3-使用GPIO输入中断" class="headerlink" title="3.3. 使用GPIO输入中断"></a>3.3. 使用GPIO输入中断</h2><p>使用GPIO输入中断也很简单，参考<code>$&#123;NCS&#125;/zephyr/samples/basic/button</code>即可。具体步骤为：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">button_pressed</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> device *dev, <span class="keyword">struct</span> gpio_callback *cb,<span class="type">uint32_t</span> pins)</span></span><br><span class="line">&#123;</span><br><span class="line">    printk(<span class="string">&quot;Button pressed at %lu \n&quot;</span>, k_cycle_get_32());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">        </span><br><span class="line">    <span class="comment">// get the gpio dt specifier</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">gpio_dt_spec</span> <span class="title">button</span> =</span> GPIO_DT_SPEC_GET(DT_ALIAS(sw0), gpios);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// configure pin</span></span><br><span class="line">    gpio_pin_configure_dt(&amp;button, GPIO_INPUT);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// configure interrupt: rising edge</span></span><br><span class="line">    gpio_pin_interrupt_configure_dt(&amp;button, GPIO_INT_EDGE_TO_ACTIVE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// init and add your callbacks</span></span><br><span class="line">    <span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">gpio_callback</span> <span class="title">button_cb_data</span>;</span></span><br><span class="line">    gpio_init_callback(&amp;button_cb_data, button_pressed, BIT(button.pin));</span><br><span class="line">    gpio_add_callback(button.port, &amp;button_cb_data);</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">button_pressed</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> device *dev, <span class="hljs-keyword">struct</span> gpio_callback *cb,<span class="hljs-type">uint32_t</span> pins)</span><br>&#123;<br>    printk(<span class="hljs-string">&quot;Button pressed at %lu \n&quot;</span>, k_cycle_get_32());<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    ...<br>        <br>    <span class="hljs-comment">// get the gpio dt specifier</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">gpio_dt_spec</span> <span class="hljs-title">button</span> =</span> GPIO_DT_SPEC_GET(DT_ALIAS(sw0), gpios);<br><br>    <span class="hljs-comment">// configure pin</span><br>    gpio_pin_configure_dt(&amp;button, GPIO_INPUT);<br><br>    <span class="hljs-comment">// configure interrupt: rising edge</span><br>    gpio_pin_interrupt_configure_dt(&amp;button, GPIO_INT_EDGE_TO_ACTIVE);<br><br>    <span class="hljs-comment">// init and add your callbacks</span><br>    <span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">gpio_callback</span> <span class="hljs-title">button_cb_data</span>;</span><br>    gpio_init_callback(&amp;button_cb_data, button_pressed, BIT(button.pin));<br>    gpio_add_callback(button.port, &amp;button_cb_data);<br>    <br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>注意，不要真的拿这个代码去处理按钮。因为这个是最底层的GPIO中断，并没有按键消抖功能。</p>
@@ -374,37 +842,37 @@
 <h3 id="Port中断与Pin中断"><a href="#Port中断与Pin中断" class="headerlink" title="Port中断与Pin中断"></a>Port中断与Pin中断</h3><p>根据前面的硬件部分说明，GPIO的输入中断还分为Pin Event 和 Prot Event中断，代码上没有区别，设备树有区别。</p>
 <p><strong>当中断的检测方式是边沿检测时（触发方式包含<code>GPIO_INT_EDGE</code>，例如<code>GPIO_INT_EDGE_TO_ACTIVE</code>），才可以使用Port Event。</strong></p>
 <p>此时要修改设备树：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;gpio0 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    sense-edge-mask = &lt;(BIT(8) | BIT(31))&gt;; // Use Port Event instead of Pin Event for low power:</span><br><span class="line">                                            // P0.08</span><br><span class="line">                                            // P0.31</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;gpio1 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    sense-edge-mask = &lt;BIT(7)&gt;; // Use Port Event instead of Pin Event for low power:</span><br><span class="line">                                // P1.07</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-variable">&amp;gpio0</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">status</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;okay&quot;</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-attr">sense-edge-mask</span> <span class="hljs-operator">=</span> <span class="hljs-params">&lt;(BIT(<span class="hljs-number">8</span>) | BIT(<span class="hljs-number">31</span>))&gt;</span><span class="hljs-punctuation">;</span> <span class="hljs-comment">// Use Port Event instead of Pin Event for low power:</span><br>                                            <span class="hljs-comment">// P0.08</span><br>                                            <span class="hljs-comment">// P0.31</span><br><span class="hljs-punctuation">&#125;;</span><br><br><span class="hljs-variable">&amp;gpio1</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">status</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;okay&quot;</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-attr">sense-edge-mask</span> <span class="hljs-operator">=</span> <span class="hljs-params">&lt;BIT(<span class="hljs-number">7</span>)&gt;</span><span class="hljs-punctuation">;</span> <span class="hljs-comment">// Use Port Event instead of Pin Event for low power:</span><br>                                <span class="hljs-comment">// P1.07</span><br><span class="hljs-punctuation">&#125;;</span><br></code></pre></td></tr></table></figure>
 
 <p>在52840上，Port event比Pin event功耗更低，且会节省一个GPIOTE通道。但是理论上触发的延迟会高一些。</p>
 <h2 id="3-4-注意开发板保留GPIO"><a href="#3-4-注意开发板保留GPIO" class="headerlink" title="3.4. 注意开发板保留GPIO"></a>3.4. 注意开发板保留GPIO</h2><p>Nordic开发板上某些GPIO已经被板载的外设使用了，所以，在开发板上这些<strong>引脚对应的GPIO插座是没有连接的</strong>。例如52840DK：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250526155758973.png" alt="image-20250526155758973"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/image-20250526155758973.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250526155758973"></p>
 <p>用于NFC的引脚以及用于QSPI Flash的引脚，在开发板上都被空焊盘断开了。这些信息也可以通过开发板背面的丝印示意图获得。</p>
 <p>为了防止用户误使用这些GPIO，实际用示波器检测引脚又没有波形，浪费时间。Nordic在<strong>开发板的设备树</strong>中把这些引脚设为保留的（Reserved）。见gpio0或gpio1的设备树：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;gpio0 &#123;</span><br><span class="line">    status = &quot;okay&quot;;</span><br><span class="line">    gpio-reserved-ranges = &lt;0 2&gt;, &lt;6 1&gt;, &lt;8 3&gt;, &lt;17 7&gt;;</span><br><span class="line">    gpio-line-names = &quot;XL1&quot;, &quot;XL2&quot;, &quot;AREF&quot;, &quot;A0&quot;, &quot;A1&quot;, &quot;RTS&quot;, &quot;TXD&quot;,</span><br><span class="line">        &quot;CTS&quot;, &quot;RXD&quot;, &quot;NFC1&quot;, &quot;NFC2&quot;, &quot;BUTTON1&quot;, &quot;BUTTON2&quot;, &quot;LED1&quot;,</span><br><span class="line">        &quot;LED2&quot;, &quot;LED3&quot;, &quot;LED4&quot;, &quot;QSPI CS&quot;, &quot;RESET&quot;, &quot;QSPI CLK&quot;,</span><br><span class="line">        &quot;QSPI DIO0&quot;, &quot;QSPI DIO1&quot;, &quot;QSPI DIO2&quot;, &quot;QSPI DIO3&quot;,&quot;BUTTON3&quot;,</span><br><span class="line">        &quot;BUTTON4&quot;, &quot;SDA&quot;, &quot;SCL&quot;, &quot;A2&quot;, &quot;A3&quot;, &quot;A4&quot;, &quot;A5&quot;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">&amp;gpio0 &#123;<br>    status = <span class="hljs-string">&quot;okay&quot;</span>;<br>    gpio-reserved-ranges = <span class="hljs-variable">&lt;0 2&gt;</span>, <span class="hljs-variable">&lt;6 1&gt;</span>, <span class="hljs-variable">&lt;8 3&gt;</span>, <span class="hljs-variable">&lt;17 7&gt;</span>;<br>    gpio-line-names = <span class="hljs-string">&quot;XL1&quot;</span>, <span class="hljs-string">&quot;XL2&quot;</span>, <span class="hljs-string">&quot;AREF&quot;</span>, <span class="hljs-string">&quot;A0&quot;</span>, <span class="hljs-string">&quot;A1&quot;</span>, <span class="hljs-string">&quot;RTS&quot;</span>, <span class="hljs-string">&quot;TXD&quot;</span>,<br>        <span class="hljs-string">&quot;CTS&quot;</span>, <span class="hljs-string">&quot;RXD&quot;</span>, <span class="hljs-string">&quot;NFC1&quot;</span>, <span class="hljs-string">&quot;NFC2&quot;</span>, <span class="hljs-string">&quot;BUTTON1&quot;</span>, <span class="hljs-string">&quot;BUTTON2&quot;</span>, <span class="hljs-string">&quot;LED1&quot;</span>,<br>        <span class="hljs-string">&quot;LED2&quot;</span>, <span class="hljs-string">&quot;LED3&quot;</span>, <span class="hljs-string">&quot;LED4&quot;</span>, <span class="hljs-string">&quot;QSPI CS&quot;</span>, <span class="hljs-string">&quot;RESET&quot;</span>, <span class="hljs-string">&quot;QSPI CLK&quot;</span>,<br>        <span class="hljs-string">&quot;QSPI DIO0&quot;</span>, <span class="hljs-string">&quot;QSPI DIO1&quot;</span>, <span class="hljs-string">&quot;QSPI DIO2&quot;</span>, <span class="hljs-string">&quot;QSPI DIO3&quot;</span>,<span class="hljs-string">&quot;BUTTON3&quot;</span>,<br>        <span class="hljs-string">&quot;BUTTON4&quot;</span>, <span class="hljs-string">&quot;SDA&quot;</span>, <span class="hljs-string">&quot;SCL&quot;</span>, <span class="hljs-string">&quot;A2&quot;</span>, <span class="hljs-string">&quot;A3&quot;</span>, <span class="hljs-string">&quot;A4&quot;</span>, <span class="hljs-string">&quot;A5&quot;</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>这里的<code>gpio-reserved-ranges</code>，每个cell表示（gpio起始编号，gpio数量）的组合。以上赋值表示P0.00，P0.01，P0.06，P0.08～P0.10，P0.17～P0.23均为保留GPIO。</p>
 <p>如果用户使用了这些引脚，将会出现Assert报错，从而提示用户：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ASSERTION FAIL [(cfg-&gt;port_pin_mask &amp; (gpio_port_pins_t)(1UL &lt;&lt; (pin))) != 0U] @ WEST_TOPDIR/zephyr/include/zephyr/drivers/gpio.h:1019</span><br><span class="line">        Unsupported pin</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">ASSERTION FAIL [(cfg-&gt;port_pin_mask &amp; (gpio_port_pins_t)(1UL &lt;&lt; (pin))) != 0U] @ WEST_TOPDIR/zephyr/include/zephyr/drivers/gpio.h:1019<br>        Unsupported pin<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>注意，这个保护是开发板的设备树才有的。如果你使用自定义boards，本身默认就没有配置<code>gpio-reserved-ranges</code>。</p>
 </blockquote>
 <p>如果开发者知晓自己在做什么，知晓如何控制这些GPIO，则开发者可以主动去除这一限制：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&amp;gpio0 &#123;</span><br><span class="line">    /delete-property/ gpio-reserved-ranges;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs dsconfig">&amp;<span class="hljs-string">gpio0</span> &#123;<br>    /<span class="hljs-built_in">delete-property/</span> <span class="hljs-string">gpio-reserved-ranges</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <h2 id="3-5-GPIO配置示例"><a href="#3-5-GPIO配置示例" class="headerlink" title="3.5. GPIO配置示例"></a>3.5. GPIO配置示例</h2><p>这里展示最复杂的情况，配置使用reset脚和NFC引脚当作gpio output使用：</p>
 <p>设备树overlay：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/ &#123;</span><br><span class="line"></span><br><span class="line">   // 使用zephyr,user节点自由放置GPIO配置</span><br><span class="line">    zephyr,user&#123;</span><br><span class="line">        reset-gpios = &lt;&amp;gpio0 18 GPIO_ACTIVE_HIGH&gt;;</span><br><span class="line">        nfc-gpios = &lt;&amp;gpio0 9 GPIO_ACTIVE_HIGH&gt;, </span><br><span class="line">                    &lt;&amp;gpio0 10 GPIO_ACTIVE_HIGH&gt;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;uicr&#123;</span><br><span class="line">    // 不把gpio当作reset使用</span><br><span class="line">    /delete-property/ gpio-as-nreset;</span><br><span class="line"></span><br><span class="line">    // nfc引脚当作gpio使用</span><br><span class="line">    nfct-pins-as-gpios;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;gpio0 &#123;</span><br><span class="line">    // 删除预留保护</span><br><span class="line">    /delete-property/ gpio-reserved-ranges;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-title class_">/</span> <span class="hljs-punctuation">&#123;</span><br><br>   <span class="hljs-comment">// 使用zephyr,user节点自由放置GPIO配置</span><br>    zephyr,user<span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">reset-gpios</span> <span class="hljs-operator">=</span> <span class="hljs-params">&lt;<span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">18</span> GPIO_ACTIVE_HIGH&gt;</span><span class="hljs-punctuation">;</span><br>        <span class="hljs-attr">nfc-gpios</span> <span class="hljs-operator">=</span> <span class="hljs-params">&lt;<span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">9</span> GPIO_ACTIVE_HIGH&gt;</span>, <br>                    <span class="hljs-params">&lt;<span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">10</span> GPIO_ACTIVE_HIGH&gt;</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-punctuation">&#125;;</span><br><span class="hljs-punctuation">&#125;;</span><br><br><span class="hljs-variable">&amp;uicr</span><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-comment">// 不把gpio当作reset使用</span><br>    <span class="hljs-keyword">/delete-property/</span> <span class="hljs-attr">gpio-as-nreset</span><span class="hljs-punctuation">;</span><br><br>    <span class="hljs-comment">// nfc引脚当作gpio使用</span><br>    <span class="hljs-attr">nfct-pins-as-gpios</span><span class="hljs-punctuation">;</span><br><span class="hljs-punctuation">&#125;;</span><br><br><span class="hljs-variable">&amp;gpio0</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-comment">// 删除预留保护</span><br>    <span class="hljs-keyword">/delete-property/</span> <span class="hljs-attr">gpio-reserved-ranges</span><span class="hljs-punctuation">;</span><br><span class="hljs-punctuation">&#125;;</span><br></code></pre></td></tr></table></figure>
 
 <p>代码：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/device.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/devicetree.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;zephyr/drivers/gpio.h&gt;</span></span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 获取单个的gpio specifier</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">gpio_dt_spec</span> <span class="title">reset_pins</span> =</span> GPIO_DT_SPEC_GET(DT_PATH(zephyr_user), reset_gpios);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取复数的gpio specifier</span></span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">gpio_dt_spec</span> <span class="title">nfc_pins</span>[2] =</span> &#123;</span><br><span class="line">        GPIO_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), nfc_gpios, <span class="number">0</span>),</span><br><span class="line">        GPIO_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), nfc_gpios, <span class="number">1</span>),</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;    </span><br><span class="line">    <span class="comment">// 设备树只包含GPIO逻辑电平。这里追加配置输入输出。</span></span><br><span class="line">    gpio_pin_configure_dt(&amp;reset_pins, GPIO_OUTPUT_INACTIVE);</span><br><span class="line">    gpio_pin_configure_dt(&amp;nfc_pins[<span class="number">0</span>], GPIO_OUTPUT_INACTIVE);</span><br><span class="line">    gpio_pin_configure_dt(&amp;nfc_pins[<span class="number">1</span>], GPIO_OUTPUT_INACTIVE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 控制GPIO输出</span></span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        gpio_pin_toggle_dt(&amp;reset_pins);</span><br><span class="line">        k_sleep(K_MSEC(<span class="number">500</span>));</span><br><span class="line">        gpio_pin_toggle_dt(&amp;nfc_pins[<span class="number">0</span>]);</span><br><span class="line">        k_sleep(K_MSEC(<span class="number">500</span>));</span><br><span class="line">        gpio_pin_toggle_dt(&amp;nfc_pins[<span class="number">1</span>]);</span><br><span class="line">        k_sleep(K_MSEC(<span class="number">500</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/device.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/devicetree.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;zephyr/drivers/gpio.h&gt;</span></span><br>    <br>    <span class="hljs-comment">// 获取单个的gpio specifier</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">gpio_dt_spec</span> <span class="hljs-title">reset_pins</span> =</span> GPIO_DT_SPEC_GET(DT_PATH(zephyr_user), reset_gpios);<br><br>    <span class="hljs-comment">// 获取复数的gpio specifier</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">gpio_dt_spec</span> <span class="hljs-title">nfc_pins</span>[2] =</span> &#123;<br>        GPIO_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), nfc_gpios, <span class="hljs-number">0</span>),<br>        GPIO_DT_SPEC_GET_BY_IDX(DT_PATH(zephyr_user), nfc_gpios, <span class="hljs-number">1</span>),<br>    &#125;;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;    <br>    <span class="hljs-comment">// 设备树只包含GPIO逻辑电平。这里追加配置输入输出。</span><br>    gpio_pin_configure_dt(&amp;reset_pins, GPIO_OUTPUT_INACTIVE);<br>    gpio_pin_configure_dt(&amp;nfc_pins[<span class="hljs-number">0</span>], GPIO_OUTPUT_INACTIVE);<br>    gpio_pin_configure_dt(&amp;nfc_pins[<span class="hljs-number">1</span>], GPIO_OUTPUT_INACTIVE);<br><br>    <span class="hljs-comment">// 控制GPIO输出</span><br>    <span class="hljs-keyword">for</span> (;;) &#123;<br>        gpio_pin_toggle_dt(&amp;reset_pins);<br>        k_sleep(K_MSEC(<span class="hljs-number">500</span>));<br>        gpio_pin_toggle_dt(&amp;nfc_pins[<span class="hljs-number">0</span>]);<br>        k_sleep(K_MSEC(<span class="hljs-number">500</span>));<br>        gpio_pin_toggle_dt(&amp;nfc_pins[<span class="hljs-number">1</span>]);<br>        k_sleep(K_MSEC(<span class="hljs-number">500</span>));<br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>实际测量时，注意开发板上的空焊盘。</p>
 </blockquote>
 <h1 id="4-在Zephyr中分配外设引脚（pinctrl）"><a href="#4-在Zephyr中分配外设引脚（pinctrl）" class="headerlink" title="4. 在Zephyr中分配外设引脚（pinctrl）"></a>4. 在Zephyr中分配外设引脚（pinctrl）</h1><h2 id="4-1-把引脚分配给外设"><a href="#4-1-把引脚分配给外设" class="headerlink" title="4.1. 把引脚分配给外设"></a>4.1. 把引脚分配给外设</h2><p>从第一章我们知道，Nordic的引脚基本上可以任意分配给所有外设的。在Zephyr中，外设的引脚分配大部分使用<code>pinctrl</code>进行。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 设备的引脚分配，引用pinctrl节点</span></span><br><span class="line">&amp;spi3 &#123;</span><br><span class="line">    status = <span class="string">&quot;okay&quot;</span>;</span><br><span class="line">    cs-gpios = &lt;&amp;arduino_header <span class="number">16</span> GPIO_ACTIVE_LOW&gt;; <span class="comment">/* D10 */</span></span><br><span class="line">    pinctrl<span class="number">-0</span> = &lt;&amp;spi3_default&gt;;</span><br><span class="line">    pinctrl<span class="number">-1</span> = &lt;&amp;spi3_sleep&gt;;</span><br><span class="line">    pinctrl-names = <span class="string">&quot;default&quot;</span>, <span class="string">&quot;sleep&quot;</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只要是用Zephyr驱动的外设，其引脚分配都在这里</span></span><br><span class="line">&amp;pinctrl&#123;</span><br><span class="line">    spi3_default: spi3_default &#123;</span><br><span class="line">        group1 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(SPIM_SCK, <span class="number">1</span>, <span class="number">15</span>)&gt;, <span class="comment">// P1.15</span></span><br><span class="line">                &lt;NRF_PSEL(SPIM_MISO, <span class="number">1</span>, <span class="number">14</span>)&gt;,    <span class="comment">// P1.14</span></span><br><span class="line">                &lt;NRF_PSEL(SPIM_MOSI, <span class="number">1</span>, <span class="number">13</span>)&gt;;    <span class="comment">// P1.13</span></span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    spi3_sleep: spi3_sleep &#123;</span><br><span class="line">        group1 &#123;</span><br><span class="line">            psels = &lt;NRF_PSEL(SPIM_SCK, <span class="number">1</span>, <span class="number">15</span>)&gt;, <span class="comment">// P1.15</span></span><br><span class="line">                &lt;NRF_PSEL(SPIM_MISO, <span class="number">1</span>, <span class="number">14</span>)&gt;,    <span class="comment">// P1.14</span></span><br><span class="line">                &lt;NRF_PSEL(SPIM_MOSI, <span class="number">1</span>, <span class="number">13</span>)&gt;;    <span class="comment">// P1.13</span></span><br><span class="line">            low-power-enable;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 设备的引脚分配，引用pinctrl节点</span><br>&amp;spi3 &#123;<br>    status = <span class="hljs-string">&quot;okay&quot;</span>;<br>    cs-gpios = &lt;&amp;arduino_header <span class="hljs-number">16</span> GPIO_ACTIVE_LOW&gt;; <span class="hljs-comment">/* D10 */</span><br>    pinctrl<span class="hljs-number">-0</span> = &lt;&amp;spi3_default&gt;;<br>    pinctrl<span class="hljs-number">-1</span> = &lt;&amp;spi3_sleep&gt;;<br>    pinctrl-names = <span class="hljs-string">&quot;default&quot;</span>, <span class="hljs-string">&quot;sleep&quot;</span>;<br>&#125;;<br><br><span class="hljs-comment">// 只要是用Zephyr驱动的外设，其引脚分配都在这里</span><br>&amp;pinctrl&#123;<br>    spi3_default: spi3_default &#123;<br>        group1 &#123;<br>            psels = &lt;NRF_PSEL(SPIM_SCK, <span class="hljs-number">1</span>, <span class="hljs-number">15</span>)&gt;, <span class="hljs-comment">// P1.15</span><br>                &lt;NRF_PSEL(SPIM_MISO, <span class="hljs-number">1</span>, <span class="hljs-number">14</span>)&gt;,    <span class="hljs-comment">// P1.14</span><br>                &lt;NRF_PSEL(SPIM_MOSI, <span class="hljs-number">1</span>, <span class="hljs-number">13</span>)&gt;;    <span class="hljs-comment">// P1.13</span><br>        &#125;;<br>    &#125;;<br><br>    spi3_sleep: spi3_sleep &#123;<br>        group1 &#123;<br>            psels = &lt;NRF_PSEL(SPIM_SCK, <span class="hljs-number">1</span>, <span class="hljs-number">15</span>)&gt;, <span class="hljs-comment">// P1.15</span><br>                &lt;NRF_PSEL(SPIM_MISO, <span class="hljs-number">1</span>, <span class="hljs-number">14</span>)&gt;,    <span class="hljs-comment">// P1.14</span><br>                &lt;NRF_PSEL(SPIM_MOSI, <span class="hljs-number">1</span>, <span class="hljs-number">13</span>)&gt;;    <span class="hljs-comment">// P1.13</span><br>            low-power-enable;<br>        &#125;;<br>    &#125;;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>每个外设的节点内部有<code>pinctrl-0</code>，<code>pinctrl-1</code>这样的属性，指向<code>&amp;pinctrl</code>下的子节点。通常只有<code>default</code>和<code>sleep</code>两种状态，分别处于外设处于运行或休眠时的引脚状态。</p>
 <blockquote>
@@ -412,27 +880,27 @@
 </blockquote>
 <p>这个其实不用太深入理解，改引脚时照葫芦画瓢即可。例如，以上代码定义了两种状态，分别叫”default”和”sleep”，两种状态的GPIO配置并不相同。当外设休眠或唤醒时，这个外设的<strong>Zephyr驱动程序</strong>会自动把这一组引脚状态适用。</p>
 <h2 id="4-2-外设引脚的驱动能力、上下拉、开漏推挽"><a href="#4-2-外设引脚的驱动能力、上下拉、开漏推挽" class="headerlink" title="4.2. 外设引脚的驱动能力、上下拉、开漏推挽"></a>4.2. 外设引脚的驱动能力、上下拉、开漏推挽</h2><p>只需注意，外设的引脚也是可以配置IO口电流驱动能力、上下拉的，例如：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">i2c0_default: i2c0_default &#123;</span><br><span class="line">    group1 &#123;</span><br><span class="line">        psels = &lt;NRF_PSEL(TWIM_SDA, <span class="number">0</span>, <span class="number">26</span>)&gt;,</span><br><span class="line">            &lt;NRF_PSEL(TWIM_SCL, <span class="number">0</span>, <span class="number">27</span>)&gt;;</span><br><span class="line">        nordic,drive-mode = &lt;NRF_DRIVE_S0D1&gt;; <span class="comment">// standard 0, disconnect 1</span></span><br><span class="line">        bias-pull-up;                         <span class="comment">// internal pull-up</span></span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">i2c0_default: i2c0_default &#123;<br>    group1 &#123;<br>        psels = &lt;NRF_PSEL(TWIM_SDA, <span class="hljs-number">0</span>, <span class="hljs-number">26</span>)&gt;,<br>            &lt;NRF_PSEL(TWIM_SCL, <span class="hljs-number">0</span>, <span class="hljs-number">27</span>)&gt;;<br>        nordic,drive-mode = &lt;NRF_DRIVE_S0D1&gt;; <span class="hljs-comment">// standard 0, disconnect 1</span><br>        bias-pull-up;                         <span class="hljs-comment">// internal pull-up</span><br>    &#125;;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>具体可配置的参数，大家可以Ctrl+鼠标左键，先跳转到pinctrl节点。然后再Ctrl+鼠标左键，点进”nordic,nrf-pinctrl”，查看DeviceBinding文件即可。</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/0418d6bf15b39793998cb2322af376b3.png" alt="image-20240416171800803"></p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/1d81a68b42f00bc6dbe719bb476a1883.png" alt="image-20240416172102262"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/0418d6bf15b39793998cb2322af376b3.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240416171800803"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/1d81a68b42f00bc6dbe719bb476a1883.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20240416172102262"></p>
 <h2 id="4-3-注意Bootloader引脚"><a href="#4-3-注意Bootloader引脚" class="headerlink" title="4.3. 注意Bootloader引脚"></a>4.3. 注意Bootloader引脚</h2><p>NCS支持MCUBOOT作为bootloader。MCUBOOT也会通过设备树来配置自己的外设引脚和GPIO。当系统上电后，先执行MCUBOOT，MCUBOOT也会初始化他自己的外设）。</p>
 <p>当MCUBOOT跳转到APPLICATION时，它不会关闭自己开启的外设。这就导致一些配置可能并未重置。</p>
 <p>最常见的是日志串口，MCUBOOT中的日志串口开启了流控，而APPLICATION的同一个串口未开启流控。这时，因为该UART的寄存器已经在bootloader阶段被配置，把对应GPIO配置成了流控引脚。导致到了Application阶段，流控引脚无法作为普通GPIO使用。</p>
-<p>解决方案就是要确保bootloader的设备树和application的设备树一直。MCUBOOT的设备树可以在当前工程的”sysbuild&#x2F;mcuboot&#x2F;“下的相关配置文件中进行修改。</p>
+<p>解决方案就是要确保bootloader的设备树和application的设备树一致。MCUBOOT的设备树可以在当前工程的”sysbuild&#x2F;mcuboot&#x2F;“下的相关配置文件中进行修改。</p>
 <h1 id="5-LED与Button库"><a href="#5-LED与Button库" class="headerlink" title="5. LED与Button库"></a>5. LED与Button库</h1><p>前面都是GPIO的基础用法。如果你需要的只是驱动LED或者Button，可以直接使用Nordic现成的驱动API。</p>
-<h3 id="DK-Libary"><a href="#DK-Libary" class="headerlink" title="DK Libary"></a>DK Libary</h3><p>文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html</a></p>
+<h3 id="DK-Library"><a href="#DK-Library" class="headerlink" title="DK Library"></a>DK Library</h3><p>文档：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html">https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/others/dk_buttons_and_leds.html</a></p>
 <p>这是Nordic为开发板（Development Kit）提供的一个简易的库，支持<strong>4个以内的LED和Button</strong>。其中Button已经做了去抖。</p>
 <p>我们在开发板默认的Device Tree中看到的led和button节点就是为这个库服务的。许多简单的例程就是用它来控制GPIO。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">需要开启的配置</span></span><br><span class="line">CONFIG_DK_LIBRARY=y</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">需要开启的配置</span><br>CONFIG_DK_LIBRARY=y<br></code></pre></td></tr></table></figure>
 
 <h3 id="通用应用程序框架（Common-Application-Framework-CAF）"><a href="#通用应用程序框架（Common-Application-Framework-CAF）" class="headerlink" title="通用应用程序框架（Common Application Framework, CAF）"></a>通用应用程序框架（Common Application Framework, CAF）</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/caf/index.html">CAF</a>是Nordic为商业级应用程序开发的一个框架库。里面有蓝牙、功耗管理、SMP DFU等等模组，其中当然也包含按钮和LED。</p>
 <p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/caf/leds.html">CAF: LEDS</a>库提供了基本的GPIO LED和PWM LED功能，<strong>并且可以配置灯效</strong>。</p>
 <p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/libraries/caf/buttons.html">CAF: Buttons</a>库除了提供基本的Button去抖功能以外，还支持低功耗（不用时把按钮disable掉），<strong>并且支持矩阵键盘</strong>。</p>
 <h1 id="6-GPIO映射（GPIO-nexus）"><a href="#6-GPIO映射（GPIO-nexus）" class="headerlink" title="6. GPIO映射（GPIO nexus）"></a>6. GPIO映射（GPIO nexus）</h1><p>nRF52和nRF53系列的开发板上面的GPIO插座都是兼容Ardiono UNO接口的。</p>
 <p>因此开发板的默认设备树中有默认定义，例如<code>v3.0.0/zephyr/boards/nordic/nrf52840dk/nrf52840dk_nrf52840.dts</code>：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">arduino_header: connector &#123;</span><br><span class="line">    compatible = &quot;arduino-header-r3&quot;;</span><br><span class="line">    #gpio-cells = &lt;2&gt;;</span><br><span class="line">    gpio-map-mask = &lt;0xffffffff 0xffffffc0&gt;;</span><br><span class="line">    gpio-map-pass-thru = &lt;0 0x3f&gt;;</span><br><span class="line">    gpio-map = &lt;0 0 &amp;gpio0 3 0&gt;,	/* A0 */</span><br><span class="line">           &lt;1 0 &amp;gpio0 4 0&gt;,	/* A1 */</span><br><span class="line">           &lt;2 0 &amp;gpio0 28 0&gt;,	/* A2 */</span><br><span class="line">           &lt;3 0 &amp;gpio0 29 0&gt;,	/* A3 */</span><br><span class="line">           &lt;4 0 &amp;gpio0 30 0&gt;,	/* A4 */</span><br><span class="line">           &lt;5 0 &amp;gpio0 31 0&gt;,	/* A5 */</span><br><span class="line">           &lt;6 0 &amp;gpio1 1 0&gt;,	/* D0 */</span><br><span class="line">           &lt;7 0 &amp;gpio1 2 0&gt;,	/* D1 */</span><br><span class="line">           &lt;8 0 &amp;gpio1 3 0&gt;,	/* D2 */</span><br><span class="line">           &lt;9 0 &amp;gpio1 4 0&gt;,	/* D3 */</span><br><span class="line">           &lt;10 0 &amp;gpio1 5 0&gt;,	/* D4 */</span><br><span class="line">           &lt;11 0 &amp;gpio1 6 0&gt;,	/* D5 */</span><br><span class="line">           &lt;12 0 &amp;gpio1 7 0&gt;,	/* D6 */</span><br><span class="line">           &lt;13 0 &amp;gpio1 8 0&gt;,	/* D7 */</span><br><span class="line">           &lt;14 0 &amp;gpio1 10 0&gt;,	/* D8 */</span><br><span class="line">           &lt;15 0 &amp;gpio1 11 0&gt;,	/* D9 */</span><br><span class="line">           &lt;16 0 &amp;gpio1 12 0&gt;,	/* D10 */</span><br><span class="line">           &lt;17 0 &amp;gpio1 13 0&gt;,	/* D11 */</span><br><span class="line">           &lt;18 0 &amp;gpio1 14 0&gt;,	/* D12 */</span><br><span class="line">           &lt;19 0 &amp;gpio1 15 0&gt;,	/* D13 */</span><br><span class="line">           &lt;20 0 &amp;gpio0 26 0&gt;,	/* D14 */</span><br><span class="line">           &lt;21 0 &amp;gpio0 27 0&gt;;	/* D15 */</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-symbol">arduino_header:</span> <span class="hljs-title class_">connector</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">compatible</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;arduino-header-r3&quot;</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-meta">#gpio-cells = &lt;2&gt;;</span><br>    <span class="hljs-attr">gpio-map-mask</span> <span class="hljs-operator">=</span> <span class="hljs-params">&lt;<span class="hljs-number">0xffffffff</span> <span class="hljs-number">0xffffffc0</span>&gt;</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-attr">gpio-map-pass-thru</span> <span class="hljs-operator">=</span> <span class="hljs-params">&lt;<span class="hljs-number">0</span> <span class="hljs-number">0x3f</span>&gt;</span><span class="hljs-punctuation">;</span><br>    <span class="hljs-attr">gpio-map</span> <span class="hljs-operator">=</span> <span class="hljs-params">&lt;<span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">3</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* A0 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">1</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">4</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* A1 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">2</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">28</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* A2 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">3</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">29</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* A3 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">4</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">30</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* A4 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">5</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">31</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* A5 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">6</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">1</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D0 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">7</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">2</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D1 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">8</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">3</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D2 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">9</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">4</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D3 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">10</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">5</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D4 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">11</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">6</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D5 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">12</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">7</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D6 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">13</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">8</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D7 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">14</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">10</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D8 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">15</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">11</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D9 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">16</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">12</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D10 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">17</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">13</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D11 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">18</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">14</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D12 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">19</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio1</span> <span class="hljs-number">15</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D13 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">20</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">26</span> <span class="hljs-number">0</span>&gt;</span>,	<span class="hljs-comment">/* D14 */</span><br>           <span class="hljs-params">&lt;<span class="hljs-number">21</span> <span class="hljs-number">0</span> <span class="hljs-variable">&amp;gpio0</span> <span class="hljs-number">27</span> <span class="hljs-number">0</span>&gt;</span><span class="hljs-punctuation">;</span>	<span class="hljs-comment">/* D15 */</span><br><span class="hljs-punctuation">&#125;;</span><br></code></pre></td></tr></table></figure>
 
 <p><code>gpio-map</code>规定了nRF52840的GPIO是如何映射到Arduino UNO接口的，基本规则为：</p>
 <table>
@@ -471,169 +939,452 @@
 <p><code>gpio-map-mask</code>：引脚映射时忽略一些特定的bit。比如，<code>&lt;&amp;arduino_header 11 1&gt;</code>，在<code>gpio-map</code>中并没有映射吗，<code>gpio-map</code>中只有<code>&lt;11 0&gt;</code>。而<code>gpio-map-mask</code>会和这两个cell进行<strong>按位与运算</strong>，从而忽略最低的6个bit，将其全部变成0。于是就能匹配上<code>&lt;11 0 &amp;gpio1 6 0&gt;</code>，从而知道是P1.06。</p>
 <p><code>gpio-map-pass-thru</code>：在引脚匹配完成之后，把之前忽略的引脚配置传递过去。也就是把最低6bit的引脚配置传递给nRF52的驱动。</p>
 <p><strong>为什么要有转接定义？</strong>举例来说，Nordic的nRF7002EK扩展板：</p>
-<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/fbb3c06dc66d64e255569adf6696fe9c.webp" alt="nRF7002 EK"></p>
+<p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/fbb3c06dc66d64e255569adf6696fe9c.webp" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="nRF7002 EK"></p>
 <p>为什么这个扩展板可以同时兼容nRF52，nRF53和nRF91，而不用在乎这些开发板的引脚编号不同？</p>
 <p>因为扩展板设备树的定义采用的是Arduino引脚编号。只要开发板上有Ardiono引脚定义，就可以实现兼容。见<code>zephyr/boards/shields/nrf7002ek/nrf7002ek.overlay</code>。</p>
 <p>GPIO NEXUS的设计比较适合<strong>开发自己的模块</strong>的场景。你只需要定义自己的device tree bindings文件，就可以在设备树中定义自己的GPIO nexus节点。</p>
 <p>自定义device tree bindings文件，<strong>位置</strong>在你的工程目录下，例如<code>&lt;my_project&gt;/dts/bindings/xxxx.yaml</code>。</p>
 <p>其内容可以参考Ardiono转接头的定义，位于：<code>v3.0.0/zephyr/dts/bindings/gpio/arduino-header-r3.yaml</code>。</p>
 <p>只要设备树和bindings文件的compatible相同，就会自动识别。</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Copyright (c) 2019 Foundries.io</span></span><br><span class="line"><span class="comment"># Copyright (C) 2019 Peter Bigot Consulting, LLC</span></span><br><span class="line"><span class="comment"># SPDX-License-Identifier: Apache-2.0</span></span><br><span class="line"></span><br><span class="line"><span class="attr">description:</span> <span class="string">|</span></span><br><span class="line"><span class="string">    GPIO pins exposed on Arduino Uno (R3) headers.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line">    <span class="string">The</span> <span class="string">Arduino</span> <span class="string">Uno</span> <span class="string">layout</span> <span class="string">provides</span> <span class="string">four</span> <span class="string">headers,</span> <span class="string">two</span> <span class="string">each</span> <span class="string">along</span></span><br><span class="line">    <span class="string">opposite</span> <span class="string">edges</span> <span class="string">of</span> <span class="string">the</span> <span class="string">board.</span></span><br><span class="line"></span><br><span class="line">    <span class="attr">Proceeding counter-clockwise:</span></span><br><span class="line">    <span class="string">*</span> <span class="string">An</span> <span class="number">8</span><span class="string">-pin</span> <span class="string">Power</span> <span class="string">Supply</span> <span class="string">header.</span>  <span class="literal">No</span> <span class="string">pins</span> <span class="string">on</span> <span class="string">this</span> <span class="string">header</span> <span class="string">are</span> <span class="string">exposed</span></span><br><span class="line">      <span class="string">by</span> <span class="string">this</span> <span class="string">binding.</span></span><br><span class="line">    <span class="string">*</span> <span class="string">A</span> <span class="number">6</span><span class="string">-pin</span> <span class="string">Analog</span> <span class="string">Input</span> <span class="string">header.</span>  <span class="string">This</span> <span class="string">has</span> <span class="string">analog</span> <span class="string">input</span> <span class="string">signals</span></span><br><span class="line">      <span class="string">labeled</span> <span class="string">from</span> <span class="string">A0</span> <span class="string">at</span> <span class="string">the</span> <span class="string">top</span> <span class="string">through</span> <span class="string">A5</span> <span class="string">at</span> <span class="string">the</span> <span class="string">bottom.</span></span><br><span class="line">    <span class="string">*</span> <span class="string">An</span> <span class="number">8</span><span class="string">-pin</span> <span class="string">header</span> <span class="string">(opposite</span> <span class="string">Analog</span> <span class="string">Input).</span>  <span class="string">This</span> <span class="string">has</span> <span class="string">digital</span> <span class="string">input</span></span><br><span class="line">      <span class="string">signals</span> <span class="string">labeled</span> <span class="string">from</span> <span class="string">D0</span> <span class="string">at</span> <span class="string">the</span> <span class="string">bottom</span> <span class="string">D7</span> <span class="string">at</span> <span class="string">the</span> <span class="string">top;</span></span><br><span class="line">    <span class="string">*</span> <span class="string">A</span> <span class="number">10</span><span class="string">-pin</span> <span class="string">header</span> <span class="string">(opposite</span> <span class="string">Power</span> <span class="string">Supply).</span>  <span class="string">This</span> <span class="string">has</span> <span class="string">six</span> <span class="string">additional</span></span><br><span class="line">      <span class="string">digital</span> <span class="string">input</span> <span class="string">signals</span> <span class="string">labelled</span> <span class="string">from</span> <span class="string">D8</span> <span class="string">at</span> <span class="string">the</span> <span class="string">bottom</span> <span class="string">through</span> <span class="string">D13</span></span><br><span class="line">      <span class="string">towards</span> <span class="string">the</span> <span class="string">top,</span> <span class="string">skipping</span> <span class="string">two</span> <span class="string">pins,</span> <span class="string">then</span> <span class="string">finishing</span> <span class="string">with</span> <span class="string">D14</span> <span class="string">and</span></span><br><span class="line">      <span class="string">D15</span> <span class="string">at</span> <span class="string">the</span> <span class="string">top.</span></span><br><span class="line"></span><br><span class="line">    <span class="string">This</span> <span class="string">binding</span> <span class="string">provides</span> <span class="string">a</span> <span class="string">nexus</span> <span class="string">mapping</span> <span class="string">for</span> <span class="number">20</span> <span class="string">pins</span> <span class="string">where</span> <span class="string">parent</span> <span class="string">pins</span> <span class="number">0</span></span><br><span class="line">    <span class="string">through</span> <span class="number">5</span> <span class="string">correspond</span> <span class="string">to</span> <span class="string">A0</span> <span class="string">through</span> <span class="string">A5,</span> <span class="string">and</span> <span class="string">parent</span> <span class="string">pins</span> <span class="number">6</span> <span class="string">through</span> <span class="number">21</span></span><br><span class="line">    <span class="string">correspond</span> <span class="string">to</span> <span class="string">D0</span> <span class="string">through</span> <span class="string">D15,</span> <span class="attr">as depicted below:</span></span><br><span class="line"></span><br><span class="line">                                 <span class="string">D15</span>  <span class="number">21</span></span><br><span class="line">                                 <span class="string">D14</span>  <span class="number">20</span></span><br><span class="line">                                 <span class="string">AREF</span> <span class="bullet">-</span></span><br><span class="line">                                 <span class="string">GND</span>  <span class="bullet">-</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">N/C</span>                    <span class="string">D13</span>  <span class="number">19</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">IOREF</span>                  <span class="string">D12</span>  <span class="number">18</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">RESET</span>                  <span class="string">D11</span>  <span class="number">17</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">3V3</span>                    <span class="string">D10</span>  <span class="number">16</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">5V</span>                     <span class="string">D9</span>   <span class="number">15</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">GND</span>                    <span class="string">D8</span>   <span class="number">14</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">GND</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">VIN</span>                    <span class="string">D7</span>   <span class="number">13</span></span><br><span class="line">                                 <span class="string">D6</span>   <span class="number">12</span></span><br><span class="line">        <span class="number">0</span> <span class="string">A0</span>                     <span class="string">D5</span>   <span class="number">11</span></span><br><span class="line">        <span class="number">1</span> <span class="string">A1</span>                     <span class="string">D4</span>   <span class="number">10</span></span><br><span class="line">        <span class="number">2</span> <span class="string">A2</span>                     <span class="string">D3</span>    <span class="number">9</span></span><br><span class="line">        <span class="number">3</span> <span class="string">A3</span>                     <span class="string">D2</span>    <span class="number">8</span></span><br><span class="line">        <span class="number">4</span> <span class="string">A4</span>                     <span class="string">D1</span>    <span class="number">7</span></span><br><span class="line">        <span class="number">5</span> <span class="string">A5</span>                     <span class="string">D0</span>    <span class="number">6</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="attr">compatible:</span> <span class="string">&quot;arduino-header-r3&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">include:</span> [<span class="string">gpio-nexus.yaml</span>, <span class="string">base.yaml</span>]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># Copyright (c) 2019 Foundries.io</span><br><span class="hljs-comment"># Copyright (C) 2019 Peter Bigot Consulting, LLC</span><br><span class="hljs-comment"># SPDX-License-Identifier: Apache-2.0</span><br><br><span class="hljs-attr">description:</span> <span class="hljs-string">|</span><br><span class="hljs-string">    GPIO pins exposed on Arduino Uno (R3) headers.</span><br><span class="hljs-string"></span><br>    <span class="hljs-string">The</span> <span class="hljs-string">Arduino</span> <span class="hljs-string">Uno</span> <span class="hljs-string">layout</span> <span class="hljs-string">provides</span> <span class="hljs-string">four</span> <span class="hljs-string">headers,</span> <span class="hljs-string">two</span> <span class="hljs-string">each</span> <span class="hljs-string">along</span><br>    <span class="hljs-string">opposite</span> <span class="hljs-string">edges</span> <span class="hljs-string">of</span> <span class="hljs-string">the</span> <span class="hljs-string">board.</span><br><br>    <span class="hljs-attr">Proceeding counter-clockwise:</span><br>    <span class="hljs-string">*</span> <span class="hljs-string">An</span> <span class="hljs-number">8</span><span class="hljs-string">-pin</span> <span class="hljs-string">Power</span> <span class="hljs-string">Supply</span> <span class="hljs-string">header.</span>  <span class="hljs-literal">No</span> <span class="hljs-string">pins</span> <span class="hljs-string">on</span> <span class="hljs-string">this</span> <span class="hljs-string">header</span> <span class="hljs-string">are</span> <span class="hljs-string">exposed</span><br>      <span class="hljs-string">by</span> <span class="hljs-string">this</span> <span class="hljs-string">binding.</span><br>    <span class="hljs-string">*</span> <span class="hljs-string">A</span> <span class="hljs-number">6</span><span class="hljs-string">-pin</span> <span class="hljs-string">Analog</span> <span class="hljs-string">Input</span> <span class="hljs-string">header.</span>  <span class="hljs-string">This</span> <span class="hljs-string">has</span> <span class="hljs-string">analog</span> <span class="hljs-string">input</span> <span class="hljs-string">signals</span><br>      <span class="hljs-string">labeled</span> <span class="hljs-string">from</span> <span class="hljs-string">A0</span> <span class="hljs-string">at</span> <span class="hljs-string">the</span> <span class="hljs-string">top</span> <span class="hljs-string">through</span> <span class="hljs-string">A5</span> <span class="hljs-string">at</span> <span class="hljs-string">the</span> <span class="hljs-string">bottom.</span><br>    <span class="hljs-string">*</span> <span class="hljs-string">An</span> <span class="hljs-number">8</span><span class="hljs-string">-pin</span> <span class="hljs-string">header</span> <span class="hljs-string">(opposite</span> <span class="hljs-string">Analog</span> <span class="hljs-string">Input).</span>  <span class="hljs-string">This</span> <span class="hljs-string">has</span> <span class="hljs-string">digital</span> <span class="hljs-string">input</span><br>      <span class="hljs-string">signals</span> <span class="hljs-string">labeled</span> <span class="hljs-string">from</span> <span class="hljs-string">D0</span> <span class="hljs-string">at</span> <span class="hljs-string">the</span> <span class="hljs-string">bottom</span> <span class="hljs-string">D7</span> <span class="hljs-string">at</span> <span class="hljs-string">the</span> <span class="hljs-string">top;</span><br>    <span class="hljs-string">*</span> <span class="hljs-string">A</span> <span class="hljs-number">10</span><span class="hljs-string">-pin</span> <span class="hljs-string">header</span> <span class="hljs-string">(opposite</span> <span class="hljs-string">Power</span> <span class="hljs-string">Supply).</span>  <span class="hljs-string">This</span> <span class="hljs-string">has</span> <span class="hljs-string">six</span> <span class="hljs-string">additional</span><br>      <span class="hljs-string">digital</span> <span class="hljs-string">input</span> <span class="hljs-string">signals</span> <span class="hljs-string">labelled</span> <span class="hljs-string">from</span> <span class="hljs-string">D8</span> <span class="hljs-string">at</span> <span class="hljs-string">the</span> <span class="hljs-string">bottom</span> <span class="hljs-string">through</span> <span class="hljs-string">D13</span><br>      <span class="hljs-string">towards</span> <span class="hljs-string">the</span> <span class="hljs-string">top,</span> <span class="hljs-string">skipping</span> <span class="hljs-string">two</span> <span class="hljs-string">pins,</span> <span class="hljs-string">then</span> <span class="hljs-string">finishing</span> <span class="hljs-string">with</span> <span class="hljs-string">D14</span> <span class="hljs-string">and</span><br>      <span class="hljs-string">D15</span> <span class="hljs-string">at</span> <span class="hljs-string">the</span> <span class="hljs-string">top.</span><br><br>    <span class="hljs-string">This</span> <span class="hljs-string">binding</span> <span class="hljs-string">provides</span> <span class="hljs-string">a</span> <span class="hljs-string">nexus</span> <span class="hljs-string">mapping</span> <span class="hljs-string">for</span> <span class="hljs-number">20</span> <span class="hljs-string">pins</span> <span class="hljs-string">where</span> <span class="hljs-string">parent</span> <span class="hljs-string">pins</span> <span class="hljs-number">0</span><br>    <span class="hljs-string">through</span> <span class="hljs-number">5</span> <span class="hljs-string">correspond</span> <span class="hljs-string">to</span> <span class="hljs-string">A0</span> <span class="hljs-string">through</span> <span class="hljs-string">A5,</span> <span class="hljs-string">and</span> <span class="hljs-string">parent</span> <span class="hljs-string">pins</span> <span class="hljs-number">6</span> <span class="hljs-string">through</span> <span class="hljs-number">21</span><br>    <span class="hljs-string">correspond</span> <span class="hljs-string">to</span> <span class="hljs-string">D0</span> <span class="hljs-string">through</span> <span class="hljs-string">D15,</span> <span class="hljs-attr">as depicted below:</span><br><br>                                 <span class="hljs-string">D15</span>  <span class="hljs-number">21</span><br>                                 <span class="hljs-string">D14</span>  <span class="hljs-number">20</span><br>                                 <span class="hljs-string">AREF</span> <span class="hljs-bullet">-</span><br>                                 <span class="hljs-string">GND</span>  <span class="hljs-bullet">-</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">N/C</span>                    <span class="hljs-string">D13</span>  <span class="hljs-number">19</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">IOREF</span>                  <span class="hljs-string">D12</span>  <span class="hljs-number">18</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">RESET</span>                  <span class="hljs-string">D11</span>  <span class="hljs-number">17</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">3V3</span>                    <span class="hljs-string">D10</span>  <span class="hljs-number">16</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">5V</span>                     <span class="hljs-string">D9</span>   <span class="hljs-number">15</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">GND</span>                    <span class="hljs-string">D8</span>   <span class="hljs-number">14</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">GND</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-string">VIN</span>                    <span class="hljs-string">D7</span>   <span class="hljs-number">13</span><br>                                 <span class="hljs-string">D6</span>   <span class="hljs-number">12</span><br>        <span class="hljs-number">0</span> <span class="hljs-string">A0</span>                     <span class="hljs-string">D5</span>   <span class="hljs-number">11</span><br>        <span class="hljs-number">1</span> <span class="hljs-string">A1</span>                     <span class="hljs-string">D4</span>   <span class="hljs-number">10</span><br>        <span class="hljs-number">2</span> <span class="hljs-string">A2</span>                     <span class="hljs-string">D3</span>    <span class="hljs-number">9</span><br>        <span class="hljs-number">3</span> <span class="hljs-string">A3</span>                     <span class="hljs-string">D2</span>    <span class="hljs-number">8</span><br>        <span class="hljs-number">4</span> <span class="hljs-string">A4</span>                     <span class="hljs-string">D1</span>    <span class="hljs-number">7</span><br>        <span class="hljs-number">5</span> <span class="hljs-string">A5</span>                     <span class="hljs-string">D0</span>    <span class="hljs-number">6</span><br><br><br><span class="hljs-attr">compatible:</span> <span class="hljs-string">&quot;arduino-header-r3&quot;</span><br><br><span class="hljs-attr">include:</span> [<span class="hljs-string">gpio-nexus.yaml</span>, <span class="hljs-string">base.yaml</span>]<br><br></code></pre></td></tr></table></figure>
 
 
 
 
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://jayant-tang.github.io/jayant97.github.io/2024/01/b74491c1a080/" data-id="cmqop0ng2000my8o50ch84oi4" data-title="Nordic GPIO硬件原理与NCS应用详解" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li></ul>
 
-    </footer>
-  </div>
+<span class="category-chains">
+  
   
     
-<nav id="article-nav">
+      <span class="category-chain">
+        
+  <a href="/jayant97.github.io/categories/Nordic/" class="category-chain-item">Nordic</a>
   
-    <a href="/jayant97.github.io/2025/01/5645a5cab10c/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
-      <div class="article-nav-title">
-        
-          NCS Matter例程详解
-        
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/jayant97.github.io/tags/Nordic/" class="print-no-link">#Nordic</a>
+      
+        <a href="/jayant97.github.io/tags/Zephyr/" class="print-no-link">#Zephyr</a>
+      
+        <a href="/jayant97.github.io/tags/DeviceTree/" class="print-no-link">#DeviceTree</a>
+      
+        <a href="/jayant97.github.io/tags/GPIO/" class="print-no-link">#GPIO</a>
+      
+        <a href="/jayant97.github.io/tags/GPIOTE/" class="print-no-link">#GPIOTE</a>
+      
+        <a href="/jayant97.github.io/tags/PPI/" class="print-no-link">#PPI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Nordic GPIO硬件原理与NCS应用详解</div>
+      <div>https://jayant-tang.github.io/jayant97.github.io/2024/01/b74491c1a080/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jayant Tang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2025/01/5645a5cab10c/" title="NCS Matter例程详解">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">NCS Matter例程详解</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/jayant97.github.io/2023/11/1349f878e408/" title="在NCS中使用NRFX外设驱动库——以I2C为例">
+                        <span class="hidden-mobile">在NCS中使用NRFX外设驱动库——以I2C为例</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
       </div>
-    </a>
-  
-  
-    <a href="/jayant97.github.io/2023/11/1349f878e408/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">在NCS中使用NRFX外设驱动库——以I2C为例</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/AI/">AI</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/BLE/">BLE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/">Linux</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Linux/ssh/">ssh</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Matter/">Matter</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/">Nordic</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/LTE/">LTE</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/NCS/">NCS</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/Nordic/Wi-Fi/">Wi-Fi</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/">RTOS</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/RTOS/Zephyr/">Zephyr</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E5%85%B6%E4%BB%96/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/">网络</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/jayant97.github.io/categories/%E7%BD%91%E7%BB%9C/WiFi/">WiFi</a></li></ul></li></ul>
     </div>
-  </div>
 
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/AI/" rel="tag">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Add-ons/" rel="tag">Add-ons</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/BLE/" rel="tag">BLE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Bluetooth/" rel="tag">Bluetooth</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/DeviceTree/" rel="tag">DeviceTree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIO/" rel="tag">GPIO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GPIOTE/" rel="tag">GPIOTE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Actions/" rel="tag">GitHub Actions</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/GitHub-Pages/" rel="tag">GitHub Pages</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Linux/" rel="tag">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Matter/" rel="tag">Matter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NCS/" rel="tag">NCS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/NRFX/" rel="tag">NRFX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Nordic/" rel="tag">Nordic</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/OpenWrt/" rel="tag">OpenWrt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/PPI/" rel="tag">PPI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Typora/" rel="tag">Typora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/WiFi/" rel="tag">WiFi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Wireshark/" rel="tag">Wireshark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/Zephyr/" rel="tag">Zephyr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/hexo/" rel="tag">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF70/" rel="tag">nRF70</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF91/" rel="tag">nRF91</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/nRF-Cloud/" rel="tag">nRF_Cloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/ssh/" rel="tag">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/jayant97.github.io/tags/AI/" style="font-size: 10px;">AI</a> <a href="/jayant97.github.io/tags/Add-ons/" style="font-size: 10px;">Add-ons</a> <a href="/jayant97.github.io/tags/BLE/" style="font-size: 10px;">BLE</a> <a href="/jayant97.github.io/tags/Bluetooth/" style="font-size: 10px;">Bluetooth</a> <a href="/jayant97.github.io/tags/DeviceTree/" style="font-size: 14px;">DeviceTree</a> <a href="/jayant97.github.io/tags/GPIO/" style="font-size: 10px;">GPIO</a> <a href="/jayant97.github.io/tags/GPIOTE/" style="font-size: 10px;">GPIOTE</a> <a href="/jayant97.github.io/tags/GitHub-Actions/" style="font-size: 10px;">GitHub Actions</a> <a href="/jayant97.github.io/tags/GitHub-Pages/" style="font-size: 10px;">GitHub Pages</a> <a href="/jayant97.github.io/tags/Linux/" style="font-size: 12px;">Linux</a> <a href="/jayant97.github.io/tags/Matter/" style="font-size: 16px;">Matter</a> <a href="/jayant97.github.io/tags/NCS/" style="font-size: 12px;">NCS</a> <a href="/jayant97.github.io/tags/NRFX/" style="font-size: 10px;">NRFX</a> <a href="/jayant97.github.io/tags/Nordic/" style="font-size: 20px;">Nordic</a> <a href="/jayant97.github.io/tags/OpenWrt/" style="font-size: 10px;">OpenWrt</a> <a href="/jayant97.github.io/tags/PPI/" style="font-size: 10px;">PPI</a> <a href="/jayant97.github.io/tags/Typora/" style="font-size: 10px;">Typora</a> <a href="/jayant97.github.io/tags/WiFi/" style="font-size: 12px;">WiFi</a> <a href="/jayant97.github.io/tags/Wireshark/" style="font-size: 14px;">Wireshark</a> <a href="/jayant97.github.io/tags/Zephyr/" style="font-size: 18px;">Zephyr</a> <a href="/jayant97.github.io/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/jayant97.github.io/tags/nRF70/" style="font-size: 10px;">nRF70</a> <a href="/jayant97.github.io/tags/nRF91/" style="font-size: 10px;">nRF91</a> <a href="/jayant97.github.io/tags/nRF-Cloud/" style="font-size: 12px;">nRF_Cloud</a> <a href="/jayant97.github.io/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/jayant97.github.io/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 10px;">博客搭建</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2026/04/">四月 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/10/">十月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/09/">九月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/04/">四月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/03/">三月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2025/01/">一月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2024/01/">一月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/11/">十一月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/08/">八月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2023/03/">三月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/jayant97.github.io/archives/2022/12/">十二月 2022</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/40898fb9360c/">nRF Connect SDK Add-ons介绍与国内安装实践</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2026/04/b19b485a13d3/">一文了解Nordic边缘AI方案</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/1b3f41652d5d/">在Matter中添加自己的蓝牙广播与服务</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/10/a6cc85dce7a1/">Matter OTA固件升级</a>
-          </li>
-        
-          <li>
-            <a href="/jayant97.github.io/2025/09/daaf6f53cdc2/">Matter证书体系与量产设备证书烧录</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-      &copy; 2026 Jayant Tang<br>
-      Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a>
-    </div>
-  </div>
-</footer>
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
 
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
+
+
+
+
+
   
-    <a href="/jayant97.github.io/" class="mobile-nav-link">Home</a>
+
+
+
   
-    <a href="/jayant97.github.io/archives" class="mobile-nav-link">Archives</a>
+
+
+
   
-</nav>
+
+
+
+  
+
+
+
+
+
+
+
+
+
     
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
-<script src="/jayant97.github.io/js/jquery-3.6.4.min.js"></script>
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="external nofollow noopener noreferrer"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="external nofollow noopener noreferrer"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/jayant97.github.io/js/events.js"></script>
+<script src="/jayant97.github.io/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
 
 
 
   
-<script src="/jayant97.github.io/fancybox/jquery.fancybox.min.js"></script>
+    <script src="/jayant97.github.io/js/img-lazyload.js"></script>
+  
 
 
 
 
-<script src="/jayant97.github.io/js/script.js"></script>
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script src="/jayant97.github.io/js/local-search.js"></script>
 
 
 
 
 
-  </div>
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/jayant97.github.io/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>
