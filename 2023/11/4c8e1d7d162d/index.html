@@ -19,12 +19,12 @@
   <meta name="author" content="Jayant Tang">
   <meta name="keywords" content="嵌入式,Nordic,BLE,WiFi,LTE,Zephyr,Matter">
   
-    <meta name="description" content="2026.2.10更新：  NCS更新到 v3.2.1，USB协议栈切换到USB Device Stack (Next)。添加更详细的USB CDC ACM介绍。  2026.1.4更新：  新增54系列GPIO跨域使用配置，以及功耗测试  2025.7.26更新：  新增54L15串口硬件介绍 新增串口增强接收（Enhanced RX）的介绍。不再推荐使用PPI+Timer的形式进行接收数据计">
+    <meta name="description" content="2026.7.2更新：  修复内存泄漏问题：在唤醒失败或RX使能失败时正确释放slab buffer  2026.2.10更新：  NCS更新到 v3.2.1，USB协议栈切换到USB Device Stack (Next)。添加更详细的USB CDC ACM介绍。  2026.1.4更新：  新增54系列GPIO跨域使用配置，以及功耗测试  2025.7.26更新：  新增54L15串口硬件介">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Zephyr驱动与设备树实战——串口">
 <meta property="og:url" content="https://jayant-tang.github.io/jayant97.github.io/2023/11/4c8e1d7d162d/index.html">
 <meta property="og:site_name" content="Jayant&#39;s Blog">
-<meta property="og:description" content="2026.2.10更新：  NCS更新到 v3.2.1，USB协议栈切换到USB Device Stack (Next)。添加更详细的USB CDC ACM介绍。  2026.1.4更新：  新增54系列GPIO跨域使用配置，以及功耗测试  2025.7.26更新：  新增54L15串口硬件介绍 新增串口增强接收（Enhanced RX）的介绍。不再推荐使用PPI+Timer的形式进行接收数据计">
+<meta property="og:description" content="2026.7.2更新：  修复内存泄漏问题：在唤醒失败或RX使能失败时正确释放slab buffer  2026.2.10更新：  NCS更新到 v3.2.1，USB协议栈切换到USB Device Stack (Next)。添加更详细的USB CDC ACM介绍。  2026.1.4更新：  新增54系列GPIO跨域使用配置，以及功耗测试  2025.7.26更新：  新增54L15串口硬件介">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/8065d44b86cceb9ff0e8b1ab1417eda2.png">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/a2ee0a066378d3944f23bccfebfedc5f.png">
@@ -86,7 +86,7 @@
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/84d9a0ef48b1a62a92fc9cdc6e0c8552.png">
 <meta property="og:image" content="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ce5532648d8bfa05cacd2db30d5963a6.png">
 <meta property="article:published_time" content="2023-11-12T09:48:56.000Z">
-<meta property="article:modified_time" content="2026-06-25T16:23:08.068Z">
+<meta property="article:modified_time" content="2026-07-02T05:16:09.145Z">
 <meta property="article:author" content="Jayant Tang">
 <meta property="article:tag" content="Nordic">
 <meta property="article:tag" content="Zephyr">
@@ -576,7 +576,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          28k 字
+          29k 字
         
       </span>
     
@@ -587,7 +587,7 @@
         
         
         
-          232 分钟
+          239 分钟
         
       </span>
     
@@ -632,6 +632,10 @@
               <div class="markdown-body">
                 
                 <blockquote>
+<p>2026.7.2更新：</p>
+<ul>
+<li>修复内存泄漏问题：在唤醒失败或RX使能失败时正确释放slab buffer</li>
+</ul>
 <p>2026.2.10更新：</p>
 <ul>
 <li>NCS更新到 v3.2.1，USB协议栈切换到USB Device Stack (Next)。添加更详细的USB CDC ACM介绍。</li>
@@ -1020,21 +1024,25 @@
 <li>在设备树节点内增加一条<code>zephyr,pm-device-runtime-auto;</code>的属性。</li>
 </ul>
 <h2 id="例程低功耗代码解析"><a href="#例程低功耗代码解析" class="headerlink" title="例程低功耗代码解析"></a>例程低功耗代码解析</h2><p><code>app_uart.c</code>里面提供了两个休眠相关的函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">app_uart_sleep</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> err;<br>    err = uart_rx_disable(uart_dev);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to disable RX: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> !IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME)</span><br>    <span class="hljs-comment">// give some time for UART callback</span><br>    k_sleep(K_MSEC(<span class="hljs-number">10</span>)); <br>    err = pm_device_action_run(uart_dev, PM_DEVICE_ACTION_SUSPEND);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to suspend device: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* !CONFIG_PM_DEVICE_RUNTIME */</span> </span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">app_uart_wakeup</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">uint8_t</span> *buf;<br>    <span class="hljs-type">int</span> err;<br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> !IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME)</span><br>    err = pm_device_action_run(uart_dev, PM_DEVICE_ACTION_RESUME);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to resume device: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* !CONFIG_PM_DEVICE_RUNTIME */</span></span><br><br>    err = k_mem_slab_alloc(&amp;uart_slab, (<span class="hljs-type">void</span> **)&amp;buf, K_NO_WAIT);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to allocate RX buffer: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br>    err = uart_rx_enable(uart_dev, buf, BUF_SIZE, RX_INACTIVE_TIMEOUT_US);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to enable RX: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">app_uart_sleep</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> err;<br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> !IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME) &amp;&amp; !IS_ENABLED(CONFIG_UART_ASYNC_ADAPTER)</span><br>    k_sem_reset(&amp;rx_disabled_sem);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br>    err = uart_rx_disable(uart_dev);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to disable RX: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> !IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME) &amp;&amp; !IS_ENABLED(CONFIG_UART_ASYNC_ADAPTER)</span><br>    err = k_sem_take(&amp;rx_disabled_sem, K_MSEC(RX_DISABLE_TIMEOUT_MS));<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Timed out waiting for RX disabled: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br>    err = pm_device_action_run(uart_dev, PM_DEVICE_ACTION_SUSPEND);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to suspend device: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* !CONFIG_PM_DEVICE_RUNTIME */</span> </span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">app_uart_wakeup</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">uint8_t</span> *buf;<br>    <span class="hljs-type">int</span> err;<br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> !IS_ENABLED(CONFIG_PM_DEVICE_RUNTIME) &amp;&amp; !IS_ENABLED(CONFIG_UART_ASYNC_ADAPTER)</span><br>    err = pm_device_action_run(uart_dev, PM_DEVICE_ACTION_RESUME);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to resume device: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* !CONFIG_PM_DEVICE_RUNTIME */</span></span><br><br>    err = k_mem_slab_alloc(&amp;uart_slab, (<span class="hljs-type">void</span> **)&amp;buf, K_NO_WAIT);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to allocate RX buffer: %d&quot;</span>, err);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br><br>    err = uart_rx_enable(uart_dev, buf, BUF_SIZE, RX_INACTIVE_TIMEOUT_US);<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        LOG_ERR(<span class="hljs-string">&quot;Failed to enable RX: %d&quot;</span>, err);<br>        k_mem_slab_free(&amp;uart_slab, buf);<br>        <span class="hljs-keyword">return</span> err;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>我们先考虑<code>CONFIG_PM_DEVICE_RUNTIME=n</code>的情况。</p>
-<p>休眠时：</p>
+<h3 id="CONFIG-PM-DEVICE-RUNTIME-n的情况"><a href="#CONFIG-PM-DEVICE-RUNTIME-n的情况" class="headerlink" title="CONFIG_PM_DEVICE_RUNTIME=n的情况"></a><code>CONFIG_PM_DEVICE_RUNTIME=n</code>的情况</h3><p>休眠时：</p>
 <ol>
-<li>首先<code>uart_rx_disable()</code>：异步串口需要单独关闭RX，因为与RX关联的有应用层Buffer，timeout定时器等功能，都需要单独关闭</li>
-<li>然后等待10ms：等待异步串口的callback执行完毕，释放RX buffer等等</li>
-<li>最后<code>pm_device_action_run(uart_dev, PM_DEVICE_ACTION_SUSPEND)</code>，挂起串口</li>
+<li>首先，调用<code>uart_rx_disable()</code>：这会清理Zephyr中所有与UART_RX有关的资源（定时器、buffer等）。</li>
+<li><strong>用信号量等待<code>UART_RX_DISABLED</code>事件</strong>（超时5ms）：当串口驱动的RX真正被关闭（DMA停止、定时器停止），回调函数中会在<code>UART_RX_DISABLED</code>事件下释放此信号量，代表RX成功关闭。</li>
+<li>最后<code>pm_device_action_run(uart_dev, PM_DEVICE_ACTION_SUSPEND)</code>，从 Zephyr 驱动的层面挂起串口。硬件上，这代表 UART 外设被 disable 掉。</li>
 </ol>
 <p>恢复时：</p>
 <ol>
 <li>先<code>pm_device_action_run(uart_dev, PM_DEVICE_ACTION_RESUME)</code>恢复串口</li>
 <li>然后按照正常流程申请RX buffer并开启RX</li>
 </ol>
-<p>然后，讨论开启<code>CONFIG_PM_DEVICE_RUNTIME=y</code>的情况。这种情况下只需要开关RX就好了，因为当RX被关闭，同时又没有在TX的时候，PM Device Runtime系统会自动挂起串口的，因此我们应用层没必要再调用<code>pm_device_action_run()</code>函数了。</p>
+<h3 id="CONFIG-PM-DEVICE-RUNTIME-y-的情况"><a href="#CONFIG-PM-DEVICE-RUNTIME-y-的情况" class="headerlink" title="CONFIG_PM_DEVICE_RUNTIME=y 的情况"></a><code>CONFIG_PM_DEVICE_RUNTIME=y</code> 的情况</h3><p>开关 RX 时，会自动加减引用计数（Usage Count）；开始发送时，引用计数+1，发送完毕时，引用计数-1。<br>因此，只需调用<code>uart_rx_disable()</code>，满足 “RX disable” 且 “当前没有 TX 行为”，PM Runtime 模块就会自动调用<code>pm_action_xxx()</code>函数来挂起串口。应用层就无需另外控制了。</p>
+<blockquote>
+<p>补充：对于SPI&#x2F;QSPI主机、I2C主机等场景，所有通信一定由主机发起，它们的 Zephyr 驱动基本上都支持<code>CONFIG_PM_DEVICE_RUNTIME=y</code>。</p>
+<p>只需在对应的设备树节点中添加：<code>zephyr,pm-device-runtime-auto;</code>就能启用。在传输（transport）前后，PM Runtime 模块会自动 Resume&#x2F;Suspend 来进行功耗控制。</p>
+<p>并且这个是多线程安全的，如果有多个软件模块都用到了这个外设，一定会在引用计数（Usage Count）减为0的时候才会挂起外设。</p>
+</blockquote>
 <h2 id="实测串口低功耗休眠功能"><a href="#实测串口低功耗休眠功能" class="headerlink" title="实测串口低功耗休眠功能"></a>实测串口低功耗休眠功能</h2><p>本工程是否开启<code>CONFIG_PM_DEVICE_RUNTIME</code>没有影响，结果相同。</p>
 <p>nRF52840DK连接方式：</p>
 <p><img src="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/ec0b40219d3dbfbf8a00641f44938b10.png" srcset="https://jayant-blog-imgs.oss-cn-hangzhou.aliyuncs.com/gh-hexo/loading.gif" lazyload alt="image-20250802152806259"></p>
